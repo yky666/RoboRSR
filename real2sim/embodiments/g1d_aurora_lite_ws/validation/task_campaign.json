@@ -1,0 +1,1105 @@
+{
+  "schema": "g1d_aurora_candidate_campaign.v1",
+  "date": "2026-10-24",
+  "cases": [
+    {
+      "id": "05",
+      "title": "初始30mm回合",
+      "native": {
+        "schema": "g1d_free_pick_place.v1",
+        "passed": true,
+        "protocol_checks": {
+          "complete": true,
+          "gravity": true,
+          "no_attachment": true,
+          "no_reset": true,
+          "no_fake_force": true,
+          "all_phases": true
+        },
+        "sides": {
+          "left": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": true,
+              "horizontal_transport": true,
+              "placed_in_goal": true,
+              "resting_on_table": true,
+              "upright_final": true,
+              "released": true
+            },
+            "passed": true,
+            "max_lift_m": 0.11997222900390625,
+            "final_position_m": [
+              0.4300139844417572,
+              0.25002166628837585,
+              0.7199999690055847
+            ],
+            "target_m": [
+              0.43,
+              0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": true,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 4.640180556085364,
+              "negative": 4.637934695530742
+            }
+          },
+          "right": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": true,
+              "horizontal_transport": true,
+              "placed_in_goal": true,
+              "resting_on_table": true,
+              "upright_final": true,
+              "released": true
+            },
+            "passed": true,
+            "max_lift_m": 0.11973464488983154,
+            "final_position_m": [
+              0.43002334237098694,
+              -0.2497892826795578,
+              0.7200000882148743
+            ],
+            "target_m": [
+              0.43,
+              -0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": true,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 4.883742795277084,
+              "negative": 4.64857185939721
+            }
+          }
+        },
+        "frames": 154,
+        "duration_s": 15.300000797957182,
+        "source_frames_sha256": "3fecf945c0b89ee62bebdfd869349c8b6596b6e657baab16feef728113d056ac",
+        "calibrated_hardware": false,
+        "scope": "one dual-arm task episode with candidate parameters; not a general grasp success rate"
+      },
+      "tactile": {
+        "status": "completed",
+        "frames": 154,
+        "channels": [
+          "left_positive",
+          "left_negative",
+          "right_positive",
+          "right_negative"
+        ],
+        "vendor_runtime_executed": true,
+        "inputs_from_actual_recorded_poses": true,
+        "all_outputs_finite": true,
+        "force_feedback_to_physics": false,
+        "hardware_connected": false,
+        "calibration_validated": false,
+        "max_depth_mm": {
+          "left_positive": 0.05034170672297478,
+          "left_negative": 0.024363648146390915,
+          "right_positive": 0.33655497431755066,
+          "right_negative": 0.014609661884605885
+        },
+        "source_frames_sha256": "3fecf945c0b89ee62bebdfd869349c8b6596b6e657baab16feef728113d056ac"
+      },
+      "scene": {
+        "channels": [
+          "left_positive",
+          "left_negative",
+          "right_positive",
+          "right_negative"
+        ],
+        "objects": {
+          "left": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.03,
+              0.06
+            ],
+            "mass_kg": 0.02,
+            "kinematic": false
+          },
+          "right": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.03,
+              0.06
+            ],
+            "mass_kg": 0.02,
+            "kinematic": false
+          }
+        },
+        "sim_dt_s": 0.004166666666666667,
+        "fps": 10,
+        "source_frames": "pre-action sample; target applied after this frame",
+        "task": "dual_arm_pick_transport_place",
+        "instruction": "Pick both blocks, lift them, move them forward and place them on the table.",
+        "table_top_m": 0.69,
+        "target_centres_m": {
+          "left": [
+            0.43,
+            0.25,
+            0.72
+          ],
+          "right": [
+            0.43,
+            -0.25,
+            0.72
+          ]
+        },
+        "material": {
+          "static_friction": 0.5,
+          "dynamic_friction": 0.4,
+          "calibrated": false
+        },
+        "urdf_sha256": "29aea4127cdeaa26e6f85c6ca10d589098ad3f147b641297f8721f7e8a81b889",
+        "layout_initial_m": {
+          "left": [
+            0.35,
+            0.23,
+            0.72
+          ],
+          "right": [
+            0.35,
+            -0.23,
+            0.72
+          ]
+        },
+        "gravity_m_s2": [
+          0,
+          0,
+          -9.81
+        ],
+        "objects_attached": false,
+        "object_resets_after_initial_layout": 0,
+        "artificial_holding_forces": false,
+        "hardware_connected": false
+      },
+      "accepted_end_to_end": true
+    },
+    {
+      "id": "06",
+      "title": "45mm：旧接近轨迹",
+      "native": {
+        "schema": "g1d_free_pick_place.v1",
+        "passed": true,
+        "protocol_checks": {
+          "complete": true,
+          "gravity": true,
+          "no_attachment": true,
+          "no_reset": true,
+          "no_fake_force": true,
+          "all_phases": true
+        },
+        "sides": {
+          "left": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": true,
+              "horizontal_transport": true,
+              "placed_in_goal": true,
+              "resting_on_table": true,
+              "upright_final": true,
+              "released": true
+            },
+            "passed": true,
+            "max_lift_m": 0.09883415699005127,
+            "final_position_m": [
+              0.40731585025787354,
+              0.25011035799980164,
+              0.7199999094009399
+            ],
+            "target_m": [
+              0.43,
+              0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": true,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 5.273923369275104,
+              "negative": 10.436898189354837
+            }
+          },
+          "right": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": true,
+              "horizontal_transport": true,
+              "placed_in_goal": true,
+              "resting_on_table": true,
+              "upright_final": true,
+              "released": true
+            },
+            "passed": true,
+            "max_lift_m": 0.0985795259475708,
+            "final_position_m": [
+              0.41295307874679565,
+              -0.250091016292572,
+              0.7200000286102295
+            ],
+            "target_m": [
+              0.43,
+              -0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": true,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 5.147780009018023,
+              "negative": 5.152878933820869
+            }
+          }
+        },
+        "frames": 154,
+        "duration_s": 15.300000797957182,
+        "source_frames_sha256": "18b5aa795c80268f23dfb29799e5514ec2c88044fa7a46c68335c02e77a1c6a7",
+        "calibrated_hardware": false,
+        "scope": "one dual-arm task episode with candidate parameters; not a general grasp success rate"
+      },
+      "tactile": null,
+      "scene": {
+        "channels": [
+          "left_positive",
+          "left_negative",
+          "right_positive",
+          "right_negative"
+        ],
+        "objects": {
+          "left": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.045,
+              0.06
+            ],
+            "mass_kg": 0.05,
+            "kinematic": false
+          },
+          "right": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.045,
+              0.06
+            ],
+            "mass_kg": 0.05,
+            "kinematic": false
+          }
+        },
+        "sim_dt_s": 0.004166666666666667,
+        "fps": 10,
+        "source_frames": "pre-action sample; target applied after this frame",
+        "task": "dual_arm_pick_transport_place",
+        "instruction": "Pick both blocks, lift them, move them forward and place them on the table.",
+        "table_top_m": 0.69,
+        "target_centres_m": {
+          "left": [
+            0.43,
+            0.25,
+            0.72
+          ],
+          "right": [
+            0.43,
+            -0.25,
+            0.72
+          ]
+        },
+        "material": {
+          "static_friction": 0.3,
+          "dynamic_friction": 0.24,
+          "calibrated": false
+        },
+        "runtime_script_sha256": "0a345d7291de4bff3a96132af83c4557d9342c29d4a75576d685e15fc134cc15",
+        "plan_sha256": "63667f5856956c2d089aa7dba2587f43204d05305ed3d846b8d3444d90a9c694",
+        "urdf_sha256": "29aea4127cdeaa26e6f85c6ca10d589098ad3f147b641297f8721f7e8a81b889",
+        "layout_initial_m": {
+          "left": [
+            0.35,
+            0.23,
+            0.72
+          ],
+          "right": [
+            0.35,
+            -0.23,
+            0.72
+          ]
+        },
+        "gravity_m_s2": [
+          0,
+          0,
+          -9.81
+        ],
+        "objects_attached": false,
+        "object_resets_after_initial_layout": 0,
+        "artificial_holding_forces": false,
+        "hardware_connected": false
+      },
+      "accepted_end_to_end": false
+    },
+    {
+      "id": "07",
+      "title": "低摩擦边界",
+      "native": {
+        "schema": "g1d_free_pick_place.v1",
+        "passed": false,
+        "protocol_checks": {
+          "complete": true,
+          "gravity": true,
+          "no_attachment": true,
+          "no_reset": true,
+          "no_fake_force": true,
+          "all_phases": true
+        },
+        "sides": {
+          "left": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": false,
+              "horizontal_transport": false,
+              "placed_in_goal": false,
+              "resting_on_table": true,
+              "upright_final": true,
+              "released": true
+            },
+            "passed": false,
+            "max_lift_m": 0.03215992450714111,
+            "final_position_m": [
+              0.3439142405986786,
+              0.2667027711868286,
+              0.7200000882148743
+            ],
+            "target_m": [
+              0.44,
+              0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": true,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 4.779477119506888,
+              "negative": 4.768806881029899
+            }
+          },
+          "right": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": false,
+              "horizontal_transport": false,
+              "placed_in_goal": false,
+              "resting_on_table": true,
+              "upright_final": true,
+              "released": true
+            },
+            "passed": false,
+            "max_lift_m": 0.030902087688446045,
+            "final_position_m": [
+              0.34547653794288635,
+              -0.2653776705265045,
+              0.7199999690055847
+            ],
+            "target_m": [
+              0.44,
+              -0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": true,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 4.821960543924852,
+              "negative": 4.849122883519194
+            }
+          }
+        },
+        "frames": 154,
+        "duration_s": 15.300000797957182,
+        "source_frames_sha256": "2c73626a528ad833a01a92c370f901d3bc3d106505f4f8ab787d9f313da4abbc",
+        "calibrated_hardware": false,
+        "scope": "one dual-arm task episode with candidate parameters; not a general grasp success rate"
+      },
+      "tactile": {
+        "status": "completed",
+        "frames": 154,
+        "channels": [
+          "left_positive",
+          "left_negative",
+          "right_positive",
+          "right_negative"
+        ],
+        "vendor_runtime_executed": true,
+        "inputs_from_actual_recorded_poses": true,
+        "all_outputs_finite": true,
+        "force_feedback_to_physics": false,
+        "hardware_connected": false,
+        "calibration_validated": false,
+        "max_depth_mm": {
+          "left_positive": 0.3422679901123047,
+          "left_negative": 0.1346314549446106,
+          "right_positive": 0.34041887521743774,
+          "right_negative": 0.2486993819475174
+        },
+        "source_frames_sha256": "2c73626a528ad833a01a92c370f901d3bc3d106505f4f8ab787d9f313da4abbc"
+      },
+      "scene": {
+        "channels": [
+          "left_positive",
+          "left_negative",
+          "right_positive",
+          "right_negative"
+        ],
+        "objects": {
+          "left": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.035,
+              0.06
+            ],
+            "mass_kg": 0.08,
+            "kinematic": false
+          },
+          "right": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.035,
+              0.06
+            ],
+            "mass_kg": 0.08,
+            "kinematic": false
+          }
+        },
+        "sim_dt_s": 0.004166666666666667,
+        "fps": 10,
+        "source_frames": "pre-action sample; target applied after this frame",
+        "task": "dual_arm_pick_transport_place",
+        "instruction": "Pick both blocks, lift them, move them forward and place them on the table.",
+        "table_top_m": 0.69,
+        "target_centres_m": {
+          "left": [
+            0.44,
+            0.25,
+            0.72
+          ],
+          "right": [
+            0.44,
+            -0.25,
+            0.72
+          ]
+        },
+        "material": {
+          "static_friction": 0.05,
+          "dynamic_friction": 0.04000000000000001,
+          "calibrated": false
+        },
+        "runtime_script_sha256": "c4261be5f8f6e55e984f2aca7b610e4085a7fba7e6c21c2dcc6b8c1f3ec93216",
+        "plan_sha256": "d13c602bc964f58f3bbaedc98b43ec926d34431cbe66c69365f9a7479ee95db2",
+        "urdf_sha256": "29aea4127cdeaa26e6f85c6ca10d589098ad3f147b641297f8721f7e8a81b889",
+        "layout_initial_m": {
+          "left": [
+            0.36,
+            0.23,
+            0.72
+          ],
+          "right": [
+            0.36,
+            -0.23,
+            0.72
+          ]
+        },
+        "gravity_m_s2": [
+          0,
+          0,
+          -9.81
+        ],
+        "objects_attached": false,
+        "object_resets_after_initial_layout": 0,
+        "artificial_holding_forces": false,
+        "hardware_connected": false
+      },
+      "accepted_end_to_end": false
+    },
+    {
+      "id": "08",
+      "title": "45mm：轨迹修正",
+      "native": {
+        "schema": "g1d_free_pick_place.v1",
+        "passed": false,
+        "protocol_checks": {
+          "complete": true,
+          "gravity": true,
+          "no_attachment": true,
+          "no_reset": true,
+          "no_fake_force": true,
+          "all_phases": true
+        },
+        "sides": {
+          "left": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": true,
+              "horizontal_transport": true,
+              "placed_in_goal": true,
+              "resting_on_table": true,
+              "upright_final": false,
+              "released": true
+            },
+            "passed": false,
+            "max_lift_m": 0.1031145453453064,
+            "final_position_m": [
+              0.4475369155406952,
+              0.24989645183086395,
+              0.7100000381469727
+            ],
+            "target_m": [
+              0.43,
+              0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": false,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 4.78041935073214,
+              "negative": 4.87811980602033
+            }
+          },
+          "right": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": true,
+              "horizontal_transport": true,
+              "placed_in_goal": true,
+              "resting_on_table": true,
+              "upright_final": false,
+              "released": true
+            },
+            "passed": false,
+            "max_lift_m": 0.10277247428894043,
+            "final_position_m": [
+              0.4510345160961151,
+              -0.2500186860561371,
+              0.7100000381469727
+            ],
+            "target_m": [
+              0.43,
+              -0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": false,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 4.771569525200373,
+              "negative": 4.7363442245480725
+            }
+          }
+        },
+        "frames": 154,
+        "duration_s": 15.300000797957182,
+        "source_frames_sha256": "0801309d484a39a27d7cf973a0b1c688f4fd48b9ccbb111e1763126240c1e4f5",
+        "calibrated_hardware": false,
+        "scope": "one dual-arm task episode with candidate parameters; not a general grasp success rate"
+      },
+      "tactile": {
+        "status": "completed",
+        "frames": 154,
+        "channels": [
+          "left_positive",
+          "left_negative",
+          "right_positive",
+          "right_negative"
+        ],
+        "vendor_runtime_executed": true,
+        "inputs_from_actual_recorded_poses": true,
+        "all_outputs_finite": true,
+        "force_feedback_to_physics": false,
+        "hardware_connected": false,
+        "calibration_validated": false,
+        "max_depth_mm": {
+          "left_positive": 0.2531680166721344,
+          "left_negative": 0.047438301146030426,
+          "right_positive": 0.3351740837097168,
+          "right_negative": 0.018691888079047203
+        },
+        "source_frames_sha256": "0801309d484a39a27d7cf973a0b1c688f4fd48b9ccbb111e1763126240c1e4f5"
+      },
+      "scene": {
+        "channels": [
+          "left_positive",
+          "left_negative",
+          "right_positive",
+          "right_negative"
+        ],
+        "objects": {
+          "left": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.045,
+              0.06
+            ],
+            "mass_kg": 0.05,
+            "kinematic": false
+          },
+          "right": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.045,
+              0.06
+            ],
+            "mass_kg": 0.05,
+            "kinematic": false
+          }
+        },
+        "sim_dt_s": 0.004166666666666667,
+        "fps": 10,
+        "source_frames": "pre-action sample; target applied after this frame",
+        "task": "dual_arm_pick_transport_place",
+        "instruction": "Pick both blocks, lift them, move them forward and place them on the table.",
+        "table_top_m": 0.69,
+        "target_centres_m": {
+          "left": [
+            0.43,
+            0.25,
+            0.72
+          ],
+          "right": [
+            0.43,
+            -0.25,
+            0.72
+          ]
+        },
+        "material": {
+          "static_friction": 0.3,
+          "dynamic_friction": 0.24,
+          "calibrated": false
+        },
+        "runtime_script_sha256": "cd380b33bdfe999328f8e05ef637f52541b5286bd6bd6e97d54b206101639ef7",
+        "plan_sha256": "e03f9766d8a8b7b42abf0c1ef58d0a972a596f5344f576f6f1d9997ee92f7be9",
+        "urdf_sha256": "29aea4127cdeaa26e6f85c6ca10d589098ad3f147b641297f8721f7e8a81b889",
+        "layout_initial_m": {
+          "left": [
+            0.35,
+            0.23,
+            0.72
+          ],
+          "right": [
+            0.35,
+            -0.23,
+            0.72
+          ]
+        },
+        "gravity_m_s2": [
+          0,
+          0,
+          -9.81
+        ],
+        "objects_attached": false,
+        "object_resets_after_initial_layout": 0,
+        "artificial_holding_forces": false,
+        "hardware_connected": false
+      },
+      "accepted_end_to_end": false
+    },
+    {
+      "id": "09",
+      "title": "45mm：夹紧修正",
+      "native": {
+        "schema": "g1d_free_pick_place.v1",
+        "passed": true,
+        "protocol_checks": {
+          "complete": true,
+          "gravity": true,
+          "no_attachment": true,
+          "no_reset": true,
+          "no_fake_force": true,
+          "all_phases": true
+        },
+        "sides": {
+          "left": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": true,
+              "horizontal_transport": true,
+              "placed_in_goal": true,
+              "resting_on_table": true,
+              "upright_final": true,
+              "released": true
+            },
+            "passed": true,
+            "max_lift_m": 0.11869233846664429,
+            "final_position_m": [
+              0.4289180338382721,
+              0.24993957579135895,
+              0.7200000286102295
+            ],
+            "target_m": [
+              0.43,
+              0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": true,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 9.561273577079927,
+              "negative": 9.693957676765029
+            }
+          },
+          "right": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": true,
+              "horizontal_transport": true,
+              "placed_in_goal": true,
+              "resting_on_table": true,
+              "upright_final": true,
+              "released": true
+            },
+            "passed": true,
+            "max_lift_m": 0.1185539960861206,
+            "final_position_m": [
+              0.4286537766456604,
+              -0.2499777376651764,
+              0.7199999094009399
+            ],
+            "target_m": [
+              0.43,
+              -0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": true,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 9.604144229036898,
+              "negative": 9.482501416666366
+            }
+          }
+        },
+        "frames": 154,
+        "duration_s": 15.300000797957182,
+        "source_frames_sha256": "5ec0cf96e4ce5d8c13b0b806f574267fee7b54334effcf9b8cb3695220faaeb5",
+        "calibrated_hardware": false,
+        "scope": "one dual-arm task episode with candidate parameters; not a general grasp success rate"
+      },
+      "tactile": {
+        "status": "completed",
+        "frames": 154,
+        "channels": [
+          "left_positive",
+          "left_negative",
+          "right_positive",
+          "right_negative"
+        ],
+        "vendor_runtime_executed": true,
+        "inputs_from_actual_recorded_poses": true,
+        "all_outputs_finite": true,
+        "force_feedback_to_physics": false,
+        "hardware_connected": false,
+        "calibration_validated": false,
+        "max_depth_mm": {
+          "left_positive": 0.06401749700307846,
+          "left_negative": 0.05157741904258728,
+          "right_positive": 0.12902353703975677,
+          "right_negative": 0.03676396608352661
+        },
+        "source_frames_sha256": "5ec0cf96e4ce5d8c13b0b806f574267fee7b54334effcf9b8cb3695220faaeb5"
+      },
+      "scene": {
+        "channels": [
+          "left_positive",
+          "left_negative",
+          "right_positive",
+          "right_negative"
+        ],
+        "objects": {
+          "left": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.045,
+              0.06
+            ],
+            "mass_kg": 0.05,
+            "kinematic": false
+          },
+          "right": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.045,
+              0.06
+            ],
+            "mass_kg": 0.05,
+            "kinematic": false
+          }
+        },
+        "sim_dt_s": 0.004166666666666667,
+        "fps": 10,
+        "source_frames": "pre-action sample; target applied after this frame",
+        "task": "dual_arm_pick_transport_place",
+        "instruction": "Pick both blocks, lift them, move them forward and place them on the table.",
+        "table_top_m": 0.69,
+        "target_centres_m": {
+          "left": [
+            0.43,
+            0.25,
+            0.72
+          ],
+          "right": [
+            0.43,
+            -0.25,
+            0.72
+          ]
+        },
+        "material": {
+          "static_friction": 0.3,
+          "dynamic_friction": 0.24,
+          "calibrated": false
+        },
+        "grip_overtravel_m": 0.002,
+        "runtime_script_sha256": "2cac56619aa16841a6b6cbf3d3f97d1e774f9703b359b01f81f859ac0aae799c",
+        "plan_sha256": "e03f9766d8a8b7b42abf0c1ef58d0a972a596f5344f576f6f1d9997ee92f7be9",
+        "urdf_sha256": "29aea4127cdeaa26e6f85c6ca10d589098ad3f147b641297f8721f7e8a81b889",
+        "layout_initial_m": {
+          "left": [
+            0.35,
+            0.23,
+            0.72
+          ],
+          "right": [
+            0.35,
+            -0.23,
+            0.72
+          ]
+        },
+        "gravity_m_s2": [
+          0,
+          0,
+          -9.81
+        ],
+        "objects_attached": false,
+        "object_resets_after_initial_layout": 0,
+        "artificial_holding_forces": false,
+        "hardware_connected": false
+      },
+      "accepted_end_to_end": true
+    },
+    {
+      "id": "10",
+      "title": "30mm：最终默认复核",
+      "native": {
+        "schema": "g1d_free_pick_place.v1",
+        "passed": true,
+        "protocol_checks": {
+          "complete": true,
+          "gravity": true,
+          "no_attachment": true,
+          "no_reset": true,
+          "no_fake_force": true,
+          "all_phases": true
+        },
+        "sides": {
+          "left": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": true,
+              "horizontal_transport": true,
+              "placed_in_goal": true,
+              "resting_on_table": true,
+              "upright_final": true,
+              "released": true
+            },
+            "passed": true,
+            "max_lift_m": 0.11998480558395386,
+            "final_position_m": [
+              0.4300135374069214,
+              0.2500090003013611,
+              0.7200000286102295
+            ],
+            "target_m": [
+              0.43,
+              0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": true,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 4.6696362498756745,
+              "negative": 4.649426735324089
+            }
+          },
+          "right": {
+            "checks": {
+              "initial_on_table": true,
+              "actual_lift": true,
+              "horizontal_transport": true,
+              "placed_in_goal": true,
+              "resting_on_table": true,
+              "upright_final": true,
+              "released": true
+            },
+            "passed": true,
+            "max_lift_m": 0.11998641490936279,
+            "final_position_m": [
+              0.42999738454818726,
+              -0.24998939037322998,
+              0.7199999690055847
+            ],
+            "target_m": [
+              0.43,
+              -0.25,
+              0.72
+            ],
+            "final_upright_within_10deg": true,
+            "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+            "peak_contact_n": {
+              "positive": 4.636718851224749,
+              "negative": 4.637636673184219
+            }
+          }
+        },
+        "frames": 154,
+        "duration_s": 15.300000797957182,
+        "source_frames_sha256": "392b653760191e9e20c557bc5cf072030a028510e8e56837671b256968980dc6",
+        "calibrated_hardware": false,
+        "scope": "one dual-arm task episode with candidate parameters; not a general grasp success rate"
+      },
+      "tactile": {
+        "status": "completed",
+        "frames": 154,
+        "channels": [
+          "left_positive",
+          "left_negative",
+          "right_positive",
+          "right_negative"
+        ],
+        "vendor_runtime_executed": true,
+        "inputs_from_actual_recorded_poses": true,
+        "all_outputs_finite": true,
+        "force_feedback_to_physics": false,
+        "hardware_connected": false,
+        "calibration_validated": false,
+        "max_depth_mm": {
+          "left_positive": 0.029932888224720955,
+          "left_negative": 0.0435209646821022,
+          "right_positive": 0.04850441962480545,
+          "right_negative": 0.009396902285516262
+        },
+        "source_frames_sha256": "392b653760191e9e20c557bc5cf072030a028510e8e56837671b256968980dc6"
+      },
+      "scene": {
+        "channels": [
+          "left_positive",
+          "left_negative",
+          "right_positive",
+          "right_negative"
+        ],
+        "objects": {
+          "left": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.03,
+              0.06
+            ],
+            "mass_kg": 0.02,
+            "kinematic": false
+          },
+          "right": {
+            "kind": "box",
+            "size_m": [
+              0.04,
+              0.03,
+              0.06
+            ],
+            "mass_kg": 0.02,
+            "kinematic": false
+          }
+        },
+        "sim_dt_s": 0.004166666666666667,
+        "fps": 10,
+        "source_frames": "pre-action sample; target applied after this frame",
+        "task": "dual_arm_pick_transport_place",
+        "instruction": "Pick both blocks, lift them, move them forward and place them on the table.",
+        "table_top_m": 0.69,
+        "target_centres_m": {
+          "left": [
+            0.43,
+            0.25,
+            0.72
+          ],
+          "right": [
+            0.43,
+            -0.25,
+            0.72
+          ]
+        },
+        "material": {
+          "static_friction": 0.5,
+          "dynamic_friction": 0.4,
+          "calibrated": false
+        },
+        "grip_overtravel_m": 0.001,
+        "runtime_script_sha256": "871937ca363e1551880bba14496bfa3c1c985e68bf4383512841cd6833ec086d",
+        "plan_sha256": "e03f9766d8a8b7b42abf0c1ef58d0a972a596f5344f576f6f1d9997ee92f7be9",
+        "urdf_sha256": "29aea4127cdeaa26e6f85c6ca10d589098ad3f147b641297f8721f7e8a81b889",
+        "layout_initial_m": {
+          "left": [
+            0.35,
+            0.23,
+            0.72
+          ],
+          "right": [
+            0.35,
+            -0.23,
+            0.72
+          ]
+        },
+        "gravity_m_s2": [
+          0,
+          0,
+          -9.81
+        ],
+        "objects_attached": false,
+        "object_resets_after_initial_layout": 0,
+        "artificial_holding_forces": false,
+        "hardware_connected": false
+      },
+      "accepted_end_to_end": true
+    }
+  ],
+  "frozen_acceptance": {
+    "min_lift_m": 0.06,
+    "min_horizontal_translation_m": 0.06,
+    "goal_radius_m": 0.025,
+    "table_bottom_tolerance_m": 0.003,
+    "final_upright_deg": 10,
+    "final_max_speed_m_s": 0.03,
+    "final_gap_min_m": 0.08,
+    "final_hold_frames": 10
+  },
+  "default_case": "10",
+  "wide_case": "09",
+  "no_statistics_claim": true,
+  "hardware_connected": false,
+  "completed": [
+    "nominal geometry / coordinate audit",
+    "vendor private resource integrity",
+    "same-frame four-pad Simple/FEM stream",
+    "lossless HDF5 and LeRobot v3 export / actual Dataset policy input readback",
+    "gravity pick/transport/place and variants"
+  ],
+  "unresolved_real_evidence": [
+    "G1-D wrist/adapter drawing and tolerance",
+    "installed transform and measured TCP",
+    "own-unit encoder zero and camera hand-eye",
+    "measured per-part inertia / servo / friction / gel",
+    "actual per-SN calibration originals"
+  ],
+  "limitation": "PhysX rigid gel; one-way vendor FEM observations; no hardware, cloth correlation, trained tactile policy or real-time feedback validation"
+}

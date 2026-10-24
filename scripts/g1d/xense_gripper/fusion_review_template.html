@@ -1,0 +1,19 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>G1-D 极光 Lite 融合仿真版</title>
+<style>body{margin:auto;max-width:1280px;padding:32px;background:#111820;color:#eef3f7;font:16px/1.65 system-ui}h1{font-size:28px}video,img{width:100%;border-radius:12px}a{color:#7ed6f7}section{padding:20px 0;border-bottom:1px solid #334}button{padding:8px;margin:4px;background:#243847;color:white;border:1px solid #567;border-radius:6px;cursor:pointer}pre{white-space:pre-wrap;font:14px/1.6 system-ui}.tag{color:#a8dfb5}</style>
+<h1>G1-D · 双极光 Lite / 四路 G1-WS</h1><p class="tag">统一开度与坐标 · 完整机器人 · 主引擎接触 + 厂家触觉模型 · 纯仿真</p>
+<p>视频左侧为保存状态的整机和双爪重渲染；右侧为同帧几何生成的四路 FEM / SimpleSensor 图像。触觉按帧离线计算，没有向主物理引擎重复施力。法兰装配、惯量、摩擦和真实传感器标定仍待确认；未验证 30 Hz 实时运行。</p>
+<video id="v" controls preload="metadata" poster="poster.png" src="g1d_four_pad_fusion.mp4"></video><div id="phases"></div>
+<section><a href="g1d_four_pad_fusion.mp4">下载组合视频</a> · <a href="overview.mp4">整机视频</a> · <a href="left.mp4">左爪</a> · <a href="right.mp4">右爪</a> · <a href="summary.json">原始核验摘要</a></section>
+<section><h2>接触与卸载记录</h2><img src="contact_curves.png" alt="四路压入、主引擎法向接触力与 FEM 节点力数组范数，单位分开显示"><p>FEM 数组范数不是整面合力，也未作为实测力精度验收。</p><pre id="result"></pre></section>
+<script>
+fetch('summary.json').then(r=>r.json()).then(x=>{
+ const names={frame_association:'视频、触觉与物理记录关联',finite_outputs:'四路输出数值有效',native_contacts_all_channels:'四个指垫均记录到接触',known_width_candidate_check:'30 / 50 mm 夹持几何检查',load_induced_slip_observed:'加载后脱离可观测',fem_unloaded_residual_below_1e_3:'卸载后节点力恢复'};
+ document.querySelector('#result').textContent=Object.entries(x.checks).map(([k,v])=>(v?'✓ ':'待核对 ')+names[k]).join('\n')+'\n\n共 '+x.frames+' 帧 / '+x.recorded_simulation_duration_s.toFixed(1)+' 秒。\n夹持检查：'+x.gauges.map(g=>g.width_mm+' mm · '+(g.arm==='left'?'左爪':'右爪')+' → 实际间距 '+g.measured_gap_mm.toFixed(3)+' mm').join('；')+'。\n这组结果不代表真实标定、通用抓取成功率或实时控制验收。';
+});
+const phases=PHASES;
+const labels={opening_0mm:'闭合', 'opening_42.5mm':'半开', opening_85mm:'全开', gauge_30_setup:'30 mm 准备',gauge_30_clamp:'30 mm 夹紧',gauge_30_hold:'30 mm 保持',gauge_30_slip:'切向加载与脱离',gauge_50_setup:'50 mm 准备',gauge_50_clamp:'50 mm 夹紧',gauge_50_hold:'50 mm 保持',probe_setup:'探头准备',flat_approach:'平头压入',flat_hold:'平头保持',flat_shear:'平头切向移动',flat_unload:'平头卸载',flat_released:'平头离开',sphere_approach:'球头压入',sphere_hold:'球头保持',sphere_unload:'球头卸载',sphere_released:'球头离开',final_unloaded:'最终空载'};
+for(const [name,frame] of Object.entries(phases)){
+ const b=document.createElement('button');b.textContent=labels[name]||name;
+ b.onclick=()=>{v.currentTime=frame/10;v.play()};document.querySelector('#phases').append(b);
+}
+</script></html>

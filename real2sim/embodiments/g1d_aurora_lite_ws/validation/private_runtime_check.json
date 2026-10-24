@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "verified_files": 9351,
+  "failed": [],
+  "required_python": "3.10",
+  "current_python": "3.10.20",
+  "abi_compatible": true,
+  "hardware_connected": false,
+  "redistribution_authorized": false
+}

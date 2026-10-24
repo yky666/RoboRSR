@@ -739,6 +739,10 @@ ROBOT_CLASS_REGISTRY = {
         "module": "g1d",
         "classes": ("G1DLeft", "G1DRight"),
     },
+    "g1d_aurora_lite_ws": {
+        "module": "g1d_aurora_lite_ws",
+        "classes": ("G1DAuroraLeft", "G1DAuroraRight"),
+    },
 }
 
 
@@ -747,4 +751,5 @@ ROBOT_CONFIG_REGISTRY = {
     "x5": "x5",
     "g1d": "g1d",
     "g1d_mobile": "g1d_mobile",
+    "g1d_aurora_lite_ws": "g1d_aurora_lite_ws",
 }

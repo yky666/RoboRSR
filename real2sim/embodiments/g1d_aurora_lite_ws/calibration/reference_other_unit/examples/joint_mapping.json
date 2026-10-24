@@ -1,0 +1,28 @@
+{
+  "format": "g1d_joint_mapping_v1",
+  "robot_serial": "unknown (G1-D, host 192.168.123.164)",
+  "rule": "URDF joint value = sign * motor_state[motor_index].q + offset_rad (rt/lowstate, unitree_hg)",
+  "joints": {
+    "left_shoulder_pitch_joint":  {"motor_index": 15, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 1.000},
+    "left_shoulder_roll_joint":   {"motor_index": 16, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.973},
+    "left_shoulder_yaw_joint":    {"motor_index": 17, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 1.000},
+    "left_elbow_joint":           {"motor_index": 18, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.999},
+    "left_wrist_roll_joint":      {"motor_index": 19, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.986},
+    "left_wrist_pitch_joint":     {"motor_index": 20, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.998},
+    "left_wrist_yaw_joint":       {"motor_index": 21, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.998},
+    "right_shoulder_pitch_joint": {"motor_index": 22, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.998},
+    "right_shoulder_roll_joint":  {"motor_index": 23, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.988},
+    "right_shoulder_yaw_joint":   {"motor_index": 24, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.999},
+    "right_elbow_joint":          {"motor_index": 25, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.998},
+    "right_wrist_roll_joint":     {"motor_index": 26, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.978},
+    "right_wrist_pitch_joint":    {"motor_index": 27, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.996},
+    "right_wrist_yaw_joint":      {"motor_index": 28, "sign": 1, "offset_rad": 0.0, "unit": "rad", "dircheck_cos": 0.997}
+  },
+  "non_arm_joints_recorded": ["waist_yaw (motor 12)", "all 35 motor q stored in session status for drift checks"],
+  "cameras": {
+    "head_stereo": {"zmq_port": 55555, "layout": "side-by-side 1280x480, left half = head_left"},
+    "left_wrist":  {"zmq_port": 55557, "note": "g1d_infra names this port right_wrist; verified on the left arm 2026-10-16"},
+    "right_wrist": {"zmq_port": 55556, "note": "g1d_infra names this port left_wrist; verified on the right arm 2026-10-16"}
+  },
+  "verified_by": "2026-10-16 doc 04 section 3 direction check: each arm joint jogged from the ready pose (+-0.05 rad, left shoulder_roll re-checked with 0.1 rad); wrist-camera SIFT motion of the table/board plane vs FK prediction; all 14 joints cos > 0.97 (threshold 0.9), encoder change on the commanded motor only. Sessions: real_data/20261016/dircheck_left, dircheck_left_roll01, dircheck_right"
+}

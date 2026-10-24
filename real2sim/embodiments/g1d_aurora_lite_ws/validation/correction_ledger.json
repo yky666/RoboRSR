@@ -1,0 +1,75 @@
+[
+  {
+    "attempt": "model_v1 / runtime probe_v2",
+    "status": "failed",
+    "cause": "combined carrier convex hull blocks opposite WS shell",
+    "closed_max_jaw_error_mm": 11.24734
+  },
+  {
+    "attempt": "model_v2 / runtime probe_v3",
+    "status": "failed",
+    "cause": "rack itself is nonconvex; per-occurrence hull still fills recess",
+    "closed_max_jaw_error_mm": 11.238
+  },
+  {
+    "attempt": "model_v3 / runtime probe_v4",
+    "status": "passed",
+    "correction": "exact CAD axial slabs, 4 mm, then convex hulls; preserve external gel contact",
+    "closed_max_jaw_error_mm": 0.0901580715435557
+  },
+  {
+    "attempt": "fusion tactile v1/v2",
+    "status": "failed_release_check",
+    "cause": "Misses clipped to zero meant an infinite object on the undeformed gel plane; positive separation was lost",
+    "correction": "Preserve actual ray clearance for FEM; no-hit +5 mm. Keep negative-only intrusion for SimpleSensor",
+    "validated_by": "fusion_tactile_report.json + fusion_summary.json; all four final node-force arrays zero"
+  },
+  {
+    "attempt": "fusion render v1",
+    "status": "failed_closeup_view",
+    "cause": "Default camera near plane clipped the nearby gripper",
+    "correction": "Near clipping reduced to 1 mm; re-render saved state without replaying physics"
+  },
+  {
+    "attempt": "fusion render exact v3",
+    "status": "passed",
+    "cause": "Joint coordinates alone omit up to about 0.137 mm fixed-joint solver displacement at loaded pads",
+    "correction": "Restore saved actual gel visual poses; preserve source physics and force/trajectory records",
+    "max_corrected_matrix_error": 4.440892098500626e-16
+  },
+  {
+    "attempt": "20261024 local runtime bootstrap",
+    "status": "repaired",
+    "cause": "workstation editable IsaacLab path absent; importer2.4.30 lacks merge-fixed-ignore-inertia method",
+    "correction": "owned runtime source; local kit removes absent Lab extension deps; ignore-inertia call guarded only while merge_fixed_joints=false; no shared environment modified"
+  },
+  {
+    "attempt": "full task06",
+    "status": "failed tactile domain",
+    "cause": "joint-space approach scraped45mm object; frame15 left_negative depth exceeds tested1mm",
+    "correction": "keep failed recording; solve Cartesian waypoints in task08; never clamp depth to fake valid FEM"
+  },
+  {
+    "attempt": "full task07",
+    "status": "failed",
+    "cause": "80g, candidate friction0.05: both objects slip during lift; no reset or attachment"
+  },
+  {
+    "attempt": "full task08",
+    "status": "failed strict upright placement",
+    "cause": "45mm50g at1mm total preload tipped during placement; all four tactile outputs finite",
+    "correction": "task09 explicitly uses2mm gap preload, same40N/jaw limit and inherited gains; candidate physics only"
+  },
+  {
+    "attempt": "read-only placement audit",
+    "status": "corrected",
+    "cause": "table support height used upright half-size regardless of recorded quaternion",
+    "correction": "bottom extent computed from actual quaternion; separate explicit10deg upright quality gate retained; task08 remains rejected"
+  },
+  {
+    "attempt": "Kit worker shutdown",
+    "status": "repaired",
+    "cause": "two completed workers blocked during native cleanup after all154frames persisted",
+    "correction": "verified own exact command/receipt before SIGTERM; subsequent isolated workers use explicit fast-exit only after files close"
+  }
+]

@@ -26,5 +26,9 @@
     "g1d_mobile": {
         "arm_dim": [7, 7],
         "ee_dim": [1, 1]
+    },
+    "g1d_aurora_lite_ws": {
+        "arm_dim": [7, 7],
+        "ee_dim": [1, 1]
     }
 }

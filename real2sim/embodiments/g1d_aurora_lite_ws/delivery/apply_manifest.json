@@ -1,0 +1,1906 @@
+{
+  "base_commit": "64960dae81758b4f351af4b091e288360a3608e8",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "after_sha256": "e50ce0f51389fab0967a85ab57e2d39a824b88fbd826b3ead9394c6fdfe6388a",
+      "allowed_previous_sha256": [
+        "929985cbbf98bd12ee6f92f4e04df414cc398f6b4f907169d1faa59233346968",
+        "e50ce0f51389fab0967a85ab57e2d39a824b88fbd826b3ead9394c6fdfe6388a"
+      ],
+      "bytes": 543
+    },
+    {
+      "path": "HANDOFF.md",
+      "after_sha256": "8070e84dba953ae2689a44a844c91589fe65cd755c0b6e5ad7a639ccac918032",
+      "allowed_previous_sha256": [
+        "95b04fc3c649b1d5eb6c11ad60ac109696b61946bcae78708a5460328b97c36d",
+        "ee5615de589ba2f991ec4f5515378a32429feb5a48a4bfcf283cc98cddd3ae45",
+        "6e7d6db49840df571ec5bce0fa87558bf66e287f3b56ff103152722c73e55729"
+      ],
+      "bytes": 91246
+    },
+    {
+      "path": "README.md",
+      "after_sha256": "65f6aeb245ec7129b5c2747adc406b9bce7ccf63fdaa6b7f5e38963db40ecfc5",
+      "allowed_previous_sha256": [
+        "d81c22930a670ea9fd8b411182e91b2ed558eb850434500d0658aad8b2ac92e4",
+        "71e9e7ecd21754481cb06308d1dd6da04ef459bb657879e81a3c24028195c56e",
+        "65f6aeb245ec7129b5c2747adc406b9bce7ccf63fdaa6b7f5e38963db40ecfc5"
+      ],
+      "bytes": 32356
+    },
+    {
+      "path": "env/robot_manager/aurora_contract.py",
+      "after_sha256": "cfc50b61242758ce1f71dee50f1b81d9cbf52dac3d569d38dd2307836a7299ba",
+      "allowed_previous_sha256": [
+        null,
+        "cfc50b61242758ce1f71dee50f1b81d9cbf52dac3d569d38dd2307836a7299ba"
+      ],
+      "bytes": 1508
+    },
+    {
+      "path": "env/robot_manager/robot_class/g1d_aurora_lite_ws.py",
+      "after_sha256": "a79a9c85d8ee8990b77497bb362a92ba578920f24493b9d4c911db0262ed84df",
+      "allowed_previous_sha256": [
+        null,
+        "94b8a1522e01fc1eae560589360f5c87b05100df04f3e1b2d61bfdefcfa838ee",
+        "a79a9c85d8ee8990b77497bb362a92ba578920f24493b9d4c911db0262ed84df"
+      ],
+      "bytes": 1166
+    },
+    {
+      "path": "env/robot_manager/robot_config/g1d_aurora_lite_ws.py",
+      "after_sha256": "7fadfcc97c1d2b17f5dd4bb46e2d944049b0eaf9b2bb97b5e128fba7769efca5",
+      "allowed_previous_sha256": [
+        null,
+        "7fadfcc97c1d2b17f5dd4bb46e2d944049b0eaf9b2bb97b5e128fba7769efca5"
+      ],
+      "bytes": 3715
+    },
+    {
+      "path": "env/robot_manager/robot_manager.py",
+      "after_sha256": "d880167033b07ae19f7fa77aed3c23e20711f40503d4aba6f5061dd8e90df624",
+      "allowed_previous_sha256": [
+        "befdb72ae25457fc0c5839273dadcea915d8ddcb9e0a4ded9c84844098cc10b5",
+        "d880167033b07ae19f7fa77aed3c23e20711f40503d4aba6f5061dd8e90df624"
+      ],
+      "bytes": 31584
+    },
+    {
+      "path": "env/robot_manager/tactile_bridge.py",
+      "after_sha256": "15321b34ae05ac6d78d4ea0b8d5281d052ff236bee02461e3a3d806a680ce85f",
+      "allowed_previous_sha256": [
+        null,
+        "3c452ed677a0a01a8da277106082b86663cb4ac30b2727edfde34054ee30a21d"
+      ],
+      "bytes": 2876
+    },
+    {
+      "path": "env/robot_manager/tactile_geometry.py",
+      "after_sha256": "9e4d552793582c1bddc132ab9daa6e35dec2baf084ba19563b0a716076f148e8",
+      "allowed_previous_sha256": [
+        null,
+        "9e4d552793582c1bddc132ab9daa6e35dec2baf084ba19563b0a716076f148e8"
+      ],
+      "bytes": 3972
+    },
+    {
+      "path": "env_cfg/g1d_aurora_lite_ws.yml",
+      "after_sha256": "1179b6d97c144d8b4c6f1c3bdca00e26f42fcffadd8b14979523ef15618bbb6b",
+      "allowed_previous_sha256": [
+        null,
+        "1179b6d97c144d8b4c6f1c3bdca00e26f42fcffadd8b14979523ef15618bbb6b"
+      ],
+      "bytes": 370
+    },
+    {
+      "path": "env_cfg/robot/_robot_info.json",
+      "after_sha256": "8c6d4bca90c2e31880f0b07dfefe90f5a84eea470cd7ff0d2c2cec5fa741b00a",
+      "allowed_previous_sha256": [
+        "04a1462cac865c27241be8edd23fe0420425f12ce22fa98439d8e285f5aadcc9",
+        "8c6d4bca90c2e31880f0b07dfefe90f5a84eea470cd7ff0d2c2cec5fa741b00a"
+      ],
+      "bytes": 637
+    },
+    {
+      "path": "env_cfg/robot/g1d_aurora_lite_ws.yml",
+      "after_sha256": "e41f25343baf3e3529cc5103e6282054b476365b710329bf4256df5d55c14302",
+      "allowed_previous_sha256": [
+        null,
+        "e41f25343baf3e3529cc5103e6282054b476365b710329bf4256df5d55c14302"
+      ],
+      "bytes": 191
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/calibration/README.md",
+      "after_sha256": "374f7b4e4ee2c113ea7ed34fc99a5007f2a8faf200aa8959b5da5e4a84421ae0",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2255
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/calibration/evidence_scope.json",
+      "after_sha256": "53c7d0e2f9e990c2ae98dfbb0f85364a7dcd14411602f8f7102c5f6ba915bcd7",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 3098
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/calibration/reference_other_unit/examples/README_zh.md",
+      "after_sha256": "06a17d0608d8dddfeeab1f61d2fd0b384b54902edb1bb2c30e69e17e0835d7f2",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2800
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/calibration/reference_other_unit/examples/intrinsics/camera_intrinsics_head_left.json",
+      "after_sha256": "5b66de251810dd7ee5c3cb680a503ffa17235ce3f76e3ed7ee3b5ebdefff6135",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 1645
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/calibration/reference_other_unit/examples/intrinsics/camera_intrinsics_head_right.json",
+      "after_sha256": "6c323643353506dd5365d363f20717e0874f37073cf29904da06644f5686ccf7",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 1646
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/calibration/reference_other_unit/examples/joint_mapping.json",
+      "after_sha256": "8d1745c35bc702047490edad03dc33e50a9614d34a516c96a6b7f52b1f1ac4f6",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2826
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/calibration/reference_other_unit/examples/params_1019/params_dual_1019.json",
+      "after_sha256": "991e052cac845c05d688248a562e1b37ca0266371f86bff7c0d474b54de07da9",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 8742
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/calibration/reference_other_unit/examples/params_1019/params_dual_trans_1019.json",
+      "after_sha256": "3564c537eac8d3e67bfd03d713b421bbf424ebc3ffbf0b6119d0ac6a5b85b871",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 14095
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/preview/00_isaac_sim.png",
+      "after_sha256": "2ac863accee6d2d71e11ff77b91ff8b7c33677ee134d4af92983de3f800ecf50",
+      "allowed_previous_sha256": [
+        null,
+        "2ac863accee6d2d71e11ff77b91ff8b7c33677ee134d4af92983de3f800ecf50"
+      ],
+      "bytes": 203259
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/preview/complete_robot.glb",
+      "after_sha256": "b86e20030687010a8835e3b9bf7351cc0b08cccca072f3dce74e144b098604d7",
+      "allowed_previous_sha256": [
+        null,
+        "b86e20030687010a8835e3b9bf7351cc0b08cccca072f3dce74e144b098604d7"
+      ],
+      "bytes": 5879980
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/preview/complete_robot.png",
+      "after_sha256": "f75febc237fa9e2e1b12a7dd68bd48720d1f790892ff417153f9517dd0ab1eb2",
+      "allowed_previous_sha256": [
+        null,
+        "f75febc237fa9e2e1b12a7dd68bd48720d1f790892ff417153f9517dd0ab1eb2"
+      ],
+      "bytes": 161291
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/preview/fusion_four_pad.png",
+      "after_sha256": "8194c5f8ae13a087fd3e8f77c9e27d3723ec0d318f37adf499f8c64bcd6e5e62",
+      "allowed_previous_sha256": [
+        null,
+        "8194c5f8ae13a087fd3e8f77c9e27d3723ec0d318f37adf499f8c64bcd6e5e62"
+      ],
+      "bytes": 841863
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/preview/gripper_openings.png",
+      "after_sha256": "5cf1729e37541edf22f7ea63da6beff083f3d05a41ccd78143941b876963d234",
+      "allowed_previous_sha256": [
+        null,
+        "5cf1729e37541edf22f7ea63da6beff083f3d05a41ccd78143941b876963d234"
+      ],
+      "bytes": 179488
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/preview/preview_metadata.json",
+      "after_sha256": "994559d183c230555d8b791d76b6586a78085715abd9576e2aee33453c604147",
+      "allowed_previous_sha256": [
+        null,
+        "994559d183c230555d8b791d76b6586a78085715abd9576e2aee33453c604147"
+      ],
+      "bytes": 437
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/registration.json",
+      "after_sha256": "b9b8acaadee97699fb355b5933ca832ae01b423a9590f71779f855831c446a82",
+      "allowed_previous_sha256": [
+        null,
+        "4dda2b6d2d93a272c17fa6079030d9df6e1d15207030c439b1a078cd463af568",
+        "27c1043c9d13d13d271e450c10a7a7f608cd0e6da9f4e85651c0305691f6ed84"
+      ],
+      "bytes": 1882
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/simulation_profiles.json",
+      "after_sha256": "8dff3f987360d6062111a66a7011d0e4b3a23f3c3285d0d78e8840d3760e69cd",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 699
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/carrier_clearance.json",
+      "after_sha256": "39bb33789d9f94228a6d50b9c1f8dbfa6428d025992b61b8add49768a4543652",
+      "allowed_previous_sha256": [
+        null,
+        "39bb33789d9f94228a6d50b9c1f8dbfa6428d025992b61b8add49768a4543652"
+      ],
+      "bytes": 340
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/class_bindings.json",
+      "after_sha256": "ce7fd37d00a9682a81227a5dcbafbf4bb3e7b1fa73c467fb619e5b93970eab0b",
+      "allowed_previous_sha256": [
+        null,
+        "ce7fd37d00a9682a81227a5dcbafbf4bb3e7b1fa73c467fb619e5b93970eab0b"
+      ],
+      "bytes": 346
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/correction_ledger.json",
+      "after_sha256": "be1710281e1728fd68a75d91b351b1bf0d790a448ea33ec5fa8122ae6fa2abfa",
+      "allowed_previous_sha256": [
+        null,
+        "5045e89abb59874a6460e33ba8d9f7002712571f5af45f4992a8ff8d9ada1a88",
+        "67f2b038fcb5c3e6ca6814cdb81bd44bf46ff720d5dfff7711509596920d455f"
+      ],
+      "bytes": 3446
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/dataset_05_audit.json",
+      "after_sha256": "0633060ee8fa1d7c7f7925e3a4ef784557dbb35165658cebbb19b92c7f1b40a0",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 418
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/dataset_05_policy_readback.json",
+      "after_sha256": "3c4aaeb580353db7dcff7d2d6394a47eae8c83e199340336a1d6630d6814fb78",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 696
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/dataset_09_audit.json",
+      "after_sha256": "0633060ee8fa1d7c7f7925e3a4ef784557dbb35165658cebbb19b92c7f1b40a0",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 418
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/dataset_09_policy_readback.json",
+      "after_sha256": "9f60ed16470725708eb27bb860c56193dec5e8352224a3b5615bf06059a6a8a1",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 696
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/frontend_v3.json",
+      "after_sha256": "b9f20130c683615f0772b15b8f88b249f23dea7d1f8ec6fb9aac69fbc23ec1af",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 279
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_05.json",
+      "after_sha256": "af30e80c0ee62d7ae0aa94f7f67cb11439fc628643ea2ea91fd72dd307f17810",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2113
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_06.json",
+      "after_sha256": "0db80b7ef5e467b22afdf48169095ba5e2178ca5657815fd85c94b959a474de7",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2114
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_07.json",
+      "after_sha256": "e2333b63e04681e0dbe549a13ee01658eb0c5b7c6f09b6b7a3229474ed2ba639",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2123
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_08.json",
+      "after_sha256": "8503270240a85d7f7066811f1a6066d7cba123a26db2d3c8cbf5b2560f909b58",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2118
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_09.json",
+      "after_sha256": "58fc3782a9f2ad7bf5c5e9a4306d18290a2a68224c584ff39734cd00521f15ab",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2112
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_10.json",
+      "after_sha256": "4feb48f91298ed87c1bebd73d17b1b06d8479f161b1513a70d9892050e1420f7",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2115
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_plan.json",
+      "after_sha256": "e03f9766d8a8b7b42abf0c1ef58d0a972a596f5344f576f6f1d9997ee92f7be9",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 48092
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_tactile_05.json",
+      "after_sha256": "879a139ba3564a054d6978535116f6c8dd476864f05ff3c9f5bf20a1fe23b3a7",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 654
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_tactile_07.json",
+      "after_sha256": "bb465990a6c88622041ccec23c40eb643dec9eeb33d5dad3a992a5ea96c49bce",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 649
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_tactile_08.json",
+      "after_sha256": "54983ab0c83150043868a77ac410941c754a5ba044fbf3392d8c04e8b819ceee",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 652
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_tactile_09.json",
+      "after_sha256": "8bc3d7f8bd5567f6e427f397264aa4c78144a239f804eb50326b704d60607cc4",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 652
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_tactile_10.json",
+      "after_sha256": "45bd5aa4c3d7bc9efdc9e42b8d1429ba494323581eb3f767f9dca0782b8e7030",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 653
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/full_task_unload.json",
+      "after_sha256": "76899c769c2da7f0171ddb61c614857e5f21d35fac4ccbae00f5dad30908456d",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 868
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/fusion_alignment.json",
+      "after_sha256": "5ff7f06786f95b1d018989dacbdb31cb4b03214177b64f4af804d7acf9c034ff",
+      "allowed_previous_sha256": [
+        null,
+        "5ff7f06786f95b1d018989dacbdb31cb4b03214177b64f4af804d7acf9c034ff"
+      ],
+      "bytes": 12523
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/fusion_group_reconciliation.json",
+      "after_sha256": "3e0bb292033353b61456a4e1c7d5f9ecb5a31296b15b853e242c1a879ac29fbf",
+      "allowed_previous_sha256": [
+        null,
+        "3e0bb292033353b61456a4e1c7d5f9ecb5a31296b15b853e242c1a879ac29fbf"
+      ],
+      "bytes": 96
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/fusion_mujoco_native.json",
+      "after_sha256": "c8864317ff2e754cc175a76b795c0e3e3787a0b7757d9bd6df9962525748563e",
+      "allowed_previous_sha256": [
+        null,
+        "c8864317ff2e754cc175a76b795c0e3e3787a0b7757d9bd6df9962525748563e"
+      ],
+      "bytes": 924
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/fusion_native_report.json",
+      "after_sha256": "e5c3ae62615d3dadd74720ceb944bd94b14a2016fb7f7c092eeef64b1bf8f60e",
+      "allowed_previous_sha256": [
+        null,
+        "e5c3ae62615d3dadd74720ceb944bd94b14a2016fb7f7c092eeef64b1bf8f60e"
+      ],
+      "bytes": 597
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/fusion_observation_api.json",
+      "after_sha256": "a1c11a61e6cab8487e3d44f3042acb1e8573dbfc0c2076d4dedd30106fa5690d",
+      "allowed_previous_sha256": [
+        null,
+        "a1c11a61e6cab8487e3d44f3042acb1e8573dbfc0c2076d4dedd30106fa5690d"
+      ],
+      "bytes": 270
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/fusion_preservation.json",
+      "after_sha256": "fa5c5c613fdf32a53bf1e56a4e0da993a3ebf81e8e8d8cdc5e74af6f0011bb55",
+      "allowed_previous_sha256": [
+        null,
+        "fa5c5c613fdf32a53bf1e56a4e0da993a3ebf81e8e8d8cdc5e74af6f0011bb55"
+      ],
+      "bytes": 7005
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/fusion_render_provenance.json",
+      "after_sha256": "520cf1e8d38f16667655319ed575beaaa7b02fc17be37e16f974829c0d66d7ec",
+      "allowed_previous_sha256": [
+        null,
+        "520cf1e8d38f16667655319ed575beaaa7b02fc17be37e16f974829c0d66d7ec"
+      ],
+      "bytes": 24556
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/fusion_summary.json",
+      "after_sha256": "85f338ac04efab4694e23f08a9870f5d9b8f193e7d9511d34c45c3d852d3ec60",
+      "allowed_previous_sha256": [
+        null,
+        "85f338ac04efab4694e23f08a9870f5d9b8f193e7d9511d34c45c3d852d3ec60"
+      ],
+      "bytes": 2859
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/fusion_tactile_contract.json",
+      "after_sha256": "31b383155aa9fd7b8431417cce243db6c1b30d86a737502bbf61ce4013bfdf7e",
+      "allowed_previous_sha256": [
+        null,
+        "31b383155aa9fd7b8431417cce243db6c1b30d86a737502bbf61ce4013bfdf7e"
+      ],
+      "bytes": 1351
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/fusion_tactile_report.json",
+      "after_sha256": "86994d690fec374b15e4d0b9a7fff560922aab4be6d5cf01bfefe0e0f9a5528a",
+      "allowed_previous_sha256": [
+        null,
+        "86994d690fec374b15e4d0b9a7fff560922aab4be6d5cf01bfefe0e0f9a5528a"
+      ],
+      "bytes": 649
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/isaac_joint_probe.json",
+      "after_sha256": "554caa7bf5f114237e957d5b6c2aa38f02638ce0ceaa62c87fa27fd10278d38a",
+      "allowed_previous_sha256": [
+        null,
+        "554caa7bf5f114237e957d5b6c2aa38f02638ce0ceaa62c87fa27fd10278d38a"
+      ],
+      "bytes": 47912
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/model_audit.json",
+      "after_sha256": "1af66ce76b92bcba3312e45abe6da472d31dfefb87e6a3b12d6249224442efc6",
+      "allowed_previous_sha256": [
+        null,
+        "1af66ce76b92bcba3312e45abe6da472d31dfefb87e6a3b12d6249224442efc6"
+      ],
+      "bytes": 1009
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/model_audit_v3.json",
+      "after_sha256": "1af66ce76b92bcba3312e45abe6da472d31dfefb87e6a3b12d6249224442efc6",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 1009
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/private_runtime_check.json",
+      "after_sha256": "d95f64b7d23f286e045992a0a07480f1429a39cacb1dd84d1a7269680f3b4dac",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 218
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/research_sources.json",
+      "after_sha256": "891acf3f276fea04ecf93a6deb9d9e572d7025a3f525589c031cd25e7957c84f",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2768
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/runtime_environment.json",
+      "after_sha256": "e813c09200eba3a74d40791307a2b810f279f58340b57898c6658263d6817d8b",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 600
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/source_reconciliation.json",
+      "after_sha256": "16abfa6767760c639a21238530457ae562e4809f6f8d5c945f13d60883b1b602",
+      "allowed_previous_sha256": [
+        null,
+        "16abfa6767760c639a21238530457ae562e4809f6f8d5c945f13d60883b1b602"
+      ],
+      "bytes": 453
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/task_campaign.json",
+      "after_sha256": "fe98f4a6db28428efbb5a3a43ffc79b3661e62c85507a3ec32ea110153bc848e",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 33546
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/upgrade_model_preservation.json",
+      "after_sha256": "e2d875f025f4df63093d5e4eff085abd584064d01dfeecb8f4f2333662d56d18",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 16120
+    },
+    {
+      "path": "real2sim/embodiments/g1d_aurora_lite_ws/validation/validation_summary.json",
+      "after_sha256": "549d9605853fda1d4ac7029c667d74901ee605f32e0ab349d3dfd9ed4a0936fe",
+      "allowed_previous_sha256": [
+        null,
+        "549d9605853fda1d4ac7029c667d74901ee605f32e0ab349d3dfd9ed4a0936fe"
+      ],
+      "bytes": 2803
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/inherited_audit/AUDIT.md",
+      "after_sha256": "549d6702559377000988809f9a4983ab799ff5c4e4f0c55987cb8964df48b1db",
+      "allowed_previous_sha256": [
+        null,
+        "549d6702559377000988809f9a4983ab799ff5c4e4f0c55987cb8964df48b1db"
+      ],
+      "bytes": 2447
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/inherited_audit/XENSE_PACKAGE_AUDIT.md",
+      "after_sha256": "ff516c20a985a9d154f2af0cf476e47e6f937ab69ac860f4fa1c2a15d7a7dc8d",
+      "allowed_previous_sha256": [
+        null,
+        "ff516c20a985a9d154f2af0cf476e47e6f937ab69ac860f4fa1c2a15d7a7dc8d"
+      ],
+      "bytes": 4122
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/inherited_audit/alignment_audit.json",
+      "after_sha256": "253bcc2cf508b25668d8b9be05144dce0c659206c38ae17328f98592ac6d4c65",
+      "allowed_previous_sha256": [
+        null,
+        "253bcc2cf508b25668d8b9be05144dce0c659206c38ae17328f98592ac6d4c65"
+      ],
+      "bytes": 7586
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mount_reference/cad_audit.json",
+      "after_sha256": "cc2bbc3d9a36884b46f7865bba7ee1c69240784630cb1657a18255803db16f77",
+      "allowed_previous_sha256": [
+        null,
+        "cc2bbc3d9a36884b46f7865bba7ee1c69240784630cb1657a18255803db16f77"
+      ],
+      "bytes": 1122
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mount_reference/meshes/part_000.stl",
+      "after_sha256": "3456056b21f8e3d62eea57f8c9ed7fcee2ddab975aa510553d27ebbfba6e1647",
+      "allowed_previous_sha256": [
+        null,
+        "3456056b21f8e3d62eea57f8c9ed7fcee2ddab975aa510553d27ebbfba6e1647"
+      ],
+      "bytes": 467984
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mount_reference/official_geometry_comparison.json",
+      "after_sha256": "59c29a1f94d2ce6a00deaa8dbc80ee85294376dd3d4362dd1c560193505392f4",
+      "allowed_previous_sha256": [
+        null,
+        "59c29a1f94d2ce6a00deaa8dbc80ee85294376dd3d4362dd1c560193505392f4"
+      ],
+      "bytes": 306
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mount_reference/reference.xml",
+      "after_sha256": "8899d4c1245b51ce5ddfa0fb4559bbd503c5f2fac1ca6d03dc5e77b81ccfbe3a",
+      "allowed_previous_sha256": [
+        null,
+        "8899d4c1245b51ce5ddfa0fb4559bbd503c5f2fac1ca6d03dc5e77b81ccfbe3a"
+      ],
+      "bytes": 272
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mount_reference/source/universal_flange.STEP",
+      "after_sha256": "e18116f37010f33c07c20d7554f650de5e9a0ad14e1a49a1b63e863a450b1399",
+      "allowed_previous_sha256": [
+        null,
+        "e18116f37010f33c07c20d7554f650de5e9a0ad14e1a49a1b63e863a450b1399"
+      ],
+      "bytes": 845575
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mount_reference/source/universal_flange.pdf",
+      "after_sha256": "4cca7d7ce634e3cf11ec66b638d550f39e05fb49ef87262f760605926f740f1c",
+      "allowed_previous_sha256": [
+        null,
+        "4cca7d7ce634e3cf11ec66b638d550f39e05fb49ef87262f760605926f740f1c"
+      ],
+      "bytes": 291447
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mount_reference/static_compile_check.json",
+      "after_sha256": "4a00e60af4f55968e146ecaec360fecf098e772cd655d115b591d3fac1a776a3",
+      "allowed_previous_sha256": [
+        null,
+        "4a00e60af4f55968e146ecaec360fecf098e772cd655d115b591d3fac1a776a3"
+      ],
+      "bytes": 248
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mujoco_reference/assembly.json",
+      "after_sha256": "9d6bdbd4362377c74ed510bcc5bc484e670e844e4b1ee5cbf673cf31c7b61ccd",
+      "allowed_previous_sha256": [
+        null,
+        "9d6bdbd4362377c74ed510bcc5bc484e670e844e4b1ee5cbf673cf31c7b61ccd"
+      ],
+      "bytes": 24213
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mujoco_reference/kinematics_check.json",
+      "after_sha256": "05bf33a8af7877ba536c0e9210f1879166efcc8fb4b14cd9298fb2dcd3eb1462",
+      "allowed_previous_sha256": [
+        null,
+        "05bf33a8af7877ba536c0e9210f1879166efcc8fb4b14cd9298fb2dcd3eb1462"
+      ],
+      "bytes": 618
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mujoco_reference/meshes/base_0.stl",
+      "after_sha256": "d457f02d3d543ed64a415b16ed5744f8a2ca7bab5478b066fece75e3e4c77a08",
+      "allowed_previous_sha256": [
+        null,
+        "d457f02d3d543ed64a415b16ed5744f8a2ca7bab5478b066fece75e3e4c77a08"
+      ],
+      "bytes": 7500084
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mujoco_reference/meshes/base_1.stl",
+      "after_sha256": "342fc3af5f38597883ae60c60169fbdd3547c5ab59c23b18908a85be7258e088",
+      "allowed_previous_sha256": [
+        null,
+        "342fc3af5f38597883ae60c60169fbdd3547c5ab59c23b18908a85be7258e088"
+      ],
+      "bytes": 7500084
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mujoco_reference/meshes/base_2.stl",
+      "after_sha256": "11549cda5feb402fe263e30f27285d08acef13d3543f8e33bfe0df23f8fcf6a7",
+      "allowed_previous_sha256": [
+        null,
+        "11549cda5feb402fe263e30f27285d08acef13d3543f8e33bfe0df23f8fcf6a7"
+      ],
+      "bytes": 3881684
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mujoco_reference/meshes/left_0.stl",
+      "after_sha256": "839cd4873c16504ceefe957c88b6129f5235909423d1de4d93f69917f9b1a9e1",
+      "allowed_previous_sha256": [
+        null,
+        "839cd4873c16504ceefe957c88b6129f5235909423d1de4d93f69917f9b1a9e1"
+      ],
+      "bytes": 1698584
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mujoco_reference/meshes/left_pad_0.stl",
+      "after_sha256": "58c7900accdbd08aff44854f121d00b4bba7a01d90c0d99e4fc03870367f65cb",
+      "allowed_previous_sha256": [
+        null,
+        "58c7900accdbd08aff44854f121d00b4bba7a01d90c0d99e4fc03870367f65cb"
+      ],
+      "bytes": 30684
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mujoco_reference/meshes/right_0.stl",
+      "after_sha256": "ff23060ff572adb45e501b56f6ff4f3e614e7a0a333de900529268c1e068af62",
+      "allowed_previous_sha256": [
+        null,
+        "ff23060ff572adb45e501b56f6ff4f3e614e7a0a333de900529268c1e068af62"
+      ],
+      "bytes": 1571684
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mujoco_reference/meshes/right_pad_0.stl",
+      "after_sha256": "7be1245dd06f0f4d5f149eda1417e10bd5a81f303f66688ba192db7d88b13627",
+      "allowed_previous_sha256": [
+        null,
+        "7be1245dd06f0f4d5f149eda1417e10bd5a81f303f66688ba192db7d88b13627"
+      ],
+      "bytes": 30684
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/mujoco_reference/model.xml",
+      "after_sha256": "60f997a1a897fe3114ba26015385ee400442aefaadba3a2b1293459bdf0a8512",
+      "allowed_previous_sha256": [
+        null,
+        "60f997a1a897fe3114ba26015385ee400442aefaadba3a2b1293459bdf0a8512"
+      ],
+      "bytes": 2488
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/private_runtime_manifest.json",
+      "after_sha256": "27ded4b836fe9c419ae4a32f399b249dc7971d6d5bba06bd087be13dc4ad238e",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 1748388
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/source_manifest.json",
+      "after_sha256": "28e06d6de1ad1a9a7b873fee958e30e6af5c0e78b51dd7bb979a089fef139c42",
+      "allowed_previous_sha256": [
+        null,
+        "28e06d6de1ad1a9a7b873fee958e30e6af5c0e78b51dd7bb979a089fef139c42"
+      ],
+      "bytes": 5765
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/static_reference/VERIFICATION.json",
+      "after_sha256": "0a4eda59156e253af24b41c9ad2c3a325896e138412f5920c731d4975f6c7ce2",
+      "allowed_previous_sha256": [
+        null,
+        "0a4eda59156e253af24b41c9ad2c3a325896e138412f5920c731d4975f6c7ce2"
+      ],
+      "bytes": 605
+    },
+    {
+      "path": "real2sim/grippers/aurora_fusion/static_reference/asset.json",
+      "after_sha256": "d4e87a01e4fd8428125d3091264bff7dc7e78faa45b1b583027cb1d0ca926d79",
+      "allowed_previous_sha256": [
+        null,
+        "d4e87a01e4fd8428125d3091264bff7dc7e78faa45b1b583027cb1d0ca926d79"
+      ],
+      "bytes": 1220
+    },
+    {
+      "path": "real2sim/grippers/aurora_lite/reference/aurora_lite_gripper.step",
+      "after_sha256": "658e5e2a175d455655a2990ceaf0e69fad48df6c1bba04d2eabdf7a6b4909c59",
+      "allowed_previous_sha256": [
+        null,
+        "658e5e2a175d455655a2990ceaf0e69fad48df6c1bba04d2eabdf7a6b4909c59"
+      ],
+      "bytes": 79988664
+    },
+    {
+      "path": "real2sim/grippers/g1_ws/reference/g1_ws_with_screw_holes.step",
+      "after_sha256": "e1f0c888e5b4f9ec056a636fc5568db7d4a79d0d38c0c911533c290c62436ea0",
+      "allowed_previous_sha256": [
+        null,
+        "e1f0c888e5b4f9ec056a636fc5568db7d4a79d0d38c0c911533c290c62436ea0"
+      ],
+      "bytes": 337896
+    },
+    {
+      "path": "real2sim/grippers/g1_ws/reference/ws_sensor_model.stp",
+      "after_sha256": "b37e8b980eadb34677909947fc26811545d9bdb354c89beead025c788d139e72",
+      "allowed_previous_sha256": [
+        null,
+        "b37e8b980eadb34677909947fc26811545d9bdb354c89beead025c788d139e72"
+      ],
+      "bytes": 445803
+    },
+    {
+      "path": "real2sim/grippers/source_manifest.json",
+      "after_sha256": "a1a765783aee87fd4311b96d1806a067618562ff69590a1409b5079f61f0c468",
+      "allowed_previous_sha256": [
+        null,
+        "a1a765783aee87fd4311b96d1806a067618562ff69590a1409b5079f61f0c468"
+      ],
+      "bytes": 983
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/aurora_lite_ws.urdf",
+      "after_sha256": "19adaa456e42c883874b8ebd2d25e9a954dc8e91e3507ab57c2ccf99a733d668",
+      "allowed_previous_sha256": [
+        null,
+        "19adaa456e42c883874b8ebd2d25e9a954dc8e91e3507ab57c2ccf99a733d668"
+      ],
+      "bytes": 15051
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/fusion_contract.json",
+      "after_sha256": "0d4ba2ae123fd0a5ba155f7acdce28067f57c3ab759ce880c755b3c2bd5d643b",
+      "allowed_previous_sha256": [
+        null,
+        "0d4ba2ae123fd0a5ba155f7acdce28067f57c3ab759ce880c755b3c2bd5d643b"
+      ],
+      "bytes": 1351
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/g1d_aurora_lite_ws.urdf",
+      "after_sha256": "29aea4127cdeaa26e6f85c6ca10d589098ad3f147b641297f8721f7e8a81b889",
+      "allowed_previous_sha256": [
+        null,
+        "29aea4127cdeaa26e6f85c6ca10d589098ad3f147b641297f8721f7e8a81b889"
+      ],
+      "bytes": 56966
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/left_robot_config.yml",
+      "after_sha256": "1ca6d27bd0f80643119bf123ec85d9a0670201ecf2a6d6f793c4f9fe8fee88e6",
+      "allowed_previous_sha256": [
+        null,
+        "1ca6d27bd0f80643119bf123ec85d9a0670201ecf2a6d6f793c4f9fe8fee88e6"
+      ],
+      "bytes": 1044
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/base_collision_0.stl",
+      "after_sha256": "693f6749fe779b8c06132491f4ef42c5c396297ed787871a4e21e494ff1ce820",
+      "allowed_previous_sha256": [
+        null,
+        "693f6749fe779b8c06132491f4ef42c5c396297ed787871a4e21e494ff1ce820"
+      ],
+      "bytes": 97784
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/base_visual.stl",
+      "after_sha256": "7d50f7a623e8e84d8dde22cdee92304b6954a7890280279d1498acfeb43813a5",
+      "allowed_previous_sha256": [
+        null,
+        "7d50f7a623e8e84d8dde22cdee92304b6954a7890280279d1498acfeb43813a5"
+      ],
+      "bytes": 30625084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_0.stl",
+      "after_sha256": "208549fcf71b725782ac31a30d266208057c75619c218ed0e1ffeb0b9923f94c",
+      "allowed_previous_sha256": [
+        null,
+        "208549fcf71b725782ac31a30d266208057c75619c218ed0e1ffeb0b9923f94c"
+      ],
+      "bytes": 4884
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_1.stl",
+      "after_sha256": "fa712cd13986f5fb51bbe1088c3b8c65aa830dcc8cd3901c2c7d4c90ffb22abb",
+      "allowed_previous_sha256": [
+        null,
+        "fa712cd13986f5fb51bbe1088c3b8c65aa830dcc8cd3901c2c7d4c90ffb22abb"
+      ],
+      "bytes": 5784
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_10.stl",
+      "after_sha256": "981dcf1f5ff00b11d69fa07af92604e1e0b7fbcfbdd537722629ca54b65cbc9b",
+      "allowed_previous_sha256": [
+        null,
+        "981dcf1f5ff00b11d69fa07af92604e1e0b7fbcfbdd537722629ca54b65cbc9b"
+      ],
+      "bytes": 684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_11.stl",
+      "after_sha256": "438c225cd5f2acddb9f059f613050b0d89df5aec30da7395d8fe3e77d49439ad",
+      "allowed_previous_sha256": [
+        null,
+        "438c225cd5f2acddb9f059f613050b0d89df5aec30da7395d8fe3e77d49439ad"
+      ],
+      "bytes": 684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_12.stl",
+      "after_sha256": "97ea591428432cce0d098ed93cba9b05f3efdf1b1928bc25f45252465e47f97f",
+      "allowed_previous_sha256": [
+        null,
+        "97ea591428432cce0d098ed93cba9b05f3efdf1b1928bc25f45252465e47f97f"
+      ],
+      "bytes": 684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_13.stl",
+      "after_sha256": "f3730b16a024f74ffebed0e7b00dd3542f7bd2e4b5e9f5f2fc664a229315f1f9",
+      "allowed_previous_sha256": [
+        null,
+        "f3730b16a024f74ffebed0e7b00dd3542f7bd2e4b5e9f5f2fc664a229315f1f9"
+      ],
+      "bytes": 1084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_14.stl",
+      "after_sha256": "5d84a6fef2ee702683f05ae9f53fe8c3e63d89997193ac659753ad33a5f1d1de",
+      "allowed_previous_sha256": [
+        null,
+        "5d84a6fef2ee702683f05ae9f53fe8c3e63d89997193ac659753ad33a5f1d1de"
+      ],
+      "bytes": 90084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_15.stl",
+      "after_sha256": "34f5b9e3ff4ff0a0355194ad3807c4e78e6513e085955e843c3404fdd202cb36",
+      "allowed_previous_sha256": [
+        null,
+        "34f5b9e3ff4ff0a0355194ad3807c4e78e6513e085955e843c3404fdd202cb36"
+      ],
+      "bytes": 90084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_16.stl",
+      "after_sha256": "4efe5575e320d1e4dafee29bf24f094071b2b8c46fa5da02d5af840186e258f3",
+      "allowed_previous_sha256": [
+        null,
+        "4efe5575e320d1e4dafee29bf24f094071b2b8c46fa5da02d5af840186e258f3"
+      ],
+      "bytes": 90084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_17.stl",
+      "after_sha256": "85e64fa5af8071cc2d08fdaed3aafb90c2f8e765ac895024f2dd9abf1ed5e9f3",
+      "allowed_previous_sha256": [
+        null,
+        "85e64fa5af8071cc2d08fdaed3aafb90c2f8e765ac895024f2dd9abf1ed5e9f3"
+      ],
+      "bytes": 90084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_2.stl",
+      "after_sha256": "753b745078930041ed3ac64e6d6d6eb11f7e7c712a63f0d32d379a8848115a0e",
+      "allowed_previous_sha256": [
+        null,
+        "753b745078930041ed3ac64e6d6d6eb11f7e7c712a63f0d32d379a8848115a0e"
+      ],
+      "bytes": 4084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_3.stl",
+      "after_sha256": "3c3f3f0328e4d967ce10814bca157c6a8c866909db9c16b4879ecd0de510b474",
+      "allowed_previous_sha256": [
+        null,
+        "3c3f3f0328e4d967ce10814bca157c6a8c866909db9c16b4879ecd0de510b474"
+      ],
+      "bytes": 8984
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_4.stl",
+      "after_sha256": "44d9659d7f8ca36caacda373d18676f81f9d05a52e5af633725d74e5bd611afa",
+      "allowed_previous_sha256": [
+        null,
+        "44d9659d7f8ca36caacda373d18676f81f9d05a52e5af633725d74e5bd611afa"
+      ],
+      "bytes": 10484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_5.stl",
+      "after_sha256": "d521d3e842d4ed94b9ee0b2937e7608c66e947b2f44509e92de3b205fae02a6e",
+      "allowed_previous_sha256": [
+        null,
+        "d521d3e842d4ed94b9ee0b2937e7608c66e947b2f44509e92de3b205fae02a6e"
+      ],
+      "bytes": 4484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_6.stl",
+      "after_sha256": "9535222d7ad9dfc82149b8490237d4a9da25b3346d9bee0ca06dd7dc1d7b5c41",
+      "allowed_previous_sha256": [
+        null,
+        "9535222d7ad9dfc82149b8490237d4a9da25b3346d9bee0ca06dd7dc1d7b5c41"
+      ],
+      "bytes": 7784
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_7.stl",
+      "after_sha256": "cbc3bbaa58f9424ccc7d6fc20a4918bd41248d3f3eed40cc606923e15abd4e8d",
+      "allowed_previous_sha256": [
+        null,
+        "cbc3bbaa58f9424ccc7d6fc20a4918bd41248d3f3eed40cc606923e15abd4e8d"
+      ],
+      "bytes": 684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_8.stl",
+      "after_sha256": "945e5aab1d36c4516cf4764ffbe6a1435fb53348a266a80277a1cf4993d2f645",
+      "allowed_previous_sha256": [
+        null,
+        "945e5aab1d36c4516cf4764ffbe6a1435fb53348a266a80277a1cf4993d2f645"
+      ],
+      "bytes": 684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_collision_9.stl",
+      "after_sha256": "a999cdd373fcc7626213cb3dd8eab26f9faf638de67ec64649a4d0613752dd62",
+      "allowed_previous_sha256": [
+        null,
+        "a999cdd373fcc7626213cb3dd8eab26f9faf638de67ec64649a4d0613752dd62"
+      ],
+      "bytes": 784
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_carrier_visual.stl",
+      "after_sha256": "39bfc9299982a94ee60fd39e77323afe67df5657efcf2c00acf8b186b20b686c",
+      "allowed_previous_sha256": [
+        null,
+        "39bfc9299982a94ee60fd39e77323afe67df5657efcf2c00acf8b186b20b686c"
+      ],
+      "bytes": 1272484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_gel_collision_0.stl",
+      "after_sha256": "70290f9f40695a800ea3cfb494ecd10487d56349e4cc19005b765cf3662d4d0c",
+      "allowed_previous_sha256": [
+        null,
+        "70290f9f40695a800ea3cfb494ecd10487d56349e4cc19005b765cf3662d4d0c"
+      ],
+      "bytes": 61484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_gel_visual.stl",
+      "after_sha256": "d8719712845762ee7edde8fae095996776e93f035238245e11f49d65df7c6f1f",
+      "allowed_previous_sha256": [
+        null,
+        "d8719712845762ee7edde8fae095996776e93f035238245e11f49d65df7c6f1f"
+      ],
+      "bytes": 61484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_sensor_collision_0.stl",
+      "after_sha256": "369e2d1ab812fb60d65cc35bfc60ad86c944c98bcd63863fbd8adb59c996b0a4",
+      "allowed_previous_sha256": [
+        null,
+        "369e2d1ab812fb60d65cc35bfc60ad86c944c98bcd63863fbd8adb59c996b0a4"
+      ],
+      "bytes": 83484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/negative_sensor_visual.stl",
+      "after_sha256": "c3b38e052ba2361916aff7955db1feb49c07211d734c9cfa3beeffe9f4a5a207",
+      "allowed_previous_sha256": [
+        null,
+        "c3b38e052ba2361916aff7955db1feb49c07211d734c9cfa3beeffe9f4a5a207"
+      ],
+      "bytes": 1555284
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_0.stl",
+      "after_sha256": "4685e415da9c29f82144c60d9984b3521aac87973f1c682cb48133fbeb8940f9",
+      "allowed_previous_sha256": [
+        null,
+        "4685e415da9c29f82144c60d9984b3521aac87973f1c682cb48133fbeb8940f9"
+      ],
+      "bytes": 4884
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_1.stl",
+      "after_sha256": "4e93bd10a66d90e305be40845a87e662fbe06d51970da349953071cde98c497e",
+      "allowed_previous_sha256": [
+        null,
+        "4e93bd10a66d90e305be40845a87e662fbe06d51970da349953071cde98c497e"
+      ],
+      "bytes": 5784
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_10.stl",
+      "after_sha256": "27142e57fa92919ceee2549ec3a9e1965e016f6871ca48168b186fd9ede0acc1",
+      "allowed_previous_sha256": [
+        null,
+        "27142e57fa92919ceee2549ec3a9e1965e016f6871ca48168b186fd9ede0acc1"
+      ],
+      "bytes": 684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_11.stl",
+      "after_sha256": "e6a87b5cdbae34bd9b2066fb3ae0e1e9f235f29e8846957b52f95e7345d0cbde",
+      "allowed_previous_sha256": [
+        null,
+        "e6a87b5cdbae34bd9b2066fb3ae0e1e9f235f29e8846957b52f95e7345d0cbde"
+      ],
+      "bytes": 684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_12.stl",
+      "after_sha256": "79b4777987f261fb976879a4523974771f4c66c490d72f3d87e0ec5eca8097f2",
+      "allowed_previous_sha256": [
+        null,
+        "79b4777987f261fb976879a4523974771f4c66c490d72f3d87e0ec5eca8097f2"
+      ],
+      "bytes": 684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_13.stl",
+      "after_sha256": "6296dac1d512fe61a7de8c74201a86bf03e801150eb074e3898bfa2b444794d9",
+      "allowed_previous_sha256": [
+        null,
+        "6296dac1d512fe61a7de8c74201a86bf03e801150eb074e3898bfa2b444794d9"
+      ],
+      "bytes": 1084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_14.stl",
+      "after_sha256": "5b466c4b7be66123542a9a5499ce11ab3ff15ca34588e10a01d4a22475c8c711",
+      "allowed_previous_sha256": [
+        null,
+        "5b466c4b7be66123542a9a5499ce11ab3ff15ca34588e10a01d4a22475c8c711"
+      ],
+      "bytes": 90084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_15.stl",
+      "after_sha256": "937c21f97d90a743dc2ac8775a129b738bff362eb34789b64ac5f3a16cb6ddaf",
+      "allowed_previous_sha256": [
+        null,
+        "937c21f97d90a743dc2ac8775a129b738bff362eb34789b64ac5f3a16cb6ddaf"
+      ],
+      "bytes": 90084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_16.stl",
+      "after_sha256": "4a6768ca733dbd13a374ef5833b25d77626abe7b210bb69af11c2d8d29c67250",
+      "allowed_previous_sha256": [
+        null,
+        "4a6768ca733dbd13a374ef5833b25d77626abe7b210bb69af11c2d8d29c67250"
+      ],
+      "bytes": 90084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_17.stl",
+      "after_sha256": "855c0a59d25160665605c22c3de5eb749685f567e8226d69b7636ec50d8e940d",
+      "allowed_previous_sha256": [
+        null,
+        "855c0a59d25160665605c22c3de5eb749685f567e8226d69b7636ec50d8e940d"
+      ],
+      "bytes": 90084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_18.stl",
+      "after_sha256": "c87cdcf204cea3269a2a8027d4a7aee9eed87309a21be7207f4dd5758a618744",
+      "allowed_previous_sha256": [
+        null,
+        "c87cdcf204cea3269a2a8027d4a7aee9eed87309a21be7207f4dd5758a618744"
+      ],
+      "bytes": 50584
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_19.stl",
+      "after_sha256": "8dd18694f89f2425044f89a49af343def5d0b3c68befb85e75a5eb8eb40d7364",
+      "allowed_previous_sha256": [
+        null,
+        "8dd18694f89f2425044f89a49af343def5d0b3c68befb85e75a5eb8eb40d7364"
+      ],
+      "bytes": 50584
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_2.stl",
+      "after_sha256": "6b1d4418554caf194ea7712cd08b0e2c1dca55dfc7d6d41c0d53a763659ce7da",
+      "allowed_previous_sha256": [
+        null,
+        "6b1d4418554caf194ea7712cd08b0e2c1dca55dfc7d6d41c0d53a763659ce7da"
+      ],
+      "bytes": 4084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_3.stl",
+      "after_sha256": "2759413217dd4dbb9adc9e3a58fd921028bd18209a1e42d158fdd87947ca7ba9",
+      "allowed_previous_sha256": [
+        null,
+        "2759413217dd4dbb9adc9e3a58fd921028bd18209a1e42d158fdd87947ca7ba9"
+      ],
+      "bytes": 8984
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_4.stl",
+      "after_sha256": "a35ce243d1078b0bced9fb5e419a3ec1cfb1d621847821d66f69d3b19a49829b",
+      "allowed_previous_sha256": [
+        null,
+        "a35ce243d1078b0bced9fb5e419a3ec1cfb1d621847821d66f69d3b19a49829b"
+      ],
+      "bytes": 10484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_5.stl",
+      "after_sha256": "b7c64fdc3ae76c210868556dd0bae7a6f2817b205ab62efcae7356c6f3178181",
+      "allowed_previous_sha256": [
+        null,
+        "b7c64fdc3ae76c210868556dd0bae7a6f2817b205ab62efcae7356c6f3178181"
+      ],
+      "bytes": 4484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_6.stl",
+      "after_sha256": "11818d8c417e8e02f0b4484217ff1cd7689a86284373e221b6b6092281006818",
+      "allowed_previous_sha256": [
+        null,
+        "11818d8c417e8e02f0b4484217ff1cd7689a86284373e221b6b6092281006818"
+      ],
+      "bytes": 7784
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_7.stl",
+      "after_sha256": "24b334d09d6f23ddc276e9c238be3c11c1d6df7a476aaeee7c97eabd80aa2dbf",
+      "allowed_previous_sha256": [
+        null,
+        "24b334d09d6f23ddc276e9c238be3c11c1d6df7a476aaeee7c97eabd80aa2dbf"
+      ],
+      "bytes": 684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_8.stl",
+      "after_sha256": "be45703c134a7127d087b7b7ce204265cca967f57d5fc9aea801bc9e38c7a367",
+      "allowed_previous_sha256": [
+        null,
+        "be45703c134a7127d087b7b7ce204265cca967f57d5fc9aea801bc9e38c7a367"
+      ],
+      "bytes": 684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_collision_9.stl",
+      "after_sha256": "919a4527ff90c68ca292b10a1002bfd00d4273480624a2c9de2bdf73dca7786e",
+      "allowed_previous_sha256": [
+        null,
+        "919a4527ff90c68ca292b10a1002bfd00d4273480624a2c9de2bdf73dca7786e"
+      ],
+      "bytes": 684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_carrier_visual.stl",
+      "after_sha256": "d0675c2e0ae0ed4ea26eba0a9c2d5efae247bcefc6b64c3b41c4513772878183",
+      "allowed_previous_sha256": [
+        null,
+        "d0675c2e0ae0ed4ea26eba0a9c2d5efae247bcefc6b64c3b41c4513772878183"
+      ],
+      "bytes": 1519184
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_gel_collision_0.stl",
+      "after_sha256": "60b502788736568fa681fa55f5ac6e05654a6398cb021b03de2a3551871cd5a2",
+      "allowed_previous_sha256": [
+        null,
+        "60b502788736568fa681fa55f5ac6e05654a6398cb021b03de2a3551871cd5a2"
+      ],
+      "bytes": 61484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_gel_visual.stl",
+      "after_sha256": "f0f8ee129485ef5a2ecb6c47c0d22c33a2fdc0ff30dffa4898b75cb429735b86",
+      "allowed_previous_sha256": [
+        null,
+        "f0f8ee129485ef5a2ecb6c47c0d22c33a2fdc0ff30dffa4898b75cb429735b86"
+      ],
+      "bytes": 61484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_sensor_collision_0.stl",
+      "after_sha256": "803da862f27b535f28919fb6ef052ce5b741f2075ad24e14d92eee8f7155a117",
+      "allowed_previous_sha256": [
+        null,
+        "803da862f27b535f28919fb6ef052ce5b741f2075ad24e14d92eee8f7155a117"
+      ],
+      "bytes": 83434
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/aurora/positive_sensor_visual.stl",
+      "after_sha256": "39ed7ddbeb2de75ad73b0c2983770f1530d124564c5af1f947ab43cb9241d5f8",
+      "allowed_previous_sha256": [
+        null,
+        "39ed7ddbeb2de75ad73b0c2983770f1530d124564c5af1f947ab43cb9241d5f8"
+      ],
+      "bytes": 1558284
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/AGV_link.STL",
+      "after_sha256": "31f614f6dba7d325da41a8126e046816e1715a68782deecaf2f54b7b6e8018af",
+      "allowed_previous_sha256": [
+        null,
+        "31f614f6dba7d325da41a8126e046816e1715a68782deecaf2f54b7b6e8018af"
+      ],
+      "bytes": 323984
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/LZ_it_Link.STL",
+      "after_sha256": "031fb6edebed09abb62fcff327bfaaa22ab0488e61e252bc5c82581106c7e35d",
+      "allowed_previous_sha256": [
+        null,
+        "031fb6edebed09abb62fcff327bfaaa22ab0488e61e252bc5c82581106c7e35d"
+      ],
+      "bytes": 152484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/LZ_mt_Link.STL",
+      "after_sha256": "236cc1f805e4b7d678dbfd30fa8fa42585420ef1a1155c056de48ebb99ec460e",
+      "allowed_previous_sha256": [
+        null,
+        "236cc1f805e4b7d678dbfd30fa8fa42585420ef1a1155c056de48ebb99ec460e"
+      ],
+      "bytes": 95284
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/LZ_ot_Link.STL",
+      "after_sha256": "10c28c57b042263080dcf5b508da7142f156c6d3e696fc8a0bc59ded81287910",
+      "allowed_previous_sha256": [
+        null,
+        "10c28c57b042263080dcf5b508da7142f156c6d3e696fc8a0bc59ded81287910"
+      ],
+      "bytes": 142884
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/Left_Wheel_Link.STL",
+      "after_sha256": "f9edcdc9869a490a4cec4cd2d72a8c8e2a708d2b6e0821c14e38d7acd7bef640",
+      "allowed_previous_sha256": [
+        null,
+        "f9edcdc9869a490a4cec4cd2d72a8c8e2a708d2b6e0821c14e38d7acd7bef640"
+      ],
+      "bytes": 2215584
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/Pitching_Link.STL",
+      "after_sha256": "804e2bfe229bed215e5ad0a551b0c96bdc0980887658b166e193bf6012d27595",
+      "allowed_previous_sha256": [
+        null,
+        "804e2bfe229bed215e5ad0a551b0c96bdc0980887658b166e193bf6012d27595"
+      ],
+      "bytes": 616284
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/RIght_Wheel_Link.STL",
+      "after_sha256": "e3e06451891f27e2cda41b5cabdf3ff19f606a94abe86e37fc9fdf253d71a429",
+      "allowed_previous_sha256": [
+        null,
+        "e3e06451891f27e2cda41b5cabdf3ff19f606a94abe86e37fc9fdf253d71a429"
+      ],
+      "bytes": 2215584
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/Yaw_Link.STL",
+      "after_sha256": "7c8db7f2cc73a7032e338a3dbb6783760202314a256ca4b92ae5a097a54a261a",
+      "allowed_previous_sha256": [
+        null,
+        "7c8db7f2cc73a7032e338a3dbb6783760202314a256ca4b92ae5a097a54a261a"
+      ],
+      "bytes": 1043084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/head_link.STL",
+      "after_sha256": "005fb67fbd3eff94aa8bf4a6e83238174e9f91b6721f7111594322f223724411",
+      "allowed_previous_sha256": [
+        null,
+        "005fb67fbd3eff94aa8bf4a6e83238174e9f91b6721f7111594322f223724411"
+      ],
+      "bytes": 932784
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/left_elbow_link.STL",
+      "after_sha256": "fa752198accd104d5c4c3a01382e45165b944fbbc5acce085059223324e5bed3",
+      "allowed_previous_sha256": [
+        null,
+        "fa752198accd104d5c4c3a01382e45165b944fbbc5acce085059223324e5bed3"
+      ],
+      "bytes": 88784
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/left_shoulder_pitch_link.STL",
+      "after_sha256": "f0d1cfd02fcf0d42f95e678eeca33da3afbcc366ffba5c052847773ec4f31d52",
+      "allowed_previous_sha256": [
+        null,
+        "f0d1cfd02fcf0d42f95e678eeca33da3afbcc366ffba5c052847773ec4f31d52"
+      ],
+      "bytes": 176784
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/left_shoulder_roll_link.STL",
+      "after_sha256": "fb9df21687773522598dc384f1a2945c7519f11cbc8bd372a49170316d6eee88",
+      "allowed_previous_sha256": [
+        null,
+        "fb9df21687773522598dc384f1a2945c7519f11cbc8bd372a49170316d6eee88"
+      ],
+      "bytes": 400284
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/left_shoulder_yaw_link.STL",
+      "after_sha256": "1aa97e9748e924336567992181f78c7cd0652fd52a4afcca3df6b2ef6f9e712e",
+      "allowed_previous_sha256": [
+        null,
+        "1aa97e9748e924336567992181f78c7cd0652fd52a4afcca3df6b2ef6f9e712e"
+      ],
+      "bytes": 249184
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/left_wrist_pitch_link.STL",
+      "after_sha256": "b251d8e05047f695d0f536cd78c11973cfa4e78d08cfe82759336cc3471de3a9",
+      "allowed_previous_sha256": [
+        null,
+        "b251d8e05047f695d0f536cd78c11973cfa4e78d08cfe82759336cc3471de3a9"
+      ],
+      "bytes": 85984
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/left_wrist_roll_link.STL",
+      "after_sha256": "edc387c9a0ba8c2237e9b296d32531426fabeb6f53e58df45c76106bca74148c",
+      "allowed_previous_sha256": [
+        null,
+        "edc387c9a0ba8c2237e9b296d32531426fabeb6f53e58df45c76106bca74148c"
+      ],
+      "bytes": 356184
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/left_wrist_yaw_link.STL",
+      "after_sha256": "83f8fb3a726bf9613d65dd14f0f447cb918c3c95b3938042a0c9c09749267d3b",
+      "allowed_previous_sha256": [
+        null,
+        "83f8fb3a726bf9613d65dd14f0f447cb918c3c95b3938042a0c9c09749267d3b"
+      ],
+      "bytes": 318684
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/logo_link.STL",
+      "after_sha256": "8571a0a19bc4916fa55f91449f51d5fdefd751000054865a842449429d5f155b",
+      "allowed_previous_sha256": [
+        null,
+        "8571a0a19bc4916fa55f91449f51d5fdefd751000054865a842449429d5f155b"
+      ],
+      "bytes": 243384
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/right_elbow_link.STL",
+      "after_sha256": "1be925d7aa268bb8fddf5362b9173066890c7d32092c05638608126e59d1e2ab",
+      "allowed_previous_sha256": [
+        null,
+        "1be925d7aa268bb8fddf5362b9173066890c7d32092c05638608126e59d1e2ab"
+      ],
+      "bytes": 88784
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/right_shoulder_pitch_link.STL",
+      "after_sha256": "24cdb387e0128dfe602770a81c56cdce3a0181d34d039a11d1aaf8819b7b8c02",
+      "allowed_previous_sha256": [
+        null,
+        "24cdb387e0128dfe602770a81c56cdce3a0181d34d039a11d1aaf8819b7b8c02"
+      ],
+      "bytes": 176784
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/right_shoulder_roll_link.STL",
+      "after_sha256": "962b97c48f9ce9e8399f45dd9522e0865d19aa9fd299406b2d475a8fc4a53e81",
+      "allowed_previous_sha256": [
+        null,
+        "962b97c48f9ce9e8399f45dd9522e0865d19aa9fd299406b2d475a8fc4a53e81"
+      ],
+      "bytes": 401884
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/right_shoulder_yaw_link.STL",
+      "after_sha256": "a0b76489271da0c72461a344c9ffb0f0c6e64f019ea5014c1624886c442a2fe5",
+      "allowed_previous_sha256": [
+        null,
+        "a0b76489271da0c72461a344c9ffb0f0c6e64f019ea5014c1624886c442a2fe5"
+      ],
+      "bytes": 249984
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/right_wrist_pitch_link.STL",
+      "after_sha256": "d22f8f3b3127f15a63e5be1ee273cd5075786c3142f1c3d9f76cbf43d2a26477",
+      "allowed_previous_sha256": [
+        null,
+        "d22f8f3b3127f15a63e5be1ee273cd5075786c3142f1c3d9f76cbf43d2a26477"
+      ],
+      "bytes": 79584
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/right_wrist_roll_link.STL",
+      "after_sha256": "a7ee9212ff5b94d6cb7f52bb1bbf3f352194d5b598acff74f4c77d340c5b344f",
+      "allowed_previous_sha256": [
+        null,
+        "a7ee9212ff5b94d6cb7f52bb1bbf3f352194d5b598acff74f4c77d340c5b344f"
+      ],
+      "bytes": 356084
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/right_wrist_yaw_link.STL",
+      "after_sha256": "bc9dece2d12509707e0057ba2e48df8f3d56db0c79410212963a25e8a50f61a6",
+      "allowed_previous_sha256": [
+        null,
+        "bc9dece2d12509707e0057ba2e48df8f3d56db0c79410212963a25e8a50f61a6"
+      ],
+      "bytes": 341484
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/meshes/g1d/torso_link.STL",
+      "after_sha256": "e96d023f0368a4e3450b86ca5d4f10227d8141156a373e7da8cb3c93266523e0",
+      "allowed_previous_sha256": [
+        null,
+        "e96d023f0368a4e3450b86ca5d4f10227d8141156a373e7da8cb3c93266523e0"
+      ],
+      "bytes": 2232984
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/model_contract.json",
+      "after_sha256": "bd4de99338eaf126c1529a78460848427034cf7b62b90e2a7de1c79a79c40d81",
+      "allowed_previous_sha256": [
+        null,
+        "b7d5c0bc50c4f09a0de787a2b0f576a71d56dfa6a8b55202e24a0e5c0fab5528",
+        "8d05155f2559fd2036e6580009c36c097687a2d29404aaa0174831c2b433f0ee"
+      ],
+      "bytes": 14016
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/physics_contract.json",
+      "after_sha256": "2f083eb49298abd241e46fde2f0d0adcd29e2823efb4730e3f54f62bfa2366be",
+      "allowed_previous_sha256": [
+        null,
+        "2f083eb49298abd241e46fde2f0d0adcd29e2823efb4730e3f54f62bfa2366be"
+      ],
+      "bytes": 2356
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/right_robot_config.yml",
+      "after_sha256": "f4c672de0d891c24a4807390c14e000bfc84e60f89b3ca61e4554b9aefbee6c6",
+      "allowed_previous_sha256": [
+        null,
+        "f4c672de0d891c24a4807390c14e000bfc84e60f89b3ca61e4554b9aefbee6c6"
+      ],
+      "bytes": 737
+    },
+    {
+      "path": "real2sim/robot/g1d_aurora_lite_ws/sha256.json",
+      "after_sha256": "e9d8dafa3cf12d9782bcb34bcf6b1529ed765e978bd3d903018f0c3bdd1f467e",
+      "allowed_previous_sha256": [
+        null,
+        "63f081c37d5702c4bc9cfe1836e15dc49ddf2f248c65251efd0cac676a5a2f87",
+        "38ad090ec8ddae1d6a75ee0fb607ce4fbd61c3d324555dbff9b8db3a1a39da9c"
+      ],
+      "bytes": 9243
+    },
+    {
+      "path": "scripts/datagen/CONTRACT.md",
+      "after_sha256": "42e41b1db7317126a6e217e128712edcc4467e8c25f4e805cf4dedae4694194d",
+      "allowed_previous_sha256": [
+        "4a9af6004feda1ff4d219c56ad1e0f1e120ca063b97769708dc76baa7e0baee3",
+        "0d0446e3097e53c99cabb3c9da61ea8bc8f46b0bbee8fc46d29cf243ade2ef2f"
+      ],
+      "bytes": 9994
+    },
+    {
+      "path": "scripts/g1d/build_asset.py",
+      "after_sha256": "23fa52388ae41b54ecd52095cdaf8faeda10582da61c234b36715b0bbf06b7b1",
+      "allowed_previous_sha256": [
+        "d0919f1fa9acadc8e19b18334556f704758ef631003e4d7e68f92abc3baa200d",
+        "23fa52388ae41b54ecd52095cdaf8faeda10582da61c234b36715b0bbf06b7b1"
+      ],
+      "bytes": 29795
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/DATA_PIPELINE.md",
+      "after_sha256": "3347785ed2c5b82f907998fec61a6707584f94b411d1b5b3de757861d38ae465",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2483
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/README.md",
+      "after_sha256": "6ebfc0e24e8c9c8846b0f7b13fe37d830a3c9cc06634ad3ba747c5e7de241c70",
+      "allowed_previous_sha256": [
+        null,
+        "5412fb4b65c7cac7ef564b47abd9977d7548cc9b55053b51cca3921655d8161d",
+        "6db44c7301e884b154fefab6706594b0b9f7c18eb23845fcf97eb348ce3950b2"
+      ],
+      "bytes": 14658
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/apply_delivery.py",
+      "after_sha256": "cb87109a5f7b8fa866533b5343dd4b6553410f1974624f027527c7dd22f44ec9",
+      "allowed_previous_sha256": [
+        null,
+        "cb87109a5f7b8fa866533b5343dd4b6553410f1974624f027527c7dd22f44ec9"
+      ],
+      "bytes": 2456
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/audit_full_task.py",
+      "after_sha256": "3889b1b690db5d43655f9f30ad9312767216b974e0b66c2bcab842982d36d517",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 4413
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/audit_model.py",
+      "after_sha256": "eca43ff0d0e90cc0f028441b6e39224bfc868144db6da5c4701f29d837690ba0",
+      "allowed_previous_sha256": [
+        null,
+        "eca43ff0d0e90cc0f028441b6e39224bfc868144db6da5c4701f29d837690ba0"
+      ],
+      "bytes": 5629
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/build_from_cad.py",
+      "after_sha256": "820e513bbae0c5422e8a6159df354864d5b7305cccf9490abe0e6dc03c897138",
+      "allowed_previous_sha256": [
+        null,
+        "820e513bbae0c5422e8a6159df354864d5b7305cccf9490abe0e6dc03c897138"
+      ],
+      "bytes": 22892
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/calibration_fit.py",
+      "after_sha256": "62c35115a2b6d7343b6ba8066e4c93e75c8208f86543da1243d4c17d1e43d52b",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 3408
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/check_fusion_alignment.py",
+      "after_sha256": "11e468173f87aa58b9a3d08aa33b5596dd5fa90a21c9535591217dfd8ae047f6",
+      "allowed_previous_sha256": [
+        null,
+        "11e468173f87aa58b9a3d08aa33b5596dd5fa90a21c9535591217dfd8ae047f6"
+      ],
+      "bytes": 5456
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/check_mujoco_reference.py",
+      "after_sha256": "b75c96c6ec7a5312dd86a62c884ac8f57e5d6f3160e87258b10c9ca24ac54ea1",
+      "allowed_previous_sha256": [
+        null,
+        "b75c96c6ec7a5312dd86a62c884ac8f57e5d6f3160e87258b10c9ca24ac54ea1"
+      ],
+      "bytes": 1437
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/full_task_runtime.py",
+      "after_sha256": "871937ca363e1551880bba14496bfa3c1c985e68bf4383512841cd6833ec086d",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 12028
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/fusion_review_template.html",
+      "after_sha256": "27bb8e3eccf98b122ea04035776abf979a585067314b95d71c2b33b3b6c7740e",
+      "allowed_previous_sha256": [
+        null,
+        "27bb8e3eccf98b122ea04035776abf979a585067314b95d71c2b33b3b6c7740e"
+      ],
+      "bytes": 3452
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/fusion_runtime.py",
+      "after_sha256": "b74afbb2fcc78369b993aeda6fbb1cbea6f6fb9380c9d31cdac3793ada935474",
+      "allowed_previous_sha256": [
+        null,
+        "b74afbb2fcc78369b993aeda6fbb1cbea6f6fb9380c9d31cdac3793ada935474"
+      ],
+      "bytes": 18533
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/inspect_cad.py",
+      "after_sha256": "7fccf5645fb2041113da67fa1052e6afa5cae4fd43b1a845cd2a3286499dcb40",
+      "allowed_previous_sha256": [
+        null,
+        "7fccf5645fb2041113da67fa1052e6afa5cae4fd43b1a845cd2a3286499dcb40"
+      ],
+      "bytes": 5528
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/install_asset.py",
+      "after_sha256": "833230fcddbab730bd3f1d90028a1f6ca2c98a30a3367aef496083a32da7e805",
+      "allowed_previous_sha256": [
+        null,
+        "833230fcddbab730bd3f1d90028a1f6ca2c98a30a3367aef496083a32da7e805"
+      ],
+      "bytes": 1325
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/make_full_task_plan.py",
+      "after_sha256": "d6cb80cc5790ec2db7e844f756819ce719380481094a2553646ee307e607644a",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 3923
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/make_fusion_review.py",
+      "after_sha256": "452631db8a4444835dddeba002e53720c3b326c0eabd4f3a507f56cbb8b6e2c1",
+      "allowed_previous_sha256": [
+        null,
+        "452631db8a4444835dddeba002e53720c3b326c0eabd4f3a507f56cbb8b6e2c1"
+      ],
+      "bytes": 9716
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/make_task_review.py",
+      "after_sha256": "5ab3c8ab99354c314cac04ec7194ccf37af892fc0af7aefa5190a83ba67dbb77",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 4843
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/merge_local_sources.py",
+      "after_sha256": "ca06b55f1d2fac21870a33ae3222aeb12c063c5f4b1687c1919e33db60a2ec42",
+      "allowed_previous_sha256": [
+        null,
+        "ca06b55f1d2fac21870a33ae3222aeb12c063c5f4b1687c1919e33db60a2ec42"
+      ],
+      "bytes": 3010
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/preview_model.py",
+      "after_sha256": "78b53cbc27b0ef045b32be4565878bb31868195c7cb7b4d581e39fd7359a9425",
+      "allowed_previous_sha256": [
+        null,
+        "78b53cbc27b0ef045b32be4565878bb31868195c7cb7b4d581e39fd7359a9425"
+      ],
+      "bytes": 3705
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/register_local.py",
+      "after_sha256": "12f8dc433a3794c84d7b44869560c6c92458fb4b1be1f1b936df0ecf3ee9dd57",
+      "allowed_previous_sha256": [
+        null,
+        "12f8dc433a3794c84d7b44869560c6c92458fb4b1be1f1b936df0ecf3ee9dd57"
+      ],
+      "bytes": 1304
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/requirements-cad.txt",
+      "after_sha256": "ce6915b9a25ccfb7938a1f172a90c4cc5bcb2251254b2c05e7047f0d1aeccd55",
+      "allowed_previous_sha256": [
+        null,
+        "ce6915b9a25ccfb7938a1f172a90c4cc5bcb2251254b2c05e7047f0d1aeccd55"
+      ],
+      "bytes": 234
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/requirements-tactile.txt",
+      "after_sha256": "454068ccc7f6b9e33e46fd0950651885b549e8dfaeb62bf461c9e500ba772a7a",
+      "allowed_previous_sha256": [
+        null,
+        "454068ccc7f6b9e33e46fd0950651885b549e8dfaeb62bf461c9e500ba772a7a"
+      ],
+      "bytes": 651
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/review_server.py",
+      "after_sha256": "41eb5fd47a435640e89898760aac7608f4808fecca76507c41d40acd33bc440a",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2557
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/runtime_probe.py",
+      "after_sha256": "e6263a29282d1b419aba876a9555c08274b1feaf15d961de75d290a8fadace27",
+      "allowed_previous_sha256": [
+        null,
+        "e6263a29282d1b419aba876a9555c08274b1feaf15d961de75d290a8fadace27"
+      ],
+      "bytes": 5072
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/runtime_resources.py",
+      "after_sha256": "f797524e77ac8e3cc12f8eccbb004b4dbae5fc4463db2bef62fad872af87a7aa",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 3146
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/tactile_dataset.py",
+      "after_sha256": "a488457dbfcf5f1de87c08f6102f3c1cd5b02c2ad95d364c7473a6dece80a6dc",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 8169
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/tactile_worker.py",
+      "after_sha256": "45f69ec4d411bac6e8530eef80149eb89125a682baae3d1292b6552afe566754",
+      "allowed_previous_sha256": [
+        null,
+        "a3ba1d3077aa5b0ceb98f5ca37ad53ff7820617c1ff5e0995209bcdd16dec825"
+      ],
+      "bytes": 10654
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/task_review_template.html",
+      "after_sha256": "33c80d11c4b0ce69c3269628504fd7ec94dec44fe43ef381f49e3cd66da7672f",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 5654
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/test_fusion_contract.py",
+      "after_sha256": "94568a4b392a7bf507370a6808cb2f1980ca41b4e1f278534ba16244606a8f60",
+      "allowed_previous_sha256": [
+        null,
+        "94568a4b392a7bf507370a6808cb2f1980ca41b4e1f278534ba16244606a8f60"
+      ],
+      "bytes": 3002
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/test_upgrade.py",
+      "after_sha256": "773fc2d7e6948f534ba24a6d92a76e4bc0ca891e23967adcbc73466062edcd42",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2775
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/urdf_tools.py",
+      "after_sha256": "4467922b63b01373fd305512564074f5d288e770313a6f140c3430f569c1f3c1",
+      "allowed_previous_sha256": [
+        null,
+        "4467922b63b01373fd305512564074f5d288e770313a6f140c3430f569c1f3c1"
+      ],
+      "bytes": 4500
+    },
+    {
+      "path": "scripts/g1d/xense_gripper/verify_policy_dataset.py",
+      "after_sha256": "9ea814502e672fa75e5899e75b84f9fc8bf04c6e7ce8cbe3da5a174d402c3de5",
+      "allowed_previous_sha256": [
+        null
+      ],
+      "bytes": 2565
+    },
+    {
+      "path": "src/real2sim_platform/test_server.py",
+      "after_sha256": "fb33bb9036216162366a8e96542e59673383df7b6ee14a2a9b98997ab0068f3a",
+      "allowed_previous_sha256": [
+        "67dffc87e187756fdc8ff8aab8c0b6332aa12f36bb4d5d0d78117451210e06a6",
+        "fb33bb9036216162366a8e96542e59673383df7b6ee14a2a9b98997ab0068f3a"
+      ],
+      "bytes": 25512
+    }
+  ],
+  "previous_versions": [
+    "20261022.v1",
+    "20261022.v2"
+  ]
+}

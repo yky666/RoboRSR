@@ -1,0 +1,79 @@
+{
+  "status": "nominal_reference_only",
+  "hardware_connected": false,
+  "source_zip_sha256": "e5ddb57ad0e07519d335e8cec4da617bc1a8e97059a6f42cb8b9103b33da0457",
+  "references": [
+    {
+      "file": "reference_other_unit/examples/README_zh.md",
+      "sha256": "06a17d0608d8dddfeeab1f61d2fd0b384b54902edb1bb2c30e69e17e0835d7f2",
+      "applied": false,
+      "reason": "different hardware identity and mounting; original example scope"
+    },
+    {
+      "file": "reference_other_unit/examples/joint_mapping.json",
+      "sha256": "8d1745c35bc702047490edad03dc33e50a9614d34a516c96a6b7f52b1f1ac4f6",
+      "applied": false,
+      "reason": "different hardware identity and mounting; original example scope"
+    },
+    {
+      "file": "reference_other_unit/examples/params_1019/params_dual_1019.json",
+      "sha256": "991e052cac845c05d688248a562e1b37ca0266371f86bff7c0d474b54de07da9",
+      "applied": false,
+      "reason": "different hardware identity and mounting; original example scope"
+    },
+    {
+      "file": "reference_other_unit/examples/params_1019/params_dual_trans_1019.json",
+      "sha256": "3564c537eac8d3e67bfd03d713b421bbf424ebc3ffbf0b6119d0ac6a5b85b871",
+      "applied": false,
+      "reason": "different hardware identity and mounting; original example scope"
+    },
+    {
+      "file": "reference_other_unit/examples/intrinsics/camera_intrinsics_head_left.json",
+      "sha256": "5b66de251810dd7ee5c3cb680a503ffa17235ce3f76e3ed7ee3b5ebdefff6135",
+      "applied": false,
+      "reason": "different hardware identity and mounting; original example scope"
+    },
+    {
+      "file": "reference_other_unit/examples/intrinsics/camera_intrinsics_head_right.json",
+      "sha256": "6c323643353506dd5365d363f20717e0874f37073cf29904da06644f5686ccf7",
+      "applied": false,
+      "reason": "different hardware identity and mounting; original example scope"
+    }
+  ],
+  "official_urdf_sha256": "46527573a7140c7129c3587ba5591f269974deb893a0b095ebca500028b8bf40",
+  "mounts": {
+    "left": {
+      "official_dex3_palm_origin": {
+        "xyz": "0.0415 0.003 0",
+        "rpy": "0 0 0"
+      },
+      "candidate_aurora_origin": {
+        "xyz": "0 0 0",
+        "rpy": "1.57079632679 0 1.57079632679"
+      },
+      "matched_adapter": false
+    },
+    "right": {
+      "official_dex3_palm_origin": {
+        "xyz": "0.0415 -0.003 0",
+        "rpy": "0 0 0"
+      },
+      "candidate_aurora_origin": {
+        "xyz": "0 0 0",
+        "rpy": "1.57079632679 0 1.57079632679"
+      },
+      "matched_adapter": false
+    }
+  },
+  "pending": [
+    "G1-D wrist hole dimension/tolerance drawing",
+    "adapter drawing and fastener stack",
+    "measured installed transform and TCP",
+    "own-unit encoder zero / camera hand-eye",
+    "part mass/COM/inertia identification",
+    "servo / friction / gel measured response"
+  ],
+  "own_unit_directory": "/mnt/data2/lxf/g1d_own_calibration_20261020",
+  "own_unit_result": "README says no own parameter solve; verification is synthetic/reference",
+  "prohibition": "Do not apply other-unit zero, camera, translation or board pose automatically"
+}

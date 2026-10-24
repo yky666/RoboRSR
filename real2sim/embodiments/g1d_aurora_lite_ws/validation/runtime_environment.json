@@ -1,0 +1,16 @@
+{
+  "isaac_sim": "5.1.0-rc19",
+  "isaaclab_package": "0.54.3 / app2.3.2",
+  "urdf_importer": "2.4.30",
+  "compatibility": "owned runtime only: merge_fixed_ignore_inertia guarded; merge_fixed_joints=false throughout; local kit dependency list corrected",
+  "physics": "CPU PhysX 1/240s",
+  "render_gpu": "local4090 GPU1",
+  "vendor_python": "3.10.20",
+  "vendor_sdk": "XenseSDK1.6.8 / Isaac4.5 distribution1.1.0",
+  "data_python": "3.10.20",
+  "lerobot": "0.4.4",
+  "h5py": "3.16.0",
+  "policy_reader": "PyAV / Dataset actual",
+  "shared_environments_modified": false,
+  "hardware_connected": false
+}

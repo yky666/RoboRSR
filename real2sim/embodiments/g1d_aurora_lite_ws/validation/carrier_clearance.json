@@ -1,0 +1,16 @@
+[
+  {
+    "carrier": "positive",
+    "other_sensor": "negative",
+    "max_intersection_radius_m": -0.0014466955981149144,
+    "hull_count": 20,
+    "status": "clear"
+  },
+  {
+    "carrier": "negative",
+    "other_sensor": "positive",
+    "max_intersection_radius_m": -0.0014432134953942222,
+    "hull_count": 18,
+    "status": "clear"
+  }
+]

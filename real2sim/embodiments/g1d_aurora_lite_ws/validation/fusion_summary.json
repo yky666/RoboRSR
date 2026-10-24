@@ -1,0 +1,99 @@
+{
+  "scope": "simulation integration and controlled fixture checks; not hardware or general manipulation acceptance",
+  "checks": {
+    "frame_association": true,
+    "finite_outputs": true,
+    "native_contacts_all_channels": true,
+    "known_width_candidate_check": true,
+    "load_induced_slip_observed": true,
+    "fem_unloaded_residual_below_1e_3": true
+  },
+  "frames": 148,
+  "fps": 10,
+  "source_frames_sha256": "8b9fd8f17a160e3dc5ff971fca29f72f717a8290d5d4d9fd009f127eff7e46bb",
+  "recorded_simulation_duration_s": 14.800000766664743,
+  "gauges": [
+    {
+      "width_mm": 30,
+      "arm": "left",
+      "measured_gap_mm": 29.867365601563712,
+      "max_hold_drift_mm": 3.332000937312528e-05,
+      "load_n": 0.1962,
+      "hold_seconds": 0.8,
+      "normal_contact_n": {
+        "left_positive": 2.200361195285225,
+        "left_negative": 2.2023168063853604
+      },
+      "within_candidate_gap_tolerance": true
+    },
+    {
+      "width_mm": 30,
+      "arm": "right",
+      "measured_gap_mm": 29.867376618257893,
+      "max_hold_drift_mm": 0.0,
+      "load_n": 0.1962,
+      "hold_seconds": 0.8,
+      "normal_contact_n": {
+        "right_positive": 2.2003938717887093,
+        "right_negative": 2.202324907609192
+      },
+      "within_candidate_gap_tolerance": true
+    },
+    {
+      "width_mm": 50,
+      "arm": "left",
+      "measured_gap_mm": 49.882217078762686,
+      "max_hold_drift_mm": 1.4901161193847656e-05,
+      "load_n": 0.1962,
+      "hold_seconds": 0.8,
+      "normal_contact_n": {
+        "left_positive": 2.2707227544702127,
+        "left_negative": 2.2727118006638922
+      },
+      "within_candidate_gap_tolerance": true
+    },
+    {
+      "width_mm": 50,
+      "arm": "right",
+      "measured_gap_mm": 49.87816917575485,
+      "max_hold_drift_mm": 0.0,
+      "load_n": 0.1962,
+      "hold_seconds": 0.8,
+      "normal_contact_n": {
+        "right_positive": 2.2528601139752746,
+        "right_negative": 2.254808467201744
+      },
+      "within_candidate_gap_tolerance": true
+    }
+  ],
+  "slip": [
+    {
+      "arm": "left",
+      "applied_tangent_load_n": 5.0,
+      "mass_kg": 0.02,
+      "displacement_m": 30.112034997823912,
+      "detached_under_load": true
+    },
+    {
+      "arm": "right",
+      "applied_tangent_load_n": 5.0,
+      "mass_kg": 0.02,
+      "displacement_m": 30.112032795844456,
+      "detached_under_load": true
+    }
+  ],
+  "fem_unloaded_array_norm": {
+    "left_positive": 0.0,
+    "left_negative": 0.0,
+    "right_positive": 0.0,
+    "right_negative": 0.0
+  },
+  "render_max_pad_matrix_error": 4.440892098500626e-16,
+  "real_mount_verified": false,
+  "real_material_calibrated": false,
+  "real_tactile_calibrated": false,
+  "realtime_30hz_verified": false,
+  "physics_force_feedback_from_fem": false,
+  "hardware_connected": false,
+  "inherited_full_body_controls_and_collision_preserved": true
+}

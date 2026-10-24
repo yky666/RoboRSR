@@ -1,0 +1,13 @@
+{
+  "repository_base": "64960dae81758b4f351af4b091e288360a3608e8",
+  "selected_urdf_sha256": "300634984610d0b280d154a00faf304d9744c712de792f619b9a1c92d76b18e4",
+  "selected_urdf_and_meshes": "matched source manifest, resolved LFS",
+  "unused_upstream_manifest_notes": [
+    "missing_manifest_member:finalize.log",
+    "source_hash_mismatch:g1_d_upper_dex1_v4.usd"
+  ],
+  "unused_files_not_used": [
+    "finalize.log",
+    "g1_d_upper_dex1_v4.usd"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "frames": 154,
+  "checked": [
+    "action",
+    "frame_id",
+    "observation/state",
+    "simulation_time_s",
+    "tactile/depth_mm",
+    "tactile/fem_marker",
+    "tactile/fem_node_force",
+    "tactile/fem_rgb",
+    "tactile/fem_surface_clearance_mm",
+    "tactile/native_friction_force_w_n",
+    "tactile/native_normal_force_w_n",
+    "tactile/simple_rgb"
+  ],
+  "independent_readback": true
+}

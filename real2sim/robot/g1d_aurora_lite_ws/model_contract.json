@@ -1,0 +1,594 @@
+{
+  "model": "g1d_aurora_lite_ws",
+  "urdf_origin": "generated from official STEP CAD, not a manufacturer-issued URDF",
+  "sources": {
+    "g1d_urdf_sha256": "300634984610d0b280d154a00faf304d9744c712de792f619b9a1c92d76b18e4",
+    "aurora_step_sha256": "658e5e2a175d455655a2990ceaf0e69fad48df6c1bba04d2eabdf7a6b4909c59"
+  },
+  "cad_base_plane_z_mm": -78.50000009999997,
+  "cad_opening_m": 0.08499999980000018,
+  "max_opening_m": 0.085,
+  "q_jaw_m": "opening_m / 2; q=0 closed, q=0.0425 open; opposite axes, equal travel",
+  "normalized_action": "0 closed, 1 open; two arm joint vectors (7 each) and one scalar per gripper",
+  "nominal_single_gripper_mass_kg": 0.615,
+  "mass_inertia_basis": "615 g product specification distributed by exact CAD solid volumes with uniform effective density; estimates, not per-part measurements",
+  "virtual_frame_mass_kg_each": 1e-06,
+  "single_jaw_effort_limit_N": 40,
+  "opening_speed_limit_m_s": 0.14,
+  "jaw_speed_limit_m_s": 0.07,
+  "speed_basis": "conservative interpretation of the 140 mm/s product specification as total opening speed; not measured",
+  "tcp_distance_from_mount_m": 0.1462769233970408,
+  "tcp_basis": "midpoint of CAD silicone-pad axial bounds; not measured tool calibration",
+  "wrist_mount": {
+    "xyz_m": [
+      0.0415,
+      0.0,
+      0.0
+    ],
+    "native_cad_rpy_rad": [
+      1.5707963267948966,
+      0.0,
+      1.5707963267948966
+    ],
+    "status": "proposed geometry placement; Dex1 wrist interface origin reused; Aurora-to-G1-D flange/adapter not mechanically verified"
+  },
+  "tactile": {
+    "sensors": 4,
+    "geometry": "two native WS sensor assemblies per gripper retained from official Aurora CAD",
+    "contact_frames": "geometric inner-face centres, +Z normal into the jaw gap; not calibrated optical frames",
+    "response": "Actual saved state -> isolated CPython3.10 SimpleSensor/FemSensor; offline or ordered live stream; four channels; PhysX gel remains rigid",
+    "user_step": "separate supplied WS revision retained and inspected as reference; not silently substituted for the matched factory assembly",
+    "simulation_observations_verified": true,
+    "optical_frame_calibrated": false,
+    "force_calibrated": false,
+    "hardware_connected": false
+  },
+  "cameras": "original G1-D head stereo only; no Dex1 wrist RGB extrinsics copied onto Aurora",
+  "calibration": {
+    "camera": "pending for this complete body",
+    "joint_zero": "pending",
+    "gripper": "pending",
+    "dynamics": "pending",
+    "wrist_mount": "pending"
+  },
+  "cad_groups": {
+    "base": {
+      "source_occurrences": [
+        1,
+        2,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        27,
+        28,
+        29,
+        30,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        56
+      ],
+      "volume_mm3": 138308.05874032222,
+      "mass_kg_estimated": 0.43915365463212597,
+      "inertia_kg_m2_estimated": [
+        [
+          0.0005311414080415478,
+          1.308854043815898e-06,
+          4.26126664605579e-06
+        ],
+        [
+          1.3088540438158983e-06,
+          0.0009520910838898134,
+          -4.469587794188967e-07
+        ],
+        [
+          4.261266646055788e-06,
+          -4.469587794188967e-07,
+          0.0006803897098669445
+        ]
+      ],
+      "source_bbox_mm": [
+        [
+          -74.60000009999999,
+          -31.0000018525431,
+          -78.50000009999997
+        ],
+        [
+          74.60000010000002,
+          31.0000018525431,
+          18.994368059734835
+        ]
+      ],
+      "closed_mesh_bbox_m": [
+        [
+          -0.0746,
+          -0.0310000017525431,
+          9.999999406318238e-11
+        ],
+        [
+          0.07460000000000003,
+          0.0310000017525431,
+          0.09650000160015698
+        ]
+      ],
+      "visual_triangles": 612500,
+      "collision_hull_vertices": [
+        979
+      ]
+    },
+    "positive_carrier": {
+      "source_occurrences": [
+        4,
+        6,
+        23,
+        24,
+        25,
+        26,
+        31,
+        32
+      ],
+      "volume_mm3": 13953.39345615984,
+      "mass_kg_estimated": 0.044304603698454806,
+      "inertia_kg_m2_estimated": [
+        [
+          7.078732138675543e-06,
+          3.5509143901011134e-06,
+          -4.507672264042477e-06
+        ],
+        [
+          3.5509143901011134e-06,
+          2.383469070729614e-05,
+          2.04153490760588e-06
+        ],
+        [
+          -4.507672264042477e-06,
+          2.04153490760588e-06,
+          2.1784584002526433e-05
+        ]
+      ],
+      "source_bbox_mm": [
+        [
+          -9.696190307372458,
+          -10.500000000062528,
+          -10.500000000000016
+        ],
+        [
+          67.01470181317616,
+          18.000000099937477,
+          38.00000000000001
+        ]
+      ],
+      "closed_mesh_bbox_m": [
+        [
+          -0.05219619020737246,
+          -0.010500000000062529,
+          0.06800000009999996
+        ],
+        [
+          0.02451470181317616,
+          0.01799999999993749,
+          0.11650000009999997
+        ]
+      ],
+      "visual_triangles": 30382,
+      "collision_hull_vertices": [
+        50,
+        59,
+        42,
+        91,
+        106,
+        46,
+        79,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        12,
+        902,
+        902,
+        902,
+        902,
+        507,
+        507
+      ]
+    },
+    "positive_gel": {
+      "source_occurrences": [
+        {
+          "path": "33/1/1/1",
+          "name": "02_G1-WS_DVT_SILICON_108.step"
+        }
+      ],
+      "volume_mm3": 1020.4211847282602,
+      "mass_kg_estimated": 0.0032400259002898875,
+      "inertia_kg_m2_estimated": [
+        [
+          3.12924640630648e-07,
+          2.9534875019723277e-19,
+          5.507638499639177e-20
+        ],
+        [
+          2.9534875019723277e-19,
+          2.320367188895122e-07,
+          -5.811621737763553e-19
+        ],
+        [
+          5.507638499639177e-20,
+          -5.811621737763553e-19,
+          8.303339464528688e-08
+        ]
+      ],
+      "source_bbox_mm": [
+        [
+          42.499999900000084,
+          -8.750000100008625,
+          53.1049998999989
+        ],
+        [
+          44.499999999999986,
+          8.750000100000157,
+          82.44884669408242
+        ]
+      ],
+      "closed_mesh_bbox_m": [
+        [
+          -2.5011104298755525e-15,
+          -0.008749999999999973,
+          0.13160500009999998
+        ],
+        [
+          0.0019999999999999857,
+          0.008750000000000027,
+          0.16094884669408
+        ]
+      ],
+      "visual_triangles": 1228,
+      "collision_hull_vertices": [
+        616
+      ]
+    },
+    "positive_sensor": {
+      "source_occurrences": [
+        {
+          "path": "33/1/2",
+          "name": "01_G1-WS_DVT_SHEET_37.step"
+        },
+        {
+          "path": "33/1/3",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "33/1/4",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "33/1/5",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "33/1/6",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "33/1/7",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "33/1/8",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "33/1/9",
+          "name": "01_G1-WS_DVT_BASE.step"
+        },
+        {
+          "path": "33/1/10",
+          "name": "LED_B.step"
+        },
+        {
+          "path": "33/2",
+          "name": "传感器后盖-2"
+        }
+      ],
+      "volume_mm3": 12798.0006461923,
+      "mass_kg_estimated": 0.04063601793668385,
+      "inertia_kg_m2_estimated": [
+        [
+          9.198326365352294e-06,
+          -9.036164983306038e-09,
+          1.1615440496957501e-06
+        ],
+        [
+          -9.036164983306038e-09,
+          8.492330536684714e-06,
+          -1.203700141890546e-08
+        ],
+        [
+          1.1615440496957501e-06,
+          -1.203700141890546e-08,
+          3.3245980663325315e-06
+        ]
+      ],
+      "source_bbox_mm": [
+        [
+          42.89300852366378,
+          -14.806991476336176,
+          27.00000000000003
+        ],
+        [
+          64.51470485102351,
+          14.806991476336224,
+          85.30000010000352
+        ]
+      ],
+      "closed_mesh_bbox_m": [
+        [
+          0.000393008623663782,
+          -0.014806991376336176,
+          0.10550000009999999
+        ],
+        [
+          0.022014704750631935,
+          0.014806991376336225,
+          0.1638000001000009
+        ]
+      ],
+      "visual_triangles": 31164,
+      "collision_hull_vertices": [
+        836
+      ]
+    },
+    "negative_carrier": {
+      "source_occurrences": [
+        3,
+        5,
+        19,
+        20,
+        21,
+        22
+      ],
+      "volume_mm3": 13791.634270558967,
+      "mass_kg_estimated": 0.04379098838077968,
+      "inertia_kg_m2_estimated": [
+        [
+          6.764782037312511e-06,
+          3.519691928529129e-06,
+          4.335370094494118e-06
+        ],
+        [
+          3.519691928529129e-06,
+          2.340998453358689e-05,
+          -1.987273249853844e-06
+        ],
+        [
+          4.335370094494118e-06,
+          -1.987273249853844e-06,
+          2.1645759926938203e-05
+        ]
+      ],
+      "source_bbox_mm": [
+        [
+          -67.00735090698879,
+          -18.000000099937154,
+          -10.499999999999709
+        ],
+        [
+          9.703541213559836,
+          10.500000000062855,
+          38.000000000000306
+        ]
+      ],
+      "closed_mesh_bbox_m": [
+        [
+          -0.02450735090698879,
+          -0.01799999999993716,
+          0.06800000010000025
+        ],
+        [
+          0.05220354111355983,
+          0.010500000000062848,
+          0.11650000010000028
+        ]
+      ],
+      "visual_triangles": 25448,
+      "collision_hull_vertices": [
+        50,
+        59,
+        42,
+        91,
+        106,
+        46,
+        79,
+        8,
+        8,
+        9,
+        8,
+        8,
+        8,
+        12,
+        902,
+        902,
+        902,
+        902
+      ]
+    },
+    "negative_gel": {
+      "source_occurrences": [
+        {
+          "path": "55/1/1/1",
+          "name": "02_G1-WS_DVT_SILICON_108.step"
+        }
+      ],
+      "volume_mm3": 1020.4211847282602,
+      "mass_kg_estimated": 0.0032400259002898875,
+      "inertia_kg_m2_estimated": [
+        [
+          3.129246406306484e-07,
+          2.9536742332802793e-19,
+          -5.544602516415278e-20
+        ],
+        [
+          2.9536742332802793e-19,
+          2.3203671888951367e-07,
+          5.810596156219107e-19
+        ],
+        [
+          -5.544602516415278e-20,
+          5.810596156219107e-19,
+          8.303339464528743e-08
+        ]
+      ],
+      "source_bbox_mm": [
+        [
+          -44.499999999999986,
+          -8.750000100000088,
+          53.10499989999918
+        ],
+        [
+          -42.49999990000009,
+          8.750000100008702,
+          82.4488466940827
+        ]
+      ],
+      "closed_mesh_bbox_m": [
+        [
+          -0.0019999999999999857,
+          -0.008749999999999956,
+          0.13160500010000026
+        ],
+        [
+          2.5153212845907545e-15,
+          0.00875000000000005,
+          0.16094884669408027
+        ]
+      ],
+      "visual_triangles": 1228,
+      "collision_hull_vertices": [
+        616
+      ]
+    },
+    "negative_sensor": {
+      "source_occurrences": [
+        {
+          "path": "55/1/2",
+          "name": "01_G1-WS_DVT_SHEET_37.step"
+        },
+        {
+          "path": "55/1/3",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "55/1/4",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "55/1/5",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "55/1/6",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "55/1/7",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "55/1/8",
+          "name": "HEXA_RAISEDHD_M2X4_14.step"
+        },
+        {
+          "path": "55/1/9",
+          "name": "01_G1-WS_DVT_BASE.step"
+        },
+        {
+          "path": "55/2",
+          "name": "传感器后盖-1"
+        }
+      ],
+      "volume_mm3": 12797.580391824382,
+      "mass_kg_estimated": 0.040634683551375964,
+      "inertia_kg_m2_estimated": [
+        [
+          9.198253677499214e-06,
+          -1.1962877612226416e-08,
+          -1.1615627456063512e-06
+        ],
+        [
+          -1.1962877612226416e-08,
+          8.492286754173698e-06,
+          -2.2731331164588904e-08
+        ],
+        [
+          -1.1615627456063512e-06,
+          -2.2731331164588904e-08,
+          3.324502826128121e-06
+        ]
+      ],
+      "source_bbox_mm": [
+        [
+          -64.51470485102351,
+          -14.806991476336158,
+          27.0000000000003
+        ],
+        [
+          -42.89300852366377,
+          14.80699147633624,
+          85.30000010000376
+        ]
+      ],
+      "closed_mesh_bbox_m": [
+        [
+          -0.02201470475063192,
+          -0.014806991376336159,
+          0.10550000010000027
+        ],
+        [
+          -0.0003930086236637678,
+          0.01480699137633624,
+          0.16380000010000118
+        ]
+      ],
+      "visual_triangles": 31104,
+      "collision_hull_vertices": [
+        836
+      ]
+    }
+  },
+  "fusion_version": "20261022.v2",
+  "full_task_validation": {
+    "campaign": "real2sim/embodiments/g1d_aurora_lite_ws/validation/task_campaign.json",
+    "default_case": "10",
+    "wide_case": "09",
+    "real_hardware_calibrated": false
+  }
+}

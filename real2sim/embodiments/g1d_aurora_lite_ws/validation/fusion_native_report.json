@@ -1,0 +1,22 @@
+{
+  "status": "recorded",
+  "frames": 148,
+  "simulation_s": 14.8,
+  "finite_joint_states": true,
+  "channels": [
+    "left_positive",
+    "left_negative",
+    "right_positive",
+    "right_negative"
+  ],
+  "native_contact_peak_n": {
+    "left_positive": 11.352350790402406,
+    "left_negative": 12.309332066691235,
+    "right_positive": 11.28545887382263,
+    "right_negative": 12.430239932565433
+  },
+  "physics_owner": "Isaac Sim 5.1 / PhysX",
+  "tactile_force_feedback": false,
+  "calibration_status": "candidate simulation parameters; no hardware calibration",
+  "hardware_connected": false
+}

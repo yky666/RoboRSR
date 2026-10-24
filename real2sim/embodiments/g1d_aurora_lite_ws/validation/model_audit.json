@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "scope": "URDF graph, mesh resolution/hashes, unchanged G1-D joint definitions, positive inertias, CAD gel gap at closed/half/open, side config bindings",
+  "links": 47,
+  "joints": 46,
+  "mesh_files": 75,
+  "opening_checks": [
+    {
+      "command_opening_m": 0.0,
+      "geometry_gap_m": -5.016431716160373e-15
+    },
+    {
+      "command_opening_m": 0.0425,
+      "geometry_gap_m": 0.042499999999994986
+    },
+    {
+      "command_opening_m": 0.085,
+      "geometry_gap_m": 0.084999999999995
+    }
+  ],
+  "side_configs": {
+    "left": {
+      "arm_dof": 7,
+      "jaw_joint_count": 2,
+      "independent_gripper_dof": 1,
+      "camera_count": 2
+    },
+    "right": {
+      "arm_dof": 7,
+      "jaw_joint_count": 2,
+      "independent_gripper_dof": 1,
+      "camera_count": 0
+    }
+  },
+  "issues": [],
+  "manufacturer_urdf": false,
+  "hardware_mount_verified": false,
+  "dynamics_calibrated": false,
+  "tactile_response_validated": false,
+  "simulation_runtime_verified": false
+}

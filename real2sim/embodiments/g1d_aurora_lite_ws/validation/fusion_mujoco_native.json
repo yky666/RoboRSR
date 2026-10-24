@@ -1,0 +1,56 @@
+{
+  "status": "passed",
+  "engine": "3.7.0",
+  "rows": [
+    {
+      "opening_m": 0.0,
+      "measured_site_gap_m": 0.0,
+      "site_native_cad_m": {
+        "left": [
+          0.0,
+          0.0,
+          0.067777
+        ],
+        "right": [
+          0.0,
+          0.0,
+          0.067777
+        ]
+      }
+    },
+    {
+      "opening_m": 0.0425,
+      "measured_site_gap_m": 0.0425,
+      "site_native_cad_m": {
+        "left": [
+          0.02125,
+          0.0,
+          0.067777
+        ],
+        "right": [
+          -0.02125,
+          0.0,
+          0.067777
+        ]
+      }
+    },
+    {
+      "opening_m": 0.085,
+      "measured_site_gap_m": 0.085,
+      "site_native_cad_m": {
+        "left": [
+          0.0425,
+          0.0,
+          0.067777
+        ],
+        "right": [
+          -0.0425,
+          0.0,
+          0.067777
+        ]
+      }
+    }
+  ],
+  "actuators": 0,
+  "reference_only": true
+}

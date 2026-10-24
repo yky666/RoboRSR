@@ -32,6 +32,12 @@
 - **帧对齐**：第 t 帧的图像和 state 都是在执行 `action[t]` 之前采集的。
 - **相机**：`cam_head` 是头部双目的左眼（640×480，fx ≈ 279.5）；`cam_left_wrist`、`cam_right_wrist` 是左、右腕相机（640×480，fx ≈ 314）。都按针孔模型渲染，没有加畸变，腕部主点的偏移也没有建模。
 
+### CAD 生成的 Aurora Lite / G1-WS 变体
+
+`g1d_aurora_lite_ws` 使用完整 G1-D 基体和双侧 Aurora Lite，不能套用上面的 Dex1 真机 0–5.4 映射。归一化 action/state 仍为 0 闭合、1 全开；主指 `q=0..0.0425 m`，另一指相反轴等行程，实际开度为两指行程之和（0–85 mm）。手臂 14 维加两个夹爪标量仍为 16 维；腰和升降不进此向量。
+
+此变体只有 `cam_head` 和 `cam_head_right` 两路头部 RGB，没有 `cam_left_wrist` / `cam_right_wrist` RGB。另提供四路 WS 仿真观测：Simple/FEM RGB、深度、Marker 和节点力，厂家 Python3.10 进程单向生成，不能当作真实传感器标定。2026-10-24 增加独立 `g1d_four_pad_episode.v1` 试验数据链路与完整拾取/搬运/放置验证：240Hz物理、10Hz录制，无损HDF5与官方LeRobot0.4.4 Dataset API的四触觉视频导出。它不走本节原有三RGB的XPolicyLab转换器，不是已有30Hz基准发布格式；现有策略不能直接认定兼容。详见 `scripts/g1d/xense_gripper/DATA_PIPELINE.md`。腕端安装/TCP、当前机器人零位、手眼、部件惯量及真实材料响应仍待实测。
+
 ## 仿真配置
 
 - 每个回合都把 env 配置名写在 `additional_info/env_cfg`、质检单和数据集卡片里。**用这份数据训练出的策略，评估时必须用同一个 env 配置**。XPolicyLab 的 checkpoint 目录名里带 `env_cfg_type`，配置用错时会找不到 checkpoint。

@@ -383,7 +383,9 @@ def test_http():
             "updated_by": "张三",
         }
         status, body_photo, _ = request("POST", "/api/photo?kind=embodiment&id=g1d_mobile&name=side.jpg", b"jpg")
-        assert status == 200 and json.loads(body_photo)["path"].endswith("embodiments/g1d_mobile/reference/side.jpg")
+        assert status == 200 and Path(json.loads(body_photo)["path"]).as_posix().endswith(
+            "embodiments/g1d_mobile/reference/side.jpg"
+        )
         found = server.scan_embodiments()["g1d_mobile"]
         assert found["registered"] and len(found["photos"]) == 1 and "setups" in found
         (tmp / "embodiments/g1d_mobile/preview").mkdir()
@@ -448,7 +450,7 @@ def test_http():
         assert written["objects"] == roles
         assert written["scenes"] == {  # with the env configs that load each scene
             "train": [{"scene": "real_scene3_lab", "env_cfg": ["g1d_lab"]}],
-            "holdout": [{"scene": "real_scene1_office", "env_cfg": ["g1d", "g1d_mobile"]}],
+            "holdout": [{"scene": "real_scene1_office", "env_cfg": ["g1d", "g1d_aurora_lite_ws", "g1d_mobile"]}],
         }
         assert "distractors" not in written and written["levels"] == {"L0": {"target": 25, "range": "孪生"}}
         assert written["instructions"] == {"count": 5, "languages": ["zh", "en"]} and "instruction" not in written

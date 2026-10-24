@@ -1,0 +1,42 @@
+urdf_path: ./g1d_aurora_lite_ws.urdf
+ee_joints: right_wrist_yaw_joint
+ee_link: right_aurora_mount_link
+ee_type: gripper
+base_link: torso_link
+arm_joints_name:
+- right_shoulder_pitch_joint
+- right_shoulder_roll_joint
+- right_shoulder_yaw_joint
+- right_elbow_joint
+- right_wrist_roll_joint
+- right_wrist_pitch_joint
+- right_wrist_yaw_joint
+gripper_joints_name:
+- right_aurora_positive_jaw_joint
+- right_aurora_negative_jaw_joint
+gripper_move:
+  base: right_aurora_positive_jaw_joint
+  sign: 1.0
+  mimic:
+  - right_aurora_negative_jaw_joint
+  - 1.0
+  - 0.0
+gripper_bias: 0.1462769233970408
+gripper_scale:
+- 0.0
+- 0.0425
+delta_matrix:
+- - 1
+  - 0
+  - 0
+- - 0
+  - 1
+  - 0
+- - 0
+  - 0
+  - 1
+grasp_camera_reference_axis:
+- 1
+- 0
+- 0
+camera: []

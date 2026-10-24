@@ -1,0 +1,32 @@
+{
+  "schema": "g1d_four_pad_tactile.v1",
+  "channels": [
+    "left_positive",
+    "left_negative",
+    "right_positive",
+    "right_negative"
+  ],
+  "images": "RGB uint8 [channel,height,width,3]",
+  "depth": "mm; negative intrusion; [4,175,100]",
+  "image_row0": "negative contact-frame Y; optical hardware alignment unverified",
+  "active_area_mm": [
+    17.3,
+    29.14
+  ],
+  "cad_pad_rescaled": false,
+  "force": "FEM node array, native vendor coordinates/units; not measured force calibration",
+  "physics_force": "PhysX contact normal and friction vectors in world coordinates, N",
+  "physics_owner": "Isaac/PhysX only; FEM force is NOT applied to objects",
+  "fem_iterations_per_observation": 10,
+  "no_contact_pose_policy": "hold last relative contact pose while zero-depth gel relaxes; no distant-object shear drive",
+  "fem_depth": "actual ray surface distance: mm, negative intrusion, positive separation; miss=+5mm",
+  "vendor_resources": {
+    "g1-ws_table.npz": "2cd8f3b989f70d56965cdf70325f0ab2285986af8c72229253661f61a3948b8b",
+    "g1-ws.npz": "3fd053c7046999bce2bbdfc21f9d0fbe09071e3a3d6246c4f682097c469b5b51"
+  },
+  "external_vendor_resources": true,
+  "hardware_connected": false,
+  "inputs_from_actual_recorded_poses": true,
+  "real_sensor_calibration_validated": false,
+  "output_mode": "offline frame-associated observations"
+}

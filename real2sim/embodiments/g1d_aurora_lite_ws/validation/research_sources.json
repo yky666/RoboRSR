@@ -1,0 +1,62 @@
+[
+  {
+    "title": "XENSE official CAD / adapter list",
+    "url": "https://docs.xenserobotics.com/en/docs/latest/hardware/adapters/",
+    "use": "Listed arms are references; verify mounting holes/orientation/fasteners. G1-D not explicitly identified.",
+    "accessed": "2026-10-24"
+  },
+  {
+    "title": "Aurora Lite product limits",
+    "url": "https://xenserobotics.com/product/385222/detail/17",
+    "use": "85mm stroke, 615g, 40N per side, speed140mm/s; nominal specification is not measured calibration.",
+    "accessed": "2026-10-24"
+  },
+  {
+    "title": "Unitree official G1-D URDF",
+    "url": "https://github.com/unitreerobotics/unitree_ros/blob/master/robots/g1_d_description/g1_d.urdf",
+    "use": "Nominal link transforms/inertias; does not certify Aurora adapter or actual unit zero.",
+    "accessed": "2026-10-24"
+  },
+  {
+    "title": "XENSE sensor SDK overview",
+    "url": "https://docs.xenserobotics.com/en/docs/latest/sdk/xensesdk/overview/",
+    "use": "Current SDK2.2.0 output list and offline runtime config; not substituted for bundled SDK1.6.8.",
+    "accessed": "2026-10-24"
+  },
+  {
+    "title": "XENSE SDK repository",
+    "url": "https://github.com/XenseRobotics/xensesdk",
+    "use": "Public wrapper and offline outputs; physical per-sensor calibration must match the sensor.",
+    "accessed": "2026-10-24"
+  },
+  {
+    "title": "NVIDIA compliant contact",
+    "url": "https://docs.isaacsim.omniverse.nvidia.com/latest/physics/simulation_fundamentals.html",
+    "use": "Spring/damper contact is approximate and material combine mode matters; no arbitrary real gel modulus adopted.",
+    "accessed": "2026-10-24"
+  },
+  {
+    "title": "NVIDIA rigid geometry",
+    "url": "https://docs.isaacsim.omniverse.nvidia.com/5.1.0/robot_setup_tutorials/tutorial_intro_assemble_robot.html",
+    "use": "Convex dynamic shape restrictions support retaining split CAD collision shapes.",
+    "accessed": "2026-10-24"
+  },
+  {
+    "title": "NVIDIA deformable material",
+    "url": "https://docs.isaacsim.omniverse.nvidia.com/5.1.0/py/source/extensions/isaacsim.core.experimental.materials/docs/index.html",
+    "use": "New deformable materials require feature beta; no unvalidated coupled FEM migration.",
+    "accessed": "2026-10-24"
+  },
+  {
+    "title": "LeRobot v3",
+    "url": "https://huggingface.co/docs/lerobot/en/lerobot-dataset-v3",
+    "use": "Episode/parquet/video format and custom sensor features; independent tactile experiment schema.",
+    "accessed": "2026-10-24"
+  },
+  {
+    "title": "LeRobot Dataset API",
+    "url": "https://huggingface.co/docs/lerobot/main/api/datasets",
+    "use": "Custom feature declaration; code pinned and executed with actual0.4.4, not latest documentation assumed API.",
+    "accessed": "2026-10-24"
+  }
+]

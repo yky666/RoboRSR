@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-22",
+  "status": "passed_with_calibration_pending",
+  "scope": "complete-body CAD model, isolated Isaac Sim joint motion, local platform registration; no real hardware or manipulation-task acceptance",
+  "model": "g1d_aurora_lite_ws",
+  "repository_base": "64960dae81758b4f351af4b091e288360a3608e8",
+  "source_urdf_sha256": "29aea4127cdeaa26e6f85c6ca10d589098ad3f147b641297f8721f7e8a81b889",
+  "cpu_checks": {
+    "status": "passed",
+    "tests": 35,
+    "lint_ruff": "0.11.7",
+    "datagen_inventory": "passed"
+  },
+  "geometry": {
+    "links": 47,
+    "joints": 46,
+    "meshes": 75,
+    "jaw_opening_mm": [
+      0,
+      42.5,
+      85
+    ]
+  },
+  "runtime": {
+    "status": "passed",
+    "articulation_joints": 22,
+    "recorded_stages": 40,
+    "max_arm_waist_error_rad": 0.033354148268699646,
+    "max_lift_stage_error_m": 4.027040631626733e-06,
+    "max_jaw_error_m": 9.01580715435557e-05,
+    "openings": [
+      {
+        "stage": "initial_open",
+        "left_opening_mm": 85.00000089406967,
+        "right_opening_mm": 85.00000089406967
+      },
+      {
+        "stage": "closed",
+        "left_opening_mm": 0.162005664606113,
+        "right_opening_mm": 0.16200410027522594
+      },
+      {
+        "stage": "half_open",
+        "left_opening_mm": 42.49998740851879,
+        "right_opening_mm": 42.49998740851879
+      },
+      {
+        "stage": "full_open",
+        "left_opening_mm": 84.99997481703758,
+        "right_opening_mm": 84.99997481703758
+      }
+    ],
+    "sim_dt_s": 0.008333333333333333,
+    "probe_tolerance_rad": 0.04,
+    "probe_tolerance_prismatic_m": 0.002,
+    "is_full_task_success": false,
+    "final_materials_render_import_exit_code": 0
+  },
+  "correction": "Single rack hull filled an empty recess and prevented closure; per-occurrence hulls alone did not resolve it. Partition the exact rack CAD into 4 mm axial slabs before convex cooking. Both opposite sensor/carrier gaps are now clear. External gel contact remains enabled.",
+  "pending": [
+    "G1-D adapter hole pattern / wrist transform",
+    "tool centre measurement",
+    "joint zero and complete-body camera extrinsics",
+    "mass/inertia and servo/contact identification",
+    "soft gel and optical tactile response",
+    "object-contact and manipulation-task validation"
+  ],
+  "known_import_warnings": [
+    "visual-less virtual frame links emit unresolved visual-reference warnings; all required physical links and 22 movable joints imported and were measured",
+    "simulation camera interpolation warnings during manually rendered diagnostic frames"
+  ],
+  "hardware_connected": false,
+  "git_committed": false,
+  "git_pushed": false,
+  "visual_materials": "G1-D upstream PBR finish reused; Aurora colours/roughness are visual estimates, independent of contact material"
+}

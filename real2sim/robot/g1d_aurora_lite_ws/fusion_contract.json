@@ -1,0 +1,49 @@
+{
+  "schema": "g1d_aurora_fusion.v2",
+  "body_id": "g1d_aurora_lite_ws",
+  "public_opening_m": [
+    0,
+    0.085
+  ],
+  "normalized_action": "0 closed, 1 open",
+  "urdf_jaw_position_m": "opening_m/2",
+  "mujoco_reference_closure_m": "(0.085-opening_m)/2",
+  "cad_to_mount_translation_m": [
+    0,
+    0,
+    0.07850000009999997
+  ],
+  "channels": [
+    "left_positive",
+    "left_negative",
+    "right_positive",
+    "right_negative"
+  ],
+  "contact_frame": "+Z into jaw gap; CAD inner-face centre",
+  "fem_origin_in_contact_frame_m": [
+    0,
+    -0.01557,
+    0
+  ],
+  "fem_active_area_mm": [
+    17.3,
+    29.14
+  ],
+  "cad_pad_scaled": false,
+  "physics_owner": "Isaac Sim 5.1 / PhysX",
+  "tactile_mode": "offline exact frame ID and simulation timestamp association; optional observation API",
+  "tactile_force_feedback": false,
+  "reference_model_role": "standalone MuJoCo cross-check; no placeholder masses or collision exclusions imported",
+  "mount_reference": "real2sim/grippers/aurora_fusion/mount_reference",
+  "mount_verified": false,
+  "simulation_fixture_material": {
+    "static_friction": 0.5,
+    "dynamic_friction": 0.4,
+    "calibrated": false,
+    "production_defaults_changed": false
+  },
+  "hardware_connected": false,
+  "real_material_calibrated": false,
+  "real_tactile_calibrated": false,
+  "realtime_30hz_verified": false
+}

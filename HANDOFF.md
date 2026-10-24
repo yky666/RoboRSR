@@ -1,7 +1,8 @@
 # Project Handoff
 
-更新时间：2026-10-23
-当前分支：`main`。G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
+更新时间：2026-10-24
+本会话分支：`komari/feat-g1d-aurora-tactile`；独立 worktree `../RoboRSR-g1d-aurora`，基于 `main` 的 `8e0d7a7`。下行保留主线历史。
+主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
 - 把 G1-D 的三条流水线规范化：Real2Sim 采集（物体、场景）、仿真数据生成，以及本仓库内的仿真评估。训练在仓库外。
@@ -34,6 +35,16 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### G1-D + Aurora Lite / 四路 G1-WS v3 交付接入（2026-10-24）
+
+- 用户确认采用 `g1d_aurora_fusion_v3_20261024.zip`，新增本体 ID 沿用 `g1d_aurora_lite_ws`。模型、CAD/夹爪参考、登记与校准边界、控制适配、完整任务/触觉/数据工具按覆盖包的目录归位。
+- 对已有文件只合并 Aurora 增量；保留当前 `build_asset.py` 的场景外观设置，以及 README、数据契约、平台测试与本文件的后续更新。旧 `g1d` / `g1d_mobile` 保留。
+- 新增 CPU 接入检查并纳入 `scripts/check.sh`；CI 只拉取新模型所需 LFS。补全 STEP/STP 大小写规则及冻结文件的 LF 规则，避免 Windows 检出改变 SHA。平台相对路径统一 POSIX，修复 Windows 下物体索引与生成器路径序列化失败。
+- 来源、文件取舍和交付检查记录见 `scripts/g1d/xense_gripper/INTEGRATION.md` 及 `real2sim/embodiments/g1d_aurora_lite_ws/delivery/`。完整 evidence、HDF5/LeRobot 样例在本 worktree 的 `.cache/aurora-v3-delivery/g1d_aurora_fusion_v3_20261024/`，不入库；预览按项目规则忽略。
+- 用户明确要求不再安装/复测 Isaac、XENSE 和整机仿真，按交付方已有证据交付。本机只做代码接入与交付检查；本地隔离 CPU 依赖在收到该指示前已启动准备，未部署共享资产、平台数据库或远程服务。
+- 实际检查：`bash scripts/check.sh main` 通过（62 tests / 82 subtests，ruff lint/format、任务清单及 diff 检查通过）；215 文件输入摘要匹配，5 项新增接入检查通过。依赖审计发现隔离 venv 自带 pip 25.0.1 的已知问题，其他扫描包无已知问题；遵用户不再安装要求未升级 pip，原报告保存在 `.cache/aurora-dependency-audit.json`。
+- 下一步入口为 `scripts/g1d/xense_gripper/INTEGRATION.md`；本体仍是候选装配，安装/TCP、当前机器零位/相机、材料/动力学和真实 SN 标定保持 pending。厂家专有运行包未包含，未将其加入 Git。
 
 ### 数采平台：上游榜单任务的泛化随机方案 + X5 布局生成器（2026-10-23，直接推 `main`）
 

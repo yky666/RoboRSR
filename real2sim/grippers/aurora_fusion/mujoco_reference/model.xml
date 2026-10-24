@@ -1,0 +1,40 @@
+<mujoco model="aurora_lite_cad_kinematics_candidate">
+  <compiler angle="radian" />
+  <option gravity="0 0 0" />
+  <asset>
+    <mesh name="base_0" file="meshes/base_0.stl" scale=".001 .001 .001" />
+    <mesh name="base_1" file="meshes/base_1.stl" scale=".001 .001 .001" />
+    <mesh name="base_2" file="meshes/base_2.stl" scale=".001 .001 .001" />
+    <mesh name="left_0" file="meshes/left_0.stl" scale=".001 .001 .001" />
+    <mesh name="right_0" file="meshes/right_0.stl" scale=".001 .001 .001" />
+    <mesh name="left_pad_0" file="meshes/left_pad_0.stl" scale=".001 .001 .001" />
+    <mesh name="right_pad_0" file="meshes/right_pad_0.stl" scale=".001 .001 .001" />
+  </asset>
+  <worldbody>
+    <body name="cad_origin">
+      <body name="left">
+        <inertial pos="0 0 0" mass=".1" diaginertia=".0001 .0001 .0001" />
+        <joint name="left_closure" type="slide" axis="-1 0 0" range="0 .0425" damping="1" />
+        <site name="left_contact_center" pos="0.0425 0 .067777" size=".001" />
+        <geom name="left_0" type="mesh" mesh="left_0" contype="0" conaffinity="0" mass="0" rgba=".8 .8 .8 1" friction=".5 .005 .0001" />
+        <geom name="left_pad_0" type="mesh" mesh="left_pad_0" contype="1" conaffinity="1" mass="0" rgba=".25 .25 .25 1" friction=".5 .005 .0001" />
+      </body>
+      <body name="right">
+        <inertial pos="0 0 0" mass=".1" diaginertia=".0001 .0001 .0001" />
+        <joint name="right_closure" type="slide" axis="1 0 0" range="0 .0425" damping="1" />
+        <site name="right_contact_center" pos="-0.0425 0 .067777" size=".001" />
+        <geom name="right_0" type="mesh" mesh="right_0" contype="0" conaffinity="0" mass="0" rgba=".8 .8 .8 1" friction=".5 .005 .0001" />
+        <geom name="right_pad_0" type="mesh" mesh="right_pad_0" contype="1" conaffinity="1" mass="0" rgba=".25 .25 .25 1" friction=".5 .005 .0001" />
+      </body>
+      <geom name="base_0" type="mesh" mesh="base_0" contype="0" conaffinity="0" mass="0" rgba=".8 .8 .8 1" friction=".5 .005 .0001" />
+      <geom name="base_1" type="mesh" mesh="base_1" contype="0" conaffinity="0" mass="0" rgba=".8 .8 .8 1" friction=".5 .005 .0001" />
+      <geom name="base_2" type="mesh" mesh="base_2" contype="0" conaffinity="0" mass="0" rgba=".8 .8 .8 1" friction=".5 .005 .0001" />
+    </body>
+  </worldbody>
+  <contact>
+    <exclude body1="left" body2="right" />
+  </contact>
+  <equality>
+    <joint joint1="left_closure" joint2="right_closure" polycoef="0 1 0 0 0" />
+  </equality>
+</mujoco>

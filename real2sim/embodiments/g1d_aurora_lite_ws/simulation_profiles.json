@@ -1,0 +1,24 @@
+{
+  "schema": "g1d_aurora_candidate_profiles.v1",
+  "plan": "validation/full_task_plan.json",
+  "plan_sha256": "e03f9766d8a8b7b42abf0c1ef58d0a972a596f5344f576f6f1d9997ee92f7be9",
+  "sim_dt_s": 0.004166666666666667,
+  "recording_hz": 10,
+  "hardware_calibrated": false,
+  "defaults": {
+    "profile": "small_block",
+    "block_width_m": 0.03,
+    "mass_kg": 0.02,
+    "static_friction": 0.5,
+    "grip_overtravel_m": 0.001,
+    "verified_case": "10"
+  },
+  "wide_block": {
+    "block_width_m": 0.045,
+    "mass_kg": 0.05,
+    "static_friction": 0.3,
+    "grip_overtravel_m": 0.002,
+    "verified_case": "09"
+  },
+  "source": "candidate simulation task settings; not real controller identification"
+}

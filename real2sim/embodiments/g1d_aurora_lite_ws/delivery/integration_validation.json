@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-24",
+  "scope": "repository integration and CPU delivery checks; not a simulator rerun",
+  "checks": {
+    "source_overlay_sha256": {
+      "status": "passed",
+      "files": 215
+    },
+    "repository_check_sh": {
+      "status": "passed",
+      "command": "bash scripts/check.sh main",
+      "tests": 62,
+      "subtests": 82,
+      "includes": [
+        "ruff check",
+        "ruff format --check",
+        "git diff --check",
+        "task_inventory --check",
+        "5 new repository integration tests",
+        "10 delivered tactile contract/upgrade tests"
+      ]
+    },
+    "dependency_audit": {
+      "status": "known bootstrap-tool issues",
+      "vulnerable_packages": [
+        {
+          "name": "pip",
+          "version": "25.0.1",
+          "reported_advisory_entries": 12
+        }
+      ],
+      "scope": "isolated local CPU-check venv; not the vendor or Isaac runtime",
+      "resolution": "No further installations/upgrades per user request; no known vulnerabilities reported in other scanned packages",
+      "raw_report": ".cache/aurora-dependency-audit.json"
+    },
+    "isaac_xense_lerobot_runtime": {
+      "status": "not rerun",
+      "reason": "user explicitly requested delivery using existing test evidence and no further runtime installation/retesting"
+    },
+    "assets_installation": {
+      "status": "not performed",
+      "reason": "source delivery only; no shared asset library or platform database writes"
+    }
+  },
+  "inherited_evidence": "real2sim/embodiments/g1d_aurora_lite_ws/validation; original dates and outcomes retained",
+  "runtime_readiness": "candidate assembly and pending calibration; does not establish live 30 Hz tactile feedback"
+}

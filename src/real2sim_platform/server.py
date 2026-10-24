@@ -551,7 +551,7 @@ def scan_objects(assets, tasks, keep):
             "index": index,
             "dir": str(d),
             **used.get(oid, {"tasks": [], "labels": []}),
-            "generator": str(generator.relative_to(ROOT)) if generator else None,
+            "generator": generator.relative_to(ROOT).as_posix() if generator else None,
             "in_library": meta is not None,
             "name": names[0],
             "built": meta is not None or bool(check),
@@ -583,7 +583,7 @@ def clutter_categories(assets):
 def object_indices(assets, store):
     """{"Rigid/cup": [0, 1, ...]}: indices taken per <type>/<category> in the library, real2sim/objects or the store."""
     roots = (assets / "Object" / "RoboDojo", OBJECTS_DIR)
-    ids = [str(p.relative_to(root)) for root in roots for p in root.glob("*/*/*") if p.is_dir()]
+    ids = [p.relative_to(root).as_posix() for root in roots for p in root.glob("*/*/*") if p.is_dir()]
     taken = {}
     for oid in ids + [d["id"] for d in store.list("object")]:
         if OBJECT_ID.fullmatch(oid):
@@ -815,7 +815,9 @@ def scan_embodiments():
     return {
         name: {
             "in_code": (configs / f"{name}.py").is_file(),
-            "config": str((configs / f"{name}.py").relative_to(ROOT)) if (configs / f"{name}.py").is_file() else None,
+            "config": (configs / f"{name}.py").relative_to(ROOT).as_posix()
+            if (configs / f"{name}.py").is_file()
+            else None,
             "setups": setups.get(name, []),
             "photos": images(EMBODIMENTS_DIR / name / "reference"),
             "renders": images(EMBODIMENTS_DIR / name / "preview"),  # scripts/embodiments/render_embodiments.py
@@ -908,7 +910,9 @@ def scan(store, assets, eval_roots):
     tasks = scan_tasks(assets)
     custom = {name: t for name, t in tasks.items() if t["dimension"] == "custom"}
     keep = [d["id"] for d in store.list("object") if set(d) - {"id", "auto"}]
-    keep += [str(p.relative_to(OBJECTS_DIR)) for p in OBJECTS_DIR.glob("*/*/*") if p.is_dir()]  # have photos or renders
+    keep += [
+        p.relative_to(OBJECTS_DIR).as_posix() for p in OBJECTS_DIR.glob("*/*/*") if p.is_dir()
+    ]  # have photos or renders
     found = {
         "scene": scan_scenes() | scan_benchmark_scenes(tasks),
         "task": tasks,

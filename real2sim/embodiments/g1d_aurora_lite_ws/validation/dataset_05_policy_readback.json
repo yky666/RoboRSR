@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "frames": 154,
+  "sampled_policy_frames": [
+    0,
+    38,
+    77,
+    115,
+    153
+  ],
+  "decoded_complete_videos": 4,
+  "max_mean_absolute_video_error_uint8": 1.6922345238095238,
+  "reader": "LeRobotDataset 0.4.4 / PyAV",
+  "observation_keys": [
+    "observation.images.tactile_left_positive",
+    "observation.images.tactile_left_negative",
+    "observation.images.tactile_right_positive",
+    "observation.images.tactile_right_negative",
+    "observation.state",
+    "action",
+    "observation.tactile.native_normal_force_w_n",
+    "timestamp",
+    "frame_index",
+    "episode_index",
+    "index",
+    "task_index",
+    "task"
+  ],
+  "trained_policy_verified": false
+}

@@ -1,0 +1,23 @@
+{
+  "compiled": true,
+  "engine": "3.16.0",
+  "ngeom": 4,
+  "nmesh": 4,
+  "njnt": 0,
+  "mesh_vertices": 223274,
+  "mesh_triangles": 444258,
+  "world_bounds_m": [
+    -0.07460000195164061,
+    -0.031000002663800572,
+    -0.07850000210507488,
+    0.07460000245532505,
+    0.031000002620078137,
+    0.08530000523743177
+  ],
+  "max_bbox_difference_from_CAD_m": 0.0015786212427536077,
+  "static_visual_reference_only": true,
+  "collision_enabled": false,
+  "gripper_motion_verified": false,
+  "tactile_simulation": false,
+  "preview_sha256": "101343a00eeffa35b6e996a50b478032c504d7af98b5b3edf810f681400501ba"
+}
