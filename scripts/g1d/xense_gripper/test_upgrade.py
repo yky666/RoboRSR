@@ -47,7 +47,9 @@ def test_live_bridge_waits_and_rejects_stale(tmp_path):
 
     def publish():
         time.sleep(0.04)
-        np.savez(tmp_path / "packets/00001.npz", frame_id=1, simulation_time_s=0.1)
+        temporary = tmp_path / "packets/00001.pending.npz"
+        np.savez(temporary, frame_id=1, simulation_time_s=0.1)
+        temporary.replace(tmp_path / "packets/00001.npz")
 
     thread = threading.Thread(target=publish)
     thread.start()
