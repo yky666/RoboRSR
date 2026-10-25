@@ -19,7 +19,26 @@
 
 `delivery/apply_manifest.json` 和 `delivery/SOURCE_README_zh.md` 是原始交付记录。
 原应用器面向旧基线，不能再次覆盖当前仓库；当前接入采用新增文件复制及已有文件的增量合并。
-整个 ZIP、运行视频、数据集、私有厂家二进制和本地数据库均不入 Git。
+2026-10-25 用户明确要求完整资料随分支上传，因此原始 ZIP 已作为例外放到本体目录的
+`delivery/g1d_aurora_fusion_v3_20261024.zip`，使用 Git LFS 保存。它包含全部审阅视频、
+轨迹、HDF5/LeRobot 样例、预览和原覆盖文件；不另行将解压输出散落到源码目录。
+厂家私有运行包不在原 ZIP 内，本地数据库及临时测试环境仍不入 Git。
+
+## 2026-10-25 同步与完整资料上传
+
+- 将远端 `main@961a9f5` 合并到已有 Aurora 分支，保留双方的机器人映射、检查目标和
+  HANDOFF 历史；主线新增场景、RSI 与控制更新均纳入。
+- 主线给 Dex1 新增了 `finger_coupling`，其逻辑假设关节值增加代表闭合；Aurora 的方向
+  相反，因此在 Aurora 类中显式禁用继承的 Dex1 限制。回归测试覆盖双侧 Aurora 与 Dex1。
+- 完整 ZIP 的预期 SHA256 见 `delivery/provenance.json`。在 Linux/macOS 上可从仓库根执行：
+
+  ```bash
+  git lfs pull --include="real2sim/embodiments/g1d_aurora_lite_ws/delivery/*.zip"
+  mkdir -p .cache/aurora-v3-delivery
+  python -m zipfile -e real2sim/embodiments/g1d_aurora_lite_ws/delivery/g1d_aurora_fusion_v3_20261024.zip .cache/aurora-v3-delivery
+  ```
+
+  Windows 也可用同一组 Python/Git 命令。解压后的样例路径与 `registry.json` 中的记录一致。
 
 ## 与覆盖包的必要差异
 

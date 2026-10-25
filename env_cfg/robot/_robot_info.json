@@ -1,34 +1,132 @@
 {
     "dual_x5": {
-        "arm_dim": [6, 6],
-        "ee_dim": [1, 1]
+        "arm_dim": [
+            6,
+            6
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
     },
     "g1d": {
-        "arm_dim": [7, 7],
-        "ee_dim": [1, 1]
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
     },
     "g1d_counter": {
-        "arm_dim": [7, 7],
-        "ee_dim": [1, 1]
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
     },
     "g1d_lab": {
-        "arm_dim": [7, 7],
-        "ee_dim": [1, 1]
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
+    },
+    "g1d_lab_real_start": {
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
+    },
+    "g1d_lab_real_soft": {
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
+    },
+    "g1d_lab_real380_start": {
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
+    },
+    "g1d_lab_eps380": {
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
     },
     "g1d_school": {
-        "arm_dim": [7, 7],
-        "ee_dim": [1, 1]
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
     },
     "g1d_shenzhen_lab": {
-        "arm_dim": [7, 7],
-        "ee_dim": [1, 1]
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
     },
     "g1d_mobile": {
-        "arm_dim": [7, 7],
-        "ee_dim": [1, 1]
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
+    },
+    "g1d_counter_mobile": {
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
     },
     "g1d_aurora_lite_ws": {
-        "arm_dim": [7, 7],
-        "ee_dim": [1, 1]
+        "arm_dim": [
+            7,
+            7
+        ],
+        "ee_dim": [
+            1,
+            1
+        ]
     }
 }

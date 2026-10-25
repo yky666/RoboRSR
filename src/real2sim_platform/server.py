@@ -72,9 +72,12 @@ EVAL_ID = re.compile(r"[a-z0-9][a-z0-9_-]*")  # also the policy name in eval_res
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}
 SERVED_SUFFIXES = IMAGE_SUFFIXES | {".mp4", ".webm", ".md", ".json", ".glb"}
 MAX_UPLOAD = 25 << 20
-# images and videos: fresh for a minute, then shown from cache at once while the ETag is rechecked in the background,
-# so a re-rendered preview appears on the next visit; private, because they are only served to signed-in users
+# photos and videos: fresh for a minute, then shown from cache at once while the ETag is rechecked in the background;
+# private, because they are only served to signed-in users
 FILE_CACHE = "private, max-age=60, stale-while-revalidate=604800"
+# renders and 3D models that get rebuilt in place (preview/, .glb): rechecked on every view (a 304 when unchanged), so a
+# rebuilt scene shows at once instead of after one stale visit
+PREVIEW_CACHE = "private, no-cache"
 USERNAME = re.compile(r"[\w.-]{1,32}")
 PBKDF2_ROUNDS = 200_000
 COOKIE, SESSION_DAYS = "r2s_session", 14
@@ -472,17 +475,28 @@ def instance_pools(task):
 
     train, seen = by_category(base), by_category(variant) if variant else {}
     held = {c: sorted(i - train.get(c, set())) for c, i in seen.items() if i - train.get(c, set())}
-    return {"base": base, "variant": variant, "train": {c: sorted(i) for c, i in train.items()}, "holdout": held}
+    new = {"train": {}, "exam": {}}  # instances no official layout uses (rsi/assets/pools.json), per pool
+    tiers = load_json(rsi_profile.rsi_assets.POOLS) or {"pools": {}}
+    for pool, found in new.items():
+        for asset_id in tiers["pools"].get(pool, {}).get("instances", []):
+            category, index = asset_id.partition(":")[2].split("/")
+            if category in train:
+                found.setdefault(category, []).append(int(index))
+    pools = {c: sorted(i) for c, i in train.items()}
+    return {"base": base, "variant": variant, "train": pools, "holdout": held, "new": new}
 
 
-def write_randomization(task, profile, assets):
+def write_randomization(task, profile, assets, pools=None):
     """Check a profile from the task drawer and write real2sim/benchmark_tasks/<task>/randomization.json (removed when
     it is null); returns an error message or None."""
     path = rsi_profile.PROFILES_DIR / task / "randomization.json"
     if profile is None:
         path.unlink(missing_ok=True)
         return None
-    if error := rsi_profile.check(profile, rsi_profile.options(assets)):
+    pool = profile.get("pool", "train") if isinstance(profile, dict) else "train"
+    if pool not in ("train", "exam"):
+        return "pool 只能是 train（数据方）或 exam（评测方）"
+    if error := rsi_profile.check(profile, rsi_profile.options(assets, pool, pools)):
         return error
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(profile, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -570,6 +584,20 @@ def scan_objects(assets, tasks, keep):
             "renders": images(OBJECTS_DIR / oid / "preview") + images(d),
         }
     return found
+
+
+def object_delete_blocker(oid, docs):
+    """Why `oid` cannot be deleted from the platform, or "": objects a task, a generator, the asset library or a variant
+    depends on live in code and the shared library, so they are removed in the repo."""
+    auto = next((d["auto"] for d in docs if d["id"] == oid), None) or {}
+    if auto.get("tasks"):
+        return f"任务 {'、'.join(auto['tasks'])} 在用这个物体，先在任务配置里换掉"
+    variants = [d["id"] for d in docs if d["id"] != oid and (d.get("auto") or {}).get("variant_of") == oid]
+    if variants:
+        return f"它有泛化变体 {'、'.join(variants)}，先删变体"
+    if auto.get("generator") or auto.get("in_library"):
+        return "已建模的物体由代码和共享资产库管理（scripts/objects 的生成脚本、Assets/Object），请在仓库里删除"
+    return ""
 
 
 def clutter_categories(assets):
@@ -1040,7 +1068,8 @@ class Handler(BaseHTTPRequestHandler):
         elif url.path == "/api/clutter":
             self.send_json(clutter_categories(self.scan_args[0]))
         elif url.path == "/api/rsi-options":  # what an upstream task's randomization profile may pick from
-            self.send_json(rsi_profile.options(self.scan_args[0]))
+            pool = "exam" if query.get("pool") == "exam" else "train"
+            self.send_json(rsi_profile.options(self.scan_args[0], pool))
         elif url.path == "/api/object-indices":
             self.send_json(object_indices(self.scan_args[0], self.store))
         elif url.path == "/api/items" and query.get("kind") in KINDS:
@@ -1167,9 +1196,16 @@ class Handler(BaseHTTPRequestHandler):
                     error = "已建模的场景由代码管理（USD、build_asset.py 的 SCENES、env 配置），请在仓库里删除"
                     return self.send_json({"error": error}, 409)
                 shutil.rmtree(folder)
+        if kind == "object" and OBJECT_ID.fullmatch(id_):
+            if not self.user["admin"]:
+                return self.send_json({"error": "只有管理员可以删除物体"}, 403)
+            error = object_delete_blocker(id_, self.store.list("object"))
+            if error:
+                return self.send_json({"error": error}, 409)
         self.store.delete(kind, id_)
         if kind == "object" and OBJECT_ID.fullmatch(id_):
-            (OBJECTS_DIR / id_ / "spec.json").unlink(missing_ok=True)
+            # spec, photos, renders: left behind they re-list the object
+            shutil.rmtree(OBJECTS_DIR / id_, ignore_errors=True)
         elif kind == "task" and TASK_ID.fullmatch(id_):
             (TASKS_DIR / id_ / "registration.json").unlink(missing_ok=True)
         elif kind == "embodiment" and EMBODIMENT_ID.fullmatch(id_):
@@ -1200,6 +1236,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def send_file(self, path, cache=FILE_CACHE):
         """Serve a file with HTTP Range support, which <video> needs for seeking, and an ETag to revalidate caches."""
+        if cache is FILE_CACHE and (path.suffix == ".glb" or "preview" in path.parts):
+            cache = PREVIEW_CACHE
         st = path.stat()
         size, etag = st.st_size, f'"{st.st_mtime_ns:x}-{st.st_size:x}"'
         if etag in [tag.strip() for tag in self.headers.get("If-None-Match", "").split(",")]:

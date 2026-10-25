@@ -3,6 +3,7 @@
   "datasets": [
     {
       "name": "g1d_aurora_v3_wide_45mm_delivery_sample",
+      "source_archive": "real2sim/embodiments/g1d_aurora_lite_ws/delivery/g1d_aurora_fusion_v3_20261024.zip",
       "status": "incomplete",
       "created": "2026-10-24",
       "task": "standalone dual_arm_pick_transport_place (not a RoboDojo benchmark task)",

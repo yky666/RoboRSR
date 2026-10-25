@@ -16,6 +16,7 @@ import json
 import math
 from pathlib import Path
 import shutil
+import sys
 
 import cv2
 import numpy as np
@@ -65,12 +66,61 @@ SHELVES = dict(
     thickness=0.010,
     z=(r3(F["shelf_z1"]), r3(F["shelf_z2"])),
 )
-COLUMNS = dict(left_w=0.45, left_front=r3(F["left_front"] + DY), right_front=r3(F["right_front"] + DY))
+# left_w: neither counter photo sees the left column's far side; its front runs >= 0.71 m left of the counter in photo2
+# and >= 0.99 m right of its left face in lounge2 (back-projected), so 1.0 m, estimated (was assumed 0.45 m)
+COLUMNS = dict(left_w=1.0, left_front=r3(F["left_front"] + DY), right_front=r3(F["right_front"] + DY))
 # Right of the counter a wall of tall wood cabinets runs on in the right column's plane, with a two-bay water
 # dispenser (photo2 pixels back-projected onto that plane): x ranges, z range, recess depth.
 CABINETS = dict(x1=4.2, seams_x=(2.10, 2.95), groove_x=2.45, upper_z=2.04, dispenser_top_z=1.55)
 DISPENSER = dict(bays=((2.97, 3.40), (3.45, 3.85)), z=(0.78, 1.36), depth=0.30)
-ROOM = dict(x0=-3.0, x1=CABINETS["x1"], y0=-3.5)
+# Lounge left of the counter (fit_lounge.py, three photos; scale from its round table, top assumed 0.75 m): a wallpaper
+# alcove between the counter's left column and a wood column further left, with round cafe tables in front. Its frame
+# has x = 0 on the left column's left face and y = 0 on the wallpaper; here it is placed at LOUNGE_ORIGIN.
+LF = json.loads((HERE / "fit_lounge.json").read_text())["dims"]
+LOUNGE_ORIGIN = (r3(-COUNTER["length"] / 2 - COLUMNS["left_w"]), r3(COLUMNS["left_front"] + LF["col_depth"]))
+
+
+def lounge_xy(x, y):
+    return r3(x + LOUNGE_ORIGIN[0]), r3(y + LOUNGE_ORIGIN[1])
+
+
+LOUNGE = dict(
+    x0=lounge_xy(-LF["width"], 0)[0],
+    x1=LOUNGE_ORIGIN[0],
+    wall_y=LOUNGE_ORIGIN[1],
+    wainscot_z=r3(LF["wainscot_z"]),
+    paper_z=r3(LF["paper_z"]),
+    band_z=r3(LF["band_z"]),
+    soffit_front=r3(COLUMNS["left_front"]),
+    left_col_w=0.60,  # its width is not in the photos
+    left_col_front=lounge_xy(0, -LF["left_depth"])[1],
+    skirting_h=0.08,
+)
+# Top of the room, back-projected through the lounge1 camera: the alcove's wood soffit (its underside lit warm by a
+# hidden strip) runs from the wallpaper to the columns' front at band_z; a 10 cm wood fascia, then a 0.22 m white
+# plaster strip, then the perforated wood ceiling (~3.2 m, estimated: only its edge is in the photos) with a dark
+# downlight slot about 0.8 m out from the columns.
+CEILING = dict(z=3.20, fascia_z=3.11, strip_w=0.22, slot_y=r3(COLUMNS["left_front"] - 0.80), slot_w=0.12)
+DOWNLIGHT = dict(r=0.045, dx=1.0)
+# Round cafe tables: wood top, brass column and base disc (2 cm high, under the chassis' 3.4 cm clearance). The second
+# table (left, white chairs) is only partly in the photos: placed by eye, its size copied from the first.
+TABLE = dict(top_z=0.75, top_r=r3(LF["table_r"]), top_t=0.03, col_r=0.035, base_r=r3(LF["base_r"]), base_h=0.02)
+TABLES = {"blue": lounge_xy(LF["table_x"], LF["table_y"]), "white": lounge_xy(-4.0, -2.9)}
+# Chairs (Rigid lounge_chair/<index>, scripts/objects/make_lounge_chair.py) face their table: (table, index, bearing
+# deg of the chair seen from the table centre, distance). The blue four stand in a cross turned a little off the axes
+# (floor contacts back-projected through the lounge3 camera, 0.45-0.9 m out: evened to 0.75 m); the white two by eye.
+CHAIRS = [
+    ("blue", 0, 185, 0.75),
+    ("blue", 0, 265, 0.75),
+    ("blue", 0, 350, 0.75),
+    ("blue", 0, 85, 0.75),
+    ("white", 1, 30, 0.75),
+    ("white", 1, -30, 0.75),
+]
+# Two stainless pedal bins side by side against the wainscot (back-projected from lounge2 and lounge3), and a socket.
+BINS = dict(x=lounge_xy(-4.1, 0)[0], w=0.36, d=0.30, h=0.62, gap=0.01)
+LOUNGE_SOCKET = (lounge_xy(-0.6, 0)[0], 0.25)
+ROOM = dict(x0=r3(LOUNGE["x0"] - LOUNGE["left_col_w"] - 2.5), x1=CABINETS["x1"], y0=-5.5)  # photos taken ~4.5 m out
 POSTER = dict(x0=r3(F["poster_x0"]), x1=r3(F["poster_x1"]), z0=r3(F["poster_z0"]), z1=r3(F["poster_z1"]))
 # name: (x, z centre, w, h); back-projected from both photos onto the wall
 SOCKETS = {"single": (-0.96, 0.95, 0.086, 0.086), "double": (-0.30, 0.91, 0.17, 0.086)}
@@ -99,7 +149,7 @@ SHELF_ITEMS = {
 
 # Not calibrated: 9000 / 4500 K / 250 overexposed the marble and turned the wood orange in the first RTX render.
 LIGHTS = dict(
-    panels=[(-0.6, -0.55), (0.6, -0.55), (0.0, -1.8)],
+    panels=[(-0.6, -0.55), (0.6, -0.55), (0.0, -1.8), (TABLES["blue"][0], TABLES["blue"][1] + 0.4), (-5.0, -1.6)],
     panel_size=(1.2, 0.6),
     intensity=6000.0,
     color_temperature=5000.0,
@@ -128,7 +178,6 @@ MATERIALS = {
     "poster": ((1.0, 1.0, 1.0), 0.6, 0.0, 1.0, "poster.png"),
     "frame_white": ((0.82, 0.82, 0.80), 0.4, 0.0, 1.0, None),
     "socket_white": ((0.84, 0.84, 0.82), 0.4, 0.0, 1.0, None),
-    "art_panel": ((0.62, 0.64, 0.62), 0.8, 0.0, 1.0, None),
     "plastic_black": ((0.03, 0.03, 0.03), 0.4, 0.0, 1.0, None),
     "plastic_clear": ((0.80, 0.82, 0.82), 0.10, 0.0, 0.35, None),
     "bottle_green": ((0.62, 0.70, 0.35), 0.08, 0.0, 0.55, None),
@@ -138,8 +187,19 @@ MATERIALS = {
     "tube_white": ((0.85, 0.85, 0.85), 0.4, 0.0, 1.0, None),
     "paper_bag": ((0.84, 0.82, 0.77), 0.9, 0.0, 1.0, None),
     "card": ((0.88, 0.88, 0.86), 0.6, 0.0, 1.0, None),
+    "wallpaper": ((1.0, 1.0, 1.0), 0.8, 0.0, 1.0, "wallpaper.png"),
+    "green_band": ((1.0, 1.0, 1.0), 0.7, 0.0, 1.0, "green_band.png"),
+    "brass": ((0.62, 0.48, 0.24), 0.30, 1.0, 1.0, None),
+    "table_wood": ((0.42, 0.24, 0.10), 0.45, 0.0, 1.0, None),
+    "wood_lit": ((1.0, 1.0, 1.0), 0.55, 0.0, 1.0, "wood.png"),
+    "plaster_white": ((0.86, 0.86, 0.84), 0.9, 0.0, 1.0, None),
+    "ceiling_wood": ((1.0, 1.0, 1.0), 0.8, 0.0, 1.0, "ceiling_wood.png"),
+    "slot_dark": ((0.04, 0.04, 0.04), 0.6, 0.0, 1.0, None),
+    "downlight": ((1.0, 1.0, 1.0), 0.3, 0.0, 1.0, "glow.png"),
 }
 CUTOUT = {"bin_label"}  # textures whose alpha cuts the surface (opacityThreshold)
+# back-lit: the texture also drives emissiveColor (the green band, the soffit's underside, the downlights)
+EMISSIVE = {"green_band", "wood_lit", "downlight"}
 PHYS = {
     "default": (0.5, 0.45, 0.0),
     "quartz": (0.55, 0.45, 0.0),
@@ -257,6 +317,8 @@ class Layer:
             tx.CreateInput("st", Sdf.ValueTypeNames.Float2).ConnectToSource(st.ConnectableAPI(), "result")
             tx.CreateOutput("rgb", Sdf.ValueTypeNames.Float3)
             sh.CreateInput("diffuseColor", Sdf.ValueTypeNames.Color3f).ConnectToSource(tx.ConnectableAPI(), "rgb")
+            if key in EMISSIVE:
+                sh.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).ConnectToSource(tx.ConnectableAPI(), "rgb")
             if key in CUTOUT:
                 tx.CreateOutput("a", Sdf.ValueTypeNames.Float)
                 sh.CreateInput("opacity", Sdf.ValueTypeNames.Float).ConnectToSource(tx.ConnectableAPI(), "a")
@@ -279,9 +341,10 @@ class Layer:
         self.pmats[key] = pm
         return pm
 
-    def mesh(self, path, m, mat=None, smooth=False, uv=None, guide=False):
+    def mesh(self, path, m, mat=None, smooth=False, uv=None, guide=False, normals=None):
+        """`normals`: per-vertex normals to keep as given (vertices are not merged, so hard edges stay hard)."""
         m = m.copy()
-        if smooth:
+        if smooth and normals is None:
             m.merge_vertices()
         um = UsdGeom.Mesh.Define(self.stage, f"{self.rootpath}/{path}")
         pts = (m.vertices * SCALE).astype(np.float32)
@@ -290,7 +353,10 @@ class Layer:
         um.CreateFaceVertexIndicesAttr(Vt.IntArray(m.faces.reshape(-1).tolist()))
         um.CreateSubdivisionSchemeAttr(UsdGeom.Tokens.none)
         um.CreateExtentAttr(Vt.Vec3fArray([Gf.Vec3f(*map(float, pts.min(0))), Gf.Vec3f(*map(float, pts.max(0)))]))
-        if smooth:
+        if normals is not None:
+            um.CreateNormalsAttr(Vt.Vec3fArray.FromNumpy(np.asarray(normals, np.float32)))
+            um.SetNormalsInterpolation(UsdGeom.Tokens.vertex)
+        elif smooth:
             um.CreateNormalsAttr(Vt.Vec3fArray.FromNumpy(m.vertex_normals.astype(np.float32)))
             um.SetNormalsInterpolation(UsdGeom.Tokens.vertex)
         else:
@@ -467,8 +533,33 @@ def bin_label_texture(im2, size=(260, 200)):
     return np.dstack([ink, alpha])
 
 
+def lounge_texture(x0, x1, z0, z1, size):
+    """Wall patch of the lounge (scene frame x, z on the wallpaper plane) rectified from lounge1, which sees the whole
+    wall: from where it was taken the counter's left column hides the last ~10 cm at the right end, so the patch stops
+    LOUNGE_HIDDEN short of it and is stretched over the full width."""
+    fit = json.loads((HERE / "fit_lounge.json").read_text())
+    cam, f = fit["cameras"]["lounge1.jpg"], fit["focal_px"]
+    k = np.array([[f, 0, 512], [0, f, 384], [0, 0, 1]], np.float64)
+    ox = LOUNGE_ORIGIN[0]
+    x1 = min(x1, ox - LOUNGE_HIDDEN)
+    pts = np.array([(x0 - ox, 0, z1), (x1 - ox, 0, z1), (x1 - ox, 0, z0), (x0 - ox, 0, z0)], np.float64)
+    px, _ = cv2.projectPoints(pts, np.array(cam["rvec"]), np.array(cam["tvec"]), k, None)
+    im = cv2.imread(str(PHOTOS / "lounge1.jpg"))
+    return flatten_light(warp(im, px.reshape(-1, 2), size), 60)
+
+
+LOUNGE_HIDDEN = 0.12
+
+
 def build_textures():
     TEX.mkdir(parents=True, exist_ok=True)
+    lg = LOUNGE
+    cv2.imwrite(
+        str(TEX / "wallpaper.png"), lounge_texture(lg["x0"], lg["x1"], lg["wainscot_z"], lg["paper_z"], (2048, 620))
+    )
+    cv2.imwrite(
+        str(TEX / "green_band.png"), lounge_texture(lg["x0"], lg["x1"], lg["paper_z"], lg["band_z"], (2048, 240))
+    )
     im = cv2.imread(str(PHOTOS / "photo.jpg"))
     im2 = cv2.imread(str(PHOTOS / "photo2.jpg"))
     wood = flatten_light(im[30:740, 845:1015], 40)
@@ -483,6 +574,24 @@ def build_textures():
     )
     cv2.imwrite(str(TEX / "poster.png"), poster_texture(im, im2))
     cv2.imwrite(str(TEX / "bin_label.png"), bin_label_texture(im2))
+    cv2.imwrite(str(TEX / "ceiling_wood.png"), perforated_wood())
+    cv2.imwrite(str(TEX / "glow.png"), np.full((8, 8, 3), 255, np.uint8))
+
+
+def perforated_wood(size=512, seed=5):
+    """One 0.6 m acoustic ceiling panel: pale oak (the lounge1 ceiling's colour), fine grain, a 15 mm grid of 3 mm
+    holes and a dark joint along two edges, so that tiling shows the panel joints."""
+    rng = np.random.default_rng(seed)
+    grain = cv2.GaussianBlur(rng.normal(0, 1, (size, size // 8)).astype(np.float32), (0, 0), 1.5)
+    grain = cv2.resize(grain, (size, size), interpolation=cv2.INTER_CUBIC)
+    base = np.array([118, 168, 205], np.float32)  # BGR
+    im = np.clip(base[None, None] * (1 + 0.04 * grain[..., None]), 0, 255)
+    pitch = size / 40
+    yy, xx = np.mgrid[0:size, 0:size]
+    holes = np.hypot((xx % pitch) - pitch / 2, (yy % pitch) - pitch / 2) < 1.3
+    im[holes] *= 0.35
+    im[:3], im[:, :3] = im[:3] * 0.45, im[:, :3] * 0.45
+    return im.astype(np.uint8)
 
 
 # ----------------------------------------------------------------------------- scene parts
@@ -615,17 +724,21 @@ def add_background(L):
     hl, H, wy = c["length"] / 2, wl["height"], wl["y"]
     lx = -hl - cl["left_w"]
     rf = cl["right_front"]
+    col_back = max(wy, LOUNGE["wall_y"]) + 0.02  # the left column also bounds the lounge alcove, whose wall is deeper
+    HR = room_height()
     L.mesh(
         "Floor",
-        quad([r["x0"], r["y0"], 0], [r["x1"], r["y0"], 0], [r["x1"], wy, 0], [r["x0"], wy, 0]),
+        quad([r["x0"], r["y0"], 0], [r["x1"], r["y0"], 0], [r["x1"], col_back, 0], [r["x0"], col_back, 0]),
         "terrazzo",
         uv=lambda fv, fn: fv[:, :2] / 0.8,
     )
-    L.collider("Colliders/floor", box_xyz(r["x0"] - 1, r["x1"] + 1, r["y0"] - 1, wy + 1, -0.10, 0.0), pkey="terrazzo")
+    L.collider(
+        "Colliders/floor", box_xyz(r["x0"] - 1, r["x1"] + 1, r["y0"] - 1, col_back + 1, -0.10, 0.0), pkey="terrazzo"
+    )
     L.mesh("Backsplash", box_xyz(-hl, hl, wy, wy + 0.02, c["top_z"], H), "marble", uv=planar_uv(1.2, 1.2))
-    L.mesh("ColumnLeft", box_xyz(lx, -hl, cl["left_front"], wy + 0.02, 0.0, H), "wood", uv=planar_uv(0.6, 2.4))
+    L.mesh("ColumnLeft", box_xyz(lx, -hl, cl["left_front"], col_back, 0.0, HR), "wood", uv=planar_uv(0.6, 2.4))
     # right cabinet wall, the dispenser bays cut into it
-    wall = box_xyz(hl, cb["x1"], rf, wy + 0.02, 0.0, H)
+    wall = box_xyz(hl, cb["x1"], rf, wy + 0.02, 0.0, HR)  # up to the ceiling
     bays = [box_xyz(x0, x1, rf - 0.01, rf + dp["depth"], *dp["z"]) for x0, x1 in dp["bays"]]
     L.mesh("CabinetsRight/body", wall.difference(trimesh.util.concatenate(bays)), "wood", uv=planar_uv(0.6, 2.4))
     yf = rf - 0.0005
@@ -655,15 +768,16 @@ def add_background(L):
             "plastic_black",
         )
     L.mesh(
-        "Soffit", box_xyz(-hl, hl, min(cl["left_front"], rf), wy + 0.02, H, H + 0.05), "wood", uv=planar_uv(0.6, 2.4)
+        "Soffit", box_xyz(-hl, hl, min(cl["left_front"], rf), wy + 0.02, H, HR), "wood", uv=planar_uv(0.6, 2.4)
     )
-    L.mesh("WallLeft/wainscot", box_xyz(r["x0"], lx, wy, wy + 0.03, 0.0, 1.0), "wood", uv=planar_uv(0.6, 2.4))
-    L.mesh("WallLeft/upper", box_xyz(r["x0"], lx, wy, wy + 0.02, 1.0, H), "wall_paint")
-    L.mesh("WallLeft/art", box_xyz(lx - 1.10, lx - 0.15, wy - 0.01, wy, 1.05, 2.05), "art_panel")
-    L.mesh("WallLeft/skirting", box_xyz(r["x0"], lx, wy - 0.01, wy, 0.0, 0.06), "skirting")
-    L.mesh("WallBack", box_xyz(r["x0"], r["x1"], r["y0"] - 0.1, r["y0"], 0.0, H), "wall_paint")
-    L.mesh("WallW", box_xyz(r["x0"] - 0.1, r["x0"], r["y0"], wy, 0.0, H), "wall_paint")
-    L.mesh("WallE", box_xyz(r["x1"], r["x1"] + 0.1, r["y0"], wy, 0.0, H), "wall_paint")
+    L.mesh("Ceiling", down_quad(r["x0"], r["x1"], r["y0"], col_back, HR), "ceiling_wood", uv=lambda fv, fn: fv[:, :2] / 0.6)
+    # office wall beyond the lounge's left column (not in the photos), on the lounge wallpaper plane
+    ly, lc = LOUNGE["wall_y"], LOUNGE["x0"] - LOUNGE["left_col_w"]
+    L.mesh("WallLeft/upper", box_xyz(r["x0"], lc, ly, ly + 0.02, 0.0, HR), "wall_paint")
+    L.mesh("WallLeft/skirting", box_xyz(r["x0"], lc, ly - 0.01, ly, 0.0, 0.06), "skirting")
+    L.mesh("WallBack", box_xyz(r["x0"], r["x1"], r["y0"] - 0.1, r["y0"], 0.0, HR), "wall_paint")
+    L.mesh("WallW", box_xyz(r["x0"] - 0.1, r["x0"], r["y0"], ly, 0.0, HR), "wall_paint")
+    L.mesh("WallE", box_xyz(r["x1"], r["x1"] + 0.1, r["y0"], wy, 0.0, HR), "wall_paint")
     p = POSTER
     L.mesh(
         "Poster/frame",
@@ -685,13 +799,13 @@ def add_background(L):
         L.mesh(f"Sockets/{nm}", box_c(x, wy - 0.006, z - h / 2, w, 0.012, h), "socket_white")
     for nm, b in {
         "backsplash": (-hl, hl, wy, wy + 0.02, c["top_z"], H),
-        "column_left": (lx, -hl, cl["left_front"], wy + 0.02, 0.0, H),
+        "column_left": (lx, -hl, cl["left_front"], col_back, 0.0, HR),
         "cabinets_right": (hl, dp["bays"][0][0], rf, wy + 0.02, 0.0, H),
         "cabinets_right_far": (dp["bays"][0][0], cb["x1"], rf + dp["depth"], wy + 0.02, 0.0, H),
-        "wall_left": (r["x0"], lx, wy, wy + 0.03, 0.0, H),
-        "wall_back": (r["x0"], r["x1"], r["y0"] - 0.1, r["y0"], 0.0, H),
-        "wall_w": (r["x0"] - 0.1, r["x0"], r["y0"], wy, 0.0, H),
-        "wall_e": (r["x1"], r["x1"] + 0.1, r["y0"], wy, 0.0, H),
+        "wall_left": (r["x0"], lc, ly, ly + 0.03, 0.0, HR),
+        "wall_back": (r["x0"], r["x1"], r["y0"] - 0.1, r["y0"], 0.0, HR),
+        "wall_w": (r["x0"] - 0.1, r["x0"], r["y0"], ly, 0.0, HR),
+        "wall_e": (r["x1"], r["x1"] + 0.1, r["y0"], wy, 0.0, HR),
     }.items():
         L.collider(f"Colliders/{nm}", box_xyz(*b))
 
@@ -716,6 +830,103 @@ def add_background(L):
             L.mesh(f"Shelves/{level}_items/{nm}", m, mat, smooth=shape == "cyl")
 
 
+def room_height():
+    return CEILING["z"]
+
+
+def down_quad(x0, x1, y0, y1, z):
+    """Horizontal quad facing down (a ceiling seen from the room; culled when looking in from above)."""
+    return quad((x0, y0, z), (x0, y1, z), (x1, y1, z), (x1, y0, z))
+
+
+def round_table(L, name, cx, cy):
+    t = TABLE
+    z1 = t["top_z"] - t["top_t"]
+    L.mesh(f"{name}/top", cyl(cx, cy, z1, t["top_r"], t["top_t"], 64), "table_wood", smooth=True)
+    L.mesh(f"{name}/column", cyl(cx, cy, t["base_h"], t["col_r"], z1 - t["base_h"], 24), "brass", smooth=True)
+    L.mesh(f"{name}/base", cyl(cx, cy, 0.0, t["base_r"], t["base_h"], 48), "brass", smooth=True)
+    L.collider(f"Colliders/{name}_top", cyl(cx, cy, z1, t["top_r"], t["top_t"], 30))  # <= 64 hull vertices
+    L.collider(f"Colliders/{name}_column", cyl(cx, cy, t["base_h"], t["col_r"], z1 - t["base_h"], 16))
+    L.collider(f"Colliders/{name}_base", cyl(cx, cy, 0.0, t["base_r"], t["base_h"], 30))
+
+
+def add_lounge(L):
+    lg, b = LOUNGE, BINS
+    x0, x1, y, sk = lg["x0"], lg["x1"], lg["wall_y"], lg["skirting_h"]
+    wz, pz, bz = lg["wainscot_z"], lg["paper_z"], lg["band_z"]
+    wood = planar_uv(0.6, 2.4)
+    L.mesh("Alcove/skirting", box_xyz(x0, x1, y - 0.025, y, 0.0, sk), "skirting")
+    L.mesh("Alcove/wainscot", box_xyz(x0, x1, y - 0.02, y, sk, wz), "wood", uv=wood)
+    L.mesh("Alcove/trim", box_xyz(x0, x1, y - 0.025, y - 0.02, wz - 0.012, wz), "door_seam")
+    L.mesh(
+        "Alcove/wallpaper",
+        quad((x0, y - 0.001, wz), (x1, y - 0.001, wz), (x1, y - 0.001, pz), (x0, y - 0.001, pz)),
+        "wallpaper",
+        uv=rect_uv(0, x0, x1, wz, pz),
+    )
+    L.mesh(
+        "Alcove/green_band",
+        quad((x0, y - 0.001, pz), (x1, y - 0.001, pz), (x1, y - 0.001, bz), (x0, y - 0.001, bz)),
+        "green_band",
+        uv=rect_uv(0, x0, x1, pz, bz),
+    )
+    L.mesh("Alcove/wall", box_xyz(x0, x1, y, y + 0.02, 0.0, room_height()), "wall_paint")
+    lc, ce, front, top = x0 - lg["left_col_w"], CEILING, lg["soffit_front"], room_height()
+    L.mesh("Alcove/soffit", box_xyz(x0, x1, front, y, bz, top), "wood", uv=wood)
+    L.mesh("Alcove/soffit_lit", down_quad(x0, x1, front, y, bz - 0.001), "wood_lit", uv=wood)
+    # white plaster strip in front of the soffit (and the left column), then the downlight slot in the ceiling
+    L.mesh("Ceiling/strip", box_xyz(lc, x1, front - ce["strip_w"], front, ce["fascia_z"], top), "plaster_white")
+    sy, sw = ce["slot_y"], ce["slot_w"]
+    L.mesh("Ceiling/slot", box_xyz(lc, x1, sy - sw / 2, sy + sw / 2, top - 0.01, top), "slot_dark")
+    for i, x in enumerate(np.arange(lc + DOWNLIGHT["dx"] / 2, x1, DOWNLIGHT["dx"])):
+        L.mesh(f"Ceiling/downlight_{i}", cyl(x, sy, top - 0.013, DOWNLIGHT["r"], 0.003, 24), "downlight", smooth=True)
+    L.mesh("Alcove/column_left", box_xyz(lc, x0, lg["left_col_front"], y + 0.02, 0.0, room_height()), "wood", uv=wood)
+    L.collider("Colliders/alcove_wall", box_xyz(x0, x1, y - 0.025, y + 0.02, 0.0, room_height()))
+    L.collider("Colliders/alcove_column_left", box_xyz(lc, x0, lg["left_col_front"], y + 0.02, 0.0, room_height()))
+    sx, sz = LOUNGE_SOCKET
+    L.mesh("Alcove/socket", box_c(sx, y - 0.026, sz - 0.043, 0.086, 0.006, 0.086), "socket_white")
+    for name, (cx, cy) in TABLES.items():
+        round_table(L, f"Table_{name}", cx, cy)
+    for i, dx in enumerate((-(b["w"] + b["gap"]) / 2, (b["w"] + b["gap"]) / 2)):
+        cx, cy = b["x"] + dx, y - 0.03 - b["d"] / 2
+        L.mesh(f"Bins/body_{i}", box_c(cx, cy, 0.03, b["w"], b["d"], b["h"] - 0.05), "steel")
+        L.mesh(f"Bins/lid_{i}", box_c(cx, cy, b["h"] - 0.02, b["w"] - 0.01, b["d"] - 0.01, 0.02), "plastic_black")
+        L.mesh(f"Bins/foot_{i}", box_c(cx, cy, 0.0, b["w"] - 0.03, b["d"] - 0.03, 0.03), "plastic_black")
+        L.collider(f"Colliders/bin_{i}", box_c(cx, cy, 0.0, b["w"], b["d"], b["h"]))
+
+
+def chair_poses():
+    """Lounge chair placements: (index, (x, y), yaw deg) in the scene frame, each turned to face its table (the chair
+    asset faces +X)."""
+    out = []
+    for table, idx, bearing, dist in CHAIRS:
+        tx, ty = TABLES[table]
+        a = math.radians(bearing)
+        out.append((idx, (r3(tx + dist * math.cos(a)), r3(ty + dist * math.sin(a))), (bearing + 180) % 360))
+    return out
+
+
+def add_chairs(L):
+    """The lounge chairs at their nominal poses, for usd/preview.usda only (renders and the platform's 3D view): in the
+    sim they are rigid layout objects (scripts/objects/make_lounge_chair.py, placed by scripts/g1d/build_asset.py), so
+    the Room entry leaves them out. Same geometry and centring as the asset."""
+    sys.path.insert(0, str(HERE.parents[2] / "scripts" / "objects"))
+    import make_lounge_chair as chair
+
+    MATERIALS["chair_oak"] = (chair.OAK, 0.5, 0.0, 1.0, None)
+    for idx, (_, rgb) in chair.COLOURS.items():
+        MATERIALS[f"chair_{idx}"] = (rgb, 0.45, 0.0, 1.0, None)
+    parts = chair.build()["parts"]
+    every = np.concatenate([p for p, _ in parts.values()])
+    centre = (every.min(0) + every.max(0)) / 2 * [1, 1, 0]
+    for i, (idx, (x, y), yaw) in enumerate(chair_poses()):
+        rot = trimesh.transformations.rotation_matrix(math.radians(yaw), [0, 0, 1])[:3, :3]
+        for name, (p, f) in parts.items():
+            m = trimesh.Trimesh((p - centre) @ rot.T + [x, y, 0.0], f, process=False)
+            mat = "chair_oak" if name.startswith("leg") else f"chair_{idx}"
+            L.mesh(f"chair_{i}/{name}", m, mat, normals=chair.mp.vertex_normals(p, [list(t) for t in f]) @ rot.T)
+
+
 def add_lights(L):
     lt = LIGHTS
     for i, (x, y) in enumerate(lt["panels"]):
@@ -725,10 +936,13 @@ def add_lights(L):
         rl.CreateIntensityAttr(lt["intensity"])
         rl.CreateEnableColorTemperatureAttr(True)
         rl.CreateColorTemperatureAttr(lt["color_temperature"])
-        UsdGeom.Xformable(rl).AddTranslateOp().Set(Gf.Vec3d(x * SCALE, y * SCALE, (WALL["height"] - 0.02) * SCALE))
+        UsdGeom.Xformable(rl).AddTranslateOp().Set(Gf.Vec3d(x * SCALE, y * SCALE, (room_height() - 0.02) * SCALE))
     dome = UsdLux.DomeLight.Define(L.stage, f"{L.rootpath}/AmbientDome")
     dome.CreateIntensityAttr(lt["dome"])
     dome.CreateColorAttr(Gf.Vec3f(0.95, 0.95, 1.0))
+
+
+SCENE_LAYERS = ("Background", "Counter", "Lounge", "Lights")
 
 
 def main():
@@ -740,21 +954,30 @@ def main():
         shutil.rmtree(OUT)
     OUT.mkdir(parents=True)
     build_textures()
-    for name, fn in [("background", add_background), ("counter", add_counter), ("lights", add_lights)]:
+    for name, fn in [
+        ("background", add_background),
+        ("counter", add_counter),
+        ("lounge", add_lounge),
+        ("lights", add_lights),
+        ("chairs", add_chairs),
+    ]:
         layer = Layer(OUT / f"{name}.usda", name.capitalize())
         fn(layer)
         layer.save()
 
-    st = Usd.Stage.CreateNew(str(OUT / "scene.usda"))
-    UsdGeom.SetStageUpAxis(st, UsdGeom.Tokens.z)
-    UsdGeom.SetStageMetersPerUnit(st, 1.0)
-    UsdPhysics.SetStageKilogramsPerUnit(st, 1.0)
-    world = UsdGeom.Xform.Define(st, "/World")
-    st.SetDefaultPrim(world.GetPrim())
-    UsdPhysics.Scene.Define(st, "/World/PhysicsScene").CreateGravityDirectionAttr(Gf.Vec3f(0, 0, -1))
-    for nm in ("Background", "Counter", "Lights"):
-        st.DefinePrim(f"/World/{nm}").GetReferences().AddReference(f"./{nm.lower()}.usda")
-    st.GetRootLayer().Save()
+    # scene.usda: what the sim's Room holds; preview.usda adds the chairs (layout objects in the sim) for renders and
+    # the platform's 3D view (scripts/scenes/render_scenes.py, export_glb.py)
+    for stage_name, names in (("scene", SCENE_LAYERS), ("preview", SCENE_LAYERS + ("Chairs",))):
+        st = Usd.Stage.CreateNew(str(OUT / f"{stage_name}.usda"))
+        UsdGeom.SetStageUpAxis(st, UsdGeom.Tokens.z)
+        UsdGeom.SetStageMetersPerUnit(st, 1.0)
+        UsdPhysics.SetStageKilogramsPerUnit(st, 1.0)
+        world = UsdGeom.Xform.Define(st, "/World")
+        st.SetDefaultPrim(world.GetPrim())
+        UsdPhysics.Scene.Define(st, "/World/PhysicsScene").CreateGravityDirectionAttr(Gf.Vec3f(0, 0, -1))
+        for nm in names:
+            st.DefinePrim(f"/World/{nm}").GetReferences().AddReference(f"./{nm.lower()}.usda")
+        st.GetRootLayer().Save()
     # RoboDojo Room entry (layout_manager.select_room loads the only .usd in Assets/Room/<name>/): no PhysicsScene,
     # the env owns it. Install by copying this directory to Assets/Room/real_scene2/.
     room = Usd.Stage.CreateNew(str(HERE / "real_scene2.usd"))
@@ -762,7 +985,7 @@ def main():
     UsdGeom.SetStageMetersPerUnit(room, 1.0)
     scene = UsdGeom.Xform.Define(room, "/Scene")
     room.SetDefaultPrim(scene.GetPrim())
-    for nm in ("Background", "Counter", "Lights"):
+    for nm in SCENE_LAYERS:
         room.DefinePrim(f"/Scene/{nm}").GetReferences().AddReference(f"./usd/{nm.lower()}.usda")
     room.GetRootLayer().Save()
 
@@ -782,9 +1005,27 @@ def main():
         sink={n: v * k for n, v in SINK.items()},
         microwave={n: v * k for n, v in MICROWAVE.items()},
         shelf_top_z=[z * k for z in SHELVES["z"]],
-        layers=dict(scene="scene.usda", background="background.usda", table="counter.usda", lights="lights.usda"),
+        # the lounge for mobile tasks (layouts place the chairs, scripts/g1d/build_asset.py)
+        lounge=dict(
+            wall_y=LOUNGE["wall_y"] * k,
+            x_range=[LOUNGE["x0"] * k, LOUNGE["x1"] * k],
+            table_top_z=TABLE["top_z"] * k,
+            table_r=TABLE["top_r"] * k,
+            tables={n: [v * k for v in xy] for n, xy in TABLES.items()},
+            chairs=[dict(index=i, xy=[v * k for v in xy], yaw_deg=yaw) for i, xy, yaw in chair_poses()],
+        ),
+        layers=dict(
+            scene="scene.usda",
+            background="background.usda",
+            table="counter.usda",
+            lounge="lounge.usda",
+            lights="lights.usda",
+            preview="preview.usda",
+        ),
     )
     (OUT / "build_params.json").write_text(json.dumps(params, indent=1), encoding="utf-8")
+    for f in OUT.glob("*.usda"):  # USD ends text layers with a blank line, which `git diff --check` rejects
+        f.write_text(f.read_text().rstrip("\n") + "\n")
     print("wrote", OUT)
 
 

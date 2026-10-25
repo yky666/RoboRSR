@@ -13,6 +13,17 @@ MODEL = ROOT / "real2sim" / "robot" / BODY
 
 
 class AuroraIntegrationTests(unittest.TestCase):
+    def test_aurora_does_not_inherit_dex1_closing_coupling(self):
+        from env.robot_manager.robot_class.g1d import FINGER_COUPLING, G1DLeft, G1DRight
+        from env.robot_manager.robot_class.g1d_aurora_lite_ws import G1DAuroraLeft, G1DAuroraRight
+
+        # Dex1 closes towards increasing q. Aurora opens towards increasing q;
+        # applying the Dex1 lag limiter would alter its delivered opening targets.
+        for robot in (G1DAuroraLeft, G1DAuroraRight):
+            self.assertIsNone(robot.finger_coupling)
+        for robot in (G1DLeft, G1DRight):
+            self.assertEqual(robot.finger_coupling, FINGER_COUPLING)
+
     def test_frozen_model_and_meshes_are_present(self):
         hashes = json.loads((MODEL / "sha256.json").read_text())
         for relative, expected in hashes.items():

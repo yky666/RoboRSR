@@ -1,0 +1,9414 @@
+{
+ "objects": {
+  "dataset": "ManiTwin/ManiTwin-100K (huggingface.co/datasets/ManiTwin/ManiTwin-100K)",
+  "license": "Apache-2.0",
+  "converted_by": "scripts/objects/manitwin.py",
+  "count": 390,
+  "items": [
+   {
+    "id": "Clutter/acrylic_vase/00901",
+    "source": "acrylic_vase/001",
+    "extents_m": [
+     0.173,
+     0.1178,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/adapter/00900",
+    "source": "adapter/000",
+    "extents_m": [
+     0.0569,
+     0.07,
+     0.0548
+    ]
+   },
+   {
+    "id": "Clutter/adapter/00901",
+    "source": "adapter/001",
+    "extents_m": [
+     0.0295,
+     0.05,
+     0.019
+    ]
+   },
+   {
+    "id": "Clutter/agate_mortar/00900",
+    "source": "agate_mortar/001",
+    "extents_m": [
+     0.12,
+     0.1056,
+     0.0705
+    ]
+   },
+   {
+    "id": "Clutter/agate_mortar/00901",
+    "source": "agate_mortar/002",
+    "extents_m": [
+     0.1078,
+     0.12,
+     0.0746
+    ]
+   },
+   {
+    "id": "Clutter/agate_pestle/00900",
+    "source": "agate_pestle/002",
+    "extents_m": [
+     0.15,
+     0.1315,
+     0.1097
+    ]
+   },
+   {
+    "id": "Clutter/agate_pestle/00901",
+    "source": "agate_pestle/003",
+    "extents_m": [
+     0.12,
+     0.1158,
+     0.085
+    ]
+   },
+   {
+    "id": "Clutter/air_fryer/00900",
+    "source": "air_fryer/000",
+    "extents_m": [
+     0.2482,
+     0.25,
+     0.2243
+    ]
+   },
+   {
+    "id": "Clutter/air_purifier/00901",
+    "source": "air_purifier/001",
+    "extents_m": [
+     0.056,
+     0.1298,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/all_purpose_spray_bottle/00900",
+    "source": "all-purpose_spray_bottle/002",
+    "extents_m": [
+     0.0678,
+     0.0924,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/all_purpose_spray_bottle/00901",
+    "source": "all-purpose_spray_bottle/003",
+    "extents_m": [
+     0.0636,
+     0.0911,
+     0.22
+    ]
+   },
+   {
+    "id": "Clutter/aluminum_dustpan/00900",
+    "source": "aluminum_dustpan/000",
+    "extents_m": [
+     0.2129,
+     0.0311,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/aluminum_dustpan/00901",
+    "source": "aluminum_dustpan/003",
+    "extents_m": [
+     0.15,
+     0.0268,
+     0.0962
+    ]
+   },
+   {
+    "id": "Clutter/aluminum_pins/00900",
+    "source": "aluminum_pins/000",
+    "extents_m": [
+     0.0782,
+     0.078,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/aluminum_step_stool/00900",
+    "source": "aluminum_step_stool/004",
+    "extents_m": [
+     0.1909,
+     0.25,
+     0.1289
+    ]
+   },
+   {
+    "id": "Clutter/anchors/00901",
+    "source": "anchors/002",
+    "extents_m": [
+     0.15,
+     0.0319,
+     0.094
+    ]
+   },
+   {
+    "id": "Clutter/angle_bracket/00900",
+    "source": "angle_bracket/000",
+    "extents_m": [
+     0.0613,
+     0.1,
+     0.0881
+    ]
+   },
+   {
+    "id": "Clutter/ankle_weight/00900",
+    "source": "ankle_weight/000",
+    "extents_m": [
+     0.1128,
+     0.12,
+     0.0596
+    ]
+   },
+   {
+    "id": "Clutter/anniversary_clock/00900",
+    "source": "anniversary_clock/000",
+    "extents_m": [
+     0.178,
+     0.1781,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/anti_skid_stool/00900",
+    "source": "anti-skid_stool/006",
+    "extents_m": [
+     0.25,
+     0.2493,
+     0.2136
+    ]
+   },
+   {
+    "id": "Clutter/antique/00901",
+    "source": "antique/001",
+    "extents_m": [
+     0.0625,
+     0.15,
+     0.0552
+    ]
+   },
+   {
+    "id": "Clutter/apple_corer/00901",
+    "source": "apple_corer/001",
+    "extents_m": [
+     0.18,
+     0.1794,
+     0.0407
+    ]
+   },
+   {
+    "id": "Clutter/apple_slicer/00900",
+    "source": "apple_slicer/000",
+    "extents_m": [
+     0.0936,
+     0.15,
+     0.0485
+    ]
+   },
+   {
+    "id": "Clutter/apple_slicer/00901",
+    "source": "apple_slicer/001",
+    "extents_m": [
+     0.15,
+     0.1317,
+     0.0865
+    ]
+   },
+   {
+    "id": "Clutter/ash_bucket/00900",
+    "source": "ash_bucket/003",
+    "extents_m": [
+     0.2043,
+     0.1808,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/ash_bucket/00901",
+    "source": "ash_bucket/004",
+    "extents_m": [
+     0.18,
+     0.1798,
+     0.1268
+    ]
+   },
+   {
+    "id": "Clutter/ash_tray_bin/00900",
+    "source": "ash_tray_bin/000",
+    "extents_m": [
+     0.0489,
+     0.0644,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/ash_tray_bin/00901",
+    "source": "ash_tray_bin/001",
+    "extents_m": [
+     0.0672,
+     0.0674,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/assembly_small_tank/00900",
+    "source": "assembly_small_tank/000",
+    "extents_m": [
+     0.0913,
+     0.2,
+     0.1153
+    ]
+   },
+   {
+    "id": "Clutter/assembly_small_tank/00901",
+    "source": "assembly_small_tank/001",
+    "extents_m": [
+     0.1188,
+     0.2,
+     0.1457
+    ]
+   },
+   {
+    "id": "Clutter/atomic_clock/00900",
+    "source": "atomic_clock/000",
+    "extents_m": [
+     0.1089,
+     0.12,
+     0.0702
+    ]
+   },
+   {
+    "id": "Clutter/attachment_clip/00900",
+    "source": "attachment_clip/000",
+    "extents_m": [
+     0.0341,
+     0.15,
+     0.0639
+    ]
+   },
+   {
+    "id": "Clutter/attachment_clip/00901",
+    "source": "attachment_clip/002",
+    "extents_m": [
+     0.15,
+     0.0436,
+     0.1055
+    ]
+   },
+   {
+    "id": "Clutter/audio_receiver_remote/00900",
+    "source": "audio_receiver_remote/001",
+    "extents_m": [
+     0.0331,
+     0.0132,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/axle/00901",
+    "source": "axle/007",
+    "extents_m": [
+     0.1136,
+     0.15,
+     0.1344
+    ]
+   },
+   {
+    "id": "Clutter/backpack/00901",
+    "source": "backpack/002",
+    "extents_m": [
+     0.2352,
+     0.0716,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/banana/00900",
+    "source": "banana/000",
+    "extents_m": [
+     0.0422,
+     0.18,
+     0.0808
+    ]
+   },
+   {
+    "id": "Clutter/banana/00901",
+    "source": "banana/001",
+    "extents_m": [
+     0.049,
+     0.18,
+     0.0579
+    ]
+   },
+   {
+    "id": "Clutter/bellows/00900",
+    "source": "bellows/000",
+    "extents_m": [
+     0.2499,
+     0.1589,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/bellows/00901",
+    "source": "bellows/001",
+    "extents_m": [
+     0.1499,
+     0.1252,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/bike_bottle_cage/00900",
+    "source": "bike_bottle_cage/000",
+    "extents_m": [
+     0.1068,
+     0.18,
+     0.1082
+    ]
+   },
+   {
+    "id": "Clutter/binders/00900",
+    "source": "binders/000",
+    "extents_m": [
+     0.1624,
+     0.0346,
+     0.21
+    ]
+   },
+   {
+    "id": "Clutter/bolt/00900",
+    "source": "bolt/001",
+    "extents_m": [
+     0.0314,
+     0.028,
+     0.1
+    ]
+   },
+   {
+    "id": "Clutter/bolt/00901",
+    "source": "bolt/002",
+    "extents_m": [
+     0.0493,
+     0.0371,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/box/00900",
+    "source": "box/001",
+    "extents_m": [
+     0.15,
+     0.144,
+     0.0938
+    ]
+   },
+   {
+    "id": "Clutter/brush/00900",
+    "source": "brush/000",
+    "extents_m": [
+     0.0226,
+     0.0759,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/button/00900",
+    "source": "button/000",
+    "extents_m": [
+     0.08,
+     0.0712,
+     0.0798
+    ]
+   },
+   {
+    "id": "Clutter/cable/00900",
+    "source": "cable/001",
+    "extents_m": [
+     0.2697,
+     0.2701,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/cafeteria_tray/00900",
+    "source": "cafeteria_tray/000",
+    "extents_m": [
+     0.25,
+     0.03,
+     0.1756
+    ]
+   },
+   {
+    "id": "Clutter/cake_cover/00900",
+    "source": "cake_cover/000",
+    "extents_m": [
+     0.1481,
+     0.1477,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/cake_pan/00900",
+    "source": "cake_pan/003",
+    "extents_m": [
+     0.2,
+     0.2,
+     0.0458
+    ]
+   },
+   {
+    "id": "Clutter/cake_pans/00900",
+    "source": "cake_pans/000",
+    "extents_m": [
+     0.1259,
+     0.1282,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/cake_pans/00901",
+    "source": "cake_pans/001",
+    "extents_m": [
+     0.15,
+     0.15,
+     0.0498
+    ]
+   },
+   {
+    "id": "Clutter/cake_server/00900",
+    "source": "cake_server/000",
+    "extents_m": [
+     0.0554,
+     0.0511,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/cake_server/00901",
+    "source": "cake_server/001",
+    "extents_m": [
+     0.0286,
+     0.073,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/cake_stand/00900",
+    "source": "cake_stand/000",
+    "extents_m": [
+     0.1363,
+     0.1365,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/camera/00900",
+    "source": "camera/001",
+    "extents_m": [
+     0.1211,
+     0.15,
+     0.0908
+    ]
+   },
+   {
+    "id": "Clutter/camera/00901",
+    "source": "camera/002",
+    "extents_m": [
+     0.1356,
+     0.15,
+     0.099
+    ]
+   },
+   {
+    "id": "Clutter/cameras/00901",
+    "source": "cameras/001",
+    "extents_m": [
+     0.1504,
+     0.18,
+     0.1017
+    ]
+   },
+   {
+    "id": "Clutter/can_punch/00900",
+    "source": "can_punch/000",
+    "extents_m": [
+     0.0233,
+     0.0805,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/candle/00900",
+    "source": "candle/000",
+    "extents_m": [
+     0.0316,
+     0.0317,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/candle/00901",
+    "source": "candle/002",
+    "extents_m": [
+     0.0442,
+     0.057,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/candle_holder/00900",
+    "source": "candle_holder/000",
+    "extents_m": [
+     0.0938,
+     0.0934,
+     0.28
+    ]
+   },
+   {
+    "id": "Clutter/candle_holder/00901",
+    "source": "candle_holder/002",
+    "extents_m": [
+     0.1739,
+     0.1971,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/candy_dish/00900",
+    "source": "candy_dish/000",
+    "extents_m": [
+     0.12,
+     0.12,
+     0.064
+    ]
+   },
+   {
+    "id": "Clutter/candy_dish/00901",
+    "source": "candy_dish/001",
+    "extents_m": [
+     0.1794,
+     0.18,
+     0.1559
+    ]
+   },
+   {
+    "id": "Clutter/canning_funnel/00900",
+    "source": "canning_funnel/000",
+    "extents_m": [
+     0.1254,
+     0.15,
+     0.0579
+    ]
+   },
+   {
+    "id": "Clutter/canning_funnel/00901",
+    "source": "canning_funnel/001",
+    "extents_m": [
+     0.1503,
+     0.1366,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/canning_rack/00900",
+    "source": "canning_rack/000",
+    "extents_m": [
+     0.25,
+     0.2009,
+     0.1206
+    ]
+   },
+   {
+    "id": "Clutter/canning_rack/00901",
+    "source": "canning_rack/001",
+    "extents_m": [
+     0.1496,
+     0.0281,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/canteen_tray/00900",
+    "source": "canteen_tray/000",
+    "extents_m": [
+     0.25,
+     0.0228,
+     0.176
+    ]
+   },
+   {
+    "id": "Clutter/cap/00901",
+    "source": "cap/003",
+    "extents_m": [
+     0.1563,
+     0.22,
+     0.121
+    ]
+   },
+   {
+    "id": "Clutter/car_brush/00900",
+    "source": "car_brush/001",
+    "extents_m": [
+     0.1974,
+     0.35,
+     0.3416
+    ]
+   },
+   {
+    "id": "Clutter/car_nozzle/00900",
+    "source": "car_nozzle/000",
+    "extents_m": [
+     0.0395,
+     0.0906,
+     0.22
+    ]
+   },
+   {
+    "id": "Clutter/car_nozzle/00901",
+    "source": "car_nozzle/002",
+    "extents_m": [
+     0.0243,
+     0.15,
+     0.0529
+    ]
+   },
+   {
+    "id": "Clutter/carafe/00901",
+    "source": "carafe/002",
+    "extents_m": [
+     0.1275,
+     0.1276,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/carpenter_square/00900",
+    "source": "carpenter_square/000",
+    "extents_m": [
+     0.1391,
+     0.0137,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/carpenter_square/00901",
+    "source": "carpenter_square/001",
+    "extents_m": [
+     0.0119,
+     0.15,
+     0.127
+    ]
+   },
+   {
+    "id": "Clutter/carpet_shampoo_jug/00900",
+    "source": "carpet_shampoo_jug/001",
+    "extents_m": [
+     0.0639,
+     0.1424,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/carpet_shampoo_jug/00901",
+    "source": "carpet_shampoo_jug/003",
+    "extents_m": [
+     0.0833,
+     0.119,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/casserole_dish/00900",
+    "source": "casserole_dish/000",
+    "extents_m": [
+     0.1558,
+     0.3,
+     0.062
+    ]
+   },
+   {
+    "id": "Clutter/cast_iron_mortar/00900",
+    "source": "cast_iron_mortar/000",
+    "extents_m": [
+     0.0904,
+     0.1075,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/cast_iron_mortar/00901",
+    "source": "cast_iron_mortar/005",
+    "extents_m": [
+     0.1658,
+     0.2,
+     0.1897
+    ]
+   },
+   {
+    "id": "Clutter/cast_iron_pestle/00900",
+    "source": "cast_iron_pestle/000",
+    "extents_m": [
+     0.1113,
+     0.131,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/cast_iron_pestle/00901",
+    "source": "cast_iron_pestle/003",
+    "extents_m": [
+     0.1498,
+     0.151,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/ceiling_fan_tool/00900",
+    "source": "ceiling_fan_tool/000",
+    "extents_m": [
+     0.15,
+     0.0476,
+     0.0982
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_base/00900",
+    "source": "ceramic_base/000",
+    "extents_m": [
+     0.1365,
+     0.158,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_base/00901",
+    "source": "ceramic_base/001",
+    "extents_m": [
+     0.1103,
+     0.0979,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_colander/00900",
+    "source": "ceramic_colander/000",
+    "extents_m": [
+     0.15,
+     0.1499,
+     0.0737
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_colander/00901",
+    "source": "ceramic_colander/004",
+    "extents_m": [
+     0.1237,
+     0.15,
+     0.0681
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_fruit/00901",
+    "source": "ceramic_fruit/001",
+    "extents_m": [
+     0.25,
+     0.2487,
+     0.0802
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_hob_scraper/00900",
+    "source": "ceramic_hob_scraper/000",
+    "extents_m": [
+     0.0614,
+     0.0389,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_mortar/00900",
+    "source": "ceramic_mortar/000",
+    "extents_m": [
+     0.0924,
+     0.12,
+     0.0901
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_mortar/00901",
+    "source": "ceramic_mortar/001",
+    "extents_m": [
+     0.1033,
+     0.1134,
+     0.12
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_pestle/00900",
+    "source": "ceramic_pestle/000",
+    "extents_m": [
+     0.0947,
+     0.12,
+     0.1071
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_pestle/00901",
+    "source": "ceramic_pestle/001",
+    "extents_m": [
+     0.12,
+     0.0986,
+     0.0786
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_pitcher/00900",
+    "source": "ceramic_pitcher/002",
+    "extents_m": [
+     0.193,
+     0.2315,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_pitcher/00901",
+    "source": "ceramic_pitcher/003",
+    "extents_m": [
+     0.143,
+     0.1838,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_pots/00900",
+    "source": "ceramic_pots/000",
+    "extents_m": [
+     0.0548,
+     0.12,
+     0.0766
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_pots/00901",
+    "source": "ceramic_pots/001",
+    "extents_m": [
+     0.1562,
+     0.1935,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_statues/00901",
+    "source": "ceramic_statues/001",
+    "extents_m": [
+     0.1009,
+     0.0797,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/ceramic_vase/00900",
+    "source": "ceramic_vase/000",
+    "extents_m": [
+     0.1894,
+     0.1294,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/cereal_bowl/00900",
+    "source": "cereal_bowl/007",
+    "extents_m": [
+     0.15,
+     0.1497,
+     0.0983
+    ]
+   },
+   {
+    "id": "Clutter/cereal_bowl/00901",
+    "source": "cereal_bowl/008",
+    "extents_m": [
+     0.18,
+     0.1678,
+     0.1005
+    ]
+   },
+   {
+    "id": "Clutter/cereal_containers/00900",
+    "source": "cereal_containers/000",
+    "extents_m": [
+     0.0886,
+     0.1827,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/cereal_containers/00901",
+    "source": "cereal_containers/001",
+    "extents_m": [
+     0.0788,
+     0.1784,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/chamberstick/00900",
+    "source": "chamberstick/000",
+    "extents_m": [
+     0.17,
+     0.18,
+     0.0996
+    ]
+   },
+   {
+    "id": "Clutter/chamberstick/00901",
+    "source": "chamberstick/002",
+    "extents_m": [
+     0.15,
+     0.1207,
+     0.0818
+    ]
+   },
+   {
+    "id": "Clutter/champagne_bucket/00900",
+    "source": "champagne_bucket/002",
+    "extents_m": [
+     0.22,
+     0.2,
+     0.1442
+    ]
+   },
+   {
+    "id": "Clutter/chandelier/00900",
+    "source": "chandelier/000",
+    "extents_m": [
+     0.1551,
+     0.1553,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/charger_plate/00900",
+    "source": "charger_plate/000",
+    "extents_m": [
+     0.15,
+     0.0379,
+     0.0291
+    ]
+   },
+   {
+    "id": "Clutter/charging_dock/00900",
+    "source": "charging_dock/000",
+    "extents_m": [
+     0.2375,
+     0.25,
+     0.1627
+    ]
+   },
+   {
+    "id": "Clutter/charging_dock/00901",
+    "source": "charging_dock/001",
+    "extents_m": [
+     0.1068,
+     0.0645,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/cheese_harp/00900",
+    "source": "cheese_harp/002",
+    "extents_m": [
+     0.0786,
+     0.0125,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/cheese_wire/00901",
+    "source": "cheese_wire/001",
+    "extents_m": [
+     0.2329,
+     0.264,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/cherry_stoner/00900",
+    "source": "cherry_stoner/000",
+    "extents_m": [
+     0.1171,
+     0.1171,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/cherry_stoner/00901",
+    "source": "cherry_stoner/001",
+    "extents_m": [
+     0.0716,
+     0.1846,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/chess_pieces/00900",
+    "source": "chess_pieces/001",
+    "extents_m": [
+     0.0741,
+     0.0743,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/chestnuts/00900",
+    "source": "chestnuts/000",
+    "extents_m": [
+     0.15,
+     0.107,
+     0.1385
+    ]
+   },
+   {
+    "id": "Clutter/china_cap/00900",
+    "source": "china_cap/001",
+    "extents_m": [
+     0.15,
+     0.1499,
+     0.1419
+    ]
+   },
+   {
+    "id": "Clutter/chip_and_dip_server/00900",
+    "source": "chip_and_dip_server/000",
+    "extents_m": [
+     0.2423,
+     0.25,
+     0.1895
+    ]
+   },
+   {
+    "id": "Clutter/chip_and_dip_server/00901",
+    "source": "chip_and_dip_server/002",
+    "extents_m": [
+     0.12,
+     0.12,
+     0.0319
+    ]
+   },
+   {
+    "id": "Clutter/cigarette_bin/00900",
+    "source": "cigarette_bin/000",
+    "extents_m": [
+     0.1114,
+     0.1122,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/cigarette_bin/00901",
+    "source": "cigarette_bin/001",
+    "extents_m": [
+     0.0507,
+     0.0508,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/citrus_juicer/00900",
+    "source": "citrus_juicer/000",
+    "extents_m": [
+     0.1638,
+     0.18,
+     0.1111
+    ]
+   },
+   {
+    "id": "Clutter/citrus_reamer/00900",
+    "source": "citrus_reamer/000",
+    "extents_m": [
+     0.1285,
+     0.061,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/clamp/00901",
+    "source": "clamp/001",
+    "extents_m": [
+     0.0204,
+     0.1405,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/clay_mortar/00900",
+    "source": "clay_mortar/000",
+    "extents_m": [
+     0.122,
+     0.1304,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/clay_mortar/00901",
+    "source": "clay_mortar/001",
+    "extents_m": [
+     0.109,
+     0.1168,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/clay_pestle/00900",
+    "source": "clay_pestle/000",
+    "extents_m": [
+     0.1054,
+     0.1198,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/clay_pestle/00901",
+    "source": "clay_pestle/005",
+    "extents_m": [
+     0.1117,
+     0.1185,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/clay_pot/00900",
+    "source": "clay_pot/000",
+    "extents_m": [
+     0.0989,
+     0.1,
+     0.0864
+    ]
+   },
+   {
+    "id": "Clutter/clay_pot/00901",
+    "source": "clay_pot/001",
+    "extents_m": [
+     0.1413,
+     0.18,
+     0.1189
+    ]
+   },
+   {
+    "id": "Clutter/cleaning_bucket/00900",
+    "source": "cleaning_bucket/003",
+    "extents_m": [
+     0.2358,
+     0.2313,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/clip/00901",
+    "source": "clip/001",
+    "extents_m": [
+     0.0263,
+     0.12,
+     0.0743
+    ]
+   },
+   {
+    "id": "Clutter/clips/00900",
+    "source": "clips/000",
+    "extents_m": [
+     0.0483,
+     0.0204,
+     0.08
+    ]
+   },
+   {
+    "id": "Clutter/clips/00901",
+    "source": "clips/001",
+    "extents_m": [
+     0.0434,
+     0.0168,
+     0.08
+    ]
+   },
+   {
+    "id": "Clutter/clock/00901",
+    "source": "clock/001",
+    "extents_m": [
+     0.1152,
+     0.0569,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/clocks/00901",
+    "source": "clocks/001",
+    "extents_m": [
+     0.1999,
+     0.0209,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/clothes_pins/00901",
+    "source": "clothes_pins/001",
+    "extents_m": [
+     0.0133,
+     0.0285,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/coal_bucket/00900",
+    "source": "coal_bucket/000",
+    "extents_m": [
+     0.1945,
+     0.2022,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/coaster/00900",
+    "source": "coaster/000",
+    "extents_m": [
+     0.1036,
+     0.12,
+     0.0789
+    ]
+   },
+   {
+    "id": "Clutter/cocktail_shaker/00900",
+    "source": "cocktail_shaker/000",
+    "extents_m": [
+     0.0756,
+     0.0758,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/cocktail_shaker/00901",
+    "source": "cocktail_shaker/001",
+    "extents_m": [
+     0.0647,
+     0.0731,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/coffee_canisters/00900",
+    "source": "coffee_canisters/000",
+    "extents_m": [
+     0.1253,
+     0.134,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/coffee_canisters/00901",
+    "source": "coffee_canisters/001",
+    "extents_m": [
+     0.113,
+     0.1139,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/coffee_filter_holder/00900",
+    "source": "coffee_filter_holder/000",
+    "extents_m": [
+     0.0351,
+     0.18,
+     0.115
+    ]
+   },
+   {
+    "id": "Clutter/coffee_filter_holder/00901",
+    "source": "coffee_filter_holder/001",
+    "extents_m": [
+     0.25,
+     0.0475,
+     0.1051
+    ]
+   },
+   {
+    "id": "Clutter/coffee_grinder/00900",
+    "source": "coffee_grinder/000",
+    "extents_m": [
+     0.1838,
+     0.0996,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/coffee_grinder/00901",
+    "source": "coffee_grinder/003",
+    "extents_m": [
+     0.1188,
+     0.133,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/coffee_pot/00900",
+    "source": "coffee_pot/000",
+    "extents_m": [
+     0.0926,
+     0.1599,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/coffee_pot/00901",
+    "source": "coffee_pot/001",
+    "extents_m": [
+     0.1298,
+     0.1877,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/coffee_spoon/00901",
+    "source": "coffee_spoon/001",
+    "extents_m": [
+     0.0445,
+     0.021,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/coffee_tray/00900",
+    "source": "coffee_tray/001",
+    "extents_m": [
+     0.0791,
+     0.13,
+     0.0655
+    ]
+   },
+   {
+    "id": "Clutter/colander/00900",
+    "source": "colander/001",
+    "extents_m": [
+     0.1543,
+     0.18,
+     0.1023
+    ]
+   },
+   {
+    "id": "Clutter/colanders/00900",
+    "source": "colanders/003",
+    "extents_m": [
+     0.141,
+     0.18,
+     0.0934
+    ]
+   },
+   {
+    "id": "Clutter/colanders/00901",
+    "source": "colanders/004",
+    "extents_m": [
+     0.1239,
+     0.15,
+     0.059
+    ]
+   },
+   {
+    "id": "Clutter/collapsible_stool/00900",
+    "source": "collapsible_stool/000",
+    "extents_m": [
+     0.0858,
+     0.0863,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/collapsible_stool/00901",
+    "source": "collapsible_stool/001",
+    "extents_m": [
+     0.1246,
+     0.2,
+     0.1637
+    ]
+   },
+   {
+    "id": "Clutter/collar/00900",
+    "source": "collar/000",
+    "extents_m": [
+     0.1471,
+     0.18,
+     0.1399
+    ]
+   },
+   {
+    "id": "Clutter/collar/00901",
+    "source": "collar/001",
+    "extents_m": [
+     0.25,
+     0.1115,
+     0.1314
+    ]
+   },
+   {
+    "id": "Clutter/collection_tray/00900",
+    "source": "collection_tray/002",
+    "extents_m": [
+     0.15,
+     0.0974,
+     0.1096
+    ]
+   },
+   {
+    "id": "Clutter/collection_tray/00901",
+    "source": "collection_tray/005",
+    "extents_m": [
+     0.2208,
+     0.25,
+     0.0481
+    ]
+   },
+   {
+    "id": "Clutter/compost_bucket/00900",
+    "source": "compost_bucket/000",
+    "extents_m": [
+     0.2306,
+     0.2078,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/compost_bucket/00901",
+    "source": "compost_bucket/001",
+    "extents_m": [
+     0.1995,
+     0.2,
+     0.1837
+    ]
+   },
+   {
+    "id": "Clutter/condiment_jars/00900",
+    "source": "condiment_jars/000",
+    "extents_m": [
+     0.0602,
+     0.0716,
+     0.1
+    ]
+   },
+   {
+    "id": "Clutter/cookbook_stand/00901",
+    "source": "cookbook_stand/002",
+    "extents_m": [
+     0.2,
+     0.1035,
+     0.1532
+    ]
+   },
+   {
+    "id": "Clutter/cookie_scoop/00900",
+    "source": "cookie_scoop/000",
+    "extents_m": [
+     0.0503,
+     0.18,
+     0.0271
+    ]
+   },
+   {
+    "id": "Clutter/cookie_scoop/00901",
+    "source": "cookie_scoop/001",
+    "extents_m": [
+     0.0532,
+     0.18,
+     0.0244
+    ]
+   },
+   {
+    "id": "Clutter/cookie_sheet/00900",
+    "source": "cookie_sheet/000",
+    "extents_m": [
+     0.15,
+     0.0565,
+     0.0496
+    ]
+   },
+   {
+    "id": "Clutter/copper_mortar/00900",
+    "source": "copper_mortar/000",
+    "extents_m": [
+     0.1015,
+     0.1487,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/copper_mortar/00901",
+    "source": "copper_mortar/001",
+    "extents_m": [
+     0.0909,
+     0.1267,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/copper_pestle/00900",
+    "source": "copper_pestle/000",
+    "extents_m": [
+     0.1045,
+     0.1487,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/copper_pestle/00901",
+    "source": "copper_pestle/001",
+    "extents_m": [
+     0.1369,
+     0.2,
+     0.1923
+    ]
+   },
+   {
+    "id": "Clutter/copper_pitcher/00900",
+    "source": "copper_pitcher/000",
+    "extents_m": [
+     0.1504,
+     0.2081,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/copper_pitcher/00901",
+    "source": "copper_pitcher/001",
+    "extents_m": [
+     0.207,
+     0.2117,
+     0.28
+    ]
+   },
+   {
+    "id": "Clutter/copper_vase/00900",
+    "source": "copper_vase/000",
+    "extents_m": [
+     0.1553,
+     0.1555,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/copper_vase/00901",
+    "source": "copper_vase/001",
+    "extents_m": [
+     0.1854,
+     0.1189,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/cord_clip/00900",
+    "source": "cord_clip/000",
+    "extents_m": [
+     0.0497,
+     0.12,
+     0.0619
+    ]
+   },
+   {
+    "id": "Clutter/cord_clip/00901",
+    "source": "cord_clip/001",
+    "extents_m": [
+     0.1008,
+     0.15,
+     0.0494
+    ]
+   },
+   {
+    "id": "Clutter/cord_holder/00900",
+    "source": "cord_holder/000",
+    "extents_m": [
+     0.2,
+     0.0833,
+     0.1998
+    ]
+   },
+   {
+    "id": "Clutter/cord_hook/00900",
+    "source": "cord_hook/000",
+    "extents_m": [
+     0.0378,
+     0.25,
+     0.1305
+    ]
+   },
+   {
+    "id": "Clutter/corkscrew/00900",
+    "source": "corkscrew/000",
+    "extents_m": [
+     0.0638,
+     0.1924,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/corner_brush/00900",
+    "source": "corner_brush/000",
+    "extents_m": [
+     0.0608,
+     0.18,
+     0.1217
+    ]
+   },
+   {
+    "id": "Clutter/corner_brush/00901",
+    "source": "corner_brush/001",
+    "extents_m": [
+     0.15,
+     0.0455,
+     0.1113
+    ]
+   },
+   {
+    "id": "Clutter/corner_hamper/00900",
+    "source": "corner_hamper/001",
+    "extents_m": [
+     0.1225,
+     0.1236,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/corner_hamper/00901",
+    "source": "corner_hamper/002",
+    "extents_m": [
+     0.1009,
+     0.1179,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/cover/00900",
+    "source": "cover/000",
+    "extents_m": [
+     0.0101,
+     0.15,
+     0.0816
+    ]
+   },
+   {
+    "id": "Clutter/crab_cracker/00900",
+    "source": "crab_cracker/000",
+    "extents_m": [
+     0.0424,
+     0.0838,
+     0.22
+    ]
+   },
+   {
+    "id": "Clutter/crab_cracker/00901",
+    "source": "crab_cracker/001",
+    "extents_m": [
+     0.0308,
+     0.0841,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/cream_pitcher/00900",
+    "source": "cream_pitcher/000",
+    "extents_m": [
+     0.1418,
+     0.18,
+     0.1492
+    ]
+   },
+   {
+    "id": "Clutter/creamer/00900",
+    "source": "creamer/000",
+    "extents_m": [
+     0.12,
+     0.1039,
+     0.1098
+    ]
+   },
+   {
+    "id": "Clutter/crevice_tool/00900",
+    "source": "crevice_tool/000",
+    "extents_m": [
+     0.0509,
+     0.25,
+     0.0473
+    ]
+   },
+   {
+    "id": "Clutter/crystal_pitcher/00901",
+    "source": "crystal_pitcher/001",
+    "extents_m": [
+     0.1141,
+     0.167,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/cup/00900",
+    "source": "cup/001",
+    "extents_m": [
+     0.1014,
+     0.1403,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/cup/00901",
+    "source": "cup/008",
+    "extents_m": [
+     0.0887,
+     0.12,
+     0.0664
+    ]
+   },
+   {
+    "id": "Clutter/cylinder_vase/00900",
+    "source": "cylinder_vase/001",
+    "extents_m": [
+     0.0551,
+     0.0555,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/deck_brush/00900",
+    "source": "deck_brush/001",
+    "extents_m": [
+     0.25,
+     0.0716,
+     0.0703
+    ]
+   },
+   {
+    "id": "Clutter/deck_brush/00901",
+    "source": "deck_brush/004",
+    "extents_m": [
+     0.25,
+     0.063,
+     0.0972
+    ]
+   },
+   {
+    "id": "Clutter/decorative_pitcher/00900",
+    "source": "decorative_pitcher/000",
+    "extents_m": [
+     0.1836,
+     0.25,
+     0.227
+    ]
+   },
+   {
+    "id": "Clutter/decorative_pitcher/00901",
+    "source": "decorative_pitcher/001",
+    "extents_m": [
+     0.1473,
+     0.1594,
+     0.22
+    ]
+   },
+   {
+    "id": "Clutter/decorative_stones/00900",
+    "source": "decorative_stones/001",
+    "extents_m": [
+     0.1983,
+     0.1959,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/decorative_vase/00901",
+    "source": "decorative_vase/004",
+    "extents_m": [
+     0.1509,
+     0.1511,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/delicate_wash_bottle/00900",
+    "source": "delicate_wash_bottle/002",
+    "extents_m": [
+     0.0615,
+     0.1297,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/delicate_wash_bottle/00901",
+    "source": "delicate_wash_bottle/005",
+    "extents_m": [
+     0.111,
+     0.0574,
+     0.22
+    ]
+   },
+   {
+    "id": "Clutter/desk_clock/00900",
+    "source": "desk_clock/000",
+    "extents_m": [
+     0.1391,
+     0.044,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/desk_organizers/00900",
+    "source": "desk_organizers/000",
+    "extents_m": [
+     0.25,
+     0.1709,
+     0.2083
+    ]
+   },
+   {
+    "id": "Clutter/desk_organizers/00901",
+    "source": "desk_organizers/001",
+    "extents_m": [
+     0.25,
+     0.1794,
+     0.2361
+    ]
+   },
+   {
+    "id": "Clutter/desktop_bin/00901",
+    "source": "desktop_bin/002",
+    "extents_m": [
+     0.076,
+     0.18,
+     0.1006
+    ]
+   },
+   {
+    "id": "Clutter/dessert_bowl/00900",
+    "source": "dessert_bowl/001",
+    "extents_m": [
+     0.1349,
+     0.1349,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/detailing_wand/00900",
+    "source": "detailing_wand/000",
+    "extents_m": [
+     0.0885,
+     0.2027,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/deviled_egg_tray/00900",
+    "source": "deviled_egg_tray/000",
+    "extents_m": [
+     0.2442,
+     0.0647,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/diaper_pail/00900",
+    "source": "diaper_pail/000",
+    "extents_m": [
+     0.1019,
+     0.1318,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/diaper_pail/00901",
+    "source": "diaper_pail/001",
+    "extents_m": [
+     0.1264,
+     0.1515,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/digital_scale/00900",
+    "source": "digital_scale/000",
+    "extents_m": [
+     0.25,
+     0.1859,
+     0.1716
+    ]
+   },
+   {
+    "id": "Clutter/digital_scale/00901",
+    "source": "digital_scale/001",
+    "extents_m": [
+     0.1505,
+     0.2251,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/digital_thermometer/00900",
+    "source": "digital_thermometer/000",
+    "extents_m": [
+     0.0236,
+     0.15,
+     0.0179
+    ]
+   },
+   {
+    "id": "Clutter/digital_thermometer/00901",
+    "source": "digital_thermometer/001",
+    "extents_m": [
+     0.0136,
+     0.15,
+     0.0237
+    ]
+   },
+   {
+    "id": "Clutter/digital_timer/00901",
+    "source": "digital_timer/001",
+    "extents_m": [
+     0.12,
+     0.0298,
+     0.0659
+    ]
+   },
+   {
+    "id": "Clutter/dinner_fork/00901",
+    "source": "dinner_fork/001",
+    "extents_m": [
+     0.0273,
+     0.18,
+     0.0206
+    ]
+   },
+   {
+    "id": "Clutter/dinner_knife/00901",
+    "source": "dinner_knife/002",
+    "extents_m": [
+     0.0179,
+     0.0259,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/dip_bowl/00900",
+    "source": "dip_bowl/000",
+    "extents_m": [
+     0.1291,
+     0.15,
+     0.0822
+    ]
+   },
+   {
+    "id": "Clutter/dish/00900",
+    "source": "dish/000",
+    "extents_m": [
+     0.1639,
+     0.25,
+     0.0489
+    ]
+   },
+   {
+    "id": "Clutter/dish_brush/00901",
+    "source": "dish_brush/001",
+    "extents_m": [
+     0.121,
+     0.12,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/dish_soap_bottle/00900",
+    "source": "dish_soap_bottle/001",
+    "extents_m": [
+     0.0967,
+     0.0569,
+     0.22
+    ]
+   },
+   {
+    "id": "Clutter/dish_soap_bottle/00901",
+    "source": "dish_soap_bottle/008",
+    "extents_m": [
+     0.0839,
+     0.0602,
+     0.22
+    ]
+   },
+   {
+    "id": "Clutter/dishwasher_detergent_bottle/00900",
+    "source": "dishwasher_detergent_bottle/000",
+    "extents_m": [
+     0.1473,
+     0.0591,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/dishwasher_detergent_bottle/00901",
+    "source": "dishwasher_detergent_bottle/001",
+    "extents_m": [
+     0.0988,
+     0.0493,
+     0.22
+    ]
+   },
+   {
+    "id": "Clutter/divider/00900",
+    "source": "divider/000",
+    "extents_m": [
+     0.027,
+     0.0958,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/divider/00901",
+    "source": "divider/001",
+    "extents_m": [
+     0.0532,
+     0.0477,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/dog_chew_toy/00900",
+    "source": "dog_chew_toy/000",
+    "extents_m": [
+     0.2,
+     0.2,
+     0.0648
+    ]
+   },
+   {
+    "id": "Clutter/dog_chew_toy/00901",
+    "source": "dog_chew_toy/002",
+    "extents_m": [
+     0.0515,
+     0.0532,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/donut_maker/00901",
+    "source": "donut_maker/001",
+    "extents_m": [
+     0.1742,
+     0.25,
+     0.2429
+    ]
+   },
+   {
+    "id": "Clutter/door_handle/00901",
+    "source": "door_handle/002",
+    "extents_m": [
+     0.3,
+     0.0784,
+     0.0971
+    ]
+   },
+   {
+    "id": "Clutter/dough_scraper/00900",
+    "source": "dough_scraper/000",
+    "extents_m": [
+     0.0252,
+     0.1327,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/dragon_fruit/00900",
+    "source": "dragon_fruit/000",
+    "extents_m": [
+     0.0801,
+     0.12,
+     0.1042
+    ]
+   },
+   {
+    "id": "Clutter/drain_cleaner_bottle/00900",
+    "source": "drain_cleaner_bottle/002",
+    "extents_m": [
+     0.0547,
+     0.1091,
+     0.22
+    ]
+   },
+   {
+    "id": "Clutter/drain_cleaner_bottle/00901",
+    "source": "drain_cleaner_bottle/005",
+    "extents_m": [
+     0.0975,
+     0.0625,
+     0.22
+    ]
+   },
+   {
+    "id": "Clutter/drip_trays/00900",
+    "source": "drip_trays/001",
+    "extents_m": [
+     0.0728,
+     0.0155,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/drip_trays/00901",
+    "source": "drip_trays/003",
+    "extents_m": [
+     0.25,
+     0.1204,
+     0.1969
+    ]
+   },
+   {
+    "id": "Clutter/dry_measuring_cup/00900",
+    "source": "dry_measuring_cup/001",
+    "extents_m": [
+     0.1206,
+     0.18,
+     0.1209
+    ]
+   },
+   {
+    "id": "Clutter/dumbbell/00900",
+    "source": "dumbbell/002",
+    "extents_m": [
+     0.0962,
+     0.25,
+     0.0949
+    ]
+   },
+   {
+    "id": "Clutter/dumbbell/00901",
+    "source": "dumbbell/004",
+    "extents_m": [
+     0.25,
+     0.0884,
+     0.0922
+    ]
+   },
+   {
+    "id": "Clutter/dust_bin/00901",
+    "source": "dust_bin/002",
+    "extents_m": [
+     0.1955,
+     0.0931,
+     0.22
+    ]
+   },
+   {
+    "id": "Clutter/dutch_oven/00900",
+    "source": "dutch_oven/000",
+    "extents_m": [
+     0.2375,
+     0.25,
+     0.1376
+    ]
+   },
+   {
+    "id": "Clutter/easels/00900",
+    "source": "easels/003",
+    "extents_m": [
+     0.1125,
+     0.15,
+     0.1022
+    ]
+   },
+   {
+    "id": "Clutter/egg_carton/00900",
+    "source": "egg_carton/000",
+    "extents_m": [
+     0.25,
+     0.1969,
+     0.098
+    ]
+   },
+   {
+    "id": "Clutter/egg_ring/00900",
+    "source": "egg_ring/000",
+    "extents_m": [
+     0.1298,
+     0.1928,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/egg_separator/00900",
+    "source": "egg_separator/000",
+    "extents_m": [
+     0.082,
+     0.12,
+     0.0309
+    ]
+   },
+   {
+    "id": "Clutter/egg_slicer/00900",
+    "source": "egg_slicer/000",
+    "extents_m": [
+     0.0995,
+     0.18,
+     0.1181
+    ]
+   },
+   {
+    "id": "Clutter/egg_slicer/00901",
+    "source": "egg_slicer/002",
+    "extents_m": [
+     0.1475,
+     0.1484,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/electric_whisk/00901",
+    "source": "electric_whisk/001",
+    "extents_m": [
+     0.0637,
+     0.25,
+     0.0562
+    ]
+   },
+   {
+    "id": "Clutter/enamel_bucket/00900",
+    "source": "enamel_bucket/000",
+    "extents_m": [
+     0.1742,
+     0.169,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/enamel_bucket/00901",
+    "source": "enamel_bucket/001",
+    "extents_m": [
+     0.1625,
+     0.1527,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/enamel_colander/00900",
+    "source": "enamel_colander/001",
+    "extents_m": [
+     0.1301,
+     0.15,
+     0.0731
+    ]
+   },
+   {
+    "id": "Clutter/enamel_colander/00901",
+    "source": "enamel_colander/002",
+    "extents_m": [
+     0.1253,
+     0.15,
+     0.071
+    ]
+   },
+   {
+    "id": "Clutter/enamel_vase/00900",
+    "source": "enamel_vase/000",
+    "extents_m": [
+     0.1607,
+     0.1611,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/enamel_vase/00901",
+    "source": "enamel_vase/001",
+    "extents_m": [
+     0.1463,
+     0.1462,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/espresso_maker/00900",
+    "source": "espresso_maker/000",
+    "extents_m": [
+     0.0968,
+     0.1781,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/espresso_maker/00901",
+    "source": "espresso_maker/001",
+    "extents_m": [
+     0.0983,
+     0.1625,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/exhaust_vent/00900",
+    "source": "exhaust_vent/000",
+    "extents_m": [
+     0.0597,
+     0.097,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/extension_tube/00900",
+    "source": "extension_tube/000",
+    "extents_m": [
+     0.1235,
+     0.1386,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/extension_tube/00901",
+    "source": "extension_tube/002",
+    "extents_m": [
+     0.138,
+     0.18,
+     0.0808
+    ]
+   },
+   {
+    "id": "Clutter/fig/00901",
+    "source": "fig/009",
+    "extents_m": [
+     0.284,
+     0.3,
+     0.1184
+    ]
+   },
+   {
+    "id": "Clutter/fingerboard/00901",
+    "source": "fingerboard/012",
+    "extents_m": [
+     0.28,
+     0.0659,
+     0.0665
+    ]
+   },
+   {
+    "id": "Clutter/fishing_net/00900",
+    "source": "fishing_net/000",
+    "extents_m": [
+     0.18,
+     0.099,
+     0.0671
+    ]
+   },
+   {
+    "id": "Clutter/flange_gasket/00900",
+    "source": "flange_gasket/001",
+    "extents_m": [
+     0.1499,
+     0.0119,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/foam_roller/00900",
+    "source": "foam_roller/000",
+    "extents_m": [
+     0.0716,
+     0.25,
+     0.0737
+    ]
+   },
+   {
+    "id": "Clutter/foam_roller/00901",
+    "source": "foam_roller/001",
+    "extents_m": [
+     0.0526,
+     0.15,
+     0.0517
+    ]
+   },
+   {
+    "id": "Clutter/fork/00901",
+    "source": "fork/001",
+    "extents_m": [
+     0.0313,
+     0.0245,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/galvanized_bucket/00900",
+    "source": "galvanized_bucket/002",
+    "extents_m": [
+     0.2467,
+     0.25,
+     0.1609
+    ]
+   },
+   {
+    "id": "Clutter/galvanized_bucket/00901",
+    "source": "galvanized_bucket/003",
+    "extents_m": [
+     0.15,
+     0.1481,
+     0.0786
+    ]
+   },
+   {
+    "id": "Clutter/galvanized_pan/00900",
+    "source": "galvanized_pan/000",
+    "extents_m": [
+     0.15,
+     0.15,
+     0.0345
+    ]
+   },
+   {
+    "id": "Clutter/galvanized_pan/00901",
+    "source": "galvanized_pan/002",
+    "extents_m": [
+     0.2,
+     0.2,
+     0.0446
+    ]
+   },
+   {
+    "id": "Clutter/garlic_rocker/00900",
+    "source": "garlic_rocker/000",
+    "extents_m": [
+     0.0479,
+     0.18,
+     0.0579
+    ]
+   },
+   {
+    "id": "Clutter/garnish_tool/00901",
+    "source": "garnish_tool/001",
+    "extents_m": [
+     0.2275,
+     0.25,
+     0.147
+    ]
+   },
+   {
+    "id": "Clutter/gimbal_stabilizer/00900",
+    "source": "gimbal_stabilizer/000",
+    "extents_m": [
+     0.1464,
+     0.1732,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/gimbal_stabilizer/00901",
+    "source": "gimbal_stabilizer/001",
+    "extents_m": [
+     0.1347,
+     0.1089,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/glass/00900",
+    "source": "glass/001",
+    "extents_m": [
+     0.0707,
+     0.0708,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/glass/00901",
+    "source": "glass/002",
+    "extents_m": [
+     0.066,
+     0.0661,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/glass_cleaner_bottle/00900",
+    "source": "glass_cleaner_bottle/000",
+    "extents_m": [
+     0.0663,
+     0.0958,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/glass_cleaner_bottle/00901",
+    "source": "glass_cleaner_bottle/001",
+    "extents_m": [
+     0.0648,
+     0.0986,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/glass_cubes/00900",
+    "source": "glass_cubes/000",
+    "extents_m": [
+     0.1166,
+     0.15,
+     0.0935
+    ]
+   },
+   {
+    "id": "Clutter/glass_cubes/00901",
+    "source": "glass_cubes/001",
+    "extents_m": [
+     0.0539,
+     0.0542,
+     0.08
+    ]
+   },
+   {
+    "id": "Clutter/golf_tee/00900",
+    "source": "golf_tee/000",
+    "extents_m": [
+     0.0488,
+     0.0492,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/gooseberry/00901",
+    "source": "gooseberry/006",
+    "extents_m": [
+     0.1502,
+     0.2,
+     0.1441
+    ]
+   },
+   {
+    "id": "Clutter/hand_clamp/00900",
+    "source": "hand_clamp/000",
+    "extents_m": [
+     0.2533,
+     0.3,
+     0.0727
+    ]
+   },
+   {
+    "id": "Clutter/hand_sanitizer_bottle/00900",
+    "source": "hand_sanitizer_bottle/001",
+    "extents_m": [
+     0.0821,
+     0.062,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/heat_sink/00900",
+    "source": "heat_sink/001",
+    "extents_m": [
+     0.0445,
+     0.15,
+     0.0221
+    ]
+   },
+   {
+    "id": "Clutter/ink_bottles/00900",
+    "source": "ink_bottles/001",
+    "extents_m": [
+     0.1115,
+     0.0771,
+     0.12
+    ]
+   },
+   {
+    "id": "Clutter/ink_bottles/00901",
+    "source": "ink_bottles/005",
+    "extents_m": [
+     0.0708,
+     0.0709,
+     0.1
+    ]
+   },
+   {
+    "id": "Clutter/ink_cartridges/00901",
+    "source": "ink_cartridges/002",
+    "extents_m": [
+     0.0266,
+     0.12,
+     0.1117
+    ]
+   },
+   {
+    "id": "Clutter/ink_marker/00900",
+    "source": "ink_marker/000",
+    "extents_m": [
+     0.0817,
+     0.2,
+     0.0447
+    ]
+   },
+   {
+    "id": "Clutter/insert/00900",
+    "source": "insert/000",
+    "extents_m": [
+     0.0927,
+     0.0929,
+     0.12
+    ]
+   },
+   {
+    "id": "Clutter/insert/00901",
+    "source": "insert/002",
+    "extents_m": [
+     0.0887,
+     0.12,
+     0.0921
+    ]
+   },
+   {
+    "id": "Clutter/kitchen_timer/00900",
+    "source": "kitchen_timer/000",
+    "extents_m": [
+     0.1302,
+     0.1303,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/kitchen_timer/00901",
+    "source": "kitchen_timer/001",
+    "extents_m": [
+     0.0908,
+     0.0542,
+     0.12
+    ]
+   },
+   {
+    "id": "Clutter/kongming_lock/00900",
+    "source": "kongming_lock/000",
+    "extents_m": [
+     0.2,
+     0.2,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/lamp/00900",
+    "source": "lamp/000",
+    "extents_m": [
+     0.1184,
+     0.0913,
+     0.28
+    ]
+   },
+   {
+    "id": "Clutter/lamp/00901",
+    "source": "lamp/001",
+    "extents_m": [
+     0.1288,
+     0.1643,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/lantern/00900",
+    "source": "lantern/002",
+    "extents_m": [
+     0.1346,
+     0.1196,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/lantern/00901",
+    "source": "lantern/003",
+    "extents_m": [
+     0.1049,
+     0.1286,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/lasagna_pan/00900",
+    "source": "lasagna_pan/001",
+    "extents_m": [
+     0.25,
+     0.2185,
+     0.0569
+    ]
+   },
+   {
+    "id": "Clutter/latch/00901",
+    "source": "latch/001",
+    "extents_m": [
+     0.0968,
+     0.18,
+     0.0585
+    ]
+   },
+   {
+    "id": "Clutter/laundry_brush/00900",
+    "source": "laundry_brush/000",
+    "extents_m": [
+     0.076,
+     0.18,
+     0.1029
+    ]
+   },
+   {
+    "id": "Clutter/laundry_brush/00901",
+    "source": "laundry_brush/001",
+    "extents_m": [
+     0.25,
+     0.1077,
+     0.0994
+    ]
+   },
+   {
+    "id": "Clutter/laundry_bucket/00901",
+    "source": "laundry_bucket/004",
+    "extents_m": [
+     0.25,
+     0.25,
+     0.2295
+    ]
+   },
+   {
+    "id": "Clutter/laundry_soap_dispenser/00900",
+    "source": "laundry_soap_dispenser/000",
+    "extents_m": [
+     0.056,
+     0.0933,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/laundry_soap_dispenser/00901",
+    "source": "laundry_soap_dispenser/001",
+    "extents_m": [
+     0.0548,
+     0.0974,
+     0.12
+    ]
+   },
+   {
+    "id": "Clutter/laundry_starch_spray/00900",
+    "source": "laundry_starch_spray/000",
+    "extents_m": [
+     0.0701,
+     0.0847,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/laundry_starch_spray/00901",
+    "source": "laundry_starch_spray/002",
+    "extents_m": [
+     0.082,
+     0.1033,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/laundry_trunk/00900",
+    "source": "laundry_trunk/002",
+    "extents_m": [
+     0.1631,
+     0.1633,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/lava_rock_mortar/00900",
+    "source": "lava_rock_mortar/001",
+    "extents_m": [
+     0.1463,
+     0.15,
+     0.0923
+    ]
+   },
+   {
+    "id": "Clutter/lemonade_pitcher/00900",
+    "source": "lemonade_pitcher/000",
+    "extents_m": [
+     0.1043,
+     0.1243,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/lemonade_pitcher/00901",
+    "source": "lemonade_pitcher/002",
+    "extents_m": [
+     0.1515,
+     0.1677,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/letters/00900",
+    "source": "letters/000",
+    "extents_m": [
+     0.0261,
+     0.2,
+     0.1905
+    ]
+   },
+   {
+    "id": "Clutter/letters/00901",
+    "source": "letters/001",
+    "extents_m": [
+     0.25,
+     0.0448,
+     0.2372
+    ]
+   },
+   {
+    "id": "Clutter/library_kick_stool/00900",
+    "source": "library_kick_stool/000",
+    "extents_m": [
+     0.1997,
+     0.2,
+     0.1843
+    ]
+   },
+   {
+    "id": "Clutter/lid/00900",
+    "source": "lid/001",
+    "extents_m": [
+     0.1497,
+     0.25,
+     0.0722
+    ]
+   },
+   {
+    "id": "Clutter/lidded_bin/00900",
+    "source": "lidded_bin/004",
+    "extents_m": [
+     0.1313,
+     0.1313,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/lidded_bin/00901",
+    "source": "lidded_bin/005",
+    "extents_m": [
+     0.1991,
+     0.1878,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/locating_pin/00901",
+    "source": "locating_pin/001",
+    "extents_m": [
+     0.0571,
+     0.0572,
+     0.12
+    ]
+   },
+   {
+    "id": "Clutter/lock/00900",
+    "source": "lock/000",
+    "extents_m": [
+     0.0213,
+     0.0607,
+     0.12
+    ]
+   },
+   {
+    "id": "Clutter/loofah_sponge/00900",
+    "source": "loofah_sponge/001",
+    "extents_m": [
+     0.2564,
+     0.1536,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/mango/00901",
+    "source": "mango/001",
+    "extents_m": [
+     0.0831,
+     0.15,
+     0.1039
+    ]
+   },
+   {
+    "id": "Clutter/markers/00900",
+    "source": "markers/000",
+    "extents_m": [
+     0.0159,
+     0.15,
+     0.0215
+    ]
+   },
+   {
+    "id": "Clutter/markers/00901",
+    "source": "markers/001",
+    "extents_m": [
+     0.0187,
+     0.15,
+     0.019
+    ]
+   },
+   {
+    "id": "Clutter/mini_remote_control_helicopter/00900",
+    "source": "mini_remote_control_helicopter/002",
+    "extents_m": [
+     0.1886,
+     0.2,
+     0.074
+    ]
+   },
+   {
+    "id": "Clutter/mobile_wide_angle_lens/00901",
+    "source": "mobile_wide-angle_lens/003",
+    "extents_m": [
+     0.1387,
+     0.3,
+     0.1356
+    ]
+   },
+   {
+    "id": "Clutter/mouse/00900",
+    "source": "mouse/005",
+    "extents_m": [
+     0.0635,
+     0.12,
+     0.0511
+    ]
+   },
+   {
+    "id": "Clutter/mouse/00901",
+    "source": "mouse/009",
+    "extents_m": [
+     0.0382,
+     0.12,
+     0.044
+    ]
+   },
+   {
+    "id": "Clutter/music_box/00901",
+    "source": "music_box/002",
+    "extents_m": [
+     0.1418,
+     0.1055,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/nail_clipper/00900",
+    "source": "nail_clipper/000",
+    "extents_m": [
+     0.0363,
+     0.12,
+     0.0773
+    ]
+   },
+   {
+    "id": "Clutter/nail_clipper/00901",
+    "source": "nail_clipper/001",
+    "extents_m": [
+     0.0372,
+     0.15,
+     0.1139
+    ]
+   },
+   {
+    "id": "Clutter/pantene/00900",
+    "source": "pantene/000",
+    "extents_m": [
+     0.0719,
+     0.0923,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/pantene/00901",
+    "source": "pantene/007",
+    "extents_m": [
+     0.066,
+     0.0694,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/peach/00901",
+    "source": "peach/001",
+    "extents_m": [
+     0.05,
+     0.0476,
+     0.0423
+    ]
+   },
+   {
+    "id": "Clutter/pencil_case/00900",
+    "source": "pencil_case/000",
+    "extents_m": [
+     0.027,
+     0.18,
+     0.1021
+    ]
+   },
+   {
+    "id": "Clutter/phone_ring_holder/00900",
+    "source": "phone_ring_holder/001",
+    "extents_m": [
+     0.2,
+     0.1194,
+     0.1897
+    ]
+   },
+   {
+    "id": "Clutter/phone_ring_holder/00901",
+    "source": "phone_ring_holder/005",
+    "extents_m": [
+     0.2896,
+     0.2548,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/photo_frame/00900",
+    "source": "photo_frame/004",
+    "extents_m": [
+     0.1407,
+     0.1184,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/pilates_ring/00900",
+    "source": "pilates_ring/000",
+    "extents_m": [
+     0.15,
+     0.0212,
+     0.1327
+    ]
+   },
+   {
+    "id": "Clutter/pilates_ring/00901",
+    "source": "pilates_ring/001",
+    "extents_m": [
+     0.061,
+     0.12,
+     0.1104
+    ]
+   },
+   {
+    "id": "Clutter/pin_shaft/00900",
+    "source": "pin_shaft/000",
+    "extents_m": [
+     0.25,
+     0.189,
+     0.0663
+    ]
+   },
+   {
+    "id": "Clutter/pine_cone/00900",
+    "source": "pine_cone/008",
+    "extents_m": [
+     0.2545,
+     0.2433,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/pinpad/00900",
+    "source": "pinpad/000",
+    "extents_m": [
+     0.1424,
+     0.0644,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/pinpad/00901",
+    "source": "pinpad/001",
+    "extents_m": [
+     0.0913,
+     0.0332,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/pipe_fitting/00900",
+    "source": "pipe_fitting/002",
+    "extents_m": [
+     0.1135,
+     0.15,
+     0.1411
+    ]
+   },
+   {
+    "id": "Clutter/pipe_fitting/00901",
+    "source": "pipe_fitting/003",
+    "extents_m": [
+     0.15,
+     0.0641,
+     0.1067
+    ]
+   },
+   {
+    "id": "Clutter/plush/00900",
+    "source": "plush/000",
+    "extents_m": [
+     0.0916,
+     0.12,
+     0.0756
+    ]
+   },
+   {
+    "id": "Clutter/plush/00901",
+    "source": "plush/001",
+    "extents_m": [
+     0.1312,
+     0.15,
+     0.0793
+    ]
+   },
+   {
+    "id": "Clutter/power_bank/00901",
+    "source": "power_bank/003",
+    "extents_m": [
+     0.1051,
+     0.0304,
+     0.12
+    ]
+   },
+   {
+    "id": "Clutter/profile_bracket/00901",
+    "source": "profile_bracket/001",
+    "extents_m": [
+     0.119,
+     0.18,
+     0.1499
+    ]
+   },
+   {
+    "id": "Clutter/purse/00901",
+    "source": "purse/001",
+    "extents_m": [
+     0.28,
+     0.108,
+     0.1731
+    ]
+   },
+   {
+    "id": "Clutter/resistor/00900",
+    "source": "resistor/000",
+    "extents_m": [
+     0.0264,
+     0.12,
+     0.026
+    ]
+   },
+   {
+    "id": "Clutter/roller_skate/00900",
+    "source": "roller_skate/000",
+    "extents_m": [
+     0.1186,
+     0.2788,
+     0.28
+    ]
+   },
+   {
+    "id": "Clutter/roller_skate/00901",
+    "source": "roller_skate/001",
+    "extents_m": [
+     0.1645,
+     0.2358,
+     0.28
+    ]
+   },
+   {
+    "id": "Clutter/silicone_gun/00900",
+    "source": "silicone_gun/002",
+    "extents_m": [
+     0.058,
+     0.3,
+     0.157
+    ]
+   },
+   {
+    "id": "Clutter/silicone_gun/00901",
+    "source": "silicone_gun/003",
+    "extents_m": [
+     0.0453,
+     0.0959,
+     0.3
+    ]
+   },
+   {
+    "id": "Clutter/slender_shaft/00900",
+    "source": "slender_shaft/000",
+    "extents_m": [
+     0.0239,
+     0.15,
+     0.0239
+    ]
+   },
+   {
+    "id": "Clutter/slingshot/00900",
+    "source": "slingshot/000",
+    "extents_m": [
+     0.0704,
+     0.0786,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/slingshot/00901",
+    "source": "slingshot/002",
+    "extents_m": [
+     0.187,
+     0.1745,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/slipper/00900",
+    "source": "slipper/000",
+    "extents_m": [
+     0.0691,
+     0.25,
+     0.0861
+    ]
+   },
+   {
+    "id": "Clutter/small_mirror/00900",
+    "source": "small_mirror/004",
+    "extents_m": [
+     0.1056,
+     0.1218,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/small_mirror/00901",
+    "source": "small_mirror/005",
+    "extents_m": [
+     0.1585,
+     0.1745,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/spoon/00900",
+    "source": "spoon/001",
+    "extents_m": [
+     0.0368,
+     0.15,
+     0.0584
+    ]
+   },
+   {
+    "id": "Clutter/sports_waist_pack/00901",
+    "source": "sports_waist_pack/001",
+    "extents_m": [
+     0.25,
+     0.2424,
+     0.1411
+    ]
+   },
+   {
+    "id": "Clutter/spring/00900",
+    "source": "spring/000",
+    "extents_m": [
+     0.0286,
+     0.0302,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/spring/00901",
+    "source": "spring/001",
+    "extents_m": [
+     0.0451,
+     0.0451,
+     0.1
+    ]
+   },
+   {
+    "id": "Clutter/spring_roll/00900",
+    "source": "spring_roll/000",
+    "extents_m": [
+     0.0736,
+     0.3,
+     0.0778
+    ]
+   },
+   {
+    "id": "Clutter/standard_weight/00900",
+    "source": "standard_weight/000",
+    "extents_m": [
+     0.0837,
+     0.0838,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/standard_weight/00901",
+    "source": "standard_weight/001",
+    "extents_m": [
+     0.0688,
+     0.0689,
+     0.12
+    ]
+   },
+   {
+    "id": "Clutter/stapler/00900",
+    "source": "stapler/000",
+    "extents_m": [
+     0.0365,
+     0.15,
+     0.0596
+    ]
+   },
+   {
+    "id": "Clutter/stapler/00901",
+    "source": "stapler/002",
+    "extents_m": [
+     0.0316,
+     0.12,
+     0.045
+    ]
+   },
+   {
+    "id": "Clutter/staplers/00900",
+    "source": "staplers/000",
+    "extents_m": [
+     0.037,
+     0.12,
+     0.081
+    ]
+   },
+   {
+    "id": "Clutter/sweatband/00900",
+    "source": "sweatband/000",
+    "extents_m": [
+     0.1157,
+     0.15,
+     0.0966
+    ]
+   },
+   {
+    "id": "Clutter/sweatband/00901",
+    "source": "sweatband/001",
+    "extents_m": [
+     0.15,
+     0.0695,
+     0.0482
+    ]
+   },
+   {
+    "id": "Clutter/swimming_earplugs/00900",
+    "source": "swimming_earplugs/001",
+    "extents_m": [
+     0.12,
+     0.1072,
+     0.0671
+    ]
+   },
+   {
+    "id": "Clutter/table_tennis_racket/00901",
+    "source": "table_tennis_racket/005",
+    "extents_m": [
+     0.0151,
+     0.1341,
+     0.25
+    ]
+   },
+   {
+    "id": "Clutter/tape/00900",
+    "source": "tape/000",
+    "extents_m": [
+     0.0595,
+     0.25,
+     0.1108
+    ]
+   },
+   {
+    "id": "Clutter/terminal_block/00900",
+    "source": "terminal_block/000",
+    "extents_m": [
+     0.1,
+     0.0712,
+     0.0716
+    ]
+   },
+   {
+    "id": "Clutter/terminal_block/00901",
+    "source": "terminal_block/001",
+    "extents_m": [
+     0.086,
+     0.0824,
+     0.12
+    ]
+   },
+   {
+    "id": "Clutter/tooling_plate/00900",
+    "source": "tooling_plate/000",
+    "extents_m": [
+     0.1714,
+     0.135,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/toothpaste/00900",
+    "source": "toothpaste/004",
+    "extents_m": [
+     0.0369,
+     0.0715,
+     0.18
+    ]
+   },
+   {
+    "id": "Clutter/toothpaste/00901",
+    "source": "toothpaste/007",
+    "extents_m": [
+     0.0549,
+     0.0368,
+     0.15
+    ]
+   },
+   {
+    "id": "Clutter/voltage_tester/00900",
+    "source": "voltage_tester/000",
+    "extents_m": [
+     0.3,
+     0.0294,
+     0.0487
+    ]
+   },
+   {
+    "id": "Clutter/wedge_block/00900",
+    "source": "wedge_block/000",
+    "extents_m": [
+     0.05,
+     0.15,
+     0.0429
+    ]
+   },
+   {
+    "id": "Clutter/wedge_block/00901",
+    "source": "wedge_block/002",
+    "extents_m": [
+     0.068,
+     0.15,
+     0.1166
+    ]
+   },
+   {
+    "id": "Clutter/wind_up_frog_toy/00900",
+    "source": "wind-up_frog_toy/006",
+    "extents_m": [
+     0.1294,
+     0.1268,
+     0.2
+    ]
+   },
+   {
+    "id": "Clutter/windmill_toy/00900",
+    "source": "windmill_toy/007",
+    "extents_m": [
+     0.223,
+     0.1559,
+     0.25
+    ]
+   }
+  ]
+ },
+ "hdrs": {
+  "dataset": "Poly Haven (polyhaven.com)",
+  "license": "CC0-1.0",
+  "fetched_by": "scripts/scenes/polyhaven_hdris.py",
+  "count": 40,
+  "items": [
+   {
+    "file": "polyhaven_brown_photostudio_02_2k.hdr",
+    "id": "brown_photostudio_02",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_studio_small_09_2k.hdr",
+    "id": "studio_small_09",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_studio_small_08_2k.hdr",
+    "id": "studio_small_08",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_studio_small_03_2k.hdr",
+    "id": "studio_small_03",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_photo_studio_01_2k.hdr",
+    "id": "photo_studio_01",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_fireplace_2k.hdr",
+    "id": "fireplace",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_cayley_interior_2k.hdr",
+    "id": "cayley_interior",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_brown_photostudio_01_2k.hdr",
+    "id": "brown_photostudio_01",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_christmas_photo_studio_01_2k.hdr",
+    "id": "christmas_photo_studio_01",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_photo_studio_loft_hall_2k.hdr",
+    "id": "photo_studio_loft_hall",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_studio_small_02_2k.hdr",
+    "id": "studio_small_02",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_lebombo_2k.hdr",
+    "id": "lebombo",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_studio_small_05_2k.hdr",
+    "id": "studio_small_05",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_studio_small_04_2k.hdr",
+    "id": "studio_small_04",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_studio_small_01_2k.hdr",
+    "id": "studio_small_01",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_autoshop_01_2k.hdr",
+    "id": "autoshop_01",
+    "authors": {
+     "Oliksiy Yakovlyev": "All"
+    }
+   },
+   {
+    "file": "polyhaven_artist_workshop_2k.hdr",
+    "id": "artist_workshop",
+    "authors": {
+     "Oliksiy Yakovlyev": "All"
+    }
+   },
+   {
+    "file": "polyhaven_blue_photo_studio_2k.hdr",
+    "id": "blue_photo_studio",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_studio_country_hall_2k.hdr",
+    "id": "studio_country_hall",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_studio_small_07_2k.hdr",
+    "id": "studio_small_07",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_paul_lobe_haus_2k.hdr",
+    "id": "paul_lobe_haus",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_empty_warehouse_01_2k.hdr",
+    "id": "empty_warehouse_01",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_christmas_photo_studio_04_2k.hdr",
+    "id": "christmas_photo_studio_04",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_neon_photostudio_2k.hdr",
+    "id": "neon_photostudio",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_royal_esplanade_2k.hdr",
+    "id": "royal_esplanade",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_metro_noord_2k.hdr",
+    "id": "metro_noord",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_studio_small_06_2k.hdr",
+    "id": "studio_small_06",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_blocky_photo_studio_2k.hdr",
+    "id": "blocky_photo_studio",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_veranda_2k.hdr",
+    "id": "veranda",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_ballroom_2k.hdr",
+    "id": "ballroom",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_peppermint_powerplant_2k.hdr",
+    "id": "peppermint_powerplant",
+    "authors": {
+     "Andreas Mischok": "All"
+    }
+   },
+   {
+    "file": "polyhaven_hotel_room_2k.hdr",
+    "id": "hotel_room",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_christmas_photo_studio_05_2k.hdr",
+    "id": "christmas_photo_studio_05",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_poly_haven_studio_2k.hdr",
+    "id": "poly_haven_studio",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_cyclorama_hard_light_2k.hdr",
+    "id": "cyclorama_hard_light",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_empty_play_room_2k.hdr",
+    "id": "empty_play_room",
+    "authors": {
+     "Greg Zaal": "Photography",
+     "Jarod Guest": "Processing"
+    }
+   },
+   {
+    "file": "polyhaven_colorful_studio_2k.hdr",
+    "id": "colorful_studio",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_christmas_photo_studio_07_2k.hdr",
+    "id": "christmas_photo_studio_07",
+    "authors": {
+     "Sergej Majboroda": "All"
+    }
+   },
+   {
+    "file": "polyhaven_wooden_lounge_2k.hdr",
+    "id": "wooden_lounge",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   },
+   {
+    "file": "polyhaven_rostock_laage_airport_2k.hdr",
+    "id": "rostock_laage_airport",
+    "authors": {
+     "Greg Zaal": "All"
+    }
+   }
+  ]
+ },
+ "materials": {
+  "dataset": "Poly Haven textures (polyhaven.com)",
+  "license": "CC0-1.0",
+  "fetched_by": "scripts/scenes/polyhaven_materials.py --res 1k",
+  "dedup": "by name and source only (image hashes are impossible, 145 official materials have no colour texture): Poly Haven ids whose name with trailing digits stripped equals an official material's (Stone_Wall, Plywood, Marble, Fabric_Pattern) are left out; the official set is NVIDIA vMaterials",
+  "count": 469,
+  "skipped": {
+   "book_pattern": "no Diffuse map",
+   "church_bricks_02": "no Diffuse map",
+   "gravel_concrete": "no arm map",
+   "leather_red_02": "no Diffuse map",
+   "leather_red_03": "no Diffuse map"
+  },
+  "items": [
+   {
+    "dir": "material_ph_american_walnut_veneer",
+    "id": "american_walnut_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_angli_veneer",
+    "id": "angli_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_anti_skid_tiles",
+    "id": "anti_skid_tiles",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_anti_slip_concrete",
+    "id": "anti_slip_concrete",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_asbestos_sheet",
+    "id": "asbestos_sheet",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_asbestos_sheet_02",
+    "id": "asbestos_sheet_02",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_ash_veneer",
+    "id": "ash_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_bamboo_veneer",
+    "id": "bamboo_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_bamboo_wall",
+    "id": "bamboo_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_bamboo_wall_02",
+    "id": "bamboo_wall_02",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_bamboo_wall_03",
+    "id": "bamboo_wall_03",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1850.000023841858,
+     1850.000023841858
+    ]
+   },
+   {
+    "dir": "material_ph_beam_wall_01",
+    "id": "beam_wall_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     999.9990463256836,
+     999.998927116394
+    ]
+   },
+   {
+    "dir": "material_ph_beige_wall_001",
+    "id": "beige_wall_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_beige_wall_002",
+    "id": "beige_wall_002",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_bi_stretch",
+    "id": "bi_stretch",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     264.5644946243421,
+     264.4000053405762
+    ]
+   },
+   {
+    "dir": "material_ph_black_oak_veneer",
+    "id": "black_oak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_black_painted_planks",
+    "id": "black_painted_planks",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1599.9999046325684,
+     1599.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_black_walnut_veneer_01",
+    "id": "black_walnut_veneer_01",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_black_walnut_veneer_02",
+    "id": "black_walnut_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_black_walnut_veneer_03",
+    "id": "black_walnut_veneer_03",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_blue_metal_plate",
+    "id": "blue_metal_plate",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_blue_painted_planks",
+    "id": "blue_painted_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_blue_plaster_wall",
+    "id": "blue_plaster_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_blue_plaster_weathered",
+    "id": "blue_plaster_weathered",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_4",
+    "id": "brick_4",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_001",
+    "id": "brick_wall_001",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_003",
+    "id": "brick_wall_003",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_005",
+    "id": "brick_wall_005",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1440.000057220459,
+     1440.000057220459
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_006",
+    "id": "brick_wall_006",
+    "authors": {
+     "Jan Burghardt": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_02",
+    "id": "brick_wall_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_04",
+    "id": "brick_wall_04",
+    "authors": {
+     "Dario Barresi": "Baking ",
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Tiling "
+    },
+    "dimensions_mm": [
+     1389.9999856948853,
+     1389.9999856948853
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_07",
+    "id": "brick_wall_07",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_08",
+    "id": "brick_wall_08",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_09",
+    "id": "brick_wall_09",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Matterfield": "Processing"
+    },
+    "dimensions_mm": [
+     2009.9999904632568,
+     2009.9999904632568
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_10",
+    "id": "brick_wall_10",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_11",
+    "id": "brick_wall_11",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_12",
+    "id": "brick_wall_12",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_13",
+    "id": "brick_wall_13",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_broken_brick_wall",
+    "id": "broken_brick_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_broken_wall",
+    "id": "broken_wall",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_brick_02",
+    "id": "brown_brick_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_floor_tiles",
+    "id": "brown_floor_tiles",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_brown_leather",
+    "id": "brown_leather",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     400.0000059604645,
+     400.00003576278687
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_03",
+    "id": "brown_planks_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_04",
+    "id": "brown_planks_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_05",
+    "id": "brown_planks_05",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_07",
+    "id": "brown_planks_07",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_08",
+    "id": "brown_planks_08",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_09",
+    "id": "brown_planks_09",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brushed_concrete",
+    "id": "brushed_concrete",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_brushed_concrete_03",
+    "id": "brushed_concrete_03",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_brushed_concrete_04",
+    "id": "brushed_concrete_04",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000.9167194366455,
+     2000.917911529541
+    ]
+   },
+   {
+    "dir": "material_ph_brushed_concrete_2",
+    "id": "brushed_concrete_2",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_caban",
+    "id": "caban",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     273.9921411828764,
+     273.2999920845032
+    ]
+   },
+   {
+    "dir": "material_ph_castle_brick_01",
+    "id": "castle_brick_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_brick_02_red",
+    "id": "castle_brick_02_red",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_brick_02_white",
+    "id": "castle_brick_02_white",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_brick_07",
+    "id": "castle_brick_07",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_brick_broken_06",
+    "id": "castle_brick_broken_06",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_wall_slates",
+    "id": "castle_wall_slates",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_wall_varriation",
+    "id": "castle_wall_varriation",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_cherry_veneer",
+    "id": "cherry_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_chipped_concrete",
+    "id": "chipped_concrete",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2002.079963684082,
+     2002.0811557769775
+    ]
+   },
+   {
+    "dir": "material_ph_church_bricks_03",
+    "id": "church_bricks_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1200.0000476837158,
+     1200.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_clay_block_wall",
+    "id": "clay_block_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_clay_floor_001",
+    "id": "clay_floor_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_clay_plaster",
+    "id": "clay_plaster",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_cliff_side",
+    "id": "cliff_side",
+    "authors": {
+     "James Ray Cock": "Photography",
+     "Jenelle van Heerden": "Processing",
+     "Dario Barresi": "Photography"
+    },
+    "dimensions_mm": [
+     1830.0000429153442,
+     1830.0000429153442
+    ]
+   },
+   {
+    "dir": "material_ph_climbing_wall",
+    "id": "climbing_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2200.000047683716,
+     2200.000047683716
+    ]
+   },
+   {
+    "dir": "material_ph_climbing_wall_02",
+    "id": "climbing_wall_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_climbing_wall_base",
+    "id": "climbing_wall_base",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_coated_pine",
+    "id": "coated_pine",
+    "authors": {
+     "Charlotte Baglioni": "Scanning ",
+     "Rico Cilliers": "Processing "
+    },
+    "dimensions_mm": [
+     740.0000095367432,
+     740.0000095367432
+    ]
+   },
+   {
+    "dir": "material_ph_coated_pine_02",
+    "id": "coated_pine_02",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Jenelle van Heerden": "Processing "
+    },
+    "dimensions_mm": [
+     1049.7100353240967,
+     1049.7100353240967
+    ]
+   },
+   {
+    "dir": "material_ph_concrete",
+    "id": "concrete",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_block_wall",
+    "id": "concrete_block_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_block_wall_02",
+    "id": "concrete_block_wall_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2005.000114440918,
+     2005.000114440918
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_block_wall_03",
+    "id": "concrete_block_wall_03",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1809.999942779541,
+     1809.999942779541
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_brick_wall_001",
+    "id": "concrete_brick_wall_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor",
+    "id": "concrete_floor",
+    "authors": {
+     "eye-candy.xyz": "All"
+    },
+    "dimensions_mm": [
+     2079.9996852874756,
+     2079.9996852874756
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_01",
+    "id": "concrete_floor_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_02",
+    "id": "concrete_floor_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_03",
+    "id": "concrete_floor_03",
+    "authors": {
+     "Rob Tuytel": "processing",
+     "Matterfield": "photography"
+    },
+    "dimensions_mm": [
+     2499.999761581421,
+     2499.999761581421
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_damaged_01",
+    "id": "concrete_floor_damaged_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     5000,
+     5000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_painted",
+    "id": "concrete_floor_painted",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_worn_001",
+    "id": "concrete_floor_worn_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_worn_02",
+    "id": "concrete_floor_worn_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_layers",
+    "id": "concrete_layers",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1549.9999523162842,
+     1549.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_layers_02",
+    "id": "concrete_layers_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_moss",
+    "id": "concrete_moss",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000.000238418579,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_panels",
+    "id": "concrete_panels",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     8000,
+     8000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_slab_wall",
+    "id": "concrete_slab_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2299.999952316284,
+     2299.999952316284
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_slab_wall_02",
+    "id": "concrete_slab_wall_02",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2102.315902709961,
+     2102.315902709961
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_tile_facade",
+    "id": "concrete_tile_facade",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2089.9999141693115,
+     2089.9999141693115
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_001",
+    "id": "concrete_wall_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1500.0001192092896,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_003",
+    "id": "concrete_wall_003",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_004",
+    "id": "concrete_wall_004",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_005",
+    "id": "concrete_wall_005",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1149.999976158142,
+     1150.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_006",
+    "id": "concrete_wall_006",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_007",
+    "id": "concrete_wall_007",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Rico Cilliers": "Tiling",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2159.9998474121094,
+     2159.9998474121094
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_008",
+    "id": "concrete_wall_008",
+    "authors": {
+     "Dario Barresi": "Processing ",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2710.0000381469727,
+     2710.0000381469727
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_009",
+    "id": "concrete_wall_009",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1804.9999475479126,
+     1804.9999475479126
+    ]
+   },
+   {
+    "dir": "material_ph_container_side",
+    "id": "container_side",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1940.000057220459,
+     1939.9999380111694
+    ]
+   },
+   {
+    "dir": "material_ph_coral_fort_wall_01",
+    "id": "coral_fort_wall_01",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1360.0000143051147,
+     1360.0001335144043
+    ]
+   },
+   {
+    "dir": "material_ph_coral_fort_wall_02",
+    "id": "coral_fort_wall_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     991.7500019073486,
+     991.7501211166382
+    ]
+   },
+   {
+    "dir": "material_ph_coral_fort_wall_03",
+    "id": "coral_fort_wall_03",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1099.9999046325684,
+     1100.0001430511475
+    ]
+   },
+   {
+    "dir": "material_ph_coral_stone_wall",
+    "id": "coral_stone_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_cotton_jersey",
+    "id": "cotton_jersey",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     263.6027473872483,
+     263.7999951839447
+    ]
+   },
+   {
+    "dir": "material_ph_cracked_concrete",
+    "id": "cracked_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_cracked_concrete_02",
+    "id": "cracked_concrete_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2230.0000190734863,
+     2230.0000190734863
+    ]
+   },
+   {
+    "dir": "material_ph_cracked_concrete_wall",
+    "id": "cracked_concrete_wall",
+    "authors": {
+     "Dimitrios Savva": "Photography, processing",
+     "Rico Cilliers": "Guidance"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_crepe_georgette",
+    "id": "crepe_georgette",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     261.1946943115489,
+     265.5999958515167
+    ]
+   },
+   {
+    "dir": "material_ph_crepe_satin",
+    "id": "crepe_satin",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     263.19942218838304,
+     267.8999900817871
+    ]
+   },
+   {
+    "dir": "material_ph_curly_teddy_checkered",
+    "id": "curly_teddy_checkered",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     561.8443344798735,
+     474.0999639034271
+    ]
+   },
+   {
+    "dir": "material_ph_curly_teddy_natural",
+    "id": "curly_teddy_natural",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     335.804452696631,
+     330.90004324913025
+    ]
+   },
+   {
+    "dir": "material_ph_damaged_concrete_floor",
+    "id": "damaged_concrete_floor",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4500,
+     4500
+    ]
+   },
+   {
+    "dir": "material_ph_damaged_concrete_floor_02",
+    "id": "damaged_concrete_floor_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3499.999761581421,
+     3499.999761581421
+    ]
+   },
+   {
+    "dir": "material_ph_damaged_concrete_floor_03",
+    "id": "damaged_concrete_floor_03",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_damaged_plaster",
+    "id": "damaged_plaster",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1850.0001430511475,
+     1850.0001430511475
+    ]
+   },
+   {
+    "dir": "material_ph_dark_brick_wall",
+    "id": "dark_brick_wall",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1049.9998331069946,
+     1049.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_dark_paneled_wood",
+    "id": "dark_paneled_wood",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1400.0000953674316,
+     1400.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_dark_planks",
+    "id": "dark_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_dark_wood",
+    "id": "dark_wood",
+    "authors": {
+     "Dario Barresi": "Baking",
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Tiling"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_dark_wooden_planks",
+    "id": "dark_wooden_planks",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_decrepit_wallpaper",
+    "id": "decrepit_wallpaper",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_defense_wall",
+    "id": "defense_wall",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     20000,
+     20000
+    ]
+   },
+   {
+    "dir": "material_ph_denim_fabric",
+    "id": "denim_fabric",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     100.00000149011612,
+     99.99999403953552
+    ]
+   },
+   {
+    "dir": "material_ph_denim_fabric_03",
+    "id": "denim_fabric_03",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     271.42801281852286,
+     270.9999978542328
+    ]
+   },
+   {
+    "dir": "material_ph_denim_fabric_04",
+    "id": "denim_fabric_04",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     272.8973422962554,
+     269.3000137805939
+    ]
+   },
+   {
+    "dir": "material_ph_denim_fabric_05",
+    "id": "denim_fabric_05",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     270.1520343364256,
+     271.49999141693115
+    ]
+   },
+   {
+    "dir": "material_ph_denim_fabric_06",
+    "id": "denim_fabric_06",
+    "authors": {
+     "Greg Zaal": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     254.15802731412134,
+     254.0000081062317
+    ]
+   },
+   {
+    "dir": "material_ph_denmin_fabric_02",
+    "id": "denmin_fabric_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     100.00000149011612,
+     99.99999403953552
+    ]
+   },
+   {
+    "dir": "material_ph_diagonal_parquet",
+    "id": "diagonal_parquet",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Sergej Majboroda": "Photography"
+    },
+    "dimensions_mm": [
+     2359.999418258667,
+     2359.999418258667
+    ]
+   },
+   {
+    "dir": "material_ph_dirty_carpet",
+    "id": "dirty_carpet",
+    "authors": {
+     "Rohit Seervi": "All"
+    },
+    "dimensions_mm": [
+     599.9999046325684,
+     599.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_dirty_concrete",
+    "id": "dirty_concrete",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_dirty_tiles",
+    "id": "dirty_tiles",
+    "authors": {
+     "Matterfield": "Photography",
+     "Jenelle van Heerden": "Processing"
+    },
+    "dimensions_mm": [
+     2259.999990463257,
+     2259.999990463257
+    ]
+   },
+   {
+    "dir": "material_ph_distressed_painted_planks",
+    "id": "distressed_painted_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1599.9999046325684,
+     1599.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_embedded_plank_flooring",
+    "id": "embedded_plank_flooring",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2029.9999713897705,
+     2029.9999713897705
+    ]
+   },
+   {
+    "dir": "material_ph_embedded_rock_floor",
+    "id": "embedded_rock_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1799.9995946884155,
+     1799.9995946884155
+    ]
+   },
+   {
+    "dir": "material_ph_european_walnut_veneer_04",
+    "id": "european_walnut_veneer_04",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_european_walnut_veneer_05",
+    "id": "european_walnut_veneer_05",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_excavated_soil_wall",
+    "id": "excavated_soil_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_exterior_wall_cladding",
+    "id": "exterior_wall_cladding",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_exterior_wall_cladding_02",
+    "id": "exterior_wall_cladding_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1990.0001287460327,
+     1990.0001287460327
+    ]
+   },
+   {
+    "dir": "material_ph_exterior_wall_cladding_03",
+    "id": "exterior_wall_cladding_03",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1960.0000381469727,
+     1960.0000381469727
+    ]
+   },
+   {
+    "dir": "material_ph_fabric_leather_01",
+    "id": "fabric_leather_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     400.0000059604645,
+     400.00003576278687
+    ]
+   },
+   {
+    "dir": "material_ph_fabric_leather_02",
+    "id": "fabric_leather_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     500,
+     499.9999403953552
+    ]
+   },
+   {
+    "dir": "material_ph_factory_brick",
+    "id": "factory_brick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500.0001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_faux_fur_geometric",
+    "id": "faux_fur_geometric",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     301.9999563694,
+     301.9766083948956
+    ]
+   },
+   {
+    "dir": "material_ph_fever_tree_bark",
+    "id": "fever_tree_bark",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1360.0000143051147,
+     1360.0000143051147
+    ]
+   },
+   {
+    "dir": "material_ph_fine_grained_wood",
+    "id": "fine_grained_wood",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     600.0000238418579,
+     600.0000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_flamed_black_veneer",
+    "id": "flamed_black_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_floor_tiles_02",
+    "id": "floor_tiles_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_floor_tiles_04",
+    "id": "floor_tiles_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_floor_tiles_06",
+    "id": "floor_tiles_06",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_floor_tiles_08",
+    "id": "floor_tiles_08",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_floral_jacquard",
+    "id": "floral_jacquard",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     252.9498182468769,
+     383.59999656677246
+    ]
+   },
+   {
+    "dir": "material_ph_flour",
+    "id": "flour",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1269.9999809265137,
+     1269.9999809265137
+    ]
+   },
+   {
+    "dir": "material_ph_garage_floor",
+    "id": "garage_floor",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1886.4402770996094,
+     1886.4402770996094
+    ]
+   },
+   {
+    "dir": "material_ph_gingham_check",
+    "id": "gingham_check",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     283.65123073689267,
+     296.79998755455017
+    ]
+   },
+   {
+    "dir": "material_ph_granite_tile",
+    "id": "granite_tile",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2299.999952316284,
+     2299.999952316284
+    ]
+   },
+   {
+    "dir": "material_ph_granite_tile_02",
+    "id": "granite_tile_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1879.9999952316284,
+     1879.9999952316284
+    ]
+   },
+   {
+    "dir": "material_ph_granite_tile_03",
+    "id": "granite_tile_03",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1802.0000457763672,
+     1802.0000457763672
+    ]
+   },
+   {
+    "dir": "material_ph_granite_wall",
+    "id": "granite_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_granular_concrete",
+    "id": "granular_concrete",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Michael Jenkins": "Photography"
+    },
+    "dimensions_mm": [
+     2400.0000953674316,
+     2400.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_gravel_concrete_02",
+    "id": "gravel_concrete_02",
+    "authors": {
+     "Dario Barresi": "Processing ",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2099.9996662139893,
+     2099.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_green_metal_rust",
+    "id": "green_metal_rust",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_green_rough_planks",
+    "id": "green_rough_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_grey_cartago_01",
+    "id": "grey_cartago_01",
+    "authors": {
+     "Lucas Sánchez Ros": "Photography",
+     "Jenelle van Heerden": "Processing"
+    },
+    "dimensions_mm": [
+     750.0000596046448,
+     750.0000596046448
+    ]
+   },
+   {
+    "dir": "material_ph_grey_cartago_02",
+    "id": "grey_cartago_02",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Lucas Sánchez Ros": "Photography"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_grey_cartago_03",
+    "id": "grey_cartago_03",
+    "authors": {
+     "Lucas Sánchez Ros": "All"
+    },
+    "dimensions_mm": [
+     930.0000071525574,
+     930.0000071525574
+    ]
+   },
+   {
+    "dir": "material_ph_grey_lati_veneer",
+    "id": "grey_lati_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grey_oak_veneer_01",
+    "id": "grey_oak_veneer_01",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grey_oak_veneer_02",
+    "id": "grey_oak_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grey_plaster",
+    "id": "grey_plaster",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grey_plaster_02",
+    "id": "grey_plaster_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grey_plaster_03",
+    "id": "grey_plaster_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grooved_concrete_driveway",
+    "id": "grooved_concrete_driveway",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_hacked_concrete",
+    "id": "hacked_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1500.0001192092896,
+     1500.0001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_hangar_concrete_floor",
+    "id": "hangar_concrete_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_herringbone_concrete_tile_02",
+    "id": "herringbone_concrete_tile_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2214.9999141693115,
+     2214.9999141693115
+    ]
+   },
+   {
+    "dir": "material_ph_herringbone_parquet",
+    "id": "herringbone_parquet",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Sergej Majboroda": "Photography"
+    },
+    "dimensions_mm": [
+     3400.0000953674316,
+     3400.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_hessian_230",
+    "id": "hessian_230",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     268.7538661074732,
+     267.1999931335449
+    ]
+   },
+   {
+    "dir": "material_ph_hessian_380",
+    "id": "hessian_380",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     273.86577004511844,
+     273.79998564720154
+    ]
+   },
+   {
+    "dir": "material_ph_hinoki_planks",
+    "id": "hinoki_planks",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1889.9999856948853,
+     1889.9999856948853
+    ]
+   },
+   {
+    "dir": "material_ph_interior_tiles",
+    "id": "interior_tiles",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_japanese_cedar_planks",
+    "id": "japanese_cedar_planks",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Rico Cilliers": "Processing "
+    },
+    "dimensions_mm": [
+     1130.000114440918,
+     1130.000114440918
+    ]
+   },
+   {
+    "dir": "material_ph_japanese_stone_wall",
+    "id": "japanese_stone_wall",
+    "authors": {
+     "Rico Cilliers": "Tiling",
+     "Charlotte Baglioni": "Photography",
+     "Dario Barresi": "Processing"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_jersey_melange",
+    "id": "jersey_melange",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     290.62397202303356,
+     276.19999647140503
+    ]
+   },
+   {
+    "dir": "material_ph_jogging_melange",
+    "id": "jogging_melange",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     273.4973732349353,
+     273.2999920845032
+    ]
+   },
+   {
+    "dir": "material_ph_kitchen_wood",
+    "id": "kitchen_wood",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     600.0000238418579,
+     600.0000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_knitted_fleece",
+    "id": "knitted_fleece",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     266.35669526830077,
+     270.3999876976013
+    ]
+   },
+   {
+    "dir": "material_ph_lacquered_cherry_wood",
+    "id": "lacquered_cherry_wood",
+    "authors": {
+     "Jenelle van Heerden": "Scanning",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_laminate_floor",
+    "id": "laminate_floor",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_laminate_floor_02",
+    "id": "laminate_floor_02",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "photography"
+    },
+    "dimensions_mm": [
+     1699.9999284744263,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_laminate_floor_03",
+    "id": "laminate_floor_03",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2079.9996852874756,
+     2079.9996852874756
+    ]
+   },
+   {
+    "dir": "material_ph_large_floor_tiles_02",
+    "id": "large_floor_tiles_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_large_grey_tiles",
+    "id": "large_grey_tiles",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_large_red_bricks",
+    "id": "large_red_bricks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_large_sandstone_blocks",
+    "id": "large_sandstone_blocks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_large_sandstone_blocks_01",
+    "id": "large_sandstone_blocks_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_leather_white",
+    "id": "leather_white",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     300.00001192092896,
+     300.00001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_linoleum_brown",
+    "id": "linoleum_brown",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_long_white_tiles",
+    "id": "long_white_tiles",
+    "authors": {
+     "Jenelle van Heerden": "processing",
+     "Sergej Majboroda": "photography"
+    },
+    "dimensions_mm": [
+     1269.9999809265137,
+     1269.9999809265137
+    ]
+   },
+   {
+    "dir": "material_ph_macro_flour",
+    "id": "macro_flour",
+    "authors": {
+     "Jenelle van Heerden": "Photography",
+     "Dario Barresi": "Processing"
+    },
+    "dimensions_mm": [
+     299.9999523162842,
+     299.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_marble_mosaic_tiles",
+    "id": "marble_mosaic_tiles",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_marble_tiles",
+    "id": "marble_tiles",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_blocks_02",
+    "id": "medieval_blocks_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_blocks_03",
+    "id": "medieval_blocks_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_blocks_06",
+    "id": "medieval_blocks_06",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_red_brick",
+    "id": "medieval_red_brick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_wall_01",
+    "id": "medieval_wall_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_wall_02",
+    "id": "medieval_wall_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3499.999761581421,
+     3500
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_wood",
+    "id": "medieval_wood",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_metal_grate_rusty",
+    "id": "metal_grate_rusty",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_metal_plate",
+    "id": "metal_plate",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_metal_plate_02",
+    "id": "metal_plate_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_mixed_brick_wall",
+    "id": "mixed_brick_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_mixed_rock_tiles",
+    "id": "mixed_rock_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_mixed_stone_tiles",
+    "id": "mixed_stone_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_mocha_oak_veneer",
+    "id": "mocha_oak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_monastery_stone_floor",
+    "id": "monastery_stone_floor",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_moss_wood",
+    "id": "moss_wood",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_mossy_brick",
+    "id": "mossy_brick",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1449.9999284744263,
+     1449.9999284744263
+    ]
+   },
+   {
+    "dir": "material_ph_mossy_sandstone",
+    "id": "mossy_sandstone",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1889.9996280670166,
+     1889.9996280670166
+    ]
+   },
+   {
+    "dir": "material_ph_mossy_stone_wall",
+    "id": "mossy_stone_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_natural_walnut_veneer",
+    "id": "natural_walnut_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oak_veneer_01",
+    "id": "oak_veneer_01",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1830.0000429153442,
+     1830.0000429153442
+    ]
+   },
+   {
+    "dir": "material_ph_oak_veneer_02",
+    "id": "oak_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oak_veneer_03",
+    "id": "oak_veneer_03",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oak_veneer_04",
+    "id": "oak_veneer_04",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oak_veneer_05",
+    "id": "oak_veneer_05",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oak_wood_planks",
+    "id": "oak_wood_planks",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1200.0000476837158,
+     1200.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_okoume_veneer",
+    "id": "okoume_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_old_linoleum_flooring_01",
+    "id": "old_linoleum_flooring_01",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1990.0001287460327,
+     1990.0001287460327
+    ]
+   },
+   {
+    "dir": "material_ph_old_mosaic_floor",
+    "id": "old_mosaic_floor",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000.000238418579,
+     2000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_old_planks_02",
+    "id": "old_planks_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_old_sandstone_02",
+    "id": "old_sandstone_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1529.9999713897705,
+     1529.9999713897705
+    ]
+   },
+   {
+    "dir": "material_ph_old_stone_wall",
+    "id": "old_stone_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_old_stone_wall_02",
+    "id": "old_stone_wall_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2085.0000381469727,
+     2085.0000381469727
+    ]
+   },
+   {
+    "dir": "material_ph_old_wood_floor",
+    "id": "old_wood_floor",
+    "authors": {
+     "Guillaume Monsergent": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_old_wooden_floor_01",
+    "id": "old_wooden_floor_01",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Dario Barresi": "Processing"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_old_wooden_floor_02",
+    "id": "old_wooden_floor_02",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Jenelle van Heerden": "Processing"
+    },
+    "dimensions_mm": [
+     2029.9999713897705,
+     2029.9999713897705
+    ]
+   },
+   {
+    "dir": "material_ph_old_wooden_floor_03",
+    "id": "old_wooden_floor_03",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Charlotte Baglioni": "Scanning"
+    },
+    "dimensions_mm": [
+     1199.049949645996,
+     1199.049949645996
+    ]
+   },
+   {
+    "dir": "material_ph_olive_veneer",
+    "id": "olive_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oriented_strand_board",
+    "id": "oriented_strand_board",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2509.999990463257,
+     2509.999990463257
+    ]
+   },
+   {
+    "dir": "material_ph_painted_brick",
+    "id": "painted_brick",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_painted_concrete",
+    "id": "painted_concrete",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_painted_concrete_02",
+    "id": "painted_concrete_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_painted_metal_shutter",
+    "id": "painted_metal_shutter",
+    "authors": {
+     "Dario Barresi": "Baking",
+     "Rico Cilliers": "Processing ",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_painted_plaster_wall",
+    "id": "painted_plaster_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_painted_worn_brick",
+    "id": "painted_worn_brick",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_patio_tiles",
+    "id": "patio_tiles",
+    "authors": {
+     "Dario Barresi": "All"
+    },
+    "dimensions_mm": [
+     2150.0000953674316,
+     2150.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_brick_wall",
+    "id": "patterned_brick_wall",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_brick_wall_02",
+    "id": "patterned_brick_wall_02",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2210.0000381469727,
+     2210.0000381469727
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_brick_wall_03",
+    "id": "patterned_brick_wall_03",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_clay_plaster",
+    "id": "patterned_clay_plaster",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_clay_wall",
+    "id": "patterned_clay_wall",
+    "authors": {
+     "Dario Barresi": "Baking ",
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Tiling "
+    },
+    "dimensions_mm": [
+     1250,
+     1250
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_concrete_wall",
+    "id": "patterned_concrete_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_plaster_wall",
+    "id": "patterned_plaster_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_slate_tiles",
+    "id": "patterned_slate_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2200.000047683716,
+     2200.000047683716
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_terracotta_tiling",
+    "id": "patterned_terracotta_tiling",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2151.7231464385986,
+     2151.724338531494
+    ]
+   },
+   {
+    "dir": "material_ph_peeling_painted_wall",
+    "id": "peeling_painted_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_plank_flooring",
+    "id": "plank_flooring",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Tiling"
+    },
+    "dimensions_mm": [
+     1339.9999141693115,
+     1340.0001525878906
+    ]
+   },
+   {
+    "dir": "material_ph_plank_flooring_02",
+    "id": "plank_flooring_02",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1980.0000190734863,
+     1980.0000190734863
+    ]
+   },
+   {
+    "dir": "material_ph_plank_flooring_03",
+    "id": "plank_flooring_03",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Matterfield": "Photography"
+    },
+    "dimensions_mm": [
+     2250,
+     2250
+    ]
+   },
+   {
+    "dir": "material_ph_plank_flooring_04",
+    "id": "plank_flooring_04",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_planks_brown_10",
+    "id": "planks_brown_10",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_plaster_brick_01",
+    "id": "plaster_brick_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2700.000286102295,
+     2700.000286102295
+    ]
+   },
+   {
+    "dir": "material_ph_plaster_brick_pattern",
+    "id": "plaster_brick_pattern",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_plaster_grey_04",
+    "id": "plaster_grey_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_plaster_stone_wall_01",
+    "id": "plaster_stone_wall_01",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2299.999952316284,
+     2299.999952316284
+    ]
+   },
+   {
+    "dir": "material_ph_plaster_stone_wall_02",
+    "id": "plaster_stone_wall_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2119.999885559082,
+     2119.999885559082
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_stone_wall",
+    "id": "plastered_stone_wall",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_wall",
+    "id": "plastered_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_wall_02",
+    "id": "plastered_wall_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2229.999542236328,
+     2229.999542236328
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_wall_03",
+    "id": "plastered_wall_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_wall_04",
+    "id": "plastered_wall_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3199.9998092651367,
+     3199.9998092651367
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_wall_05",
+    "id": "plastered_wall_05",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_polar_fleece",
+    "id": "polar_fleece",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     273.2870444699951,
+     271.49999141693115
+    ]
+   },
+   {
+    "dir": "material_ph_poly_wool_herringbone",
+    "id": "poly_wool_herringbone",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     270.0788548673393,
+     275.70000290870667
+    ]
+   },
+   {
+    "dir": "material_ph_polystyrene",
+    "id": "polystyrene",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1500,
+     1500.0001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_precast_concrete_wall",
+    "id": "precast_concrete_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1589.999794960022,
+     1589.999794960022
+    ]
+   },
+   {
+    "dir": "material_ph_preconcrete_wall_001",
+    "id": "preconcrete_wall_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_preconcrete_wall_001_long",
+    "id": "preconcrete_wall_001_long",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_quarry_wall",
+    "id": "quarry_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_quarry_wall_02",
+    "id": "quarry_wall_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_quatrefoil_jacquard_fabric",
+    "id": "quatrefoil_jacquard_fabric",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     280.11855714681565,
+     283.80000591278076
+    ]
+   },
+   {
+    "dir": "material_ph_rabdentse_ruins_wall",
+    "id": "rabdentse_ruins_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_random_bricks_thick",
+    "id": "random_bricks_thick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_raw_plank_wall",
+    "id": "raw_plank_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1870.0001239776611,
+     1870.0001239776611
+    ]
+   },
+   {
+    "dir": "material_ph_raw_wooden_floor_01",
+    "id": "raw_wooden_floor_01",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rebar_reinforced_concrete",
+    "id": "rebar_reinforced_concrete",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rectangular_facade_tiles",
+    "id": "rectangular_facade_tiles",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rectangular_facade_tiles_02",
+    "id": "rectangular_facade_tiles_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2105.0000190734863,
+     2105.0000190734863
+    ]
+   },
+   {
+    "dir": "material_ph_rectangular_parquet",
+    "id": "rectangular_parquet",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Sergej Majboroda": "Photography"
+    },
+    "dimensions_mm": [
+     2250,
+     2250
+    ]
+   },
+   {
+    "dir": "material_ph_recycled_brick_floor",
+    "id": "recycled_brick_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_red_brick",
+    "id": "red_brick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1399.999976158142,
+     1399.999976158142
+    ]
+   },
+   {
+    "dir": "material_ph_red_brick_03",
+    "id": "red_brick_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_red_brick_plaster_patch_02",
+    "id": "red_brick_plaster_patch_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_red_bricks_02",
+    "id": "red_bricks_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_red_bricks_04",
+    "id": "red_bricks_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_red_oak_veneer",
+    "id": "red_oak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_red_plaster_weathered",
+    "id": "red_plaster_weathered",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_red_sandstone_wall",
+    "id": "red_sandstone_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_ribbed_concrete_wall",
+    "id": "ribbed_concrete_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_ribbed_corduroy",
+    "id": "ribbed_corduroy",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     266.40417517521894,
+     266.69999957084656
+    ]
+   },
+   {
+    "dir": "material_ph_rock_embedded_concrete",
+    "id": "rock_embedded_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_embedded_concrete_wall",
+    "id": "rock_embedded_concrete_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1759.9998712539673,
+     1759.9999904632568
+    ]
+   },
+   {
+    "dir": "material_ph_rock_embedded_floor",
+    "id": "rock_embedded_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_rock_embedded_tiles",
+    "id": "rock_embedded_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_face_04",
+    "id": "rock_face_04",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_surface",
+    "id": "rock_surface",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall",
+    "id": "rock_wall",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_03",
+    "id": "rock_wall_03",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2569.9996948242188,
+     2570.000171661377
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_04",
+    "id": "rock_wall_04",
+    "authors": {
+     "Dario Barresi": "Processing ",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2269.9999809265137,
+     2269.9999809265137
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_05",
+    "id": "rock_wall_05",
+    "authors": {
+     "Dario Barresi": "Processing ",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2259.9997520446777,
+     2259.9997520446777
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_06",
+    "id": "rock_wall_06",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1309.999942779541,
+     1309.999942779541
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_07",
+    "id": "rock_wall_07",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_08",
+    "id": "rock_wall_08",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_09",
+    "id": "rock_wall_09",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1220.0000286102295,
+     1220.0000286102295
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_10",
+    "id": "rock_wall_10",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1799.9995946884155,
+     1799.9995946884155
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_11",
+    "id": "rock_wall_11",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1909.9996089935303,
+     1909.9996089935303
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_12",
+    "id": "rock_wall_12",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1599.9999046325684,
+     1599.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_13",
+    "id": "rock_wall_13",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_14",
+    "id": "rock_wall_14",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_15",
+    "id": "rock_wall_15",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1850.000023841858,
+     1850.000023841858
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_16",
+    "id": "rock_wall_16",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_17",
+    "id": "rock_wall_17",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_romantic_veneer",
+    "id": "romantic_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_rosewood_veneer1",
+    "id": "rosewood_veneer1",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     2430.000066757202,
+     2430.000066757202
+    ]
+   },
+   {
+    "dir": "material_ph_rosewood_veneer_02",
+    "id": "rosewood_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_rough_block_wall",
+    "id": "rough_block_wall",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3039.9999618530273,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_rough_concrete",
+    "id": "rough_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1230.0000190734863,
+     1230.0000190734863
+    ]
+   },
+   {
+    "dir": "material_ph_rough_linen",
+    "id": "rough_linen",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     270.7081392676629,
+     271.29998803138733
+    ]
+   },
+   {
+    "dir": "material_ph_rough_pine_door",
+    "id": "rough_pine_door",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plaster_03",
+    "id": "rough_plaster_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plaster_brick",
+    "id": "rough_plaster_brick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plaster_brick_02",
+    "id": "rough_plaster_brick_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plaster_brick_04",
+    "id": "rough_plaster_brick_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plaster_broken",
+    "id": "rough_plaster_broken",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plasterbrick_05",
+    "id": "rough_plasterbrick_05",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rough_wood",
+    "id": "rough_wood",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_rounded_square_tiled_wall",
+    "id": "rounded_square_tiled_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rubber_tiles",
+    "id": "rubber_tiles",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_rubberized_track",
+    "id": "rubberized_track",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rubble",
+    "id": "rubble",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_running_track",
+    "id": "running_track",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     2419.999837875366,
+     2420.0000762939453
+    ]
+   },
+   {
+    "dir": "material_ph_rusted_shutter",
+    "id": "rusted_shutter",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_rustic_stone_wall",
+    "id": "rustic_stone_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1519.9998617172241,
+     1519.9998617172241
+    ]
+   },
+   {
+    "dir": "material_ph_rustic_stone_wall_02",
+    "id": "rustic_stone_wall_02",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rusty_corrugated_iron",
+    "id": "rusty_corrugated_iron",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rusty_metal",
+    "id": "rusty_metal",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rusty_metal_02",
+    "id": "rusty_metal_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_rusty_metal_grid",
+    "id": "rusty_metal_grid",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_rusty_metal_shutter",
+    "id": "rusty_metal_shutter",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_sandstone_blocks_04",
+    "id": "sandstone_blocks_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_sandstone_blocks_05",
+    "id": "sandstone_blocks_05",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_sandstone_blocks_08",
+    "id": "sandstone_blocks_08",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_sandstone_brick_wall_01",
+    "id": "sandstone_brick_wall_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_sapele_veneer",
+    "id": "sapele_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_sapele_veneer_02",
+    "id": "sapele_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_scuba_suede",
+    "id": "scuba_suede",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     285.2202902890041,
+     278.89999747276306
+    ]
+   },
+   {
+    "dir": "material_ph_scuffed_cement",
+    "id": "scuffed_cement",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1619.999885559082,
+     1619.999885559082
+    ]
+   },
+   {
+    "dir": "material_ph_seaside_rock",
+    "id": "seaside_rock",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_seaworn_sandstone_brick",
+    "id": "seaworn_sandstone_brick",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1690.0001764297485,
+     1690.0001764297485
+    ]
+   },
+   {
+    "dir": "material_ph_seaworn_stone_tiles",
+    "id": "seaworn_stone_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_silver_oak_veneer_01",
+    "id": "silver_oak_veneer_01",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_silver_oak_veneer_02",
+    "id": "silver_oak_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_slab_tiles",
+    "id": "slab_tiles",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2369.999885559082,
+     2370.000123977661
+    ]
+   },
+   {
+    "dir": "material_ph_slate_floor",
+    "id": "slate_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2289.9999618530273,
+     2290.0002002716064
+    ]
+   },
+   {
+    "dir": "material_ph_slate_floor_02",
+    "id": "slate_floor_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_slate_floor_03",
+    "id": "slate_floor_03",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_slumped_mortar_brick",
+    "id": "slumped_mortar_brick",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1769.9999809265137,
+     1769.9999809265137
+    ]
+   },
+   {
+    "dir": "material_ph_smoke_speckled_veneer",
+    "id": "smoke_speckled_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_smoked_walnut_veneer",
+    "id": "smoked_walnut_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_smooth_concrete_floor",
+    "id": "smooth_concrete_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_square_brick_floor",
+    "id": "square_brick_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_square_floor",
+    "id": "square_floor",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_square_tiled_wall",
+    "id": "square_tiled_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_square_tiles_02",
+    "id": "square_tiles_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2400.0000953674316,
+     2400.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_stacked_brick_wall",
+    "id": "stacked_brick_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1731.5727472305298,
+     1731.5782308578491
+    ]
+   },
+   {
+    "dir": "material_ph_stacked_stone_wall",
+    "id": "stacked_stone_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_stained_pine",
+    "id": "stained_pine",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Jenelle van Heerden": "Scanning"
+    },
+    "dimensions_mm": [
+     900.0000357627869,
+     900.0000357627869
+    ]
+   },
+   {
+    "dir": "material_ph_stair_planks",
+    "id": "stair_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1200.0000476837158,
+     1200.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_stenciled_brick_floor",
+    "id": "stenciled_brick_floor",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1919.9998378753662,
+     1919.9998378753662
+    ]
+   },
+   {
+    "dir": "material_ph_stone_block_wall",
+    "id": "stone_block_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2099.9999046325684,
+     2099.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_stone_brick_wall_001",
+    "id": "stone_brick_wall_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_stone_embedded_concrete",
+    "id": "stone_embedded_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2009.9999904632568,
+     2009.9999904632568
+    ]
+   },
+   {
+    "dir": "material_ph_stone_embedded_tiles",
+    "id": "stone_embedded_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_stone_floor",
+    "id": "stone_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1849.9999046325684,
+     1849.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_stone_tile_wall",
+    "id": "stone_tile_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_stone_tiles",
+    "id": "stone_tiles",
+    "authors": {
+     "Christopher Melani": "All"
+    },
+    "dimensions_mm": [
+     3170.0000762939453,
+     3169.999837875366
+    ]
+   },
+   {
+    "dir": "material_ph_stone_tiles_02",
+    "id": "stone_tiles_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_stretch_poplin",
+    "id": "stretch_poplin",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     291.0233241569048,
+     280.8000147342682
+    ]
+   },
+   {
+    "dir": "material_ph_synthetic_wood",
+    "id": "synthetic_wood",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_t_concrete_wall_002",
+    "id": "t_concrete_wall_002",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_tatami_mat",
+    "id": "tatami_mat",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_teak_veneer",
+    "id": "teak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_terlenka",
+    "id": "terlenka",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     265.70814767607123,
+     266.2999927997589
+    ]
+   },
+   {
+    "dir": "material_ph_terracotta_floor_tiles",
+    "id": "terracotta_floor_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2079.9999237060547,
+     2079.9999237060547
+    ]
+   },
+   {
+    "dir": "material_ph_terrazzo_tiles",
+    "id": "terrazzo_tiles",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_terry_cloth",
+    "id": "terry_cloth",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     367.0535953781794,
+     363.20000886917114
+    ]
+   },
+   {
+    "dir": "material_ph_tiled_floor_001",
+    "id": "tiled_floor_001",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_velour_velvet",
+    "id": "velour_velvet",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     284.22817052147235,
+     273.499995470047
+    ]
+   },
+   {
+    "dir": "material_ph_volcanic_rock_tiles",
+    "id": "volcanic_rock_tiles",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_waffle_pique_cotton",
+    "id": "waffle_pique_cotton",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     280.787176718274,
+     276.8000066280365
+    ]
+   },
+   {
+    "dir": "material_ph_wall_bricks_plaster",
+    "id": "wall_bricks_plaster",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_walnut_veneer",
+    "id": "walnut_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_walnut_veneer_02",
+    "id": "walnut_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_washed_grey_oak_veneer",
+    "id": "washed_grey_oak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_weathered_brown_planks",
+    "id": "weathered_brown_planks",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_weathered_peeling_timber",
+    "id": "weathered_peeling_timber",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1100.000023841858,
+     1100.000023841858
+    ]
+   },
+   {
+    "dir": "material_ph_weathered_plank_siding",
+    "id": "weathered_plank_siding",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1570.0000524520874,
+     1570.0000524520874
+    ]
+   },
+   {
+    "dir": "material_ph_weathered_planks",
+    "id": "weathered_planks",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_white_bricks",
+    "id": "white_bricks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_white_maple_veneer",
+    "id": "white_maple_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_white_oak_veneer",
+    "id": "white_oak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_white_planks_clean",
+    "id": "white_planks_clean",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_white_plaster_02",
+    "id": "white_plaster_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_white_plaster_rough_01",
+    "id": "white_plaster_rough_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_white_plaster_rough_02",
+    "id": "white_plaster_rough_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_white_rough_plaster",
+    "id": "white_rough_plaster",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_white_sandstone_blocks_02",
+    "id": "white_sandstone_blocks_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_white_sandstone_bricks",
+    "id": "white_sandstone_bricks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_white_sandstone_bricks_03",
+    "id": "white_sandstone_bricks_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_white_stucco",
+    "id": "white_stucco",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1998.0629682540894,
+     1998.0640411376953
+    ]
+   },
+   {
+    "dir": "material_ph_white_stucco_02",
+    "id": "white_stucco_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     7.868050033721374e-05,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_whitewashed_brick",
+    "id": "whitewashed_brick",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_wood_cabinet_worn_long",
+    "id": "wood_cabinet_worn_long",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1000,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_wood_floor",
+    "id": "wood_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1699.9996900558472,
+     1699.9996900558472
+    ]
+   },
+   {
+    "dir": "material_ph_wood_floor_deck",
+    "id": "wood_floor_deck",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_wood_floor_worn",
+    "id": "wood_floor_worn",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_wood_inlaid_concrete_wall",
+    "id": "wood_inlaid_concrete_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_wood_inlaid_stone_wall",
+    "id": "wood_inlaid_stone_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1299.9999523162842,
+     1299.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_wood_peeling_paint_weathered",
+    "id": "wood_peeling_paint_weathered",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     761.9999647140503,
+     762.0000243186951
+    ]
+   },
+   {
+    "dir": "material_ph_wood_plank_wall",
+    "id": "wood_plank_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_wood_planks",
+    "id": "wood_planks",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1499.999761581421,
+     1499.999761581421
+    ]
+   },
+   {
+    "dir": "material_ph_wood_planks_dirt",
+    "id": "wood_planks_dirt",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_wood_planks_grey",
+    "id": "wood_planks_grey",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500.0001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_wood_shutter",
+    "id": "wood_shutter",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_wood_table",
+    "id": "wood_table",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_wood_table_001",
+    "id": "wood_table_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1500,
+     1500.0001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_wood_table_large",
+    "id": "wood_table_large",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1550.0000715255737,
+     1550.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_wood_table_worn",
+    "id": "wood_table_worn",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     549.9999523162842,
+     550.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_wood_textured_concrete",
+    "id": "wood_textured_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_wood_trunk_wall",
+    "id": "wood_trunk_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1250,
+     1250
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_barrel",
+    "id": "wooden_barrel",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1289.9999618530273,
+     1289.9999618530273
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_floor_01",
+    "id": "wooden_floor_01",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1988.0001544952393,
+     1988.0001544952393
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_floor_02",
+    "id": "wooden_floor_02",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1942.000150680542,
+     1942.000150680542
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_garage_door",
+    "id": "wooden_garage_door",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1979.9997806549072,
+     1979.9997806549072
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_gate",
+    "id": "wooden_gate",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_panels",
+    "id": "wooden_panels",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2099.9999046325684,
+     2099.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_planks",
+    "id": "wooden_planks",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_rough_planks",
+    "id": "wooden_rough_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_wool_boucle",
+    "id": "wool_boucle",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     314.78237097288206,
+     390.10000228881836
+    ]
+   },
+   {
+    "dir": "material_ph_worn_brick_floor",
+    "id": "worn_brick_floor",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_worn_brick_wall",
+    "id": "worn_brick_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_worn_concrete_floor",
+    "id": "worn_concrete_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_worn_cracked_plaster",
+    "id": "worn_cracked_plaster",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_worn_mossy_plasterwall",
+    "id": "worn_mossy_plasterwall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_worn_planks",
+    "id": "worn_planks",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1400.0000953674316,
+     1400.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_worn_plaster_wall",
+    "id": "worn_plaster_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_worn_shutter",
+    "id": "worn_shutter",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1370.0000047683716,
+     1370.0000047683716
+    ]
+   },
+   {
+    "dir": "material_ph_worn_tile_floor",
+    "id": "worn_tile_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_yellow_brick",
+    "id": "yellow_brick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_yellow_bricks",
+    "id": "yellow_bricks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_yellow_plaster",
+    "id": "yellow_plaster",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_yellow_plaster_02",
+    "id": "yellow_plaster_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_yellow_stone_wall",
+    "id": "yellow_stone_wall",
+    "authors": {
+     "Sơn Nguyễn": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   }
+  ]
+ },
+ "instances": {
+  "dataset": "ManiTwin/ManiTwin-100K (huggingface.co/datasets/ManiTwin/ManiTwin-100K)",
+  "license": "Apache-2.0",
+  "converted_by": "scripts/objects/manitwin.py instances + convert",
+  "checked": "drop test (upright, tilt <= 1.5 deg); stack_bowls: three stacked bowls stay stacked and upright; hang_mugs: hung on each of the six cup_holder hooks, the task's handle height and alignment checks hold (scripts/objects/instance_fit.py)",
+  "dedup": "no face count equal to any RoboDojo object (938 downloaded ManiTwin models: none equal)",
+  "count": 26,
+  "items": [
+   {
+    "id": "Rigid/bowl/00901",
+    "source": "cereal_bowl/001",
+    "scale": 1.0,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/bowl/00902",
+    "source": "cereal_bowl/002",
+    "scale": 1.0,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/bowl/00903",
+    "source": "cereal_bowl/003",
+    "scale": 1.0,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/bowl/00904",
+    "source": "cereal_bowl/005",
+    "scale": 0.7202,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/bowl/00905",
+    "source": "cereal_bowl/009",
+    "scale": 1.0,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/bowl/00906",
+    "source": "dessert_bowl/000",
+    "scale": 0.9327,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/bowl/00907",
+    "source": "dessert_bowl/002",
+    "scale": 1.0,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00900",
+    "source": "coffee_mug/000",
+    "scale": 0.7197,
+    "yaw_deg": -89.99,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00901",
+    "source": "coffee_mug/003",
+    "scale": 0.8704,
+    "yaw_deg": -91.14,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/mug/00902",
+    "source": "coffee_mug/004",
+    "scale": 1.0,
+    "yaw_deg": -88.15,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00905",
+    "source": "coffee_mug/011",
+    "scale": 1.0,
+    "yaw_deg": -89.81,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00906",
+    "source": "coffee_mug/013",
+    "scale": 0.7198,
+    "yaw_deg": -89.02,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/mug/00907",
+    "source": "cup/000",
+    "scale": 0.991,
+    "yaw_deg": -89.81,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00908",
+    "source": "cup/004",
+    "scale": 0.7887,
+    "yaw_deg": -115.08,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00909",
+    "source": "cup/022",
+    "scale": 0.7116,
+    "yaw_deg": -90.39,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00910",
+    "source": "cup/029",
+    "scale": 0.7707,
+    "yaw_deg": -89.14,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00911",
+    "source": "cup/049",
+    "scale": 0.7766,
+    "yaw_deg": -93.82,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00912",
+    "source": "cup/052",
+    "scale": 1.1866,
+    "yaw_deg": -90.03,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00914",
+    "source": "cup/057",
+    "scale": 0.9344,
+    "yaw_deg": -91.39,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00916",
+    "source": "cup/059",
+    "scale": 0.9067,
+    "yaw_deg": -88.36,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00917",
+    "source": "cup/062",
+    "scale": 0.9093,
+    "yaw_deg": -91.81,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00918",
+    "source": "cup/063",
+    "scale": 0.9319,
+    "yaw_deg": -86.3,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00919",
+    "source": "cup/064",
+    "scale": 0.9234,
+    "yaw_deg": -87.67,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00922",
+    "source": "cup/070",
+    "scale": 0.7772,
+    "yaw_deg": -89.71,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/mug/00923",
+    "source": "cup/074",
+    "scale": 0.7845,
+    "yaw_deg": -90.31,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/mug/00924",
+    "source": "cup/075",
+    "scale": 0.8978,
+    "yaw_deg": -88.39,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   }
+  ],
+  "rejected": [
+   {
+    "id": "Rigid/bowl/00900",
+    "source": "cereal_bowl/000",
+    "reason": "a spoon stands in it"
+   },
+   {
+    "id": "Rigid/mug/00903",
+    "source": "coffee_mug/005",
+    "reason": "hangs on cup_holder hooks 0, 1, 4, 5 only (all 6 needed, as the official mugs do)"
+   },
+   {
+    "id": "Rigid/mug/00904",
+    "source": "coffee_mug/009",
+    "reason": "settles 2.6 deg tilted (limit 1.5)"
+   },
+   {
+    "id": "Rigid/mug/00913",
+    "source": "cup/054",
+    "reason": "slips off the hook: handle 0.84 m < 0.9 m"
+   },
+   {
+    "id": "Rigid/mug/00915",
+    "source": "cup/058",
+    "reason": "falls off the hook onto the table"
+   },
+   {
+    "id": "Rigid/mug/00920",
+    "source": "cup/066",
+    "reason": "hangs on cup_holder hooks 0, 1, 2, 3, 5 only (all 6 needed, as the official mugs do)"
+   },
+   {
+    "id": "Rigid/mug/00921",
+    "source": "cup/068",
+    "reason": "hangs on cup_holder hooks 0, 1, 2, 4, 5 only (all 6 needed, as the official mugs do)"
+   },
+   {
+    "id": "Rigid/mug/00925",
+    "source": "cup/077",
+    "reason": "hangs on cup_holder hooks 1, 3, 4, 5 only (all 6 needed, as the official mugs do)"
+   },
+   {
+    "id": "Rigid/mug/00926",
+    "source": "cup/078",
+    "reason": "hangs on cup_holder hooks 0, 1, 4, 5 only (all 6 needed, as the official mugs do)"
+   }
+  ]
+ }
+}

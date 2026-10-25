@@ -48,30 +48,52 @@ def test_randomization_profile():
     assert pools["base"] == "stack_bowls" and pools["train"]["bowl"] == [1, 2, 3, 5, 7, 8, 9, 10]
     assert pools["holdout"] == {"bowl": [11, 12, 13, 14, 15]}
     assert server.instance_pools("align_blocks")["holdout"] == {}  # no _random variant
+    assert set(pools["new"]) == {"train", "exam"}  # instances of the task's categories no official layout uses
     assets, profiles = Path(tempfile.mkdtemp()), server.rsi_profile.PROFILES_DIR
-    for d in ("Room/Simple_Room_red", "Material/material_0122", "Object/RoboDojo/Clutter/pen/00000"):
+    for d in (
+        "Room/Simple_Room_red",
+        "Room/Simple_Room_teal",
+        "Material/material_0122",
+        "Object/RoboDojo/Clutter/pen/00000",
+    ):
         (assets / d).mkdir(parents=True)
     (assets / "Object/RoboDojo/Clutter/pen/00000/metadata.json").write_text("{}")
     (assets / "Background").mkdir()
     (assets / "Background/studio.hdr").write_text("")
+    empty = {"rooms": [], "materials": [], "hdrs": [], "distractors": [], "instances": []}
+    tiers = {
+        "seen": ["material:material_0122"],
+        "t0": [],
+        "pools": {
+            "train": empty | {"rooms": ["Simple_Room_red"], "hdrs": ["studio.hdr"], "distractors": ["clutter:pen/0"]},
+            "exam": empty | {"rooms": ["Simple_Room_teal"]},
+        },
+    }
     server.rsi_profile.PROFILES_DIR = Path(tempfile.mkdtemp())
+
+    def write(profile):
+        return server.write_randomization("stack_bowls", profile, assets, tiers)
+
     try:
-        profile = {"position": True, "rooms": ["Simple_Room_red"], "tables": ["material_0122"]}
-        profile |= {"background": {"hdrs": ["studio.hdr"], "intensity": [600, 1400]}, "clutter": {"count": [2, 5]}}
-        profile |= {"lights": {"count": [1, 2], "types": ["Sphere"]}, "camera": {"ori_deg": 2}}
-        assert server.write_randomization("stack_bowls", profile, assets) is None
+        profile = {"position": True, "color": True, "scale": [0.9, 1.1], "rooms": ["Simple_Room_red"]}
+        profile |= {"tables": ["material_0122"], "background": {"hdrs": ["studio.hdr"], "intensity": [600, 1400]}}
+        profile |= {
+            "clutter": {"count": [2, 5]},
+            "lights": {"count": [1, 2], "types": ["Sphere"]},
+            "camera": {"ori_deg": 2},
+        }
+        assert write(profile) is None
         path = server.rsi_profile.PROFILES_DIR / "stack_bowls/randomization.json"
         assert json.loads(path.read_text()) == profile
-        assert "资产库没有" in server.write_randomization("stack_bowls", {"rooms": ["Simple_Room_x"]}, assets)
-        assert "超出范围" in server.write_randomization("stack_bowls", {"clutter": {"count": [5, 2]}}, assets)
-        assert "灯光类型" in server.write_randomization(
-            "stack_bowls", {"lights": {"count": [1, 1], "types": ["Dome"]}}, assets
-        )
-        assert "杂物库" in server.write_randomization(
-            "stack_bowls", {"clutter": {"count": [1, 2], "categories": ["x"]}}, assets
-        )
-        assert "不认识" in server.write_randomization("stack_bowls", {"lighting": True}, assets)
-        assert server.write_randomization("stack_bowls", None, assets) is None and not path.exists()
+        assert "不能用" in write({"rooms": ["Simple_Room_x"]})
+        assert "不能用" in write({"rooms": ["Simple_Room_teal"]})  # the exam pool's room
+        assert write({"pool": "exam", "rooms": ["Simple_Room_teal"]}) is None
+        assert "pool 只能是" in write({"pool": "both"})
+        assert "超出范围" in write({"clutter": {"count": [5, 2]}})
+        assert "灯光类型" in write({"lights": {"count": [1, 1], "types": ["Dome"]}})
+        assert "干扰物池" in write({"clutter": {"count": [1, 2], "categories": ["x"]}})
+        assert "不认识" in write({"lighting": True})
+        assert write(None) is None and not path.exists()
     finally:
         server.rsi_profile.PROFILES_DIR = profiles
 
@@ -107,7 +129,7 @@ def test_appearance_settings():
     library = server.material_library()
     assert len(library) > 500 and all("thumb" in m for m in library)
     roles = {m["id"]: m["roles"] for m in library}
-    assert roles["real_scene3_lab/wall/wall_north"] == ["wall"] and "floor" not in roles["mdl/material_0110"]  # plaster
+    assert roles["real_scene3_lab/wall/paint"] == ["wall"] and "floor" not in roles["mdl/material_0110"]  # plaster
 
 
 def test_prototypes():
@@ -239,6 +261,10 @@ def test_http():
         etag = resp.getheader("ETag")
         assert status == 200 and etag and resp.getheader("Cache-Control") == server.FILE_CACHE
         assert request("GET", f"/file?path={video}", headers={"If-None-Match": etag})[:2] == (304, b"")
+        model = run / "scene.glb"  # rebuilt in place: rechecked on every view
+        model.write_bytes(b"glTF")
+        status, _, resp = request("GET", f"/file?path={model}")
+        assert status == 200 and resp.getheader("Cache-Control") == server.PREVIEW_CACHE
         conn = http.client.HTTPConnection("127.0.0.1", httpd.server_port)  # keep-alive: one socket, also after a 416
         steps = [({"Range": "bytes=20-30"}, 416, b""), ({}, 200, b"0123456789")]
         steps.append(({"If-None-Match": f'W/"x", {etag}'}, 304, b""))

@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-25",
+  "merged_remote_main": "961a9f5",
+  "new_remote_commits": 28,
+  "checks": {
+    "repository": "passed: bash scripts/check.sh origin/main",
+    "tests_passed": 76,
+    "subtests_passed": 82,
+    "lint": "passed",
+    "format": "passed",
+    "task_inventory": "passed",
+    "aurora_coupling_regression": "failed with inherited 0.002; passed with Aurora override None",
+    "archive_sha256": "4193982fd25d8ed307213938f6b8b8de09c4bc4b418fb09efc43f3813c1dd339",
+    "archive_bytes": 907275550,
+    "archive_git_storage": "LFS pointer; original bytes retained"
+  },
+  "simulation_retested": false,
+  "new_runtime_installation": false,
+  "existing_dependency_audit": "isolated check venv pip 25.0.1 known issues retained; no dependency changes in this merge",
+  "upload_authorization": "user explicitly requested full delivery including original ZIP",
+  "remote_branch": "komari/feat-g1d-aurora-tactile"
+}

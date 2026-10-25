@@ -11,5 +11,8 @@
   "method": "copy new files, merge existing files incrementally; do not replay the original overlay",
   "original_evidence_local": ".cache/aurora-v3-delivery/g1d_aurora_fusion_v3_20261024/evidence",
   "runtime_retest": "not requested after user clarification; delivery evidence retained",
-  "vendor_runtime_included": false
+  "vendor_runtime_included": false,
+  "remote_archive_path": "real2sim/embodiments/g1d_aurora_lite_ws/delivery/g1d_aurora_fusion_v3_20261024.zip",
+  "archive_tracking": "Git LFS; explicitly authorized complete archive upload on 2026-10-25",
+  "merged_main": "961a9f5"
 }

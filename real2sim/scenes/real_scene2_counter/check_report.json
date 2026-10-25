@@ -10,6 +10,15 @@
    }
   },
   {
+   "name": "stage metadata chairs.usda",
+   "ok": true,
+   "detail": {
+    "upAxis": "Z",
+    "metersPerUnit": 1.0,
+    "defaultPrim": "/Chairs"
+   }
+  },
+  {
    "name": "stage metadata counter.usda",
    "ok": true,
    "detail": {
@@ -28,6 +37,24 @@
    }
   },
   {
+   "name": "stage metadata lounge.usda",
+   "ok": true,
+   "detail": {
+    "upAxis": "Z",
+    "metersPerUnit": 1.0,
+    "defaultPrim": "/Lounge"
+   }
+  },
+  {
+   "name": "stage metadata preview.usda",
+   "ok": true,
+   "detail": {
+    "upAxis": "Z",
+    "metersPerUnit": 1.0,
+    "defaultPrim": "/World"
+   }
+  },
+  {
    "name": "stage metadata scene.usda",
    "ok": true,
    "detail": {
@@ -42,10 +69,14 @@
    "detail": {
     "assets": [
      "bin_label.png",
+     "ceiling_wood.png",
+     "glow.png",
+     "green_band.png",
      "marble.png",
      "microwave_front.png",
      "poster.png",
      "terrazzo.png",
+     "wallpaper.png",
      "wood.png"
     ],
     "unresolved": []
@@ -62,7 +93,7 @@
    "name": "every render mesh has a bound material",
    "ok": true,
    "detail": {
-    "render_meshes": 76,
+    "render_meshes": 105,
     "unbound": []
    }
   },
@@ -70,14 +101,14 @@
    "name": "render triangle budget (< 100k)",
    "ok": true,
    "detail": {
-    "triangles": 5028
+    "triangles": 6856
    }
   },
   {
    "name": "colliders are guide purpose (not rendered)",
    "ok": true,
    "detail": {
-    "colliders": 41,
+    "colliders": 51,
     "rendered": []
    }
   },
@@ -146,6 +177,24 @@
    }
   },
   {
+   "name": "lounge table tops at table_top_z",
+   "ok": true,
+   "detail": {
+    "table_top_z": 0.75,
+    "tops": {
+     "Table_blue_top": 0.75,
+     "Table_white_top": 0.75
+    }
+   }
+  },
+  {
+   "name": "lounge colliders within the PhysX GPU convex limit (<= 64 vertices)",
+   "ok": true,
+   "detail": {
+    "over": {}
+   }
+  },
+  {
    "name": "lights present",
    "ok": true,
    "detail": {
@@ -153,6 +202,8 @@
      "/World/Lights/CeilingPanel_0",
      "/World/Lights/CeilingPanel_1",
      "/World/Lights/CeilingPanel_2",
+     "/World/Lights/CeilingPanel_3",
+     "/World/Lights/CeilingPanel_4",
      "/World/Lights/AmbientDome"
     ]
    }
@@ -164,6 +215,6 @@
   "RTX rendering, exposure and colour match against the photo",
   "real sizes, friction and light intensities (estimates)"
  ],
- "passed": 16,
- "total": 17
+ "passed": 21,
+ "total": 22
 }

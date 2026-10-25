@@ -8,6 +8,10 @@ from env.robot_manager.tactile_bridge import XenseTactileBridge
 class AuroraObservationMixin:
     """Optional four-pad observation API; arm actions retain their existing size."""
 
+    # The inherited Dex1 lag limiter assumes increasing q closes the fingers.
+    # Aurora uses increasing q to open; retain the delivered position targets.
+    finger_coupling = None
+
     opening_m_to_joint_positions = staticmethod(urdf_jaw_positions)
     joint_positions_to_opening_m = staticmethod(measured_opening)
 
