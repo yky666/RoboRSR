@@ -1,0 +1,748 @@
+{
+  "source_frames_sha256": "8b9fd8f17a160e3dc5ff971fca29f72f717a8290d5d4d9fd009f127eff7e46bb",
+  "no_physics_steps_between_saved_states": true,
+  "frames": 148,
+  "checks": [
+    {
+      "frame_id": 0,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 1,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 2,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 3,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 4,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 5,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 6,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 7,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 8,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 9,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 10,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 11,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 12,
+      "max_pad_matrix_difference": 4.440892098500626e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 13,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 14,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 15,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 16,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 17,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 18,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 19,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 20,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 21,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 22,
+      "max_pad_matrix_difference": 4.440892098500626e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 23,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 24,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 25,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 26,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 27,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 28,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 29,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 30,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 31,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 32,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 33,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 34,
+      "max_pad_matrix_difference": 4.440892098500626e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 35,
+      "max_pad_matrix_difference": 4.440892098500626e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 36,
+      "max_pad_matrix_difference": 4.440892098500626e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 37,
+      "max_pad_matrix_difference": 4.440892098500626e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 38,
+      "max_pad_matrix_difference": 4.440892098500626e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 39,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 40,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 41,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 42,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 43,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 44,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 45,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 46,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 47,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 48,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 49,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 50,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 51,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 52,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 53,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 54,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 55,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 56,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 57,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 58,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 59,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 60,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 61,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 62,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 7.450580596923828e-09
+    },
+    {
+      "frame_id": 63,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 64,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 65,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 66,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 67,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 68,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.4901161193847656e-08
+    },
+    {
+      "frame_id": 69,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 70,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 71,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.1920928955078125e-07
+    },
+    {
+      "frame_id": 72,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 73,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 74,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 75,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 76,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 77,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 78,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 79,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 5.155801773071289e-06
+    },
+    {
+      "frame_id": 80,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.843273639678955e-05
+    },
+    {
+      "frame_id": 81,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.780688762664795e-05
+    },
+    {
+      "frame_id": 82,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.98917293548584e-05
+    },
+    {
+      "frame_id": 83,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 3.898143768310547e-05
+    },
+    {
+      "frame_id": 84,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 4.556775093078613e-05
+    },
+    {
+      "frame_id": 85,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 5.049258470535278e-05
+    },
+    {
+      "frame_id": 86,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 5.5462121963500977e-05
+    },
+    {
+      "frame_id": 87,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 5.9954822063446045e-05
+    },
+    {
+      "frame_id": 88,
+      "max_pad_matrix_difference": 3.3306690738754696e-16,
+      "joint_fk_vs_recorded_matrix_difference": 6.374716758728027e-05
+    },
+    {
+      "frame_id": 89,
+      "max_pad_matrix_difference": 1.1102230246251565e-16,
+      "joint_fk_vs_recorded_matrix_difference": 7.511675357818604e-05
+    },
+    {
+      "frame_id": 90,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 9.118020534515381e-05
+    },
+    {
+      "frame_id": 91,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 0.0001046210527420044
+    },
+    {
+      "frame_id": 92,
+      "max_pad_matrix_difference": 3.3306690738754696e-16,
+      "joint_fk_vs_recorded_matrix_difference": 0.0001150965690612793
+    },
+    {
+      "frame_id": 93,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 0.0001240372657775879
+    },
+    {
+      "frame_id": 94,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 0.00013071298599243164
+    },
+    {
+      "frame_id": 95,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 0.0001347362995147705
+    },
+    {
+      "frame_id": 96,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 0.00013621151447296143
+    },
+    {
+      "frame_id": 97,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 0.00013713538646697998
+    },
+    {
+      "frame_id": 98,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 0.00013563036918640137
+    },
+    {
+      "frame_id": 99,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 0.00012743473052978516
+    },
+    {
+      "frame_id": 100,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.1026859283447266e-05
+    },
+    {
+      "frame_id": 101,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 102,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 103,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 104,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 105,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 106,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 107,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 108,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 109,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 110,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 111,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 112,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 113,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 114,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 115,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 116,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 117,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 118,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 119,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.384185791015625e-07
+    },
+    {
+      "frame_id": 120,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 8.344650268554688e-06
+    },
+    {
+      "frame_id": 121,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.232193946838379e-05
+    },
+    {
+      "frame_id": 122,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 3.604590892791748e-05
+    },
+    {
+      "frame_id": 123,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 4.448741674423218e-05
+    },
+    {
+      "frame_id": 124,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 5.119293928146362e-05
+    },
+    {
+      "frame_id": 125,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 5.6140124797821045e-05
+    },
+    {
+      "frame_id": 126,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 6.039440631866455e-05
+    },
+    {
+      "frame_id": 127,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 6.417185068130493e-05
+    },
+    {
+      "frame_id": 128,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 6.70403242111206e-05
+    },
+    {
+      "frame_id": 129,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 3.993511199951172e-05
+    },
+    {
+      "frame_id": 130,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 1.0281801223754883e-06
+    },
+    {
+      "frame_id": 131,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 132,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 133,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 134,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 135,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 136,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 137,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 138,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 139,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 140,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 141,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 142,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 143,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 144,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 145,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 146,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    },
+    {
+      "frame_id": 147,
+      "max_pad_matrix_difference": 2.220446049250313e-16,
+      "joint_fk_vs_recorded_matrix_difference": 2.9802322387695312e-08
+    }
+  ],
+  "reason": "near plane 1mm; actual recorded gel visual poses restored, including fixed-joint compliance"
+}

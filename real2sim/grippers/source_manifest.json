@@ -1,0 +1,26 @@
+{
+  "retrieved_date": "2026-10-22",
+  "sources": [
+    {
+      "path": "real2sim/grippers/aurora_lite/reference/aurora_lite_gripper.step",
+      "url": "https://docs.xenserobotics.com/assets/models/aurora-lite-gripper.STEP",
+      "role": "primary complete assembly",
+      "bytes": 79988664,
+      "sha256": "658e5e2a175d455655a2990ceaf0e69fad48df6c1bba04d2eabdf7a6b4909c59"
+    },
+    {
+      "path": "real2sim/grippers/g1_ws/reference/ws_sensor_model.stp",
+      "url": "https://docs.xenserobotics.com/assets/models/ws-sensor-model.stp",
+      "role": "official separate sensor reference",
+      "bytes": 445803,
+      "sha256": "b37e8b980eadb34677909947fc26811545d9bdb354c89beead025c788d139e72"
+    },
+    {
+      "path": "real2sim/grippers/g1_ws/reference/g1_ws_with_screw_holes.step",
+      "url": null,
+      "role": "user supplied STEP; separate revision",
+      "bytes": 337896,
+      "sha256": "e1f0c888e5b4f9ec056a636fc5568db7d4a79d0d38c0c911533c290c62436ea0"
+    }
+  ]
+}

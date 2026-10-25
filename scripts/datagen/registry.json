@@ -2,6 +2,29 @@
   "about": "Every generated dataset: what it is, how it was made, where it lives. One entry per release or abandoned batch; status released | superseded | incomplete. Update it in the same commit as the HANDOFF entry. location.host is an SSH alias from the maintainers' ~/.ssh/config.",
   "datasets": [
     {
+      "name": "g1d_aurora_v3_wide_45mm_delivery_sample",
+      "source_archive": "real2sim/embodiments/g1d_aurora_lite_ws/delivery/g1d_aurora_fusion_v3_20261024.zip",
+      "status": "incomplete",
+      "created": "2026-10-24",
+      "task": "standalone dual_arm_pick_transport_place (not a RoboDojo benchmark task)",
+      "scene": "standalone verification table",
+      "env_cfg": "g1d_four_pad_episode.v1; full_task_runtime.py, physics 240 Hz, recording 10 Hz",
+      "episodes": 1,
+      "frames": 154,
+      "fps": 10,
+      "format": "delivery sample: lossless HDF5 plus LeRobot v3 four FEM tactile videos; opt-in schema, not the XPolicyLab three-RGB converter",
+      "acceptance": "source delivery case09: 45 mm / 50 g, strict dual-arm pick/place passed; no trained policy verified",
+      "code": "v3 delivery; see real2sim/embodiments/g1d_aurora_lite_ws/delivery/provenance.json",
+      "location": {
+        "host": "local-worktree",
+        "path": ".cache/aurora-v3-delivery/g1d_aurora_fusion_v3_20261024/evidence/dataset_wide_45mm"
+      },
+      "published": "not uploaded; imported review sample only, not a training release",
+      "validation": "source HDF5/LeRobot audits retained in validation/dataset_09_*; six recorded task audits independently recomputed during package review; no new simulation/export after user cancelled runtime retesting",
+      "remaining": "repository runtime installation, own-hardware calibration and training compatibility are outside this delivery",
+      "layouts": "source delivery case09: nominal fixed dual-arm verification layout; validation/full_task_plan.json; not a benchmark split"
+    },
+    {
       "name": "g1d_shenzhen_pour_beans_cup_or_mug_500",
       "status": "released",
       "created": "2026-10-22",

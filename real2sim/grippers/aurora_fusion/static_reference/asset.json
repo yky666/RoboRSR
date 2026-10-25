@@ -1,0 +1,23 @@
+{
+  "schema": "g1d.gripper_asset.v1",
+  "id": "aurora_lite",
+  "version": "v1",
+  "vendor": "Xense Robotics / 千觉",
+  "source_page": "https://docs.xenserobotics.com/docs/latest/hardware/gripper-models/",
+  "source_file": "source/aurora-lite-gripper.STEP",
+  "source_url": "https://docs.xenserobotics.com/assets/models/aurora-lite-gripper.STEP",
+  "source_sha256": "658e5e2a175d455655a2990ceaf0e69fad48df6c1bba04d2eabdf7a6b4909c59",
+  "source_bytes": 79988664,
+  "source_cad_units": "mm:33 LENGTH_UNIT declarations with SI_UNIT(.MILLI.,.METRE.)",
+  "visual_reference": "source/dimensions.png",
+  "source_scope": "Vendor external-shape reference for layout/installation/interference. Not calibrated inertial, collision, kinematic or tactile model.",
+  "kinematics_verified": false,
+  "g1d_mount_calibrated": false,
+  "tactile_image_model_available": false,
+  "physical_parameters_measured": false,
+  "label": "极光 Lite · 官方静态外形参考",
+  "model": "grippers/aurora_lite/v1/reference.xml",
+  "units": "m,kg,s,rad; source CAD in mm",
+  "status": "visual-only CAD reference; no joints, collision or tactile simulation",
+  "model_sha256": "35a09f9ea7df798c1d2aa3b150a9ca79d04237df9c4ae6cf27d99c84120c6180"
+}

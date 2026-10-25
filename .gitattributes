@@ -5,3 +5,20 @@ real2sim/**/*.stl filter=lfs diff=lfs merge=lfs -text
 real2sim/**/*.png filter=lfs diff=lfs merge=lfs -text
 real2sim/**/*.jpg filter=lfs diff=lfs merge=lfs -text
 real2sim/**/*.jpeg filter=lfs diff=lfs merge=lfs -text
+real2sim/**/*.step filter=lfs diff=lfs merge=lfs -text
+real2sim/**/*.stp filter=lfs diff=lfs merge=lfs -text
+real2sim/**/*.glb filter=lfs diff=lfs merge=lfs -text
+real2sim/**/*.STEP filter=lfs diff=lfs merge=lfs -text
+real2sim/**/*.STP filter=lfs diff=lfs merge=lfs -text
+# Explicitly requested complete v3 delivery, including review data and videos.
+real2sim/embodiments/g1d_aurora_lite_ws/delivery/g1d_aurora_fusion_v3_20261024.zip filter=lfs diff=lfs merge=lfs -text
+
+# Frozen Aurora hashes are byte based; keep these text sources identical on Windows/Linux.
+real2sim/robot/g1d_aurora_lite_ws/*.urdf text eol=lf
+real2sim/robot/g1d_aurora_lite_ws/*.json text eol=lf
+real2sim/robot/g1d_aurora_lite_ws/*.yml text eol=lf
+real2sim/embodiments/g1d_aurora_lite_ws/**/*.json text eol=lf
+# Other-unit examples include original CRLF files referenced by source SHA256.
+real2sim/embodiments/g1d_aurora_lite_ws/calibration/reference_other_unit/** -text whitespace=cr-at-eol
+real2sim/grippers/**/*.json text eol=lf
+scripts/g1d/xense_gripper/*.py text eol=lf

@@ -1,0 +1,37 @@
+{
+  "tests": [
+    {
+      "target": "clean_base",
+      "check": {
+        "mode": "verified only",
+        "files_to_apply": 215,
+        "checked_files": 215,
+        "git_modified_by_helper": false
+      },
+      "apply": {
+        "mode": "applied",
+        "files_to_apply": 215,
+        "checked_files": 215,
+        "git_modified_by_helper": false
+      },
+      "idempotent": true
+    },
+    {
+      "target": "upgrade_v2",
+      "check": {
+        "mode": "verified only",
+        "files_to_apply": 55,
+        "checked_files": 215,
+        "git_modified_by_helper": false
+      },
+      "apply": {
+        "mode": "applied",
+        "files_to_apply": 55,
+        "checked_files": 215,
+        "git_modified_by_helper": false
+      },
+      "idempotent": true
+    }
+  ],
+  "unknown_edit_refused": true
+}

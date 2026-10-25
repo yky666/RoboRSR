@@ -1,7 +1,8 @@
 # Project Handoff
 
 更新时间：2026-10-25
-当前分支：`main`。G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
+本会话分支：`komari/feat-g1d-aurora-tactile`；独立 worktree `../RoboRSR-g1d-aurora`，原基于 `8e0d7a7`，现合并远端 `main@961a9f5`。下行保留主线历史。
+主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
 - 把 G1-D 的三条流水线规范化：Real2Sim 采集（物体、场景）、仿真数据生成，以及本仓库内的仿真评估。训练在仓库外。
@@ -35,6 +36,38 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### Aurora 分支本机复测（2026-10-25，尚未提交）
+
+以下为用户提供的 Linux 工作站复测记录，标题及“尚未提交”等措辞保留该次复测结束时的状态；不是本 Windows 会话执行的仿真结果。用户随后已授权本会话将测试修复与记录提交、推送到本分支并提出 PR，提交状态见下方补记。
+
+- 按用户要求检出并更新 `komari/feat-g1d-aurora-tactile@f5a86f7`，独立 worktree 为 `/mnt/data2/Codex-RoboRSR-grippers-20261022/branch_validation_20261025`。原 `integration` 的 `codex/g1d-grippers-local`、未提交文件与本地服务完整保留；等用户提出 PR 请求后再返回原工作区。本次不提交、不推送、不创建 PR。
+- 首次 CPU 检查实际为 75 passed / 1 failed：`test_live_bridge_waits_and_rejects_stale` 的模拟生产者直接写最终 NPZ，读线程偶尔读到未写完的文件。正式 `tactile_worker.py` 已原子发布；仅修正测试夹具为临时文件写完再重命名，不放宽消费者完整性检查。修复后 `bash scripts/check.sh 961a9f5`：76 tests / 82 subtests、36 个 Python 文件 lint/format、任务清单、diff 检查通过；该竞态用例另连续 100 次通过。此测试修复与本条记录仍为本地未提交改动，远端原提交不能称为已含修复。
+- 冻结模型审计及两套模型三个开度的真实指垫表面对齐通过；47 links、46 joints、75 meshes。远端 LFS 完整 ZIP SHA256 与原交付一致，1,345 个清单成员逐项校验通过。从 ZIP 取出六组原始轨迹，用本分支重新审计，均与记录一致；07/08 仍失败，06 仍不接受为完整触觉任务。
+- 复用已有隔离 Isaac Sim 5.1 / IsaacLab 运行环境，在私有 Assets 副本执行本分支默认 30 mm / 20 g 的完整双手任务；154 帧、双侧约 120 mm 实际抬升、搬运、竖直放稳、释放与撤离的严格审计通过。原生轨迹 SHA256 为 `392b653760191e9e20c557bc5cf072030a028510e8e56837671b256968980dc6`。现有厂家 Python 3.10 仿真进程完成四路 Simple/FEM 154 帧，源摘要一致，9,351 个私有运行资源校验通过。没有连接真机、DDS、真实相机，没有修改共享环境或共享资产库。
+- 本次重新导出无损 HDF5 与 LeRobot v3，独立读回通过：154 帧、16 维状态/动作、四路视频完整解码，抽取 5 帧的实际 Dataset 输入核对通过。另生成三路原始视角与四触觉同帧合成视频。私有数据库的本体登记/扫描通过，未动旧平台数据库和服务。
+- 复测证据、失败原始日志、运行快照、媒体和分支保留凭据位于同级 `validation_20261025/`，不入 Git。当前工作站有非致命文件监听及相机插值告警，原始日志保留；回合完成凭据、严格状态审计和数据/媒体解码均通过。真机安装/TCP、当前硬件标定、双向软体耦合和触觉策略权重仍未验收。本次只新增默认回合，不把它扩大为宽块重跑或 54 项榜单全测。
+
+提交补记（本 Windows 会话，2026-10-25）：按用户后续授权，将上述测试夹具修复与记录提交到 `komari/feat-g1d-aurora-tactile`，随后推送并向 `main` 提出 PR。本会话仅更改此测试的生产者写法，不修改消费者、业务逻辑或断言；Linux 工作站的原工作区、服务与未提交文件不由本会话操作。
+
+本会话实际检查：`bash scripts/check.sh 961a9f5` 通过（76 tests / 82 subtests，36 个 Python 文件 lint/format、任务清单、diff 均通过）。额外在 Windows 系统临时目录连续调用该用例时出现一次读 NPZ 的 `PermissionError`，因此不能称本 Windows 会话的 100 次压力复跑通过；未扩大修改消费者或放宽断言。上文 Linux 100 次通过及仿真/导出结果均来自用户提供的工作站记录。
+
+### Aurora 分支同步主线与完整资料上传（2026-10-25）
+
+- 用户要求先同步远端更新，再上传本分支；明确确认包括完整原始 v3 ZIP（907,275,550 bytes）。已合并 `origin/main@961a9f5` 的 28 个新增提交，三处文本冲突保留双方内容。
+- 原 ZIP 放在 `real2sim/embodiments/g1d_aurora_lite_ws/delivery/g1d_aurora_fusion_v3_20261024.zip`，通过专用 Git LFS 规则上传；SHA256 `4193982fd25d8ed307213938f6b8b8de09c4bc4b418fb09efc43f3813c1dd339`，含全部原始视频、轨迹、HDF5/LeRobot 样例、预览和原覆盖文件。此为用户明确授权的归档例外，解压输出和私有厂家运行包仍不直接入库。恢复命令见 `scripts/g1d/xense_gripper/INTEGRATION.md`。
+- 合并发现主线新增 Dex1 `finger_coupling` 会被 Aurora 继承，但其开闭方向相反；在 Aurora mixin 中显式设为 None，保持交付控制目标。新增回归用例先复现继承 0.002 的失败，再验证修复，Dex1 原逻辑保留。
+- 只做 CPU 合并检查，不安装或复测 Isaac/XENSE。`bash scripts/check.sh origin/main` 通过：76 tests / 82 subtests，lint、format、任务清单及 diff 均通过；结果见本体的 `delivery/sync_validation_20261025.json`。下一步沿用该分支，不修改主 worktree 的 `main`。
+
+### G1-D + Aurora Lite / 四路 G1-WS v3 交付接入（2026-10-24）
+
+- 用户确认采用 `g1d_aurora_fusion_v3_20261024.zip`，新增本体 ID 沿用 `g1d_aurora_lite_ws`。模型、CAD/夹爪参考、登记与校准边界、控制适配、完整任务/触觉/数据工具按覆盖包的目录归位。
+- 对已有文件只合并 Aurora 增量；保留当前 `build_asset.py` 的场景外观设置，以及 README、数据契约、平台测试与本文件的后续更新。旧 `g1d` / `g1d_mobile` 保留。
+- 新增 CPU 接入检查并纳入 `scripts/check.sh`；CI 只拉取新模型所需 LFS。补全 STEP/STP 大小写规则及冻结文件的 LF 规则，避免 Windows 检出改变 SHA。平台相对路径统一 POSIX，修复 Windows 下物体索引与生成器路径序列化失败。
+- 来源、文件取舍和交付检查记录见 `scripts/g1d/xense_gripper/INTEGRATION.md` 及 `real2sim/embodiments/g1d_aurora_lite_ws/delivery/`。完整 evidence、HDF5/LeRobot 样例在本 worktree 的 `.cache/aurora-v3-delivery/g1d_aurora_fusion_v3_20261024/`，不入库；预览按项目规则忽略。
+- 用户明确要求不再安装/复测 Isaac、XENSE 和整机仿真，按交付方已有证据交付。本机只做代码接入与交付检查；本地隔离 CPU 依赖在收到该指示前已启动准备，未部署共享资产、平台数据库或远程服务。
+- 实际检查：`bash scripts/check.sh main` 通过（62 tests / 82 subtests，ruff lint/format、任务清单及 diff 检查通过）；215 文件输入摘要匹配，5 项新增接入检查通过。依赖审计发现隔离 venv 自带 pip 25.0.1 的已知问题，其他扫描包无已知问题；遵用户不再安装要求未升级 pip，原报告保存在 `.cache/aurora-dependency-audit.json`。
+- 下一步入口为 `scripts/g1d/xense_gripper/INTEGRATION.md`；本体仍是候选装配，安装/TCP、当前机器零位/相机、材料/动力学和真实 SN 标定保持 pending。厂家专有运行包未包含，未将其加入 Git。
 
 ### RSI 任务物体新实例：ManiTwin 碗 7 个、带把马克杯 19 个（2026-10-25，`chongzheng/rsi-instances`，已合并进 `main`）
 

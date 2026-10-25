@@ -1,0 +1,18 @@
+{
+  "schema": "g1d_aurora_repository_import.v1",
+  "date": "2026-10-24",
+  "archive": "g1d_aurora_fusion_v3_20261024.zip",
+  "archive_sha256": "4193982fd25d8ed307213938f6b8b8de09c4bc4b418fb09efc43f3813c1dd339",
+  "archive_bytes": 907275550,
+  "import_base": "8e0d7a7",
+  "delivery_base": "64960dae81758b4f351af4b091e288360a3608e8",
+  "body_id": "g1d_aurora_lite_ws",
+  "overlay_files_verified": 215,
+  "method": "copy new files, merge existing files incrementally; do not replay the original overlay",
+  "original_evidence_local": ".cache/aurora-v3-delivery/g1d_aurora_fusion_v3_20261024/evidence",
+  "runtime_retest": "not requested after user clarification; delivery evidence retained",
+  "vendor_runtime_included": false,
+  "remote_archive_path": "real2sim/embodiments/g1d_aurora_lite_ws/delivery/g1d_aurora_fusion_v3_20261024.zip",
+  "archive_tracking": "Git LFS; explicitly authorized complete archive upload on 2026-10-25",
+  "merged_main": "961a9f5"
+}

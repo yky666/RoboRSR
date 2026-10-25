@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "optional_robot_api": true,
+  "classes": [
+    "G1DAuroraLeft",
+    "G1DAuroraRight"
+  ],
+  "frame_id": 90,
+  "rgb_shape": [
+    4,
+    700,
+    400,
+    3
+  ],
+  "node_force_shape": [
+    4,
+    700,
+    3
+  ],
+  "hardware_connected": false
+}

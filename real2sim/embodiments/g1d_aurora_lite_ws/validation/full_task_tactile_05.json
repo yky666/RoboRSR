@@ -1,0 +1,23 @@
+{
+  "status": "completed",
+  "frames": 154,
+  "channels": [
+    "left_positive",
+    "left_negative",
+    "right_positive",
+    "right_negative"
+  ],
+  "vendor_runtime_executed": true,
+  "inputs_from_actual_recorded_poses": true,
+  "all_outputs_finite": true,
+  "force_feedback_to_physics": false,
+  "hardware_connected": false,
+  "calibration_validated": false,
+  "max_depth_mm": {
+    "left_positive": 0.05034170672297478,
+    "left_negative": 0.024363648146390915,
+    "right_positive": 0.33655497431755066,
+    "right_negative": 0.014609661884605885
+  },
+  "source_frames_sha256": "3fecf945c0b89ee62bebdfd869349c8b6596b6e657baab16feef728113d056ac"
+}

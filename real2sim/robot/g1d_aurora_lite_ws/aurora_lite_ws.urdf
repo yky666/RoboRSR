@@ -1,0 +1,430 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="aurora_lite_ws_cad_derived">
+  <link name="aurora_base_link">
+    <inertial>
+      <origin xyz="0.000399418161584 -0.000116487261218 0.0512090173304" rpy="0 0 0" />
+      <mass value="0.439153654632" />
+      <inertia ixx="0.000531141408042" ixy="1.30885404382e-06" ixz="4.26126664606e-06" iyy="0.00095209108389" iyz="-4.46958779419e-07" izz="0.000680389709867" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/base_visual.stl" />
+      </geometry>
+      <material name="aurora_base_link_material">
+        <color rgba="0.65 0.67 0.70 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/base_collision_0.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="aurora_positive_carrier_link">
+    <inertial>
+      <origin xyz="-0.00180549005461 0.00778975122151 0.0844949160768" rpy="0 0 0" />
+      <mass value="0.0443046036985" />
+      <inertia ixx="7.07873213868e-06" ixy="3.5509143901e-06" ixz="-4.50767226404e-06" iyy="2.38346907073e-05" iyz="2.04153490761e-06" izz="2.17845840025e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_visual.stl" />
+      </geometry>
+      <material name="aurora_positive_carrier_link_material">
+        <color rgba="0.10 0.11 0.12 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_0.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_1.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_2.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_3.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_4.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_5.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_6.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_7.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_8.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_9.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_10.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_11.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_12.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_13.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_14.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_15.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_16.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_17.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_18.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_carrier_collision_19.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="aurora_positive_gel_link">
+    <inertial>
+      <origin xyz="0.00100426099851 -1.06791638954e-13 0.146276923397" rpy="0 0 0" />
+      <mass value="0.00324002590029" />
+      <inertia ixx="3.12924640631e-07" ixy="2.95348750197e-19" ixz="5.50763849964e-20" iyy="2.3203671889e-07" iyz="-5.81162173776e-19" izz="8.30333946453e-08" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_gel_visual.stl" />
+      </geometry>
+      <material name="aurora_positive_gel_link_material">
+        <color rgba="0.22 0.32 0.38 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_gel_collision_0.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="aurora_positive_sensor_link">
+    <inertial>
+      <origin xyz="0.00988487539219 -6.36312837062e-06 0.133713258281" rpy="0 0 0" />
+      <mass value="0.0406360179367" />
+      <inertia ixx="9.19832636535e-06" ixy="-9.03616498331e-09" ixz="1.1615440497e-06" iyy="8.49233053668e-06" iyz="-1.20370014189e-08" izz="3.32459806633e-06" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_sensor_visual.stl" />
+      </geometry>
+      <material name="aurora_positive_sensor_link_material">
+        <color rgba="0.10 0.11 0.12 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/positive_sensor_collision_0.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="aurora_negative_carrier_link">
+    <inertial>
+      <origin xyz="0.00197484947549 -0.00784077058721 0.0842133644937" rpy="0 0 0" />
+      <mass value="0.0437909883808" />
+      <inertia ixx="6.76478203731e-06" ixy="3.51969192853e-06" ixz="4.33537009449e-06" iyy="2.34099845336e-05" iyz="-1.98727324985e-06" izz="2.16457599269e-05" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_visual.stl" />
+      </geometry>
+      <material name="aurora_negative_carrier_link_material">
+        <color rgba="0.10 0.11 0.12 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_0.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_1.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_2.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_3.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_4.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_5.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_6.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_7.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_8.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_9.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_10.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_11.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_12.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_13.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_14.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_15.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_16.stl" />
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_carrier_collision_17.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="aurora_negative_gel_link">
+    <inertial>
+      <origin xyz="-0.00100426099851 1.06865085443e-13 0.146276923397" rpy="0 0 0" />
+      <mass value="0.00324002590029" />
+      <inertia ixx="3.12924640631e-07" ixy="2.95367423328e-19" ixz="-5.54460251642e-20" iyy="2.3203671889e-07" iyz="5.81059615622e-19" izz="8.30333946453e-08" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_gel_visual.stl" />
+      </geometry>
+      <material name="aurora_negative_gel_link_material">
+        <color rgba="0.22 0.32 0.38 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_gel_collision_0.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="aurora_negative_sensor_link">
+    <inertial>
+      <origin xyz="-0.00988503905852 -2.75726356056e-05 0.133713350634" rpy="0 0 0" />
+      <mass value="0.0406346835514" />
+      <inertia ixx="9.1982536775e-06" ixy="-1.19628776122e-08" ixz="-1.16156274561e-06" iyy="8.49228675417e-06" iyz="-2.27313311646e-08" izz="3.32450282613e-06" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_sensor_visual.stl" />
+      </geometry>
+      <material name="aurora_negative_sensor_link_material">
+        <color rgba="0.10 0.11 0.12 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="meshes/aurora/negative_sensor_collision_0.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint name="aurora_positive_jaw_joint" type="prismatic">
+    <parent link="aurora_base_link" />
+    <child link="aurora_positive_carrier_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit lower="0" upper="0.0425" effort="40" velocity="0.07" />
+  </joint>
+  <joint name="aurora_positive_sensor_fixed" type="fixed">
+    <parent link="aurora_positive_carrier_link" />
+    <child link="aurora_positive_sensor_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="aurora_positive_gel_fixed" type="fixed">
+    <parent link="aurora_positive_sensor_link" />
+    <child link="aurora_positive_gel_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+  <link name="aurora_positive_contact_frame">
+    <inertial>
+      <mass value="1e-6" />
+      <inertia ixx="1e-12" iyy="1e-12" izz="1e-12" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+  </link>
+  <joint name="aurora_positive_contact_frame_fixed" type="fixed">
+    <parent link="aurora_positive_gel_link" />
+    <child link="aurora_positive_contact_frame" />
+    <origin xyz="-9.99999159035e-11 -4.23394652671e-15 0.146276923397" rpy="-1.57079632679 0 1.57079632679" />
+  </joint>
+  <joint name="aurora_negative_jaw_joint" type="prismatic">
+    <parent link="aurora_base_link" />
+    <child link="aurora_negative_carrier_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <axis xyz="-1 0 0" />
+    <limit lower="0" upper="0.0425" effort="40" velocity="0.07" />
+    <mimic joint="aurora_positive_jaw_joint" multiplier="1" offset="0" />
+  </joint>
+  <joint name="aurora_negative_sensor_fixed" type="fixed">
+    <parent link="aurora_negative_carrier_link" />
+    <child link="aurora_negative_sensor_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+  <joint name="aurora_negative_gel_fixed" type="fixed">
+    <parent link="aurora_negative_sensor_link" />
+    <child link="aurora_negative_gel_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+  <link name="aurora_negative_contact_frame">
+    <inertial>
+      <mass value="1e-6" />
+      <inertia ixx="1e-12" iyy="1e-12" izz="1e-12" ixy="0" ixz="0" iyz="0" />
+    </inertial>
+  </link>
+  <joint name="aurora_negative_contact_frame_fixed" type="fixed">
+    <parent link="aurora_negative_gel_link" />
+    <child link="aurora_negative_contact_frame" />
+    <origin xyz="9.99999087981e-11 4.30677715713e-15 0.146276923397" rpy="-1.57079632679 0 -1.57079632679" />
+  </joint>
+</robot>

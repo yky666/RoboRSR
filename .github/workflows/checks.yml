@@ -12,10 +12,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # XPolicyLab only: the trajectory format test reads our HDF5 with its loader. LFS files are not needed.
+      # The Aurora integration test checks the frozen model bytes, not LFS pointer stubs.
+      - run: git lfs pull --include="real2sim/robot/g1d_aurora_lite_ws/**"
+      # The trajectory format test reads our HDF5 with the pinned XPolicyLab loader.
       - run: git submodule update --init --depth 1 XPolicyLab
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install ruff==0.11.7 pytest numpy scipy h5py opencv-python-headless pyyaml shapely rtree transforms3d
+      - run: pip install ruff==0.11.7 pytest numpy scipy h5py opencv-python-headless pyyaml shapely rtree transforms3d tqdm
       - run: bash scripts/check.sh "${{ github.event.pull_request.base.sha || github.event.before }}"

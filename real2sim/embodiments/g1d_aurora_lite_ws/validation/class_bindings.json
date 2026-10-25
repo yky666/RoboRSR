@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "sides": [
+    {
+      "class": "G1DAuroraLeft",
+      "urdf": "g1d_aurora_lite_ws.urdf",
+      "arm_dof": 7,
+      "cameras": [
+        "cam_head",
+        "cam_head_right"
+      ]
+    },
+    {
+      "class": "G1DAuroraRight",
+      "urdf": "g1d_aurora_lite_ws.urdf",
+      "arm_dof": 7,
+      "cameras": []
+    }
+  ]
+}

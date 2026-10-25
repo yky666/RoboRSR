@@ -1,0 +1,1 @@
+<mujoco model="aurora_lite_static_reference"><asset><mesh name="part_0" file="meshes/part_000.stl" scale=".001 .001 .001"/></asset><worldbody><body name="vendor_cad_origin"><geom type="mesh" mesh="part_0" contype="0" conaffinity="0" mass="0"/></body></worldbody></mujoco>

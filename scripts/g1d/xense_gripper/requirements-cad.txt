@@ -1,0 +1,9 @@
+# Tested CPU modeling environment: Python 3.13. Runtime Isaac environment is separate.
+cadquery-ocp-novtk==8.0.1.1.0
+trimesh==5.1.1
+numpy==2.5.4
+scipy==1.18.1
+PyYAML==6.0.3
+matplotlib==3.11.2
+pillow==13.0.0
+fast-simplification==0.2.0

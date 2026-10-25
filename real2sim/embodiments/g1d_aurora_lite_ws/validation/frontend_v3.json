@@ -1,0 +1,11 @@
+{
+  "page_status": 200,
+  "range_status": 206,
+  "range_bytes": 1024,
+  "actual_browser_seek_s": 7,
+  "video_duration_s": 15.4,
+  "three_native_views_verified": true,
+  "combined_four_pad_verified": true,
+  "manager_notes_updated": true,
+  "all_real_calibration_pending": true
+}

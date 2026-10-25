@@ -1,0 +1,31 @@
+{
+  "embodiment": "g1d_aurora_lite_ws",
+  "name": "G1-D · 极光 Lite / G1-WS",
+  "name_en": "G1-D Aurora Lite / G1-WS",
+  "model": "Unitree G1-D + Xense Aurora Lite",
+  "variant": "融合仿真版：完整桌面 G1-D，双极光 Lite / 四路 G1-WS；官方 CAD 生成 URDF，独立厂家触觉模型",
+  "dof": "双臂各 7 自由度 + 每个夹爪 1 个独立开度；保留腰部与升降柱，轮子锁定",
+  "end_effector": "双侧极光 Lite 视触觉平行夹爪，开度 0–85 mm；每指行程 0–42.5 mm",
+  "cameras": "G1-D 头部双目；未沿用 Dex1 腕 RGB；4 路 WS 仿真观测已按记录帧关联，光学外参待实测",
+  "control_hz": 30,
+  "urdf": "real2sim/robot/g1d_aurora_lite_ws/g1d_aurora_lite_ws.urdf",
+  "calib_camera": "pending",
+  "calib_joint": "pending",
+  "calib_gripper": "pending",
+  "calib_dynamics": "pending",
+  "calib_notes": "装配/标定来源审计完成；另一台G1-D的零位和相机参数不自动套用。当前腕端孔位/转接板/实测TCP、当前硬件零位/手眼/动力学/材料及真实SN标定仍待实测。主物理为刚体，厂家FEM单向观测；未连接真实设备。",
+  "notes": "完整带重力双手拾取/搬运/放置/松爪已验证；30mm20g与45mm50g最终回合通过严格放置审计。低摩擦失持、旧轨迹触觉越界、放置翻转均保留。四路HDF5/LeRobot/策略输入读回通过；不是通用成功率或实物标定。",
+  "owner": {
+    "username": "liuzhonghan",
+    "name": "liuzhonghan"
+  },
+  "updated_by": "Codex（用户授权代建，未提交）",
+  "updated_at": "2026-10-24",
+  "model_origin": "official_cad_derived",
+  "wrist_mount_verified": false,
+  "tactile_response_validated": false,
+  "tactile_simulation_verified": true,
+  "simulation_review_url": "http://127.0.0.1:8783/",
+  "model_version": "20261024.v3",
+  "full_task_simulation_verified": true
+}

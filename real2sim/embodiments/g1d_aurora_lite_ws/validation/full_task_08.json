@@ -1,0 +1,77 @@
+{
+  "schema": "g1d_free_pick_place.v1",
+  "passed": false,
+  "protocol_checks": {
+    "complete": true,
+    "gravity": true,
+    "no_attachment": true,
+    "no_reset": true,
+    "no_fake_force": true,
+    "all_phases": true
+  },
+  "sides": {
+    "left": {
+      "checks": {
+        "initial_on_table": true,
+        "actual_lift": true,
+        "horizontal_transport": true,
+        "placed_in_goal": true,
+        "resting_on_table": true,
+        "upright_final": false,
+        "released": true
+      },
+      "passed": false,
+      "max_lift_m": 0.1031145453453064,
+      "final_position_m": [
+        0.4475369155406952,
+        0.24989645183086395,
+        0.7100000381469727
+      ],
+      "target_m": [
+        0.43,
+        0.25,
+        0.72
+      ],
+      "final_upright_within_10deg": false,
+      "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+      "peak_contact_n": {
+        "positive": 4.78041935073214,
+        "negative": 4.87811980602033
+      }
+    },
+    "right": {
+      "checks": {
+        "initial_on_table": true,
+        "actual_lift": true,
+        "horizontal_transport": true,
+        "placed_in_goal": true,
+        "resting_on_table": true,
+        "upright_final": false,
+        "released": true
+      },
+      "passed": false,
+      "max_lift_m": 0.10277247428894043,
+      "final_position_m": [
+        0.4510345160961151,
+        -0.2500186860561371,
+        0.7100000381469727
+      ],
+      "target_m": [
+        0.43,
+        -0.25,
+        0.72
+      ],
+      "final_upright_within_10deg": false,
+      "placement_orientation_requirement": "strict data quality: final original +Z within 10 degrees of world +Z",
+      "peak_contact_n": {
+        "positive": 4.771569525200373,
+        "negative": 4.7363442245480725
+      }
+    }
+  },
+  "frames": 154,
+  "duration_s": 15.300000797957182,
+  "source_frames_sha256": "0801309d484a39a27d7cf973a0b1c688f4fd48b9ccbb111e1763126240c1e4f5",
+  "calibrated_hardware": false,
+  "scope": "one dual-arm task episode with candidate parameters; not a general grasp success rate"
+}

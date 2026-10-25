@@ -1,0 +1,155 @@
+{
+  "schema": "aurora_fusion_sources.v1",
+  "files": [
+    {
+      "path": "mujoco_reference/model.xml",
+      "sha256": "60f997a1a897fe3114ba26015385ee400442aefaadba3a2b1293459bdf0a8512",
+      "bytes": 2488,
+      "role": "independent kinematic reference only"
+    },
+    {
+      "path": "mujoco_reference/meshes/base_0.stl",
+      "sha256": "d457f02d3d543ed64a415b16ed5744f8a2ca7bab5478b066fece75e3e4c77a08",
+      "bytes": 7500084,
+      "role": "reference visual/contact geometry"
+    },
+    {
+      "path": "mujoco_reference/meshes/base_1.stl",
+      "sha256": "342fc3af5f38597883ae60c60169fbdd3547c5ab59c23b18908a85be7258e088",
+      "bytes": 7500084,
+      "role": "reference visual/contact geometry"
+    },
+    {
+      "path": "mujoco_reference/meshes/base_2.stl",
+      "sha256": "11549cda5feb402fe263e30f27285d08acef13d3543f8e33bfe0df23f8fcf6a7",
+      "bytes": 3881684,
+      "role": "reference visual/contact geometry"
+    },
+    {
+      "path": "mujoco_reference/meshes/left_0.stl",
+      "sha256": "839cd4873c16504ceefe957c88b6129f5235909423d1de4d93f69917f9b1a9e1",
+      "bytes": 1698584,
+      "role": "reference visual/contact geometry"
+    },
+    {
+      "path": "mujoco_reference/meshes/right_0.stl",
+      "sha256": "ff23060ff572adb45e501b56f6ff4f3e614e7a0a333de900529268c1e068af62",
+      "bytes": 1571684,
+      "role": "reference visual/contact geometry"
+    },
+    {
+      "path": "mujoco_reference/meshes/left_pad_0.stl",
+      "sha256": "58c7900accdbd08aff44854f121d00b4bba7a01d90c0d99e4fc03870367f65cb",
+      "bytes": 30684,
+      "role": "reference visual/contact geometry"
+    },
+    {
+      "path": "mujoco_reference/meshes/right_pad_0.stl",
+      "sha256": "7be1245dd06f0f4d5f149eda1417e10bd5a81f303f66688ba192db7d88b13627",
+      "bytes": 30684,
+      "role": "reference visual/contact geometry"
+    },
+    {
+      "path": "mujoco_reference/assembly.json",
+      "sha256": "9d6bdbd4362377c74ed510bcc5bc484e670e844e4b1ee5cbf673cf31c7b61ccd",
+      "bytes": 24213,
+      "role": "inherited evidence; not rerun evidence"
+    },
+    {
+      "path": "mujoco_reference/kinematics_check.json",
+      "sha256": "05bf33a8af7877ba536c0e9210f1879166efcc8fb4b14cd9298fb2dcd3eb1462",
+      "bytes": 618,
+      "role": "inherited evidence; not rerun evidence"
+    },
+    {
+      "path": "inherited_audit/AUDIT.md",
+      "sha256": "549d6702559377000988809f9a4983ab799ff5c4e4f0c55987cb8964df48b1db",
+      "bytes": 2447,
+      "role": "inherited source audit; not calibration"
+    },
+    {
+      "path": "inherited_audit/alignment_audit.json",
+      "sha256": "253bcc2cf508b25668d8b9be05144dce0c659206c38ae17328f98592ac6d4c65",
+      "bytes": 7586,
+      "role": "inherited source audit; not calibration"
+    },
+    {
+      "path": "inherited_audit/XENSE_PACKAGE_AUDIT.md",
+      "sha256": "ff516c20a985a9d154f2af0cf476e47e6f937ab69ac860f4fa1c2a15d7a7dc8d",
+      "bytes": 4122,
+      "role": "inherited source audit; not calibration"
+    },
+    {
+      "path": "mount_reference/reference.xml",
+      "sha256": "8899d4c1245b51ce5ddfa0fb4559bbd503c5f2fac1ca6d03dc5e77b81ccfbe3a",
+      "bytes": 272,
+      "role": "unmounted universal flange reference; wrist mating unverified"
+    },
+    {
+      "path": "mount_reference/cad_audit.json",
+      "sha256": "cc2bbc3d9a36884b46f7865bba7ee1c69240784630cb1657a18255803db16f77",
+      "bytes": 1122,
+      "role": "unmounted universal flange reference; wrist mating unverified"
+    },
+    {
+      "path": "mount_reference/official_geometry_comparison.json",
+      "sha256": "59c29a1f94d2ce6a00deaa8dbc80ee85294376dd3d4362dd1c560193505392f4",
+      "bytes": 306,
+      "role": "unmounted universal flange reference; wrist mating unverified"
+    },
+    {
+      "path": "mount_reference/static_compile_check.json",
+      "sha256": "4a00e60af4f55968e146ecaec360fecf098e772cd655d115b591d3fac1a776a3",
+      "bytes": 248,
+      "role": "unmounted universal flange reference; wrist mating unverified"
+    },
+    {
+      "path": "mount_reference/meshes/part_000.stl",
+      "sha256": "3456056b21f8e3d62eea57f8c9ed7fcee2ddab975aa510553d27ebbfba6e1647",
+      "bytes": 467984,
+      "role": "unmounted universal flange reference; wrist mating unverified"
+    },
+    {
+      "path": "mount_reference/source/universal_flange.STEP",
+      "sha256": "e18116f37010f33c07c20d7554f650de5e9a0ad14e1a49a1b63e863a450b1399",
+      "bytes": 845575,
+      "role": "unmounted universal flange reference; wrist mating unverified"
+    },
+    {
+      "path": "mount_reference/source/universal_flange.pdf",
+      "sha256": "4cca7d7ce634e3cf11ec66b638d550f39e05fb49ef87262f760605926f740f1c",
+      "bytes": 291447,
+      "role": "unmounted universal flange reference; wrist mating unverified"
+    },
+    {
+      "path": "static_reference/asset.json",
+      "sha256": "d4e87a01e4fd8428125d3091264bff7dc7e78faa45b1b583027cb1d0ca926d79",
+      "bytes": 1220,
+      "role": "inherited v1 static-only registration/evidence, not current acceptance"
+    },
+    {
+      "path": "static_reference/VERIFICATION.json",
+      "sha256": "0a4eda59156e253af24b41c9ad2c3a325896e138412f5920c731d4975f6c7ce2",
+      "bytes": 605,
+      "role": "inherited v1 static-only registration/evidence, not current acceptance"
+    }
+  ],
+  "vendor_resources": [
+    {
+      "name": "g1-ws_table.npz",
+      "sha256": "2cd8f3b989f70d56965cdf70325f0ab2285986af8c72229253661f61a3948b8b",
+      "bytes": 404384,
+      "bundled": false
+    },
+    {
+      "name": "g1-ws.npz",
+      "sha256": "3fd053c7046999bce2bbdfc21f9d0fbe09071e3a3d6246c4f682097c469b5b51",
+      "bytes": 719886,
+      "bundled": false
+    }
+  ],
+  "imported_into_robot": false,
+  "authoritative_robot": "g1d_aurora_lite_ws",
+  "hardware_connected": false,
+  "mount_transform_verified": false
+}
