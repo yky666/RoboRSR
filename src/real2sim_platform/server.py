@@ -203,6 +203,10 @@ class Store:
     def _put(self, kind, doc):
         self.db.execute("INSERT OR REPLACE INTO items VALUES (?, ?, ?)", (kind, doc["id"], json.dumps(doc)))
 
+    def get(self, kind, id_):
+        with self.lock:
+            return self._get(kind, id_)
+
     def list(self, kind):
         with self.lock:
             rows = self.db.execute("SELECT doc FROM items WHERE kind = ?", (kind,)).fetchall()
@@ -584,6 +588,21 @@ def scan_objects(assets, tasks, keep):
             "renders": images(OBJECTS_DIR / oid / "preview") + images(d),
         }
     return found
+
+
+def delete_blocker(kind, doc, user):
+    """(status, why) when `user` may not delete `doc` of this kind from the platform, else None.
+    Registrations of things that already live in code stay out of reach; what has no delete button is admins only."""
+    auto = (doc or {}).get("auto") or {}
+    if kind == "embodiment" and auto.get("in_code"):
+        return 409, "已接入仿真的本体由代码管理（env/robot_manager、env_cfg/robot），请在仓库里改"
+    if kind == "task" and auto.get("module"):
+        return 409, "任务已在代码里实现，在仓库里删除；平台里只能撤销登记"
+    if kind == "evaluation" and not (user["admin"] or (doc or {}).get("submitter") == user["username"]):
+        return 403, "只有管理员或提交人可以删除评测"
+    if kind in ("episode", "prototype") and not user["admin"]:
+        return 403, "只有管理员可以删除这类记录"
+    return None
 
 
 def object_delete_blocker(oid, docs):
@@ -1202,6 +1221,9 @@ class Handler(BaseHTTPRequestHandler):
             error = object_delete_blocker(id_, self.store.list("object"))
             if error:
                 return self.send_json({"error": error}, 409)
+        blocked = delete_blocker(kind, self.store.get(kind, id_), self.user)
+        if blocked:
+            return self.send_json({"error": blocked[1]}, blocked[0])
         self.store.delete(kind, id_)
         if kind == "object" and OBJECT_ID.fullmatch(id_):
             # spec, photos, renders: left behind they re-list the object

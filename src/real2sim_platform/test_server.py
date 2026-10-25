@@ -418,6 +418,9 @@ def test_http():
         (tmp / "embodiments/g1d_mobile/preview/sim.png").write_bytes(b"png")
         sim = tmp / "embodiments/g1d_mobile/preview/sim.png"
         assert server.scan_embodiments()["g1d_mobile"]["renders"] == [str(sim)]
+        store.set_auto("embodiment", "g1d_mobile", "in_code", True)
+        assert request("DELETE", body)[0] == 409 and (tmp / "embodiments/g1d_mobile/registration.json").exists()
+        store.set_auto("embodiment", "g1d_mobile", "in_code", False)
         assert request("DELETE", body)[0] == 200 and not (tmp / "embodiments/g1d_mobile/registration.json").exists()
 
         server.EVALS_DIR = tmp / "evals"
@@ -449,7 +452,12 @@ def test_http():
         result = {"summary": "ok", "runs": [{"task": "g1d_stack_blocks", "episodes": 6, "success_rate": 0.5}]}
         (tmp / "evals/openwam-1000-20261021/result.json").write_text(json.dumps(result))
         assert server.scan_evaluations()["openwam-1000-20261021"]["result"] == result
+        store.add_user("erin", "password1")
+        member = login("erin", "password1")[2]
+        assert request("DELETE", ev, headers={"Cookie": member})[0] == 403  # only the submitter or an admin
         assert request("DELETE", ev)[0] == 200 and not (tmp / "evals/openwam-1000-20261021/request.json").exists()
+        assert request("DELETE", "/api/items?kind=episode&id=x", headers={"Cookie": member})[0] == 403
+        store.remove_user("erin")
 
         server.TASKS_DIR = tmp / "tasks"
         task = "/api/items?kind=task&id=g1d_wipe_table"

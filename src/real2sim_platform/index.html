@@ -2408,10 +2408,12 @@ async function unregisterTask(id) {
   const d = S.task.find((x) => x.id === id);
   if (!confirm(`删除 ${id} 的平台登记？${d?.auto.module ? '任务本身和采集记录保留。' : ''}`)) return;
   if (!d?.auto.module) {
-    await api(`/api/items?kind=task&id=${encodeURIComponent(id)}`, {method: 'DELETE'});
+    try {
+      await api(`/api/items?kind=task&id=${encodeURIComponent(id)}`, {method: 'DELETE'});
+    } catch (err) { return toast(`删除失败：${err.message}`, true); }
     await sync(true);
     closeDrawer();
-  } else await save('task', id, {registered: false, reg: null});
+  } else if (!await save('task', id, {registered: false, reg: null})) return;
   toast('已删除登记');
 }
 
@@ -2667,7 +2669,9 @@ async function save(kind, id, patch, quiet = false) {
 }
 async function removeDoc(kind, id) {
   if (!confirm(`删除 ${id} 的登记和录入内容？`)) return;
-  await api(`/api/items?kind=${kind}&id=${encodeURIComponent(id)}`, {method: 'DELETE'});
+  try {
+    await api(`/api/items?kind=${kind}&id=${encodeURIComponent(id)}`, {method: 'DELETE'});
+  } catch (err) { return toast(`删除失败：${err.message}`, true); }
   S[kind] = S[kind].filter((x) => x.id !== id);
   closeDrawer();
   toast('已删除');
@@ -2915,8 +2919,13 @@ function onFieldChange(ev) {
   let patch = {[k]: v};
   if (/^\d+$/.test(sub || '')) { const arr = [...(doc[k] || [])]; arr[Number(sub)] = v; patch = {[k]: arr}; }
   else if (sub) patch = {[k]: {...(doc[k] || {}), [sub]: v}};
+  const prev = Object.fromEntries(Object.keys(patch).map((key) => [key, doc[key]]));
   Object.assign(doc, patch);  // the next change builds on this one even before the save returns
-  save(kind, id, patch);
+  save(kind, id, patch).then((saved) => {
+    if (saved) return;  // refused: put back what the server still has, unless a newer edit already replaced it
+    for (const key of Object.keys(patch)) if (JSON.stringify(doc[key]) === JSON.stringify(patch[key])) doc[key] = prev[key];
+    render();
+  });
 }
 async function setQA(status) {
   const list = qaList(), i = list.findIndex((e) => e.id === UI.ep);
