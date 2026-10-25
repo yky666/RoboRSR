@@ -54,7 +54,11 @@ LAYOUT = dict(
     ne_block=dict(x0=1.28, y0=1.29, src="solid corner block between N window end and E window start"),
     east_window=dict(y0=-1.55, y1=1.29, sill_z=1.09, band_top=1.49, src="E sill start (2.92,1.29); y0 estimate; "
                                                                         "heights as the N window"),
-    door=dict(y0=0.95, y1=1.88, height=2.10, src="door-frame bottom back-projected near (-2.6,1.65); width est."),
+    door=dict(y0=0.95, y1=1.88, height=2.10, stile=0.05, rail_low=0.12, clear_z=(0.12, 0.26), handle=(0.98, 1.20),
+              src="door-frame bottom back-projected near (-2.6,1.65); width est. The whole W wall (partition panes, "
+                  "transom and door) is frosted film glass in a white frame; the door has a clear strip above its "
+                  "bottom rail, a lever handle and a card reader on the north stile (v0160, v0100, p0); the beige wall "
+                  "panel runs up to the north jamb (v0160); clear strip, handle and reader heights are estimates"),
     tv=dict(x0=-2.50, x1=-0.60, z0=1.03, z1=2.10, src="+X bottom corner triangulated (-0.60,-2.11,1.02); width est. (86in)"),
     south_wall=dict(board_x1=-0.12, board_top=2.40, rail=(0.83, 0.935), skirting=0.05, seam_x=-0.63, seam_pitch=0.53,
                     src="p3 (v0400 agrees): wall/floor line at y=-2.13; glass whiteboard from the wood rail up, +X edge "
@@ -146,7 +150,7 @@ MATERIALS = {
     "handle_steel": ((0.55, 0.55, 0.56), 0.3, 1.0, 1.0),
     "pedestal_white": (lin((190, 190, 186)), 0.5, 0.0, 1.0),
     "glass": ((0.55, 0.60, 0.60), 0.05, 0.0, 0.25),
-    "frosted": ((0.75, 0.77, 0.77), 0.6, 0.0, 0.7),
+    "frosted": ((0.78, 0.80, 0.80), 0.6, 0.0, 0.8),  # whole W wall and door: milky film glass (v0160, p0, v0100)
     "tv_black": ((0.01, 0.01, 0.012), 0.15, 0.0, 1.0),
     "wood_strip": (lin((84, 56, 38)), 0.45, 0.0, 1.0),  # rail under the TV, p3
     "basket": ((0.80, 0.78, 0.70), 0.7, 0.0, 1.0),
@@ -468,13 +472,7 @@ def add_room(L):
     L.mesh("WallS/tv", box_xyz(tv["x0"], tv["x1"], Y0 + 0.01, Y0 + 0.06, tv["z0"], tv["z1"]), "tv_black")
     add_cabinets(L, Y0)
     d = LAYOUT["door"]
-    L.mesh("WallW/glass_south", box_xyz(X0 - 0.02, X0, Y0, d["y0"], 0.0, H), "glass")
-    L.mesh("WallW/glass_north", box_xyz(X0 - 0.02, X0, d["y1"], Y1, 0.0, H), "glass")
-    L.mesh("WallW/transom", box_xyz(X0 - 0.02, X0, d["y0"], d["y1"], d["height"], H), "glass")
-    L.mesh("WallW/door", box_xyz(X0 - 0.04, X0 + 0.01, d["y0"] + 0.04, d["y1"] - 0.04, 0.0, d["height"]), "frosted")
-    for k, y in enumerate([Y0 + 0.02, d["y0"], d["y1"], Y1 - 0.02]):
-        L.mesh(f"WallW/post_{k}", box_xyz(X0 - 0.05, X0 + 0.01, y - 0.025, y + 0.025, 0.0, H), "frame_white")
-    L.mesh("WallW/base", box_xyz(X0 - 0.05, X0 + 0.01, Y0, Y1, 0.0, 0.08), "frame_white")
+    add_west_wall(L, d, X0, Y0, Y1, H)
     bn, pd = LAYOUT["bench"], LAYOUT["pedestal"]
     for nm, b in {"wallN": (X0, X1, Y1, Y1 + 0.12, 0.0, H), "wallS": (X0, X1, Y0 - 0.12, Y0, 0.0, H),
                   "wallE": (X1, X1 + 0.12, Y0, Y1, 0.0, H), "wallW": (X0 - 0.05, X0, Y0, Y1, 0.0, H),
@@ -491,6 +489,32 @@ def handle(x, y_face, z0, z1):
     for z in (z0 + 0.012, z1 - 0.027):
         parts.append(box_xyz(x - 0.005, x + 0.005, y_face, y_face + 0.018, z, z + 0.015))
     return trimesh.util.concatenate(parts)
+
+
+def add_west_wall(L, d, X0, Y0, Y1, H):
+    """Frosted partition, transom and white-framed frosted door with lever handle and card reader."""
+    y0, y1, dh, st = d["y0"], d["y1"], d["height"], d["stile"]
+    L.mesh("WallW/glass_south", box_xyz(X0 - 0.02, X0, Y0, y0, 0.0, H), "frosted")
+    L.mesh("WallW/transom", box_xyz(X0 - 0.02, X0, y0, y1, dh, H), "frosted")
+    L.mesh("WallW/corner_wall", box_xyz(X0 - 0.05, X0, y1, Y1, 0.0, H), "wall_light", uv=planar_uv(1.0))
+    for k, y in enumerate([Y0 + 0.02, y0, y1]):
+        L.mesh(f"WallW/post_{k}", box_xyz(X0 - 0.05, X0 + 0.01, y - 0.025, y + 0.025, 0.0, H), "frame_white")
+    L.mesh("WallW/base", box_xyz(X0 - 0.05, X0 + 0.01, Y0, y0, 0.0, 0.08), "frame_white")
+    L.mesh("WallW/head", box_xyz(X0 - 0.05, X0 + 0.01, y0, y1, dh, dh + 0.05), "frame_white")
+    a, b = y0 + 0.04, y1 - 0.04  # door leaf
+    xf0, xf1 = X0 - 0.04, X0 + 0.01
+    z_clear0, z_clear1 = d["clear_z"]
+    L.mesh("WallW/door_stile_s", box_xyz(xf0, xf1, a, a + st, 0.0, dh), "frame_white")
+    L.mesh("WallW/door_stile_n", box_xyz(xf0, xf1, b - st, b, 0.0, dh), "frame_white")
+    L.mesh("WallW/door_rail_top", box_xyz(xf0, xf1, a + st, b - st, dh - st, dh), "frame_white")
+    L.mesh("WallW/door_rail_low", box_xyz(xf0, xf1, a + st, b - st, 0.0, d["rail_low"]), "frame_white")
+    L.mesh("WallW/door_pane_clear", box_xyz(X0 - 0.025, X0 - 0.005, a + st, b - st, d["rail_low"], z_clear1), "glass")
+    L.mesh("WallW/door_pane", box_xyz(X0 - 0.025, X0 - 0.005, a + st, b - st, z_clear1, dh - st), "frosted")
+    yh, (zh, zr) = b - st / 2, d["handle"]
+    L.mesh("WallW/door_handle", trimesh.util.concatenate([
+        box_xyz(xf1, xf1 + 0.045, yh - 0.012, yh + 0.012, zh - 0.012, zh + 0.012),
+        box_xyz(xf1 + 0.035, xf1 + 0.055, yh - 0.13, yh + 0.012, zh - 0.010, zh + 0.010)]), "handle_steel")
+    L.mesh("WallW/door_reader", box_xyz(xf1, xf1 + 0.018, yh - 0.02, yh + 0.02, zr, zr + 0.10), "tv_black")
 
 
 def add_cabinets(L, Y0):

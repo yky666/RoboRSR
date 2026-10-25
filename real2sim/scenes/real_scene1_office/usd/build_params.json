@@ -142,7 +142,17 @@
    "y0": 0.95,
    "y1": 1.88,
    "height": 2.1,
-   "src": "door-frame bottom back-projected near (-2.6,1.65); width est."
+   "stile": 0.05,
+   "rail_low": 0.12,
+   "clear_z": [
+    0.12,
+    0.26
+   ],
+   "handle": [
+    0.98,
+    1.2
+   ],
+   "src": "door-frame bottom back-projected near (-2.6,1.65); width est. The whole W wall (partition panes, transom and door) is frosted film glass in a white frame; the door has a clear strip above its bottom rail, a lever handle and a card reader on the north stile (v0160, v0100, p0); the beige wall panel runs up to the north jamb (v0160); clear strip, handle and reader heights are estimates"
   },
   "tv": {
    "x0": -2.5,

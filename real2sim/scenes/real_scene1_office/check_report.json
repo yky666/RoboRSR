@@ -106,8 +106,8 @@
    "name": "mesh validity (finite points, triangle indices, normals count, no degenerate faces)",
    "ok": true,
    "detail": {
-    "meshes": 201,
-    "triangles": 57666,
+    "meshes": 208,
+    "triangles": 57762,
     "bad": []
    }
   },

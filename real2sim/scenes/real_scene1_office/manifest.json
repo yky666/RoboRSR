@@ -170,7 +170,7 @@
    "north_window": "sill front edge and band top back-projected in v0160, checked by projection into v0260/p4 (the 1.00/1.45 of the first build land below the sill there); dado seams at x -1.36/-0.38/0.61 from p4, -0.38 also in v0160/v0260",
    "ne_block": "solid corner block between N window end and E window start",
    "east_window": "E sill start (2.92,1.29); y0 estimate; heights as the N window",
-   "door": "door-frame bottom back-projected near (-2.6,1.65); width est.",
+   "door": "door-frame bottom back-projected near (-2.6,1.65); width est. The whole W wall (partition panes, transom and door) is frosted film glass in a white frame; the door has a clear strip above its bottom rail, a lever handle and a card reader on the north stile (v0160, v0100, p0); the beige wall panel runs up to the north jamb (v0160); clear strip, handle and reader heights are estimates",
    "tv": "+X bottom corner triangulated (-0.60,-2.11,1.02); width est. (86in)",
    "south_wall": "p3 (v0400 agrees): wall/floor line at y=-2.13; glass whiteboard from the wood rail up, +X edge x=-0.11/-0.13; rail 0.83-0.935; dado seams x -0.63/-1.15/-1.68; x > -0.12 a full-height panel; board top above every view (2.40 est.)",
    "cabinets": "door face from the lower-door handle tops triangulated in v0340+v0400+p2 (y=-1.745, residual <2 cm, handles 3 cm proud); glass unit x 0.28-0.33..1.18-1.33, glass from z 0.83 (v0400, p2); tall wood unit centre seam x 1.55-1.62, -X end x 2.0-2.1 (v0340 floor line and door face); shelf z 1.23 (v0400); top 2.05 est. (above every view)",
@@ -195,12 +195,12 @@
  },
  "files": {
   "usd/background.usda": {
-   "bytes": 6124364,
-   "sha256": "8f05607ea9ecfc46bf3a5a48130eb229aaa19ea8c641b77e901ea0d1a14cef41"
+   "bytes": 6134745,
+   "sha256": "99246ee722b6ece9068de119be8e116358fc6c7d82869a773e2a348be2d9d3d3"
   },
   "usd/build_params.json": {
-   "bytes": 6549,
-   "sha256": "7c57c68a858ea625a2d67873ffa5cc3e2ce7217bae8532b08e7b27847b1377c9"
+   "bytes": 6992,
+   "sha256": "98715048d3318258bcc5bc780c71f6e17352b081887d5dc71d697a4bbac2dacb"
   },
   "usd/lights.usda": {
    "bytes": 1871,
@@ -227,8 +227,8 @@
    "sha256": "be2ae6d7a67fcbfaac0b1600293d4e7b139dfc0465dc6f96c0e9e8e21c3a963b"
   },
   "usd/parts.json": {
-   "bytes": 1888,
-   "sha256": "37ce4e636dba7adb0e6a01a6273e8bf3377258553f60f8f95ce655386c84f88b"
+   "bytes": 1994,
+   "sha256": "4fa7b265bf204a4e9e50bdd64ccd69cbb02d42682fdaab81e791c85e60839c34"
   },
   "usd/scene.usda": {
    "bytes": 2036,
