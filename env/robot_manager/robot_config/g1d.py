@@ -72,6 +72,13 @@ def _spawn_g1d(prim_path, cfg, *args, **kwargs):
     for a, b in pairs + contract["additional_internal_slider_carrier_pairs"]:
         rel = UsdPhysics.FilteredPairsAPI.Apply(prim.GetChild(a)).CreateFilteredPairsRel()
         rel.AddTarget(prim.GetChild(b).GetPath())
+    # The wrist camera's lens bezel is a solid shell 10-12 mm in front of the lens (the real one has the aperture),
+    # so it blacked out the view unless the near plane sat at 3 cm, and a 3 cm near plane cut away a held cup's wall.
+    # It stays a collider; only its visual is hidden, letting the camera's near plane come in to 1 cm (DEX1_RGB).
+    for side in ("left", "right"):
+        for p in Usd.PrimRange(prim.GetChild(f"{side}_dex1_model_base_link")):
+            if "housing_visual" in p.GetName() and p.IsA(UsdGeom.Imageable):
+                UsdGeom.Imageable(p).MakeInvisible()
     return prim
 
 

@@ -37,13 +37,14 @@ G1D_HEAD = {
     "clipping_range": (0.1, 10.0),
 }
 # Unitree Dex1-1 (camera version) wrist RGB at the 640x480 stream mode: checkerboard fx ~314 px (~91 x 75 deg); the real
-# principal point is up to 17 px off centre and the autofocus shifts fx by ~2%, neither modelled. The gripper body
-# reaches 22 mm in front of the lens and the fingers start at 38 mm: the 3 cm near plane hides the camera's own mount
+# principal point is up to 17 px off centre and the autofocus shifts fx by ~2%, neither modelled. A held cup's wall
+# passes ~2 cm from the lens, so the near plane is 1 cm; the solid lens bezel 10-12 mm ahead (open on the real camera)
+# is hidden from rendering in robot_config/g1d.py. The camera body still shows at the bottom edge (19-22 mm).
 DEX1_RGB = {
     "resolution": (640, 480),
     "focal_length": 10.0,
     "horizontal_aperture": 20.356,
     "vertical_aperture": 15.267,
-    "clipping_range": (0.03, 10.0),
+    "clipping_range": (0.01, 10.0),
 }
 PINHOLE = {"position": (0.0, 0.0, 0.0), "orientation": (1.0, 0.0, 0.0, 0.0)}
