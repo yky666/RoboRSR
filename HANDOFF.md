@@ -285,6 +285,7 @@
 - **审查发现**：成员直接调 `DELETE /api/items` 就能删本体、任务、评测登记（服务端只拦了场景和物体）；输入框保存失败后界面仍显示未保存的值；`removeDoc`、`unregisterTask` 删除失败没有提示。
 - **做法**：`delete_blocker(kind, doc, user)` 统一把关：已接入仿真的本体（`auto.in_code`）和代码里已实现的任务（`auto.module`）回 409；评测只有管理员或提交人能删（403）；`episode` / `prototype` 页面没有删除入口，只允许管理员（403）。前端 `onFieldChange` 在保存失败时把值放回去并重绘（若期间已有更新的编辑则不动那个字段）；`removeDoc`、`unregisterTask` 失败弹 toast，不再关抽屉。
 - **验证**：`test_server.py` 新增本体 409、评测成员 403、episode 成员 403，全部通过；没有端到端点击验证回滚。
+- **部署**（18:41）：`5090-2:/root/RoboDojo` 从 `a6bb5b5` 快进到 `c5bfc22` 并重启服务（端口 8765，未登录 DELETE 回 401，新页面脚本已生效）。部署机上另一会话未提交的 `HANDOFF.md`、`README.md`、`ASSETS.md`、平台 `index.html` / `server.py`（各一行的 `generation_command`、`Garment/Articulation` 改动）已三方合并回去，无冲突，仍是未提交状态；合并前的备份在 `.cache/deploy-overlap-<时间>/`，全部未提交改动的 patch 在 `.cache/deploy-dirty-<时间>.patch`。拉取时用了 `GIT_LFS_SKIP_SMUDGE=1`（LFS 下载超时），所以这次新增的 Aurora 机器人 STL / STEP / zip 在部署机上是 LFS 指针；要在那台机器上跑 Aurora 需先 `git lfs pull`。
 - **未做**（审查里的其余项）：深链接（刷新丢抽屉）、抽屉焦点陷阱、照片上传/删除触发整库重扫、批量质检逐个请求、驳回不强制选问题标签、删除改软删除（回收目录）、登录锁定可被恶意触发。
 
 ### 数采平台：管理员删除场景（2026-10-22，直接推 `main`）
