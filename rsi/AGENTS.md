@@ -19,7 +19,7 @@
 | 房间 `Assets/Room` | 14 | 12（全被 `_random` 用掉） | `Simple_Room`、`Simple_Room_nolight` | 0 / 0 |
 | 桌面 / 地面 MDL 材质 | 504 | 494 | 2 种 | 6 / 2 |
 | 干扰物 | 杂物 193 个 | 几乎全部 | 0 | 280 / 115（几乎全是新导入的 ManiTwin 物体，外加 5 个字母牌） |
-| 任务物体实例 | — | `_random` 和开放任务配置里的全部编号 | 34 个有数据任务配置里的编号 | 4 / 0（`Geometry` 的照片、垫块、显示器） |
+| 任务物体实例 | — | `_random` 和开放任务配置里的全部编号 | 34 个有数据任务配置里的编号 | 25 / 5：新导入的 ManiTwin 碗 6 / 1（只给叠碗）、带把马克杯 15 / 4（只给挂杯），外加 4 个 `Geometry` 的照片、垫块、显示器 |
 | 背景 HDR | 1 | 0 | 这 1 张 | 24 / 16（新导入的 Poly Haven 室内 HDR） |
 
 分层结果在 `rsi/assets/pools.json`，由 `scripts/datagen/rsi_assets.py scan` 生成：在 `5090-2` 上、官方资产加新导入资产合并后的目录里跑出，T0 937 项。按资产 id 的哈希切分，新资产加进来不会改变已有资产的归属。新资产的来源和导入方法见第三节。
@@ -60,7 +60,7 @@
 | 维度 | 算子 | 现有工具 | 需要补的 |
 | :-- | :-- | :-- | :-- |
 | 物体位姿 | 在任务配置的范围内重采样；把范围往外扩一级 | `scripts/datagen/x5_layouts.py` | 越界扩展要先确认专家还能解 |
-| 物体实例 | 同类别换实例；造新实例（形状、尺寸、颜色、材质变体） | 平台物体登记 + `scripts/objects/SKILL.md`；运行时换色、缩放 | X5 任务的新实例资产：ManiTwin 有杯 95、瓶 187、碗 12，Google Scanned Objects 有鞋 254、玩具 147；还要补任务用的元数据 |
+| 物体实例 | 同类别换实例；造新实例（形状、尺寸、颜色、材质变体） | 平台物体登记 + `scripts/objects/SKILL.md`；运行时换色、缩放；导入 `scripts/objects/manitwin.py instances` | 已导入 ManiTwin 碗 7 个、带把马克杯 19 个（10-25）。还缺：装箱的车、牙刷、锤子、鞋（ManiTwin 没有锤子、牙刷，鞋只有 1 只拖鞋，要从 GSO 补；车要能分出车头），倒水的杯和瓶（要验证能装液体） |
 | 干扰物 | 数量 0 → 5 → 10 → 20；类别；摆放密度 | `x5_layouts.py`（`clutter`）；导入 `scripts/objects/manitwin.py` | 已导入 ManiTwin 390 个（10-24）；更多可以从 ManiTwin、GSO、Objaverse-LVIS 导入 |
 | 房间 | 换房间 | `x5_layouts.py`（`rooms`） | **新房间**：现成的全部是 T0 或基础房间；可以用没用过的 130 种材质给 `Simple_Room` 换墙面做变体，或者导入 Real2Sim 场景 |
 | 桌面 / 地面材质 | 从材质池里抽 | `x5_layouts.py`（`tables`、`grounds`） | **新材质**：官方 504 种里三套评测集用掉 494 种；可以把 Poly Haven 的 CC0 PBR 贴图做成 MDL 材质 |
@@ -151,7 +151,8 @@
 2. **P0 X5 脚本专家**：没有专家就没法生产训练数据，也没法验证题目可解。先做 12 个 `_random` 任务的基础版。
 3. **P0 新资产**：干扰物（ManiTwin 390 个）和 HDR（Poly Haven 40 张）10-24 已导入。还缺：**材质**（三套评测集用掉了官方 504 种里的 494 种，要把 Poly Haven 的 PBR 贴图做成 MDL）；**房间变体**（用新材质给 `Simple_Room` 换墙面，避开评测的 12 种纯色）；**任务物体的新实例**（ManiTwin 的杯、瓶、碗，GSO 的鞋，要补任务需要的元数据）。换色、缩放已经接上（`x5_layouts.RESTYLE` 白名单），可以先顶一部分实例多样性。
    - 公开库选择（10-24 调研）：ManiTwin-100K（Apache-2.0，已放出 4259 个）、Google Scanned Objects（CC-BY 4.0，1030 个扫描件，要署名）、Poly Haven（CC0，521 个模型、997 张 HDR、几百种贴图）、OmniObject3D（CC-BY 4.0）、Objaverse-LVIS（逐个物体标许可证）。不能用：BEHAVIOR-1K（加密、只限非商业研究）、Lightwheel 和 Amazon ABO（都是 CC BY-NC）。
-   - RoboDojo 的杂物库就是在 ManiTwin 工作目录里做出来的（`clutter.yml` 里的 `source_root`），所以从 ManiTwin 导入时必须去重：尺寸和任何 RoboDojo 物体相近的一律不收（`manitwin.py select`）。
+   - RoboDojo 的杂物库就是在 ManiTwin 工作目录里做出来的（`clutter.yml` 里的 `source_root`），所以从 ManiTwin 导入时必须去重：干扰物按尺寸，尺寸和任何 RoboDojo 物体相近的一律不收（`manitwin.py select`）。任务物体实例不能按尺寸去重（碗、杯子彼此本来就很像，形状距离也分不开），改成按网格：面数和任何 RoboDojo 物体相同的不收（`manitwin.py instances`）。10-25 查过：已下载的 938 个 ManiTwin 模型没有一个和 RoboDojo 物体面数相同，贴图字节也没有相同的，新实例和官方实例并排渲染也能区分开。
+   - 新实例的元数据里写了验证过的任务（`source.tasks`），`x5_layouts.py` 只在这些任务里换入。验证方法是"摆成已完成的状态"：三个碗直接叠好、杯子直接挂到杯架的挂钩上（挂钩穿过把手环，比把手功能点高 10 mm），保持不动 60 步后，用任务自己的判定函数逐项检查（`scripts/objects/instance_fit.py`）。杯子要在 6 个挂钩上都挂住才收，和官方杯子一样。
 4. **P1** `rsi/subjects.yaml`（各维度的级别取值）、成绩单生成、`ledger.jsonl`。
 5. **P1** 隔离的落实：服务器上的 Unix 用户和目录权限；两个 agent 的启动提示词（各自只读本文件和本方目录）。
 6. **P2** 自动的新资产相似度检查；从任意状态起步的恢复数据采集。

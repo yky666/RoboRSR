@@ -1575,6 +1575,27 @@
     "Rigid:o/0"
    ],
    "instances": [
+    "Rigid:bowl/901",
+    "Rigid:bowl/902",
+    "Rigid:bowl/904",
+    "Rigid:bowl/905",
+    "Rigid:bowl/906",
+    "Rigid:bowl/907",
+    "Rigid:mug/900",
+    "Rigid:mug/902",
+    "Rigid:mug/905",
+    "Rigid:mug/907",
+    "Rigid:mug/908",
+    "Rigid:mug/909",
+    "Rigid:mug/910",
+    "Rigid:mug/911",
+    "Rigid:mug/912",
+    "Rigid:mug/914",
+    "Rigid:mug/916",
+    "Rigid:mug/917",
+    "Rigid:mug/918",
+    "Rigid:mug/919",
+    "Rigid:mug/924",
     "Geometry:cube_cushion/0",
     "Geometry:monitor/2",
     "Geometry:photo/0",
@@ -1722,7 +1743,13 @@
     "Rigid:b/0",
     "Rigid:r/0"
    ],
-   "instances": []
+   "instances": [
+    "Rigid:bowl/903",
+    "Rigid:mug/901",
+    "Rigid:mug/906",
+    "Rigid:mug/922",
+    "Rigid:mug/923"
+   ]
   }
  },
  "dropped": [

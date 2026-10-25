@@ -197,11 +197,13 @@ class Generator:
         self.clutter_region = region(clutter_cfg["xlim"], clutter_cfg["ylim"]) if clutter_cfg else None
         self.opts = rsi_profile.options(assets, profile.get("pool", "train"), tiers)
         self.reserved = set(self.opts["reserved"])
-        self.extra = {}  # (section, category) -> the pool's new instances
+        self.extra = {}  # (section, category) -> the pool's new instances checked for this task
         for asset_id in self.opts["instances"]:
             section, _, name = asset_id.partition(":")
             category, index = name.split("/")
-            self.extra.setdefault((section, category), []).append(int(index))
+            tasks = ((self.assets.meta(section, category, int(index)) or {}).get("source") or {}).get("tasks")
+            if tasks is None or base in tasks:
+                self.extra.setdefault((section, category), []).append(int(index))
 
     def layout(self, index, seed, tries=20):
         """One layout and its record of what was drawn: the first draw in which every object found a free spot, else

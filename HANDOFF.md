@@ -1,7 +1,7 @@
 # Project Handoff
 
-更新时间：2026-10-24
-当前分支：`main`。G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
+更新时间：2026-10-25
+当前分支：`main`（10-25 的 RSI 新实例在短分支 `chongzheng/rsi-instances`，材质在并行的 `chongzheng/rsi-materials`，两者都改 `rsi/assets/pools.json`，合并时要在合并后的资产目录上重跑 `rsi_assets.py scan`）。G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
 - 把 G1-D 的三条流水线规范化：Real2Sim 采集（物体、场景）、仿真数据生成，以及本仓库内的仿真评估。训练在仓库外。
@@ -35,6 +35,21 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### RSI 任务物体新实例：ManiTwin 碗 7 个、带把马克杯 19 个（2026-10-25，短分支 `chongzheng/rsi-instances`）
+
+- **用户要求**：物体实例还没解决，和材质并行做（材质交给另一个会话，分支 `chongzheng/rsi-materials`）。
+- **去重改了判据**：10-24 按尺寸去重，把 ManiTwin 的碗、杯几乎全当成"疑似原物"丢了。碗、杯彼此太像，尺寸和形状距离都分不开（同一模型两次采样的倒角距离 0.011–0.019，官方不同碗之间 0.013–0.024），改成按网格面数：和任何 RoboDojo 物体相同就不收。已下载的 938 个 ManiTwin 模型没有一个面数相同，GLB 里的贴图字节也没有相同的；新旧实例并排渲染能区分（红色马克杯放大比过）。
+- **代码**：
+  - `manitwin.py instances`：碗要求圆、敞口、碗心低，缩放到官方尺寸（直径 0.11–0.18 m、高 ≤ 0.08 m）；马克杯按把手外伸 / 杯口半径 1.4–2.3 认把手，转到把手朝 +x，缩放到高 0.069–0.082 m，在把手外缘往里 3 mm 处写官方同款的两个 `handle` 坐标系；元数据 `source.tasks` 记验证过的任务。`convert` 支持缩放和转向。
+  - `x5_layouts.py`：新实例写了 `source.tasks` 的，只换进这些任务（马克杯也用于倒水，没验证装液体）。
+  - `scripts/objects/instance_fit.py`：把实例摆成已完成状态（碗叠好、杯挂上），再作为 `--policy_module` 保持 60 步，用任务自己的判定逐项打印 `TASKFIT`。
+  - 测试：`test_manitwin.py` 加碗、杯的合成点云；`test_x5_layouts.py` 加 `test_instance_tasks`。
+  - `rsi/assets/imported.json` 加 `instances`（来源、缩放、转角、任务、池子、9 个剔除及原因）；`pools.json` 重扫。
+- **结果**：碗 15 → 筛出 8 → 7 个（剔除带勺子的）；杯 85 → 筛出 27 → 19 个（剔除落桌倾斜 2.6° 的 1 个、挂不住的 2 个、只在部分挂钩上挂得住的 5 个）。分池：训练池碗 6、杯 15，考场池碗 1、杯 4。
+- **验证**（`5090-2:/data/robodojo-runs/rsi-inst-20261025/`，资产 = `rsi-pool-20261024/Assets` 加 `rsi-assets-20261024/extra_inst`，剔除的在 `extra_rejected_inst/`）：落桌检查 35 个（底部原点，34 个 z≈0、倾斜 ≤ 1.5°）；叠碗 `stacked` 和竖直全为 1（含官方对照）；挂杯先用官方杯扫抬高 6–18 mm、6 个挂钩，8 组全 3/3（不抬高时官方杯也只挂住 1/3：挂钩插进了把手），再按 10 mm 让每个杯子轮流上 6 个挂钩，官方杯 0/4/8 都 6/6，新杯 19 个 6/6；用训练池方案生成 `stack_bowls_random`、`hang_mugs_random` 各 12 个布局，新实例占 12/36、23/36，`audit` 通过，保持姿态策略跑完退出码 0、`eval_time` 12、无不稳定。本机 `check.sh` 通过。
+- **坑**：评测客户端的回合数取 `EVAL_NUM` 和任务自带数的较小值，一个 seed 文件夹只会用到前 25 个布局，多出的环境重复跑 0 号；同一个 `ROBODOJO_RUN_ID` 会接着旧结果续跑。
+- **没做**：装箱的车、牙刷、锤子、鞋（ManiTwin 没有锤子、牙刷，鞋只有 1 只拖鞋，要从 GSO 导；车的 `checkpoint` 要分出车头）；倒水的杯和白酒瓶（要验证装液体）；新实例没进共享库，也没部署平台。
 
 ### RSI 新资产：ManiTwin 干扰物 390 个、Poly Haven HDR 40 张（2026-10-24，直接推 `main`）
 

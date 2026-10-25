@@ -191,6 +191,17 @@ def test_layouts():
     assert again == gen.layout(3, 900)[0]  # reproducible from the seed and the index
 
 
+def test_instance_tasks():
+    """A new instance whose metadata names the tasks it was checked for only joins those."""
+    templates = [(f"t{i}.json", template(i)) for i in range(2)]
+    for tasks, joins in ((["stack_bowls"], True), (["hang_mugs"], False)):
+        root = assets()
+        path = root / "Object/RoboDojo/Rigid/bowl/00016/metadata.json"
+        write(path, json.loads(path.read_text()) | {"source": {"tasks": tasks}})
+        gen = X.Generator("stack_bowls_random", PROFILE, root, templates, POOLS)
+        assert (gen.extra.get(("Rigid", "bowl")) == [16]) is joins
+
+
 def test_restyle_scale():
     root = assets()
     real = X.RESTYLE["stack_bowls"]

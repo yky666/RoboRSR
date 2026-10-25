@@ -3805,5 +3805,315 @@
     }
    }
   ]
+ },
+ "instances": {
+  "dataset": "ManiTwin/ManiTwin-100K (huggingface.co/datasets/ManiTwin/ManiTwin-100K)",
+  "license": "Apache-2.0",
+  "converted_by": "scripts/objects/manitwin.py instances + convert",
+  "checked": "drop test (upright, tilt <= 1.5 deg); stack_bowls: three stacked bowls stay stacked and upright; hang_mugs: hung on each of the six cup_holder hooks, the task's handle height and alignment checks hold (scripts/objects/instance_fit.py)",
+  "dedup": "no face count equal to any RoboDojo object (938 downloaded ManiTwin models: none equal)",
+  "count": 26,
+  "items": [
+   {
+    "id": "Rigid/bowl/00901",
+    "source": "cereal_bowl/001",
+    "scale": 1.0,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/bowl/00902",
+    "source": "cereal_bowl/002",
+    "scale": 1.0,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/bowl/00903",
+    "source": "cereal_bowl/003",
+    "scale": 1.0,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/bowl/00904",
+    "source": "cereal_bowl/005",
+    "scale": 0.7202,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/bowl/00905",
+    "source": "cereal_bowl/009",
+    "scale": 1.0,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/bowl/00906",
+    "source": "dessert_bowl/000",
+    "scale": 0.9327,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/bowl/00907",
+    "source": "dessert_bowl/002",
+    "scale": 1.0,
+    "tasks": [
+     "stack_bowls"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00900",
+    "source": "coffee_mug/000",
+    "scale": 0.7197,
+    "yaw_deg": -89.99,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00901",
+    "source": "coffee_mug/003",
+    "scale": 0.8704,
+    "yaw_deg": -91.14,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/mug/00902",
+    "source": "coffee_mug/004",
+    "scale": 1.0,
+    "yaw_deg": -88.15,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00905",
+    "source": "coffee_mug/011",
+    "scale": 1.0,
+    "yaw_deg": -89.81,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00906",
+    "source": "coffee_mug/013",
+    "scale": 0.7198,
+    "yaw_deg": -89.02,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/mug/00907",
+    "source": "cup/000",
+    "scale": 0.991,
+    "yaw_deg": -89.81,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00908",
+    "source": "cup/004",
+    "scale": 0.7887,
+    "yaw_deg": -115.08,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00909",
+    "source": "cup/022",
+    "scale": 0.7116,
+    "yaw_deg": -90.39,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00910",
+    "source": "cup/029",
+    "scale": 0.7707,
+    "yaw_deg": -89.14,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00911",
+    "source": "cup/049",
+    "scale": 0.7766,
+    "yaw_deg": -93.82,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00912",
+    "source": "cup/052",
+    "scale": 1.1866,
+    "yaw_deg": -90.03,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00914",
+    "source": "cup/057",
+    "scale": 0.9344,
+    "yaw_deg": -91.39,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00916",
+    "source": "cup/059",
+    "scale": 0.9067,
+    "yaw_deg": -88.36,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00917",
+    "source": "cup/062",
+    "scale": 0.9093,
+    "yaw_deg": -91.81,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00918",
+    "source": "cup/063",
+    "scale": 0.9319,
+    "yaw_deg": -86.3,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00919",
+    "source": "cup/064",
+    "scale": 0.9234,
+    "yaw_deg": -87.67,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/mug/00922",
+    "source": "cup/070",
+    "scale": 0.7772,
+    "yaw_deg": -89.71,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/mug/00923",
+    "source": "cup/074",
+    "scale": 0.7845,
+    "yaw_deg": -90.31,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/mug/00924",
+    "source": "cup/075",
+    "scale": 0.8978,
+    "yaw_deg": -88.39,
+    "tasks": [
+     "hang_mugs"
+    ],
+    "pool": "train"
+   }
+  ],
+  "rejected": [
+   {
+    "id": "Rigid/bowl/00900",
+    "source": "cereal_bowl/000",
+    "reason": "a spoon stands in it"
+   },
+   {
+    "id": "Rigid/mug/00903",
+    "source": "coffee_mug/005",
+    "reason": "hangs on cup_holder hooks 0, 1, 4, 5 only (all 6 needed, as the official mugs do)"
+   },
+   {
+    "id": "Rigid/mug/00904",
+    "source": "coffee_mug/009",
+    "reason": "settles 2.6 deg tilted (limit 1.5)"
+   },
+   {
+    "id": "Rigid/mug/00913",
+    "source": "cup/054",
+    "reason": "slips off the hook: handle 0.84 m < 0.9 m"
+   },
+   {
+    "id": "Rigid/mug/00915",
+    "source": "cup/058",
+    "reason": "falls off the hook onto the table"
+   },
+   {
+    "id": "Rigid/mug/00920",
+    "source": "cup/066",
+    "reason": "hangs on cup_holder hooks 0, 1, 2, 3, 5 only (all 6 needed, as the official mugs do)"
+   },
+   {
+    "id": "Rigid/mug/00921",
+    "source": "cup/068",
+    "reason": "hangs on cup_holder hooks 0, 1, 2, 4, 5 only (all 6 needed, as the official mugs do)"
+   },
+   {
+    "id": "Rigid/mug/00925",
+    "source": "cup/077",
+    "reason": "hangs on cup_holder hooks 1, 3, 4, 5 only (all 6 needed, as the official mugs do)"
+   },
+   {
+    "id": "Rigid/mug/00926",
+    "source": "cup/078",
+    "reason": "hangs on cup_holder hooks 0, 1, 4, 5 only (all 6 needed, as the official mugs do)"
+   }
+  ]
  }
 }
