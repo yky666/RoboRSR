@@ -44,9 +44,13 @@ N_THETA, N_STAVE = 192, 32  # visual segments; collision wall staves (inner chor
 ENAMEL, STEEL = (0.84, 0.85, 0.81), (0.56, 0.58, 0.60)
 PLASTIC = dict(H=0.095, R0=0.026, R1=0.036, T_WALL=0.002, T_BOTTOM=0.003, MASS=0.03)
 CLEAR = (0.97, 0.98, 0.98)
+GLASS_IOR, THIN_WALLED = 1.49, False
 # --gray: the smoke-grey clear tumbler the real G1D-PourBeansEps380 left hand holds ("灰色的粗口杯"), straight-sided;
-# 66 mm across and 89 mm tall from its head-camera frames (episode 0, fitted stand); wall, bottom and mass estimated
+# 66 mm across and 89 mm tall from its head-camera frames (episode 0, fitted stand); wall, bottom and mass estimated.
+# IOR 1 and thin walls: tinted see-through without refraction or Fresnel reflection; at 1.49 the wall turned into a
+# mirror ring in the close wrist view, unlike the matte smoky cup of the real frames.
 GRAY = dict(H=0.089, R0=0.032, R1=0.033, T_WALL=0.002, T_BOTTOM=0.004, MASS=0.06, CLEAR=(0.52, 0.53, 0.55))
+GRAY.update(GLASS_IOR=1.0, THIN_WALLED=True)
 GRAY_CUP = False
 # --blue: the opaque blue tapered plastic cup of the same data ("蓝色杯子"), 72 mm at the rim, ~48 mm at the bottom,
 # 99 mm tall (episode 200's head frame); wall, bottom and mass estimated
@@ -129,12 +133,25 @@ def write_usdz(out, visual, hulls):
     root = mp.add_xform(st, "/root")
     st.SetDefaultPrim(root.GetPrim())
     UsdPhysics.RigidBodyAPI.Apply(root.GetPrim())
-    if PLASTIC_CUP:  # one refractive material over the outer and inner wall surfaces (a solid 2 mm shell)
+    if GRAY_CUP:  # tinted see-through plastic without refraction: refractive glass at the wrist camera's range
+        # turns the wall into a mirror ring around the lens, the real cup shows its body and the beans through it.
+        # Thin-walled glass at IOR 1 only tints what is behind it (OmniPBR opacity renders the cup invisible).
+        smoke = mp.add_material(
+            st,
+            "/root/_materials/Plastic",
+            "OmniGlass",
+            {"glass_color": CLEAR, "glass_ior": 1.0, "frosting_roughness": 0.0, "thin_walled": True},
+            CLEAR,
+            0.45,
+            0.05,
+        )
+        mats = {"enamel": smoke, "steel": smoke}
+    elif PLASTIC_CUP:  # one refractive material over the outer and inner wall surfaces (a solid 2 mm shell)
         clear = mp.add_material(
             st,
             "/root/_materials/Plastic",
             "OmniGlass",
-            {"glass_color": CLEAR, "glass_ior": 1.49, "frosting_roughness": 0.0, "thin_walled": False},
+            {"glass_color": CLEAR, "glass_ior": GLASS_IOR, "frosting_roughness": 0.0, "thin_walled": THIN_WALLED},
             CLEAR,
             0.25,
             0.05,
