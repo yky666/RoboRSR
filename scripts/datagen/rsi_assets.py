@@ -14,7 +14,8 @@ clutter:<category>/<index>, <Section>:<category>/<index> for task-object section
     python scripts/datagen/rsi_assets.py audit --assets Assets --layouts <seed folder> --pool train
     python scripts/datagen/rsi_assets.py link --base <official Assets> --extra <new assets> ... --out <run>/Assets
 link merges asset trees with symlinks (new objects from scripts/objects/manitwin.py, HDRs from
-scripts/scenes/polyhaven_hdris.py) without copying or touching either; entries already in --out stay as they are.
+scripts/scenes/polyhaven_hdris.py, materials from scripts/scenes/polyhaven_materials.py) without copying or touching
+either; entries already in --out stay as they are.
 """
 
 import argparse

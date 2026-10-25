@@ -3806,6 +3806,5301 @@
    }
   ]
  },
+ "materials": {
+  "dataset": "Poly Haven textures (polyhaven.com)",
+  "license": "CC0-1.0",
+  "fetched_by": "scripts/scenes/polyhaven_materials.py --res 1k",
+  "dedup": "by name and source only (image hashes are impossible, 145 official materials have no colour texture): Poly Haven ids whose name with trailing digits stripped equals an official material's (Stone_Wall, Plywood, Marble, Fabric_Pattern) are left out; the official set is NVIDIA vMaterials",
+  "count": 469,
+  "skipped": {
+   "book_pattern": "no Diffuse map",
+   "church_bricks_02": "no Diffuse map",
+   "gravel_concrete": "no arm map",
+   "leather_red_02": "no Diffuse map",
+   "leather_red_03": "no Diffuse map"
+  },
+  "items": [
+   {
+    "dir": "material_ph_american_walnut_veneer",
+    "id": "american_walnut_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_angli_veneer",
+    "id": "angli_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_anti_skid_tiles",
+    "id": "anti_skid_tiles",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_anti_slip_concrete",
+    "id": "anti_slip_concrete",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_asbestos_sheet",
+    "id": "asbestos_sheet",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_asbestos_sheet_02",
+    "id": "asbestos_sheet_02",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_ash_veneer",
+    "id": "ash_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_bamboo_veneer",
+    "id": "bamboo_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_bamboo_wall",
+    "id": "bamboo_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_bamboo_wall_02",
+    "id": "bamboo_wall_02",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_bamboo_wall_03",
+    "id": "bamboo_wall_03",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1850.000023841858,
+     1850.000023841858
+    ]
+   },
+   {
+    "dir": "material_ph_beam_wall_01",
+    "id": "beam_wall_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     999.9990463256836,
+     999.998927116394
+    ]
+   },
+   {
+    "dir": "material_ph_beige_wall_001",
+    "id": "beige_wall_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_beige_wall_002",
+    "id": "beige_wall_002",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_bi_stretch",
+    "id": "bi_stretch",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     264.5644946243421,
+     264.4000053405762
+    ]
+   },
+   {
+    "dir": "material_ph_black_oak_veneer",
+    "id": "black_oak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_black_painted_planks",
+    "id": "black_painted_planks",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1599.9999046325684,
+     1599.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_black_walnut_veneer_01",
+    "id": "black_walnut_veneer_01",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_black_walnut_veneer_02",
+    "id": "black_walnut_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_black_walnut_veneer_03",
+    "id": "black_walnut_veneer_03",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_blue_metal_plate",
+    "id": "blue_metal_plate",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_blue_painted_planks",
+    "id": "blue_painted_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_blue_plaster_wall",
+    "id": "blue_plaster_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_blue_plaster_weathered",
+    "id": "blue_plaster_weathered",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_4",
+    "id": "brick_4",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_001",
+    "id": "brick_wall_001",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_003",
+    "id": "brick_wall_003",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_005",
+    "id": "brick_wall_005",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1440.000057220459,
+     1440.000057220459
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_006",
+    "id": "brick_wall_006",
+    "authors": {
+     "Jan Burghardt": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_02",
+    "id": "brick_wall_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_04",
+    "id": "brick_wall_04",
+    "authors": {
+     "Dario Barresi": "Baking ",
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Tiling "
+    },
+    "dimensions_mm": [
+     1389.9999856948853,
+     1389.9999856948853
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_07",
+    "id": "brick_wall_07",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_08",
+    "id": "brick_wall_08",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_09",
+    "id": "brick_wall_09",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Matterfield": "Processing"
+    },
+    "dimensions_mm": [
+     2009.9999904632568,
+     2009.9999904632568
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_10",
+    "id": "brick_wall_10",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_11",
+    "id": "brick_wall_11",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_12",
+    "id": "brick_wall_12",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_brick_wall_13",
+    "id": "brick_wall_13",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_broken_brick_wall",
+    "id": "broken_brick_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_broken_wall",
+    "id": "broken_wall",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_brick_02",
+    "id": "brown_brick_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_floor_tiles",
+    "id": "brown_floor_tiles",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_brown_leather",
+    "id": "brown_leather",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     400.0000059604645,
+     400.00003576278687
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_03",
+    "id": "brown_planks_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_04",
+    "id": "brown_planks_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_05",
+    "id": "brown_planks_05",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_07",
+    "id": "brown_planks_07",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_08",
+    "id": "brown_planks_08",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brown_planks_09",
+    "id": "brown_planks_09",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_brushed_concrete",
+    "id": "brushed_concrete",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_brushed_concrete_03",
+    "id": "brushed_concrete_03",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_brushed_concrete_04",
+    "id": "brushed_concrete_04",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000.9167194366455,
+     2000.917911529541
+    ]
+   },
+   {
+    "dir": "material_ph_brushed_concrete_2",
+    "id": "brushed_concrete_2",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_caban",
+    "id": "caban",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     273.9921411828764,
+     273.2999920845032
+    ]
+   },
+   {
+    "dir": "material_ph_castle_brick_01",
+    "id": "castle_brick_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_brick_02_red",
+    "id": "castle_brick_02_red",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_brick_02_white",
+    "id": "castle_brick_02_white",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_brick_07",
+    "id": "castle_brick_07",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_brick_broken_06",
+    "id": "castle_brick_broken_06",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_wall_slates",
+    "id": "castle_wall_slates",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_castle_wall_varriation",
+    "id": "castle_wall_varriation",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_cherry_veneer",
+    "id": "cherry_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_chipped_concrete",
+    "id": "chipped_concrete",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2002.079963684082,
+     2002.0811557769775
+    ]
+   },
+   {
+    "dir": "material_ph_church_bricks_03",
+    "id": "church_bricks_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1200.0000476837158,
+     1200.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_clay_block_wall",
+    "id": "clay_block_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_clay_floor_001",
+    "id": "clay_floor_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_clay_plaster",
+    "id": "clay_plaster",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_cliff_side",
+    "id": "cliff_side",
+    "authors": {
+     "James Ray Cock": "Photography",
+     "Jenelle van Heerden": "Processing",
+     "Dario Barresi": "Photography"
+    },
+    "dimensions_mm": [
+     1830.0000429153442,
+     1830.0000429153442
+    ]
+   },
+   {
+    "dir": "material_ph_climbing_wall",
+    "id": "climbing_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2200.000047683716,
+     2200.000047683716
+    ]
+   },
+   {
+    "dir": "material_ph_climbing_wall_02",
+    "id": "climbing_wall_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_climbing_wall_base",
+    "id": "climbing_wall_base",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_coated_pine",
+    "id": "coated_pine",
+    "authors": {
+     "Charlotte Baglioni": "Scanning ",
+     "Rico Cilliers": "Processing "
+    },
+    "dimensions_mm": [
+     740.0000095367432,
+     740.0000095367432
+    ]
+   },
+   {
+    "dir": "material_ph_coated_pine_02",
+    "id": "coated_pine_02",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Jenelle van Heerden": "Processing "
+    },
+    "dimensions_mm": [
+     1049.7100353240967,
+     1049.7100353240967
+    ]
+   },
+   {
+    "dir": "material_ph_concrete",
+    "id": "concrete",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_block_wall",
+    "id": "concrete_block_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_block_wall_02",
+    "id": "concrete_block_wall_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2005.000114440918,
+     2005.000114440918
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_block_wall_03",
+    "id": "concrete_block_wall_03",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1809.999942779541,
+     1809.999942779541
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_brick_wall_001",
+    "id": "concrete_brick_wall_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor",
+    "id": "concrete_floor",
+    "authors": {
+     "eye-candy.xyz": "All"
+    },
+    "dimensions_mm": [
+     2079.9996852874756,
+     2079.9996852874756
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_01",
+    "id": "concrete_floor_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_02",
+    "id": "concrete_floor_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_03",
+    "id": "concrete_floor_03",
+    "authors": {
+     "Rob Tuytel": "processing",
+     "Matterfield": "photography"
+    },
+    "dimensions_mm": [
+     2499.999761581421,
+     2499.999761581421
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_damaged_01",
+    "id": "concrete_floor_damaged_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     5000,
+     5000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_painted",
+    "id": "concrete_floor_painted",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_worn_001",
+    "id": "concrete_floor_worn_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_floor_worn_02",
+    "id": "concrete_floor_worn_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_layers",
+    "id": "concrete_layers",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1549.9999523162842,
+     1549.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_layers_02",
+    "id": "concrete_layers_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_moss",
+    "id": "concrete_moss",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000.000238418579,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_panels",
+    "id": "concrete_panels",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     8000,
+     8000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_slab_wall",
+    "id": "concrete_slab_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2299.999952316284,
+     2299.999952316284
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_slab_wall_02",
+    "id": "concrete_slab_wall_02",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2102.315902709961,
+     2102.315902709961
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_tile_facade",
+    "id": "concrete_tile_facade",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2089.9999141693115,
+     2089.9999141693115
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_001",
+    "id": "concrete_wall_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1500.0001192092896,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_003",
+    "id": "concrete_wall_003",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_004",
+    "id": "concrete_wall_004",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_005",
+    "id": "concrete_wall_005",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1149.999976158142,
+     1150.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_006",
+    "id": "concrete_wall_006",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_007",
+    "id": "concrete_wall_007",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Rico Cilliers": "Tiling",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2159.9998474121094,
+     2159.9998474121094
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_008",
+    "id": "concrete_wall_008",
+    "authors": {
+     "Dario Barresi": "Processing ",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2710.0000381469727,
+     2710.0000381469727
+    ]
+   },
+   {
+    "dir": "material_ph_concrete_wall_009",
+    "id": "concrete_wall_009",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1804.9999475479126,
+     1804.9999475479126
+    ]
+   },
+   {
+    "dir": "material_ph_container_side",
+    "id": "container_side",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1940.000057220459,
+     1939.9999380111694
+    ]
+   },
+   {
+    "dir": "material_ph_coral_fort_wall_01",
+    "id": "coral_fort_wall_01",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1360.0000143051147,
+     1360.0001335144043
+    ]
+   },
+   {
+    "dir": "material_ph_coral_fort_wall_02",
+    "id": "coral_fort_wall_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     991.7500019073486,
+     991.7501211166382
+    ]
+   },
+   {
+    "dir": "material_ph_coral_fort_wall_03",
+    "id": "coral_fort_wall_03",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1099.9999046325684,
+     1100.0001430511475
+    ]
+   },
+   {
+    "dir": "material_ph_coral_stone_wall",
+    "id": "coral_stone_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_cotton_jersey",
+    "id": "cotton_jersey",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     263.6027473872483,
+     263.7999951839447
+    ]
+   },
+   {
+    "dir": "material_ph_cracked_concrete",
+    "id": "cracked_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_cracked_concrete_02",
+    "id": "cracked_concrete_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2230.0000190734863,
+     2230.0000190734863
+    ]
+   },
+   {
+    "dir": "material_ph_cracked_concrete_wall",
+    "id": "cracked_concrete_wall",
+    "authors": {
+     "Dimitrios Savva": "Photography, processing",
+     "Rico Cilliers": "Guidance"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_crepe_georgette",
+    "id": "crepe_georgette",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     261.1946943115489,
+     265.5999958515167
+    ]
+   },
+   {
+    "dir": "material_ph_crepe_satin",
+    "id": "crepe_satin",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     263.19942218838304,
+     267.8999900817871
+    ]
+   },
+   {
+    "dir": "material_ph_curly_teddy_checkered",
+    "id": "curly_teddy_checkered",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     561.8443344798735,
+     474.0999639034271
+    ]
+   },
+   {
+    "dir": "material_ph_curly_teddy_natural",
+    "id": "curly_teddy_natural",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     335.804452696631,
+     330.90004324913025
+    ]
+   },
+   {
+    "dir": "material_ph_damaged_concrete_floor",
+    "id": "damaged_concrete_floor",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4500,
+     4500
+    ]
+   },
+   {
+    "dir": "material_ph_damaged_concrete_floor_02",
+    "id": "damaged_concrete_floor_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3499.999761581421,
+     3499.999761581421
+    ]
+   },
+   {
+    "dir": "material_ph_damaged_concrete_floor_03",
+    "id": "damaged_concrete_floor_03",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_damaged_plaster",
+    "id": "damaged_plaster",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1850.0001430511475,
+     1850.0001430511475
+    ]
+   },
+   {
+    "dir": "material_ph_dark_brick_wall",
+    "id": "dark_brick_wall",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1049.9998331069946,
+     1049.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_dark_paneled_wood",
+    "id": "dark_paneled_wood",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1400.0000953674316,
+     1400.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_dark_planks",
+    "id": "dark_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_dark_wood",
+    "id": "dark_wood",
+    "authors": {
+     "Dario Barresi": "Baking",
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Tiling"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_dark_wooden_planks",
+    "id": "dark_wooden_planks",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_decrepit_wallpaper",
+    "id": "decrepit_wallpaper",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_defense_wall",
+    "id": "defense_wall",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     20000,
+     20000
+    ]
+   },
+   {
+    "dir": "material_ph_denim_fabric",
+    "id": "denim_fabric",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     100.00000149011612,
+     99.99999403953552
+    ]
+   },
+   {
+    "dir": "material_ph_denim_fabric_03",
+    "id": "denim_fabric_03",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     271.42801281852286,
+     270.9999978542328
+    ]
+   },
+   {
+    "dir": "material_ph_denim_fabric_04",
+    "id": "denim_fabric_04",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     272.8973422962554,
+     269.3000137805939
+    ]
+   },
+   {
+    "dir": "material_ph_denim_fabric_05",
+    "id": "denim_fabric_05",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     270.1520343364256,
+     271.49999141693115
+    ]
+   },
+   {
+    "dir": "material_ph_denim_fabric_06",
+    "id": "denim_fabric_06",
+    "authors": {
+     "Greg Zaal": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     254.15802731412134,
+     254.0000081062317
+    ]
+   },
+   {
+    "dir": "material_ph_denmin_fabric_02",
+    "id": "denmin_fabric_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     100.00000149011612,
+     99.99999403953552
+    ]
+   },
+   {
+    "dir": "material_ph_diagonal_parquet",
+    "id": "diagonal_parquet",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Sergej Majboroda": "Photography"
+    },
+    "dimensions_mm": [
+     2359.999418258667,
+     2359.999418258667
+    ]
+   },
+   {
+    "dir": "material_ph_dirty_carpet",
+    "id": "dirty_carpet",
+    "authors": {
+     "Rohit Seervi": "All"
+    },
+    "dimensions_mm": [
+     599.9999046325684,
+     599.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_dirty_concrete",
+    "id": "dirty_concrete",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_dirty_tiles",
+    "id": "dirty_tiles",
+    "authors": {
+     "Matterfield": "Photography",
+     "Jenelle van Heerden": "Processing"
+    },
+    "dimensions_mm": [
+     2259.999990463257,
+     2259.999990463257
+    ]
+   },
+   {
+    "dir": "material_ph_distressed_painted_planks",
+    "id": "distressed_painted_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1599.9999046325684,
+     1599.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_embedded_plank_flooring",
+    "id": "embedded_plank_flooring",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2029.9999713897705,
+     2029.9999713897705
+    ]
+   },
+   {
+    "dir": "material_ph_embedded_rock_floor",
+    "id": "embedded_rock_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1799.9995946884155,
+     1799.9995946884155
+    ]
+   },
+   {
+    "dir": "material_ph_european_walnut_veneer_04",
+    "id": "european_walnut_veneer_04",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_european_walnut_veneer_05",
+    "id": "european_walnut_veneer_05",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_excavated_soil_wall",
+    "id": "excavated_soil_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_exterior_wall_cladding",
+    "id": "exterior_wall_cladding",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_exterior_wall_cladding_02",
+    "id": "exterior_wall_cladding_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1990.0001287460327,
+     1990.0001287460327
+    ]
+   },
+   {
+    "dir": "material_ph_exterior_wall_cladding_03",
+    "id": "exterior_wall_cladding_03",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1960.0000381469727,
+     1960.0000381469727
+    ]
+   },
+   {
+    "dir": "material_ph_fabric_leather_01",
+    "id": "fabric_leather_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     400.0000059604645,
+     400.00003576278687
+    ]
+   },
+   {
+    "dir": "material_ph_fabric_leather_02",
+    "id": "fabric_leather_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     500,
+     499.9999403953552
+    ]
+   },
+   {
+    "dir": "material_ph_factory_brick",
+    "id": "factory_brick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500.0001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_faux_fur_geometric",
+    "id": "faux_fur_geometric",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     301.9999563694,
+     301.9766083948956
+    ]
+   },
+   {
+    "dir": "material_ph_fever_tree_bark",
+    "id": "fever_tree_bark",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1360.0000143051147,
+     1360.0000143051147
+    ]
+   },
+   {
+    "dir": "material_ph_fine_grained_wood",
+    "id": "fine_grained_wood",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     600.0000238418579,
+     600.0000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_flamed_black_veneer",
+    "id": "flamed_black_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_floor_tiles_02",
+    "id": "floor_tiles_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_floor_tiles_04",
+    "id": "floor_tiles_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_floor_tiles_06",
+    "id": "floor_tiles_06",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_floor_tiles_08",
+    "id": "floor_tiles_08",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_floral_jacquard",
+    "id": "floral_jacquard",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     252.9498182468769,
+     383.59999656677246
+    ]
+   },
+   {
+    "dir": "material_ph_flour",
+    "id": "flour",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1269.9999809265137,
+     1269.9999809265137
+    ]
+   },
+   {
+    "dir": "material_ph_garage_floor",
+    "id": "garage_floor",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1886.4402770996094,
+     1886.4402770996094
+    ]
+   },
+   {
+    "dir": "material_ph_gingham_check",
+    "id": "gingham_check",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     283.65123073689267,
+     296.79998755455017
+    ]
+   },
+   {
+    "dir": "material_ph_granite_tile",
+    "id": "granite_tile",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2299.999952316284,
+     2299.999952316284
+    ]
+   },
+   {
+    "dir": "material_ph_granite_tile_02",
+    "id": "granite_tile_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1879.9999952316284,
+     1879.9999952316284
+    ]
+   },
+   {
+    "dir": "material_ph_granite_tile_03",
+    "id": "granite_tile_03",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1802.0000457763672,
+     1802.0000457763672
+    ]
+   },
+   {
+    "dir": "material_ph_granite_wall",
+    "id": "granite_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_granular_concrete",
+    "id": "granular_concrete",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Michael Jenkins": "Photography"
+    },
+    "dimensions_mm": [
+     2400.0000953674316,
+     2400.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_gravel_concrete_02",
+    "id": "gravel_concrete_02",
+    "authors": {
+     "Dario Barresi": "Processing ",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2099.9996662139893,
+     2099.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_green_metal_rust",
+    "id": "green_metal_rust",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_green_rough_planks",
+    "id": "green_rough_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_grey_cartago_01",
+    "id": "grey_cartago_01",
+    "authors": {
+     "Lucas Sánchez Ros": "Photography",
+     "Jenelle van Heerden": "Processing"
+    },
+    "dimensions_mm": [
+     750.0000596046448,
+     750.0000596046448
+    ]
+   },
+   {
+    "dir": "material_ph_grey_cartago_02",
+    "id": "grey_cartago_02",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Lucas Sánchez Ros": "Photography"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_grey_cartago_03",
+    "id": "grey_cartago_03",
+    "authors": {
+     "Lucas Sánchez Ros": "All"
+    },
+    "dimensions_mm": [
+     930.0000071525574,
+     930.0000071525574
+    ]
+   },
+   {
+    "dir": "material_ph_grey_lati_veneer",
+    "id": "grey_lati_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grey_oak_veneer_01",
+    "id": "grey_oak_veneer_01",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grey_oak_veneer_02",
+    "id": "grey_oak_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grey_plaster",
+    "id": "grey_plaster",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grey_plaster_02",
+    "id": "grey_plaster_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grey_plaster_03",
+    "id": "grey_plaster_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_grooved_concrete_driveway",
+    "id": "grooved_concrete_driveway",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_hacked_concrete",
+    "id": "hacked_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1500.0001192092896,
+     1500.0001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_hangar_concrete_floor",
+    "id": "hangar_concrete_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_herringbone_concrete_tile_02",
+    "id": "herringbone_concrete_tile_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2214.9999141693115,
+     2214.9999141693115
+    ]
+   },
+   {
+    "dir": "material_ph_herringbone_parquet",
+    "id": "herringbone_parquet",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Sergej Majboroda": "Photography"
+    },
+    "dimensions_mm": [
+     3400.0000953674316,
+     3400.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_hessian_230",
+    "id": "hessian_230",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     268.7538661074732,
+     267.1999931335449
+    ]
+   },
+   {
+    "dir": "material_ph_hessian_380",
+    "id": "hessian_380",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     273.86577004511844,
+     273.79998564720154
+    ]
+   },
+   {
+    "dir": "material_ph_hinoki_planks",
+    "id": "hinoki_planks",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1889.9999856948853,
+     1889.9999856948853
+    ]
+   },
+   {
+    "dir": "material_ph_interior_tiles",
+    "id": "interior_tiles",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_japanese_cedar_planks",
+    "id": "japanese_cedar_planks",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Rico Cilliers": "Processing "
+    },
+    "dimensions_mm": [
+     1130.000114440918,
+     1130.000114440918
+    ]
+   },
+   {
+    "dir": "material_ph_japanese_stone_wall",
+    "id": "japanese_stone_wall",
+    "authors": {
+     "Rico Cilliers": "Tiling",
+     "Charlotte Baglioni": "Photography",
+     "Dario Barresi": "Processing"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_jersey_melange",
+    "id": "jersey_melange",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     290.62397202303356,
+     276.19999647140503
+    ]
+   },
+   {
+    "dir": "material_ph_jogging_melange",
+    "id": "jogging_melange",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     273.4973732349353,
+     273.2999920845032
+    ]
+   },
+   {
+    "dir": "material_ph_kitchen_wood",
+    "id": "kitchen_wood",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     600.0000238418579,
+     600.0000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_knitted_fleece",
+    "id": "knitted_fleece",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     266.35669526830077,
+     270.3999876976013
+    ]
+   },
+   {
+    "dir": "material_ph_lacquered_cherry_wood",
+    "id": "lacquered_cherry_wood",
+    "authors": {
+     "Jenelle van Heerden": "Scanning",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_laminate_floor",
+    "id": "laminate_floor",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_laminate_floor_02",
+    "id": "laminate_floor_02",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "photography"
+    },
+    "dimensions_mm": [
+     1699.9999284744263,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_laminate_floor_03",
+    "id": "laminate_floor_03",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2079.9996852874756,
+     2079.9996852874756
+    ]
+   },
+   {
+    "dir": "material_ph_large_floor_tiles_02",
+    "id": "large_floor_tiles_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_large_grey_tiles",
+    "id": "large_grey_tiles",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_large_red_bricks",
+    "id": "large_red_bricks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_large_sandstone_blocks",
+    "id": "large_sandstone_blocks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_large_sandstone_blocks_01",
+    "id": "large_sandstone_blocks_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_leather_white",
+    "id": "leather_white",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     300.00001192092896,
+     300.00001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_linoleum_brown",
+    "id": "linoleum_brown",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_long_white_tiles",
+    "id": "long_white_tiles",
+    "authors": {
+     "Jenelle van Heerden": "processing",
+     "Sergej Majboroda": "photography"
+    },
+    "dimensions_mm": [
+     1269.9999809265137,
+     1269.9999809265137
+    ]
+   },
+   {
+    "dir": "material_ph_macro_flour",
+    "id": "macro_flour",
+    "authors": {
+     "Jenelle van Heerden": "Photography",
+     "Dario Barresi": "Processing"
+    },
+    "dimensions_mm": [
+     299.9999523162842,
+     299.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_marble_mosaic_tiles",
+    "id": "marble_mosaic_tiles",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_marble_tiles",
+    "id": "marble_tiles",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_blocks_02",
+    "id": "medieval_blocks_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_blocks_03",
+    "id": "medieval_blocks_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_blocks_06",
+    "id": "medieval_blocks_06",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_red_brick",
+    "id": "medieval_red_brick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_wall_01",
+    "id": "medieval_wall_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_wall_02",
+    "id": "medieval_wall_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3499.999761581421,
+     3500
+    ]
+   },
+   {
+    "dir": "material_ph_medieval_wood",
+    "id": "medieval_wood",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_metal_grate_rusty",
+    "id": "metal_grate_rusty",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_metal_plate",
+    "id": "metal_plate",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_metal_plate_02",
+    "id": "metal_plate_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_mixed_brick_wall",
+    "id": "mixed_brick_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_mixed_rock_tiles",
+    "id": "mixed_rock_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_mixed_stone_tiles",
+    "id": "mixed_stone_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_mocha_oak_veneer",
+    "id": "mocha_oak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_monastery_stone_floor",
+    "id": "monastery_stone_floor",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_moss_wood",
+    "id": "moss_wood",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_mossy_brick",
+    "id": "mossy_brick",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1449.9999284744263,
+     1449.9999284744263
+    ]
+   },
+   {
+    "dir": "material_ph_mossy_sandstone",
+    "id": "mossy_sandstone",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1889.9996280670166,
+     1889.9996280670166
+    ]
+   },
+   {
+    "dir": "material_ph_mossy_stone_wall",
+    "id": "mossy_stone_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_natural_walnut_veneer",
+    "id": "natural_walnut_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oak_veneer_01",
+    "id": "oak_veneer_01",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1830.0000429153442,
+     1830.0000429153442
+    ]
+   },
+   {
+    "dir": "material_ph_oak_veneer_02",
+    "id": "oak_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oak_veneer_03",
+    "id": "oak_veneer_03",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oak_veneer_04",
+    "id": "oak_veneer_04",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oak_veneer_05",
+    "id": "oak_veneer_05",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oak_wood_planks",
+    "id": "oak_wood_planks",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1200.0000476837158,
+     1200.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_okoume_veneer",
+    "id": "okoume_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_old_linoleum_flooring_01",
+    "id": "old_linoleum_flooring_01",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1990.0001287460327,
+     1990.0001287460327
+    ]
+   },
+   {
+    "dir": "material_ph_old_mosaic_floor",
+    "id": "old_mosaic_floor",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000.000238418579,
+     2000.000238418579
+    ]
+   },
+   {
+    "dir": "material_ph_old_planks_02",
+    "id": "old_planks_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_old_sandstone_02",
+    "id": "old_sandstone_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1529.9999713897705,
+     1529.9999713897705
+    ]
+   },
+   {
+    "dir": "material_ph_old_stone_wall",
+    "id": "old_stone_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_old_stone_wall_02",
+    "id": "old_stone_wall_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2085.0000381469727,
+     2085.0000381469727
+    ]
+   },
+   {
+    "dir": "material_ph_old_wood_floor",
+    "id": "old_wood_floor",
+    "authors": {
+     "Guillaume Monsergent": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_old_wooden_floor_01",
+    "id": "old_wooden_floor_01",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Dario Barresi": "Processing"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_old_wooden_floor_02",
+    "id": "old_wooden_floor_02",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Jenelle van Heerden": "Processing"
+    },
+    "dimensions_mm": [
+     2029.9999713897705,
+     2029.9999713897705
+    ]
+   },
+   {
+    "dir": "material_ph_old_wooden_floor_03",
+    "id": "old_wooden_floor_03",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Charlotte Baglioni": "Scanning"
+    },
+    "dimensions_mm": [
+     1199.049949645996,
+     1199.049949645996
+    ]
+   },
+   {
+    "dir": "material_ph_olive_veneer",
+    "id": "olive_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_oriented_strand_board",
+    "id": "oriented_strand_board",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2509.999990463257,
+     2509.999990463257
+    ]
+   },
+   {
+    "dir": "material_ph_painted_brick",
+    "id": "painted_brick",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_painted_concrete",
+    "id": "painted_concrete",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_painted_concrete_02",
+    "id": "painted_concrete_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_painted_metal_shutter",
+    "id": "painted_metal_shutter",
+    "authors": {
+     "Dario Barresi": "Baking",
+     "Rico Cilliers": "Processing ",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_painted_plaster_wall",
+    "id": "painted_plaster_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_painted_worn_brick",
+    "id": "painted_worn_brick",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_patio_tiles",
+    "id": "patio_tiles",
+    "authors": {
+     "Dario Barresi": "All"
+    },
+    "dimensions_mm": [
+     2150.0000953674316,
+     2150.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_brick_wall",
+    "id": "patterned_brick_wall",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_brick_wall_02",
+    "id": "patterned_brick_wall_02",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2210.0000381469727,
+     2210.0000381469727
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_brick_wall_03",
+    "id": "patterned_brick_wall_03",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_clay_plaster",
+    "id": "patterned_clay_plaster",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_clay_wall",
+    "id": "patterned_clay_wall",
+    "authors": {
+     "Dario Barresi": "Baking ",
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Tiling "
+    },
+    "dimensions_mm": [
+     1250,
+     1250
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_concrete_wall",
+    "id": "patterned_concrete_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_plaster_wall",
+    "id": "patterned_plaster_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_slate_tiles",
+    "id": "patterned_slate_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2200.000047683716,
+     2200.000047683716
+    ]
+   },
+   {
+    "dir": "material_ph_patterned_terracotta_tiling",
+    "id": "patterned_terracotta_tiling",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2151.7231464385986,
+     2151.724338531494
+    ]
+   },
+   {
+    "dir": "material_ph_peeling_painted_wall",
+    "id": "peeling_painted_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_plank_flooring",
+    "id": "plank_flooring",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Tiling"
+    },
+    "dimensions_mm": [
+     1339.9999141693115,
+     1340.0001525878906
+    ]
+   },
+   {
+    "dir": "material_ph_plank_flooring_02",
+    "id": "plank_flooring_02",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1980.0000190734863,
+     1980.0000190734863
+    ]
+   },
+   {
+    "dir": "material_ph_plank_flooring_03",
+    "id": "plank_flooring_03",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Matterfield": "Photography"
+    },
+    "dimensions_mm": [
+     2250,
+     2250
+    ]
+   },
+   {
+    "dir": "material_ph_plank_flooring_04",
+    "id": "plank_flooring_04",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_planks_brown_10",
+    "id": "planks_brown_10",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_plaster_brick_01",
+    "id": "plaster_brick_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2700.000286102295,
+     2700.000286102295
+    ]
+   },
+   {
+    "dir": "material_ph_plaster_brick_pattern",
+    "id": "plaster_brick_pattern",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_plaster_grey_04",
+    "id": "plaster_grey_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_plaster_stone_wall_01",
+    "id": "plaster_stone_wall_01",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2299.999952316284,
+     2299.999952316284
+    ]
+   },
+   {
+    "dir": "material_ph_plaster_stone_wall_02",
+    "id": "plaster_stone_wall_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2119.999885559082,
+     2119.999885559082
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_stone_wall",
+    "id": "plastered_stone_wall",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_wall",
+    "id": "plastered_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_wall_02",
+    "id": "plastered_wall_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2229.999542236328,
+     2229.999542236328
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_wall_03",
+    "id": "plastered_wall_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_wall_04",
+    "id": "plastered_wall_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3199.9998092651367,
+     3199.9998092651367
+    ]
+   },
+   {
+    "dir": "material_ph_plastered_wall_05",
+    "id": "plastered_wall_05",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_polar_fleece",
+    "id": "polar_fleece",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     273.2870444699951,
+     271.49999141693115
+    ]
+   },
+   {
+    "dir": "material_ph_poly_wool_herringbone",
+    "id": "poly_wool_herringbone",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     270.0788548673393,
+     275.70000290870667
+    ]
+   },
+   {
+    "dir": "material_ph_polystyrene",
+    "id": "polystyrene",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1500,
+     1500.0001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_precast_concrete_wall",
+    "id": "precast_concrete_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1589.999794960022,
+     1589.999794960022
+    ]
+   },
+   {
+    "dir": "material_ph_preconcrete_wall_001",
+    "id": "preconcrete_wall_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_preconcrete_wall_001_long",
+    "id": "preconcrete_wall_001_long",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     4000,
+     4000
+    ]
+   },
+   {
+    "dir": "material_ph_quarry_wall",
+    "id": "quarry_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_quarry_wall_02",
+    "id": "quarry_wall_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_quatrefoil_jacquard_fabric",
+    "id": "quatrefoil_jacquard_fabric",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     280.11855714681565,
+     283.80000591278076
+    ]
+   },
+   {
+    "dir": "material_ph_rabdentse_ruins_wall",
+    "id": "rabdentse_ruins_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_random_bricks_thick",
+    "id": "random_bricks_thick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_raw_plank_wall",
+    "id": "raw_plank_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1870.0001239776611,
+     1870.0001239776611
+    ]
+   },
+   {
+    "dir": "material_ph_raw_wooden_floor_01",
+    "id": "raw_wooden_floor_01",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rebar_reinforced_concrete",
+    "id": "rebar_reinforced_concrete",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rectangular_facade_tiles",
+    "id": "rectangular_facade_tiles",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rectangular_facade_tiles_02",
+    "id": "rectangular_facade_tiles_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2105.0000190734863,
+     2105.0000190734863
+    ]
+   },
+   {
+    "dir": "material_ph_rectangular_parquet",
+    "id": "rectangular_parquet",
+    "authors": {
+     "Jenelle van Heerden": "Processing",
+     "Sergej Majboroda": "Photography"
+    },
+    "dimensions_mm": [
+     2250,
+     2250
+    ]
+   },
+   {
+    "dir": "material_ph_recycled_brick_floor",
+    "id": "recycled_brick_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_red_brick",
+    "id": "red_brick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1399.999976158142,
+     1399.999976158142
+    ]
+   },
+   {
+    "dir": "material_ph_red_brick_03",
+    "id": "red_brick_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_red_brick_plaster_patch_02",
+    "id": "red_brick_plaster_patch_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_red_bricks_02",
+    "id": "red_bricks_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_red_bricks_04",
+    "id": "red_bricks_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_red_oak_veneer",
+    "id": "red_oak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_red_plaster_weathered",
+    "id": "red_plaster_weathered",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_red_sandstone_wall",
+    "id": "red_sandstone_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_ribbed_concrete_wall",
+    "id": "ribbed_concrete_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_ribbed_corduroy",
+    "id": "ribbed_corduroy",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     266.40417517521894,
+     266.69999957084656
+    ]
+   },
+   {
+    "dir": "material_ph_rock_embedded_concrete",
+    "id": "rock_embedded_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_embedded_concrete_wall",
+    "id": "rock_embedded_concrete_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1759.9998712539673,
+     1759.9999904632568
+    ]
+   },
+   {
+    "dir": "material_ph_rock_embedded_floor",
+    "id": "rock_embedded_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_rock_embedded_tiles",
+    "id": "rock_embedded_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_face_04",
+    "id": "rock_face_04",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_surface",
+    "id": "rock_surface",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall",
+    "id": "rock_wall",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_03",
+    "id": "rock_wall_03",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2569.9996948242188,
+     2570.000171661377
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_04",
+    "id": "rock_wall_04",
+    "authors": {
+     "Dario Barresi": "Processing ",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2269.9999809265137,
+     2269.9999809265137
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_05",
+    "id": "rock_wall_05",
+    "authors": {
+     "Dario Barresi": "Processing ",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2259.9997520446777,
+     2259.9997520446777
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_06",
+    "id": "rock_wall_06",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1309.999942779541,
+     1309.999942779541
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_07",
+    "id": "rock_wall_07",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_08",
+    "id": "rock_wall_08",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_09",
+    "id": "rock_wall_09",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1220.0000286102295,
+     1220.0000286102295
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_10",
+    "id": "rock_wall_10",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1799.9995946884155,
+     1799.9995946884155
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_11",
+    "id": "rock_wall_11",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1909.9996089935303,
+     1909.9996089935303
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_12",
+    "id": "rock_wall_12",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1599.9999046325684,
+     1599.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_13",
+    "id": "rock_wall_13",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_14",
+    "id": "rock_wall_14",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_15",
+    "id": "rock_wall_15",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1850.000023841858,
+     1850.000023841858
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_16",
+    "id": "rock_wall_16",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rock_wall_17",
+    "id": "rock_wall_17",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_romantic_veneer",
+    "id": "romantic_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_rosewood_veneer1",
+    "id": "rosewood_veneer1",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     2430.000066757202,
+     2430.000066757202
+    ]
+   },
+   {
+    "dir": "material_ph_rosewood_veneer_02",
+    "id": "rosewood_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_rough_block_wall",
+    "id": "rough_block_wall",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3039.9999618530273,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_rough_concrete",
+    "id": "rough_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1230.0000190734863,
+     1230.0000190734863
+    ]
+   },
+   {
+    "dir": "material_ph_rough_linen",
+    "id": "rough_linen",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     270.7081392676629,
+     271.29998803138733
+    ]
+   },
+   {
+    "dir": "material_ph_rough_pine_door",
+    "id": "rough_pine_door",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plaster_03",
+    "id": "rough_plaster_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plaster_brick",
+    "id": "rough_plaster_brick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plaster_brick_02",
+    "id": "rough_plaster_brick_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plaster_brick_04",
+    "id": "rough_plaster_brick_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plaster_broken",
+    "id": "rough_plaster_broken",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rough_plasterbrick_05",
+    "id": "rough_plasterbrick_05",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rough_wood",
+    "id": "rough_wood",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_rounded_square_tiled_wall",
+    "id": "rounded_square_tiled_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rubber_tiles",
+    "id": "rubber_tiles",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_rubberized_track",
+    "id": "rubberized_track",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rubble",
+    "id": "rubble",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_running_track",
+    "id": "running_track",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     2419.999837875366,
+     2420.0000762939453
+    ]
+   },
+   {
+    "dir": "material_ph_rusted_shutter",
+    "id": "rusted_shutter",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_rustic_stone_wall",
+    "id": "rustic_stone_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1519.9998617172241,
+     1519.9998617172241
+    ]
+   },
+   {
+    "dir": "material_ph_rustic_stone_wall_02",
+    "id": "rustic_stone_wall_02",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rusty_corrugated_iron",
+    "id": "rusty_corrugated_iron",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_rusty_metal",
+    "id": "rusty_metal",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_rusty_metal_02",
+    "id": "rusty_metal_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_rusty_metal_grid",
+    "id": "rusty_metal_grid",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_rusty_metal_shutter",
+    "id": "rusty_metal_shutter",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_sandstone_blocks_04",
+    "id": "sandstone_blocks_04",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_sandstone_blocks_05",
+    "id": "sandstone_blocks_05",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_sandstone_blocks_08",
+    "id": "sandstone_blocks_08",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_sandstone_brick_wall_01",
+    "id": "sandstone_brick_wall_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_sapele_veneer",
+    "id": "sapele_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_sapele_veneer_02",
+    "id": "sapele_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_scuba_suede",
+    "id": "scuba_suede",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     285.2202902890041,
+     278.89999747276306
+    ]
+   },
+   {
+    "dir": "material_ph_scuffed_cement",
+    "id": "scuffed_cement",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1619.999885559082,
+     1619.999885559082
+    ]
+   },
+   {
+    "dir": "material_ph_seaside_rock",
+    "id": "seaside_rock",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_seaworn_sandstone_brick",
+    "id": "seaworn_sandstone_brick",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1690.0001764297485,
+     1690.0001764297485
+    ]
+   },
+   {
+    "dir": "material_ph_seaworn_stone_tiles",
+    "id": "seaworn_stone_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_silver_oak_veneer_01",
+    "id": "silver_oak_veneer_01",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_silver_oak_veneer_02",
+    "id": "silver_oak_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_slab_tiles",
+    "id": "slab_tiles",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2369.999885559082,
+     2370.000123977661
+    ]
+   },
+   {
+    "dir": "material_ph_slate_floor",
+    "id": "slate_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2289.9999618530273,
+     2290.0002002716064
+    ]
+   },
+   {
+    "dir": "material_ph_slate_floor_02",
+    "id": "slate_floor_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_slate_floor_03",
+    "id": "slate_floor_03",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_slumped_mortar_brick",
+    "id": "slumped_mortar_brick",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1769.9999809265137,
+     1769.9999809265137
+    ]
+   },
+   {
+    "dir": "material_ph_smoke_speckled_veneer",
+    "id": "smoke_speckled_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_smoked_walnut_veneer",
+    "id": "smoked_walnut_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_smooth_concrete_floor",
+    "id": "smooth_concrete_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_square_brick_floor",
+    "id": "square_brick_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_square_floor",
+    "id": "square_floor",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_square_tiled_wall",
+    "id": "square_tiled_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_square_tiles_02",
+    "id": "square_tiles_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2400.0000953674316,
+     2400.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_stacked_brick_wall",
+    "id": "stacked_brick_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1731.5727472305298,
+     1731.5782308578491
+    ]
+   },
+   {
+    "dir": "material_ph_stacked_stone_wall",
+    "id": "stacked_stone_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_stained_pine",
+    "id": "stained_pine",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Jenelle van Heerden": "Scanning"
+    },
+    "dimensions_mm": [
+     900.0000357627869,
+     900.0000357627869
+    ]
+   },
+   {
+    "dir": "material_ph_stair_planks",
+    "id": "stair_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1200.0000476837158,
+     1200.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_stenciled_brick_floor",
+    "id": "stenciled_brick_floor",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1919.9998378753662,
+     1919.9998378753662
+    ]
+   },
+   {
+    "dir": "material_ph_stone_block_wall",
+    "id": "stone_block_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2099.9999046325684,
+     2099.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_stone_brick_wall_001",
+    "id": "stone_brick_wall_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     2500,
+     2500
+    ]
+   },
+   {
+    "dir": "material_ph_stone_embedded_concrete",
+    "id": "stone_embedded_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2009.9999904632568,
+     2009.9999904632568
+    ]
+   },
+   {
+    "dir": "material_ph_stone_embedded_tiles",
+    "id": "stone_embedded_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_stone_floor",
+    "id": "stone_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1849.9999046325684,
+     1849.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_stone_tile_wall",
+    "id": "stone_tile_wall",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_stone_tiles",
+    "id": "stone_tiles",
+    "authors": {
+     "Christopher Melani": "All"
+    },
+    "dimensions_mm": [
+     3170.0000762939453,
+     3169.999837875366
+    ]
+   },
+   {
+    "dir": "material_ph_stone_tiles_02",
+    "id": "stone_tiles_02",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_stretch_poplin",
+    "id": "stretch_poplin",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     291.0233241569048,
+     280.8000147342682
+    ]
+   },
+   {
+    "dir": "material_ph_synthetic_wood",
+    "id": "synthetic_wood",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_t_concrete_wall_002",
+    "id": "t_concrete_wall_002",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     3000,
+     3000
+    ]
+   },
+   {
+    "dir": "material_ph_tatami_mat",
+    "id": "tatami_mat",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_teak_veneer",
+    "id": "teak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_terlenka",
+    "id": "terlenka",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     265.70814767607123,
+     266.2999927997589
+    ]
+   },
+   {
+    "dir": "material_ph_terracotta_floor_tiles",
+    "id": "terracotta_floor_tiles",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2079.9999237060547,
+     2079.9999237060547
+    ]
+   },
+   {
+    "dir": "material_ph_terrazzo_tiles",
+    "id": "terrazzo_tiles",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_terry_cloth",
+    "id": "terry_cloth",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     367.0535953781794,
+     363.20000886917114
+    ]
+   },
+   {
+    "dir": "material_ph_tiled_floor_001",
+    "id": "tiled_floor_001",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_velour_velvet",
+    "id": "velour_velvet",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     284.22817052147235,
+     273.499995470047
+    ]
+   },
+   {
+    "dir": "material_ph_volcanic_rock_tiles",
+    "id": "volcanic_rock_tiles",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_waffle_pique_cotton",
+    "id": "waffle_pique_cotton",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     280.787176718274,
+     276.8000066280365
+    ]
+   },
+   {
+    "dir": "material_ph_wall_bricks_plaster",
+    "id": "wall_bricks_plaster",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_walnut_veneer",
+    "id": "walnut_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_walnut_veneer_02",
+    "id": "walnut_veneer_02",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_washed_grey_oak_veneer",
+    "id": "washed_grey_oak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_weathered_brown_planks",
+    "id": "weathered_brown_planks",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_weathered_peeling_timber",
+    "id": "weathered_peeling_timber",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1100.000023841858,
+     1100.000023841858
+    ]
+   },
+   {
+    "dir": "material_ph_weathered_plank_siding",
+    "id": "weathered_plank_siding",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1570.0000524520874,
+     1570.0000524520874
+    ]
+   },
+   {
+    "dir": "material_ph_weathered_planks",
+    "id": "weathered_planks",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_white_bricks",
+    "id": "white_bricks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500
+    ]
+   },
+   {
+    "dir": "material_ph_white_maple_veneer",
+    "id": "white_maple_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_white_oak_veneer",
+    "id": "white_oak_veneer",
+    "authors": {
+     "Jenelle van Heerden": "All"
+    },
+    "dimensions_mm": [
+     500,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_white_planks_clean",
+    "id": "white_planks_clean",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_white_plaster_02",
+    "id": "white_plaster_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_white_plaster_rough_01",
+    "id": "white_plaster_rough_01",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_white_plaster_rough_02",
+    "id": "white_plaster_rough_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_white_rough_plaster",
+    "id": "white_rough_plaster",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_white_sandstone_blocks_02",
+    "id": "white_sandstone_blocks_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_white_sandstone_bricks",
+    "id": "white_sandstone_bricks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_white_sandstone_bricks_03",
+    "id": "white_sandstone_bricks_03",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_white_stucco",
+    "id": "white_stucco",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1998.0629682540894,
+     1998.0640411376953
+    ]
+   },
+   {
+    "dir": "material_ph_white_stucco_02",
+    "id": "white_stucco_02",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     7.868050033721374e-05,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_whitewashed_brick",
+    "id": "whitewashed_brick",
+    "authors": {
+     "Charlotte Baglioni": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_wood_cabinet_worn_long",
+    "id": "wood_cabinet_worn_long",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1000,
+     500
+    ]
+   },
+   {
+    "dir": "material_ph_wood_floor",
+    "id": "wood_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1699.9996900558472,
+     1699.9996900558472
+    ]
+   },
+   {
+    "dir": "material_ph_wood_floor_deck",
+    "id": "wood_floor_deck",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_wood_floor_worn",
+    "id": "wood_floor_worn",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1999.9996423721313,
+     1999.9996423721313
+    ]
+   },
+   {
+    "dir": "material_ph_wood_inlaid_concrete_wall",
+    "id": "wood_inlaid_concrete_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1700.0000476837158,
+     1700.0000476837158
+    ]
+   },
+   {
+    "dir": "material_ph_wood_inlaid_stone_wall",
+    "id": "wood_inlaid_stone_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1299.9999523162842,
+     1299.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_wood_peeling_paint_weathered",
+    "id": "wood_peeling_paint_weathered",
+    "authors": {
+     "Rob Tuytel": "Processing",
+     "Dimitrios Savva": "Photography"
+    },
+    "dimensions_mm": [
+     761.9999647140503,
+     762.0000243186951
+    ]
+   },
+   {
+    "dir": "material_ph_wood_plank_wall",
+    "id": "wood_plank_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_wood_planks",
+    "id": "wood_planks",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1499.999761581421,
+     1499.999761581421
+    ]
+   },
+   {
+    "dir": "material_ph_wood_planks_dirt",
+    "id": "wood_planks_dirt",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_wood_planks_grey",
+    "id": "wood_planks_grey",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     1500,
+     1500.0001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_wood_shutter",
+    "id": "wood_shutter",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_wood_table",
+    "id": "wood_table",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1000,
+     1000
+    ]
+   },
+   {
+    "dir": "material_ph_wood_table_001",
+    "id": "wood_table_001",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1500,
+     1500.0001192092896
+    ]
+   },
+   {
+    "dir": "material_ph_wood_table_large",
+    "id": "wood_table_large",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1550.0000715255737,
+     1550.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_wood_table_worn",
+    "id": "wood_table_worn",
+    "authors": {
+     "Dimitrios Savva": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     549.9999523162842,
+     550.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_wood_textured_concrete",
+    "id": "wood_textured_concrete",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_wood_trunk_wall",
+    "id": "wood_trunk_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1250,
+     1250
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_barrel",
+    "id": "wooden_barrel",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1289.9999618530273,
+     1289.9999618530273
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_floor_01",
+    "id": "wooden_floor_01",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1988.0001544952393,
+     1988.0001544952393
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_floor_02",
+    "id": "wooden_floor_02",
+    "authors": {
+     "Charlotte Baglioni": "Scanning",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     1942.000150680542,
+     1942.000150680542
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_garage_door",
+    "id": "wooden_garage_door",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1979.9997806549072,
+     1979.9997806549072
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_gate",
+    "id": "wooden_gate",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1899.9998569488525,
+     1899.9998569488525
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_panels",
+    "id": "wooden_panels",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2099.9999046325684,
+     2099.9999046325684
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_planks",
+    "id": "wooden_planks",
+    "authors": {
+     "Dario Barresi": "Processing",
+     "Charlotte Baglioni": "Photography"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_wooden_rough_planks",
+    "id": "wooden_rough_planks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_wool_boucle",
+    "id": "wool_boucle",
+    "authors": {
+     "colormass": "Photography",
+     "Rico Cilliers": "Processing"
+    },
+    "dimensions_mm": [
+     314.78237097288206,
+     390.10000228881836
+    ]
+   },
+   {
+    "dir": "material_ph_worn_brick_floor",
+    "id": "worn_brick_floor",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_worn_brick_wall",
+    "id": "worn_brick_wall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_worn_concrete_floor",
+    "id": "worn_concrete_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_worn_cracked_plaster",
+    "id": "worn_cracked_plaster",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1799.9999523162842,
+     1799.9999523162842
+    ]
+   },
+   {
+    "dir": "material_ph_worn_mossy_plasterwall",
+    "id": "worn_mossy_plasterwall",
+    "authors": {
+     "Amal Kumar": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_worn_planks",
+    "id": "worn_planks",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1400.0000953674316,
+     1400.0000953674316
+    ]
+   },
+   {
+    "dir": "material_ph_worn_plaster_wall",
+    "id": "worn_plaster_wall",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1800.0000715255737,
+     1800.0000715255737
+    ]
+   },
+   {
+    "dir": "material_ph_worn_shutter",
+    "id": "worn_shutter",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     1370.0000047683716,
+     1370.0000047683716
+    ]
+   },
+   {
+    "dir": "material_ph_worn_tile_floor",
+    "id": "worn_tile_floor",
+    "authors": {
+     "Dimitrios Savva": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_yellow_brick",
+    "id": "yellow_brick",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_yellow_bricks",
+    "id": "yellow_bricks",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_yellow_plaster",
+    "id": "yellow_plaster",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_yellow_plaster_02",
+    "id": "yellow_plaster_02",
+    "authors": {
+     "Rob Tuytel": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   },
+   {
+    "dir": "material_ph_yellow_stone_wall",
+    "id": "yellow_stone_wall",
+    "authors": {
+     "Sơn Nguyễn": "All"
+    },
+    "dimensions_mm": [
+     2000,
+     2000
+    ]
+   }
+  ]
+ },
  "instances": {
   "dataset": "ManiTwin/ManiTwin-100K (huggingface.co/datasets/ManiTwin/ManiTwin-100K)",
   "license": "Apache-2.0",

@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-25
-当前分支：`main`（10-25 的 RSI 新实例在短分支 `chongzheng/rsi-instances`，材质在并行的 `chongzheng/rsi-materials`，两者都改 `rsi/assets/pools.json`，合并时要在合并后的资产目录上重跑 `rsi_assets.py scan`）。G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
+当前分支：`main`。G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
 - 把 G1-D 的三条流水线规范化：Real2Sim 采集（物体、场景）、仿真数据生成，以及本仓库内的仿真评估。训练在仓库外。
@@ -36,7 +36,7 @@
 
 ## 最近任务
 
-### RSI 任务物体新实例：ManiTwin 碗 7 个、带把马克杯 19 个（2026-10-25，短分支 `chongzheng/rsi-instances`）
+### RSI 任务物体新实例：ManiTwin 碗 7 个、带把马克杯 19 个（2026-10-25，`chongzheng/rsi-instances`，已合并进 `main`）
 
 - **用户要求**：物体实例还没解决，和材质并行做（材质交给另一个会话，分支 `chongzheng/rsi-materials`）。
 - **去重改了判据**：10-24 按尺寸去重，把 ManiTwin 的碗、杯几乎全当成"疑似原物"丢了。碗、杯彼此太像，尺寸和形状距离都分不开（同一模型两次采样的倒角距离 0.011–0.019，官方不同碗之间 0.013–0.024），改成按网格面数：和任何 RoboDojo 物体相同就不收。已下载的 938 个 ManiTwin 模型没有一个面数相同，GLB 里的贴图字节也没有相同的；新旧实例并排渲染能区分（红色马克杯放大比过）。
@@ -48,8 +48,18 @@
   - `rsi/assets/imported.json` 加 `instances`（来源、缩放、转角、任务、池子、9 个剔除及原因）；`pools.json` 重扫。
 - **结果**：碗 15 → 筛出 8 → 7 个（剔除带勺子的）；杯 85 → 筛出 27 → 19 个（剔除落桌倾斜 2.6° 的 1 个、挂不住的 2 个、只在部分挂钩上挂得住的 5 个）。分池：训练池碗 6、杯 15，考场池碗 1、杯 4。
 - **验证**（`5090-2:/data/robodojo-runs/rsi-inst-20261025/`，资产 = `rsi-pool-20261024/Assets` 加 `rsi-assets-20261024/extra_inst`，剔除的在 `extra_rejected_inst/`）：落桌检查 35 个（底部原点，34 个 z≈0、倾斜 ≤ 1.5°）；叠碗 `stacked` 和竖直全为 1（含官方对照）；挂杯先用官方杯扫抬高 6–18 mm、6 个挂钩，8 组全 3/3（不抬高时官方杯也只挂住 1/3：挂钩插进了把手），再按 10 mm 让每个杯子轮流上 6 个挂钩，官方杯 0/4/8 都 6/6，新杯 19 个 6/6；用训练池方案生成 `stack_bowls_random`、`hang_mugs_random` 各 12 个布局，新实例占 12/36、23/36，`audit` 通过，保持姿态策略跑完退出码 0、`eval_time` 12、无不稳定。本机 `check.sh` 通过。
+- **合并**：和材质分支一起合进 `main`；两边的新资产合在 `5090-2:/data/robodojo-runs/rsi-merged-20261025/Assets`（`rsi-inst-20261025/Assets` 加 `extra_mat`），`pools.json` 在这里重扫，结果正好是材质分支的材质加本分支的实例。之后生成 RSI 数据用这个目录。
 - **坑**：评测客户端的回合数取 `EVAL_NUM` 和任务自带数的较小值，一个 seed 文件夹只会用到前 25 个布局，多出的环境重复跑 0 号；同一个 `ROBODOJO_RUN_ID` 会接着旧结果续跑。
 - **没做**：装箱的车、牙刷、锤子、鞋（ManiTwin 没有锤子、牙刷，鞋只有 1 只拖鞋，要从 GSO 导；车的 `checkpoint` 要分出车头）；倒水的杯和白酒瓶（要验证装液体）；新实例没进共享库，也没部署平台。
+
+### RSI 新资产：Poly Haven 材质 469 种（2026-10-25，`chongzheng/rsi-materials`，已合并进 `main`）
+
+- **用户要求**：三套评测集用掉官方 504 种材质里的 494 种，训练池只剩 6 种、考场池 2 种；把 Poly Haven 的 CC0 PBR 贴图做成 MDL 材质补上。
+- **代码**：`scripts/scenes/polyhaven_materials.py`（标准库，复用 `polyhaven_hdris.get`）：选 `surface_use` 为 floor / wall / object、非航拍、不属于 terrain / road / asphalt / bark / roofing 的贴图，去掉名字（去掉末尾编号后）和官方材质同名的（Stone_Wall、Plywood、Marble、Fabric_Pattern 共 9 个；官方是 NVIDIA vMaterials，145 种没有颜色贴图，没法按图像去重）；下载 1k jpg 的 Diffuse、arm（= ORM 通道顺序）、nor_gl，按官方 `material_0001/Ceiling_Tiles.mdl` 的 OmniPBR 参数写 `material_ph_<id>/ph_<id>.mdl`，写 `polyhaven_materials.json` 记来源；已有的目录跳过，可续跑。单测 `scripts/scenes/test_polyhaven_materials.py`（`check.sh` 跑整个 `scripts/scenes`）。`rsi/assets/imported.json` 加 `materials`，`pools.json` 重新生成。
+- **结果**：候选 474 → 下载 469（5 个缺贴图：`book_pattern`、`church_bricks_02`、`leather_red_02`、`leather_red_03` 缺 Diffuse，`gravel_concrete` 缺 arm）→ 渲染检查剔除 0。分池：材质训练池 342 种、考场池 135 种（原来 6 / 2）；T0 仍 937 项，其余池子不变。
+- **服务器**：材质在 `5090-2:/data/robodojo-runs/rsi-assets-20261024/extra_mat/Material/`（921 MB），下载缺图的记录在 `extra_rejected_mat/rejected.json`，脚本副本在 `mat_tools/`。共享库没动。
+- **验证**：`5090-2` 隔离目录 `rsi-mat-20261025/`（`Assets/` = `rsi-pool-20261024/Assets` 加 `extra_mat` 的软链接合并；GPU 2）：一个 Isaac 进程里依次把每种材质绑到默认桌面和一块 4 m 地板上渲染（`render_materials.py`，只在运行目录），再按 Kit 日志里的 MDL 编译 / 贴图错误和画面亮度筛（`check_renders.py`）。另放两个故意做坏的对照（MDL 语法错、贴图路径错），日志都抓到了（画面分别是红色报错材质和纯白）；469 种都没有报错，联系表 `mat_check/sheet_*.jpg` 看过，纹理正常。偏白的 4 种（`polystyrene`、`white_stucco` 等）原图本来就是浅色。本机 `check.sh` 56 passed 1 skipped。
+- **没做**：没用新材质生成 X5 布局、没跑任务；贴图尺度没按 Poly Haven 的实际尺寸（`dimensions_mm`）调 `texture_scale`，和官方材质一样用 1；房间变体（换墙面）。
 
 ### RSI 新资产：ManiTwin 干扰物 390 个、Poly Haven HDR 40 张（2026-10-24，直接推 `main`）
 
@@ -65,7 +75,7 @@
 - **结果**：ManiTwin 选出 765 个（尺寸不合适 1032 个、疑似 RoboDojo 原物 647 个，主要是球、瓶、杯、酒瓶、花瓶、眼镜、笔、碗）→ 转换 762 个 → 地面检查通过 450 个（多半失败是生成资产的"朝上"方向不是自然摆放姿态）→ 剔掉倾斜超过 1.5° 的剩 390 个。分池（官方资产加新资产）：T0 937 项；干扰物训练池 280 个、考场池 115 个；HDR 训练池 24 张、考场池 16 张。**材质成了新缺口**：三套评测集用掉了官方 504 种里的 494 种，训练池只剩 6 种。
 - **服务器**：资产在 `5090-2:/data/robodojo-runs/rsi-assets-20261024/`（`extra_obj/`、`extra_hdr/`、`extra_rejected/`，ManiTwin 标注的 git 克隆 `mt_git/`）；运行目录 `rsi-pool-20261024/` 的 `Assets/` 是官方资产加这两个目录的软链接合并。共享库没动。
 - **验证**：本机 `check.sh` 51 passed 1 skipped。`5090-2`：在桌面上做密集筛查（`stack_bowls_random` 80 个布局，每个 18–22 个干扰物，共 1597 次摆放），不稳定的只有 `correction_tape/00901`（6 次）和 `cutting_board/00900`（2 次），两者地面检查都有 1.7–2° 倾斜，据此加上 1.5° 门槛；剔除后重新做最终验证（25 个布局）：`eval_time` 25，没有不稳定的，没有报错，画面里新物体的贴图正常。
-- **没做**：GSO（鞋、玩具）；材质（Poly Haven 贴图转 MDL）；房间变体；任务物体的新实例（还要补任务需要的元数据）；生成资产的稳定姿态自动修正（能救回一部分不稳定物体）。
+- **没做**：GSO（鞋、玩具）；材质（10-25 已补，见上一节）；房间变体；任务物体的新实例（还要补任务需要的元数据）；生成资产的稳定姿态自动修正（能救回一部分不稳定物体）。
 
 ### RSI 资产分池（规则 1 严格口径）+ 干扰物池、新实例、换色缩放接入 X5 布局生成器（2026-10-24，直接推 `main`）
 
