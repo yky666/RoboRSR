@@ -33,6 +33,11 @@
      "path": "Background/WallS/wall",
      "material": "wall_light",
      "uv_m": 1.0
+    },
+    {
+     "path": "Background/WallW/corner_wall",
+     "material": "wall_light",
+     "uv_m": 1.0
     }
    ],
    "materials": [
