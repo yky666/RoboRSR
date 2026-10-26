@@ -169,10 +169,12 @@ def record_episode(env, plugin, output, cfg):
         for name in ("intrinsic_matrix", "shape")
         if name in obs["vision"][camera]
     }
-    stable, last = 0, None
+    stable, last, frames = 0, None, 0
     for action in itertools.chain(episode.actions(), itertools.repeat(None, plugin.TAIL)):
         if action is None and last is None:
-            raise RuntimeError("Expert produced no actions")
+            if env.success[0]:
+                raise RuntimeError("Expert produced no actions")
+            break  # the expert gave up before its first action (it says why in its summary)
         action = last = action if action is not None else last
         for key in recorded:
             states[key].append(np.asarray(obs["state"][key], dtype=np.float32).reshape(-1))
@@ -189,6 +191,12 @@ def record_episode(env, plugin, output, cfg):
         frames = len(states[keys[0]])
         if stable >= plugin.HOLD or not env.success[0] or frames >= env.step_lim:
             break
+    if not frames:
+        quality.update(accepted=False, frames=0, **episode.summary())
+        sidecar.write_text(json.dumps(quality, indent=2) + "\n")
+        env.success[0], env.end_flag[0] = False, True
+        print(f"[datagen] {path.name}: accepted=False frames=0", flush=True)
+        return
     if hindsight:
         last_state = {k: np.asarray(obs["state"][k], dtype=np.float32).reshape(-1) for k in states}
         actions = {k: rows[1:] + [last_state[k]] for k, rows in states.items()}

@@ -137,6 +137,52 @@ class Arm:
         return out
 
 
+def task_checks(env):
+    """The check list the task's run_reward hands to reward_manager.check, captured without registering it."""
+    rm, captured = env.reward_manager, []
+    check = rm.check
+    rm.check = captured.append
+    try:
+        env.run_reward()
+    finally:
+        rm.check = check
+    if len(captured) != 1:
+        raise ValueError(f"{env.task_name}.run_reward registers {len(captured)} check lists, expected 1")
+    return captured[0]
+
+
+def task_holds(env, checks):
+    """The task's success check now, evaluated as RewardManager does: every item, a nested list any of its items."""
+    return bool(env.reward_manager.check_once(checks, 0, op="and"))
+
+
+def task_report(env, checks):
+    """Each top-level item of the task's check list now: [name, holds] (a nested list: any of its items)."""
+    rm = env.reward_manager
+    report = []
+    for item in checks:
+        name = item[0] if isinstance(item, tuple) else "any(" + ",".join(c[0] for c in item) + ")"
+        if isinstance(item, tuple):
+            args = {k: v for k, v in item[1].items() if isinstance(v, str | int | float)}
+            name += str(args)
+        report.append([name, bool(rm.check_once(item, 0, op="or" if isinstance(item, list) else "and"))])
+    return report
+
+
+def pose7(lm, label):
+    """[x, y, z, qw, qx, qy, qz] of a labelled object now (layout frame)."""
+    pose = lm.get_instance_pose(0, label)
+    return np.concatenate([np.asarray(v.cpu() if hasattr(v, "cpu") else v, float).ravel() for v in pose])
+
+
+def matrix(pose):
+    """4x4 of [x, y, z, qw, qx, qy, qz]."""
+    m = np.eye(4)
+    m[:3, :3] = rot(pose[3:]).as_matrix()
+    m[:3, 3] = pose[:3]
+    return m
+
+
 def actions(arms, moving, frames):
     """Action dicts for `frames` [(q, grip)] of the `moving` arm; the others hold their last planned state."""
     for q, g in frames:
