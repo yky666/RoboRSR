@@ -57,8 +57,15 @@ JUG_SPEED = 0.0035  # m per action carrying the jug: faster swings it about the 
 POUR_TARGET = 0.25  # of the half-full jug (~130 ml, 2/3 of a mug); the stream in flight tops it up
 FLOW = 0.0033  # of the beans per action (~50 ml/s): hold the tilt above this
 STEP_MARGIN = 12  # actions kept free after the jug is back upright, for the rising-edge success check
+# Real G1-D motion limits (Limiter): joints this far inside the URDF limits (the real arm server's margin); the
+# fastest arm joint speed in the real replays (elbow ~0.8 rad/s, calib toolkit docs/05); the Dex1-1's 0.2 m/s finger
+# speed over its 44.5 mm stroke, per 30 Hz action (real2sim/robot/g1d_v4/assemble.json)
+REAL_JOINT_MARGIN, REAL_ARM_VMAX, REAL_GRIP_RATE = 0.05, 0.8, 0.2 / 0.0445 / 30
 # Water in the jug (g1d_pour_water_deliver_to_lounge): it runs from ~45 deg; a third of the ~300 ml fill
 WATER_DRY, WATER_POUR = np.deg2rad(40), 0.3
+# tilt speeds scaled to stay under REAL_ARM_VMAX: the dry tilt's 4 deg/action is ~2 rad/s at the wrist, and clipped
+# to 0.8 rad/s the hand fell 12 cm behind the spout target
+WATER_RATE = 0.4
 # Second arm holding the cup
 CUP_LIFT = 0.015  # cup bottom above the table while held under the spout; higher puts the jug out of reach
 CUP_MEET = 0.0  # the cup is carried this much toward the jug (the cup arm is near the edge of its reach)
@@ -207,10 +214,10 @@ def cup_grasp(lm, out, label="cup", grip_up=CUP_GRIP_UP, pitch=CUP_PITCH, turn=0
     return grip, hand, rim, radius, pad_open(2 * (foot + (radius - foot) * up / (hi[2] - lo[2])))
 
 
-def pour_actions(env, fluid_label="wine", dry=TILT_DRY, pour_target=POUR_TARGET, hold_cup=True):
+def pour_actions(env, fluid_label="wine", dry=TILT_DRY, pour_target=POUR_TARGET, hold_cup=True, rate=1.0):
     """Jug and cup as the module docstring says; fast tilt up to `dry`, then pour until `pour_target` of the jug's
     fill has left it. Water runs from ~45 deg, the beans from TILT_DRY. Without `hold_cup` the cup stays on the table
-    and the other arm stays where it is."""
+    and the other arm stays where it is. `rate` scales the tilt speeds."""
     lm = env.scene_manager.layout_manager
     pos, quat = lm.get_instance_pose(0, label="bottle")
     pitcher_pos, pitcher_rot = as_np(pos), from_wxyz(as_np(quat))
@@ -341,18 +348,18 @@ def pour_actions(env, fluid_label="wine", dry=TILT_DRY, pour_target=POUR_TARGET,
         )
         return act((hand + fix, hand_rot, 0), held if hold_cup else idle)
 
-    returning = int(np.ceil(TILT / RETURN_RATE)) + STEP_MARGIN
+    returning = int(np.ceil(TILT / (rate * RETURN_RATE))) + STEP_MARGIN
     theta, prev = 0.0, 0.0  # tilt until enough beans have left the jug, then back upright
     while theta < dry:
-        theta = min(theta + DRY_RATE, dry)
+        theta = min(theta + rate * DRY_RATE, dry)
         yield steer(theta)
     while (now := left_jug()) < pour_target and step < env.step_lim - returning:
         if now - prev < FLOW:  # tilt further only while the stream is weak: a surge overshoots the cup
-            theta = min(theta + TILT_RATE, TILT)
+            theta = min(theta + rate * TILT_RATE, TILT)
         prev = now
         yield steer(theta)
     while theta > 0:
-        theta = max(theta - RETURN_RATE, 0.0)
+        theta = max(theta - rate * RETURN_RATE, 0.0)
         yield steer(theta)
     for _ in range(STEP_MARGIN):
         yield steer(0.0)
@@ -750,7 +757,7 @@ def pour_deliver_actions(env):
     and carry it to the lounge table."""
     robot = Robot(env)  # home poses from the start
     jug0, _, _, counter_z, _ = robot.object("bottle")
-    yield from pour_actions(env, "water", WATER_DRY, WATER_POUR, hold_cup=False)
+    yield from pour_actions(env, "water", WATER_DRY, WATER_POUR, hold_cup=False, rate=WATER_RATE)
     robot.hold = {a.arm_key: a.q() for a in robot.arms}
     jug_arm = robot.arm_for(jug0[0])
     robot.grip[jug_arm.grip_key] = [0.0]
@@ -797,6 +804,9 @@ def stack_actions(env):
     yield from robot.go_home()
 
 
+# experts whose commands go through Limiter (the others predate it; their datasets were made without it)
+LIMITED = {"g1d_pour_water_deliver_to_lounge"}
+
 DEMOS = {
     "g1d_pour_water_into_cup": pour_actions,
     "g1d_pour_beans_cup_to_cup": cup_to_cup_actions,
@@ -808,13 +818,55 @@ DEMOS = {
 }
 
 
+class Limiter:
+    """Real-robot motion limits on every command: arm joints REAL_JOINT_MARGIN inside their limits and at most
+    REAL_ARM_VMAX, the gripper command at most REAL_GRIP_RATE per action. Logs the fastest requested move."""
+
+    def __init__(self, env):
+        self.arms = [Arm(env, r) for r in env.robot_manager.robot_list if r.type == "target"]
+        self.q = {a.arm_key: a.q() for a in self.arms}
+        self.grip = {}
+        self.lim = {
+            a.arm_key: as_np(a.key.data.soft_joint_pos_limits[0, a.cols]).reshape(-1, 2)
+            + [REAL_JOINT_MARGIN, -REAL_JOINT_MARGIN]
+            for a in self.arms
+        }
+        self.dq_max = REAL_ARM_VMAX / 30  # rad per 30 Hz action
+        self.asked = self.asked_grip = 0.0
+
+    def __call__(self, action):
+        out = dict(action)
+        for a in self.arms:
+            if a.arm_key in out:
+                q = np.clip(np.asarray(out[a.arm_key], dtype=float), *self.lim[a.arm_key].T)
+                step = q - self.q[a.arm_key]
+                self.asked = max(self.asked, float(np.abs(step).max()))
+                self.q[a.arm_key] = self.q[a.arm_key] + np.clip(step, -self.dq_max, self.dq_max)
+                out[a.arm_key] = self.q[a.arm_key]
+            if a.grip_key in out:
+                g = float(out[a.grip_key][0])
+                prev = self.grip.get(a.grip_key, g)
+                self.asked_grip = max(self.asked_grip, abs(g - prev))
+                self.grip[a.grip_key] = prev + float(np.clip(g - prev, -REAL_GRIP_RATE, REAL_GRIP_RATE))
+                out[a.grip_key] = [self.grip[a.grip_key]]
+        return out
+
+
 def eval_one_episode(TASK_ENV, model_client):
     TASK_ENV.get_obs()  # initial frame (also triggers the pre-action reward check so is_lift records table height)
-    for action in DEMOS[TASK_ENV.task_name](TASK_ENV):
-        TASK_ENV.take_action(action)
+    actions = DEMOS[TASK_ENV.task_name](TASK_ENV)
+    limiter = Limiter(TASK_ENV) if TASK_ENV.task_name in LIMITED else None
+    for action in actions:
+        TASK_ENV.take_action(limiter(action) if limiter else action)
         if TASK_ENV.is_episode_end():
             break
         TASK_ENV.get_obs()  # streams the camera frames into the episode videos
+    if limiter:
+        print(
+            f"[scripted_demo] limiter: fastest requested arm step {limiter.asked:.3f} rad"
+            f" ({limiter.asked * 30:.2f} rad/s, cap {REAL_ARM_VMAX}),"
+            f" gripper {limiter.asked_grip:.3f} per action (cap {REAL_GRIP_RATE:.3f})"
+        )
     if not TASK_ENV.end_flag[0]:  # EvalEnv starts each episode with success=True: running out of script is a fail
         TASK_ENV.success[0] = False
         TASK_ENV.end_flag[0] = True
