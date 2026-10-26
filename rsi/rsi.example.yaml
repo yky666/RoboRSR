@@ -14,6 +14,9 @@ models:                    # each runs its own RSI loop with the same exams and 
     policy_env: uv
 
 training:                  # fixed recipe from round 0 on; the data agent never changes it
+  init: previous           # previous: M_r continues from M_{r-1} | base: every round from the starting checkpoint
+  data: cumulative         # official + every audited generated batch so far, mixed by `mix`
+  steps_per_round: null    # fixed at round 0
   host: dsw-4
   gpus: [0, 1, 2, 3, 4, 5, 6, 7]
   hours_per_round: 24
@@ -33,9 +36,18 @@ tasks: [stack_bowls, hang_mugs, push_T, make_toast, pack_objects_into_box, pour_
 
 budget:                    # per round
   data_episodes: 2000
-  exam_episodes: 900       # >= 30 per subject and level; 15% L0 anchor
-  sealed_probe_episodes: 300
+  exam_episodes: 1800      # 7 families x 5 axes x 30 at the frontier = 60%, +25% one level up, +15% L0 anchor
+  sealed_probe_episodes: 300   # 25 per task, built once at round 0
   exploration_share: 0.3   # rule 2: data and exam both
+
+gates:                     # rsi/AGENTS.md section 5.4
+  expert_min_acceptance: 0.5   # R0.3: a task's expert on 20 L0 train layouts, else no demos for it
+  episodes_per_subject: 30
+  l0_anchor_share: 0.15
+
+stop:
+  patience: 2              # rounds without a sealed-probe gain beyond its 95% interval
+  final_eval_seeds: [0, 1, 2]  # the official eval sets, once, best model only
 
 seeds:                     # layout seed ranges per party (rsi/AGENTS.md, section 2)
   data: [1000, 4999]

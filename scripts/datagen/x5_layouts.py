@@ -102,7 +102,8 @@ SIMPLE_ROOM_SURFACES = {
     + [f"{_ROOM}wood_wall_008_322/Towel_Room01_wood_wall_008", f"{_ROOM}wood_wall_009_324/Towel_Room01_wood_wall_009"],
 }
 WALL_TILE_M = 1.0  # one texture repeat per metre of wall (world-space projection, room_overrides.py)
-SEED_RANGES = {"train": (1000, 4999), "exam": (5000, 9999)}  # layout seed folders per pool, rsi/AGENTS.md section 2
+# layout seed folders per pool (rsi/AGENTS.md section 2); 9000-9999 are the referee's sealed probes
+SEED_RANGES = {"train": (1000, 4999), "exam": (5000, 8999)}
 
 
 def load_yaml(path):
