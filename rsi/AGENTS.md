@@ -19,7 +19,7 @@
 | 房间 `Assets/Room` | 14 | 12（全被 `_random` 用掉） | `Simple_Room`、`Simple_Room_nolight` | 0 / 0 个新房间目录；变体靠换墙面（下面「房间」一行），墙面材质按材质池走 |
 | 桌面 / 地面 MDL 材质 | 504 | 494 | 2 种 | 342 / 135（官方剩下的 6 / 2，加新导入的 469 种 Poly Haven 材质） |
 | 干扰物 | 杂物 193 个 | 几乎全部 | 0 | 280 / 115（几乎全是新导入的 ManiTwin 物体，外加 5 个字母牌） |
-| 任务物体实例 | — | `_random` 和开放任务配置里的全部编号 | 34 个有数据任务配置里的编号 | 25 / 5：新导入的 ManiTwin 碗 6 / 1（只给叠碗）、带把马克杯 15 / 4（只给挂杯），外加 4 个 `Geometry` 的照片、垫块、显示器 |
+| 任务物体实例 | — | `_random` 和开放任务配置里的全部编号 | 34 个有数据任务配置里的编号 | 78 / 29：ManiTwin 碗 6 / 1（叠碗）、带把马克杯 15 / 4（挂杯；其中 11 个也给倒水），GSO 鞋 53 / 24（装箱），外加 4 个 `Geometry` 的照片、垫块、显示器 |
 | 背景 HDR | 1 | 0 | 这 1 张 | 24 / 16（新导入的 Poly Haven 室内 HDR） |
 
 分层结果在 `rsi/assets/pools.json`，由 `scripts/datagen/rsi_assets.py scan` 生成：在 `5090-2` 上、官方资产加新导入资产合并后的目录里跑出，T0 937 项。按资产 id 的哈希切分，新资产加进来不会改变已有资产的归属。新资产的来源和导入方法见第三节。
@@ -60,7 +60,7 @@
 | 维度 | 算子 | 现有工具 | 需要补的 |
 | :-- | :-- | :-- | :-- |
 | 物体位姿 | 在任务配置的范围内重采样；把范围往外扩一级 | `scripts/datagen/x5_layouts.py` | 越界扩展要先确认专家还能解 |
-| 物体实例 | 同类别换实例；造新实例（形状、尺寸、颜色、材质变体） | 平台物体登记 + `scripts/objects/SKILL.md`；运行时换色、缩放；导入 `scripts/objects/manitwin.py instances` | 已导入 ManiTwin 碗 7 个、带把马克杯 19 个（10-25）。还缺：装箱的车、牙刷、锤子、鞋（ManiTwin 没有锤子、牙刷，鞋只有 1 只拖鞋，要从 GSO 补；车要能分出车头），倒水的杯和瓶（要验证能装液体） |
+| 物体实例 | 同类别换实例；造新实例（形状、尺寸、颜色、材质变体） | 平台物体登记 + `scripts/objects/SKILL.md`；运行时换色、缩放；导入 `manitwin.py instances`、`gso.py convert` | 已导入 ManiTwin 碗 7 个、带把马克杯 19 个（10-25），GSO 鞋 77 只（10-26，鞋跟朝 +x、长 0.15–0.175 m，和官方一致）；19 个杯子里 11 个验证能装下倒水任务的液体。每个新实例只换进验证过的任务（元数据 `source.tasks`，`scripts/objects/instance_fit.py` 摆成完成状态用任务自己的判定检查）。还缺：装箱的车、牙刷、锤子（`checkpoint` 要分出车头、刷头、锤头），倒水的白酒瓶（液体初始位置写死在布局里） |
 | 干扰物 | 数量 0 → 5 → 10 → 20；类别；摆放密度 | `x5_layouts.py`（`clutter`）；导入 `scripts/objects/manitwin.py` | 已导入 ManiTwin 390 个（10-24）；更多可以从 ManiTwin、GSO、Objaverse-LVIS 导入 |
 | 房间 | 换房间；换 `Simple_Room` 的墙面和木墙板材质（房间变体） | `x5_layouts.py`（`rooms`、`walls`：布局 `Room.appearance`，运行时由 `room_overrides.py` 重新绑定材质，世界坐标投影） | 已做（10-26）：墙面、木墙板各从本池材质里抽一种，训练池 342 种材质；`rsi_assets.audit` 会检查墙面材质。头部相机只在画面上角看到墙，和榜单 12 种彩色房间可见的范围一样 |
 | 桌面 / 地面材质 | 从材质池里抽 | `x5_layouts.py`（`tables`、`grounds`）；`scripts/scenes/polyhaven_materials.py` | 已导入 Poly Haven PBR 材质 469 种（10-25）；官方 504 种里三套评测集用掉 494 种 |

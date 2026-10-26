@@ -9105,7 +9105,7 @@
   "dataset": "ManiTwin/ManiTwin-100K (huggingface.co/datasets/ManiTwin/ManiTwin-100K)",
   "license": "Apache-2.0",
   "converted_by": "scripts/objects/manitwin.py instances + convert",
-  "checked": "drop test (upright, tilt <= 1.5 deg); stack_bowls: three stacked bowls stay stacked and upright; hang_mugs: hung on each of the six cup_holder hooks, the task's handle height and alignment checks hold (scripts/objects/instance_fit.py)",
+  "checked": "drop test (upright, tilt <= 1.5 deg); stack_bowls: three stacked bowls stay stacked and upright; hang_mugs: hung on each of the six cup_holder hooks, the task's handle height and alignment checks hold (scripts/objects/instance_fit.py); pour_liquid_into_cup (mugs listing it): the task's 0.06 x 0.07 m wine column set on the cup's floor stays in it, is_A_fluid_in_B 97% (11 of 19 mugs; the narrower ones overflow)",
   "dedup": "no face count equal to any RoboDojo object (938 downloaded ManiTwin models: none equal)",
   "count": 26,
   "items": [
@@ -9178,7 +9178,8 @@
     "scale": 0.7197,
     "yaw_deg": -89.99,
     "tasks": [
-     "hang_mugs"
+     "hang_mugs",
+     "pour_liquid_into_cup"
     ],
     "pool": "train"
    },
@@ -9228,7 +9229,8 @@
     "scale": 0.991,
     "yaw_deg": -89.81,
     "tasks": [
-     "hang_mugs"
+     "hang_mugs",
+     "pour_liquid_into_cup"
     ],
     "pool": "train"
    },
@@ -9258,7 +9260,8 @@
     "scale": 0.7707,
     "yaw_deg": -89.14,
     "tasks": [
-     "hang_mugs"
+     "hang_mugs",
+     "pour_liquid_into_cup"
     ],
     "pool": "train"
    },
@@ -9268,7 +9271,8 @@
     "scale": 0.7766,
     "yaw_deg": -93.82,
     "tasks": [
-     "hang_mugs"
+     "hang_mugs",
+     "pour_liquid_into_cup"
     ],
     "pool": "train"
    },
@@ -9278,7 +9282,8 @@
     "scale": 1.1866,
     "yaw_deg": -90.03,
     "tasks": [
-     "hang_mugs"
+     "hang_mugs",
+     "pour_liquid_into_cup"
     ],
     "pool": "train"
    },
@@ -9288,7 +9293,8 @@
     "scale": 0.9344,
     "yaw_deg": -91.39,
     "tasks": [
-     "hang_mugs"
+     "hang_mugs",
+     "pour_liquid_into_cup"
     ],
     "pool": "train"
    },
@@ -9298,7 +9304,8 @@
     "scale": 0.9067,
     "yaw_deg": -88.36,
     "tasks": [
-     "hang_mugs"
+     "hang_mugs",
+     "pour_liquid_into_cup"
     ],
     "pool": "train"
    },
@@ -9308,7 +9315,8 @@
     "scale": 0.9093,
     "yaw_deg": -91.81,
     "tasks": [
-     "hang_mugs"
+     "hang_mugs",
+     "pour_liquid_into_cup"
     ],
     "pool": "train"
    },
@@ -9318,7 +9326,8 @@
     "scale": 0.9319,
     "yaw_deg": -86.3,
     "tasks": [
-     "hang_mugs"
+     "hang_mugs",
+     "pour_liquid_into_cup"
     ],
     "pool": "train"
    },
@@ -9338,7 +9347,8 @@
     "scale": 0.7772,
     "yaw_deg": -89.71,
     "tasks": [
-     "hang_mugs"
+     "hang_mugs",
+     "pour_liquid_into_cup"
     ],
     "pool": "exam"
    },
@@ -9348,7 +9358,8 @@
     "scale": 0.7845,
     "yaw_deg": -90.31,
     "tasks": [
-     "hang_mugs"
+     "hang_mugs",
+     "pour_liquid_into_cup"
     ],
     "pool": "exam"
    },
@@ -9408,6 +9419,801 @@
     "id": "Rigid/mug/00926",
     "source": "cup/078",
     "reason": "hangs on cup_holder hooks 0, 1, 4, 5 only (all 6 needed, as the official mugs do)"
+   }
+  ]
+ },
+ "gso_shoes": {
+  "dataset": "Google Scanned Objects (fuel.gazebosim.org/GoogleResearch)",
+  "license": "CC-BY-4.0",
+  "attribution": "Google Scanned Objects, Google LLC (Downs et al., 2022)",
+  "converted_by": "scripts/objects/gso.py convert --category shoe",
+  "convention": "heel at +x like every official Rigid/shoe, length 0.15-0.175 m, height 0.045-0.095 m",
+  "checked": "drop test (stable, tilt <= 4 deg: soles rock); pack_objects_into_box: dropped in the box, heel along world +x, the task's four shoe checks hold and the box stays put (77 of 77, official shoe 3 as control)",
+  "dedup": "no face count of a RoboDojo shoe; texture thumbnails correlate <= 0.27 with the 18 official shoes",
+  "count": 77,
+  "items": [
+   {
+    "id": "Rigid/shoe/00900",
+    "source": "ASICS_GELAce_Pro_Pearl_WhitePink",
+    "scale": 0.6027,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00901",
+    "source": "ASICS_GELLinksmaster_WhiteCoffeeSand",
+    "scale": 0.586,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00902",
+    "source": "ASICS_GELLinksmaster_WhiteRasberryGunmetal",
+    "scale": 0.6426,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00903",
+    "source": "ASICS_GELLinksmaster_WhiteSilverCarolina_Blue",
+    "scale": 0.6423,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00904",
+    "source": "ASICS_GELTour_Lyte_WhiteOrchidSilver",
+    "scale": 0.6569,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00905",
+    "source": "ASICS_HyperRocketgirl_SP_5_WhiteMalibu_BlueBlack",
+    "scale": 0.7027,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00906",
+    "source": "Adrenaline_GTS_13_Color_DrkDenimWhtBachlorBttnSlvr_Size_50_yfK40TNjq0V",
+    "scale": 0.6075,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00907",
+    "source": "Adrenaline_GTS_13_Color_WhtObsdianBlckOlmpcSlvr_Size_70",
+    "scale": 0.5706,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00908",
+    "source": "CLIMACOOL_BOAT_BREEZE_IE6CyqSaDwN",
+    "scale": 0.5967,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00909",
+    "source": "Cascadia_8_Color_AquariusHibscsBearingSeaBlk_Size_50",
+    "scale": 0.6872,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00910",
+    "source": "D_ROSE_ENGLEWOOD_II",
+    "scale": 0.5695,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00911",
+    "source": "GIRLS_DECKHAND",
+    "scale": 0.6869,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00912",
+    "source": "Ghost_6_Color_BlckWhtLavaSlvrCitrus_Size_80",
+    "scale": 0.587,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00913",
+    "source": "Ghost_6_Color_MdngtDenmPomBrtePnkSlvBlk_Size_50",
+    "scale": 0.6156,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00914",
+    "source": "Ghost_6_GTX_Color_AnthBlckSlvrFernSulphSprng_Size_80",
+    "scale": 0.602,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00915",
+    "source": "Glycerin_11_Color_AqrsDrsdnBluBlkSlvShckOrng_Size_50",
+    "scale": 0.6077,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00916",
+    "source": "Glycerin_11_Color_BrllntBluSkydvrSlvrBlckWht_Size_80",
+    "scale": 0.5734,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00917",
+    "source": "Mens_ASV_Billfish_Boat_Shoe_in_Dark_Brown_Leather_zdHVHXueI3w",
+    "scale": 0.598,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00918",
+    "source": "Mens_ASV_Billfish_Boat_Shoe_in_Tan_Leather_wmUJ5PbwANc",
+    "scale": 0.6105,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00919",
+    "source": "Mens_Authentic_Original_Boat_Shoe_in_Navy_Leather_NHHQddDLQys",
+    "scale": 0.6066,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00920",
+    "source": "Mens_Authentic_Original_Boat_Shoe_in_Navy_Leather_RpT4GvUXRRP",
+    "scale": 0.7,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00921",
+    "source": "Mens_Billfish_3Eye_Boat_Shoe_in_Dark_Tan_wyns9HRcEuH",
+    "scale": 0.5983,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00922",
+    "source": "Mens_Billfish_Ultra_Lite_Boat_Shoe_in_Dark_Brown_Blue_c6zDZTtRJr6",
+    "scale": 0.5996,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00923",
+    "source": "Mens_Gold_Cup_ASV_2Eye_Boat_Shoe_in_Cognac_Leather",
+    "scale": 0.5966,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00924",
+    "source": "Mens_Gold_Cup_ASV_Capetown_Penny_Loafer_in_Black_EjPnk3E8fCs",
+    "scale": 0.6021,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00925",
+    "source": "Mens_Gold_Cup_ASV_Capetown_Penny_Loafer_in_Black_GkQBKqABeQN",
+    "scale": 0.6015,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00926",
+    "source": "Mens_Mako_Canoe_Moc_2Eye_Boat_Shoe_in_Coffee_9d05GG33QQQ",
+    "scale": 0.6015,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00927",
+    "source": "Mens_Mako_Canoe_Moc_2Eye_Boat_Shoe_in_Coffee_K9e8FoV73uZ",
+    "scale": 0.6088,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00928",
+    "source": "Mens_Mako_Canoe_Moc_2Eye_Boat_Shoe_in_OysterTaupe_otyRrfvPMiA",
+    "scale": 0.6082,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00929",
+    "source": "Mens_Striper_Sneaker_in_White_rnp8HUli59Y",
+    "scale": 0.6128,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00930",
+    "source": "Mens_Tremont_Kiltie_Tassel_Loafer_in_Black_Amaretto",
+    "scale": 0.5934,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00931",
+    "source": "Mens_Tremont_Kiltie_Tassel_Loafer_in_Black_Amaretto_FT0I9OjSA6O",
+    "scale": 0.5929,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00932",
+    "source": "Mens_Tremont_Kiltie_Tassel_Loafer_in_Black_Amaretto_rCdzRZqgCnI",
+    "scale": 0.593,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00933",
+    "source": "NAPA_VALLEY_NAVAJO_SANDAL",
+    "scale": 0.7105,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00934",
+    "source": "PureCadence_2_Color_HiRskRedNghtlfeSlvrBlckWht_Size_70",
+    "scale": 0.5721,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00935",
+    "source": "PureCadence_2_Color_TleBluLmePnchSlvMoodIndgWh_Size_50_EEzAfcBfHHO",
+    "scale": 0.6099,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00936",
+    "source": "PureConnect_2_Color_AnthrcteKnckoutPnkGrnGecko_Size_50",
+    "scale": 0.6471,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00937",
+    "source": "PureConnect_2_Color_BlckBrllntBluNghtlfeAnthrct_Size_70",
+    "scale": 0.5427,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00938",
+    "source": "PureConnect_2_Color_FernNightlifeSilverBlack_Size_70_5w0BYsiogeV",
+    "scale": 0.5936,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00939",
+    "source": "PureFlow_2_Color_RylPurHibiscusBlkSlvrWht_Size_50",
+    "scale": 0.6099,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00940",
+    "source": "Ravenna_4_Color_WhtOlyBluBlkShkOrngSlvRdO_Size_70",
+    "scale": 0.544,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00941",
+    "source": "Reebok_REESCULPT_TRAINER_II",
+    "scale": 0.6545,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00942",
+    "source": "SLACK_CRUISER",
+    "scale": 0.566,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00943",
+    "source": "TERREX_FAST_R",
+    "scale": 0.5765,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00944",
+    "source": "TERREX_FAST_X_GTX",
+    "scale": 0.5694,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00945",
+    "source": "TZX_Runner",
+    "scale": 0.5978,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00946",
+    "source": "Timberland_Mens_Classic_2Eye_Boat_Shoe",
+    "scale": 0.6123,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00947",
+    "source": "Timberland_Mens_Earthkeepers_Casco_Bay_Canvas_Oxford",
+    "scale": 0.5979,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00948",
+    "source": "Timberland_Mens_Earthkeepers_Casco_Bay_Suede_1Eye",
+    "scale": 0.5966,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00949",
+    "source": "Timberland_Mens_Earthkeepers_Heritage_2Eye_Boat_Shoe",
+    "scale": 0.5977,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00950",
+    "source": "Timberland_Mens_Earthkeepers_Stormbuck_Lite_Plain_Toe_Oxford",
+    "scale": 0.5597,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00951",
+    "source": "Timberland_Mens_Earthkeepers_Stormbuck_Plain_Toe_Oxford",
+    "scale": 0.5724,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00952",
+    "source": "Timberland_Womens_Classic_Amherst_2Eye_Boat_Shoe",
+    "scale": 0.6554,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00953",
+    "source": "Timberland_Womens_Earthkeepers_Classic_Unlined_Boat_Shoe",
+    "scale": 0.6446,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00954",
+    "source": "Womens_Angelfish_Boat_Shoe_in_Linen_Leopard_Sequin_NJDwosWNeZz",
+    "scale": 0.7218,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00955",
+    "source": "Womens_Angelfish_Boat_Shoe_in_Linen_Oat",
+    "scale": 0.7118,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00956",
+    "source": "Womens_Audrey_Slip_On_Boat_Shoe_in_Graphite_Nubuck_xWVkCJ5vxZe",
+    "scale": 0.704,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00957",
+    "source": "Womens_Authentic_Original_Boat_Shoe_in_Classic_Brown_Leather",
+    "scale": 0.7099,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00958",
+    "source": "Womens_Authentic_Original_Boat_Shoe_in_Classic_Brown_Leather_48Nh7VuMwW6",
+    "scale": 0.7094,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00959",
+    "source": "Womens_Authentic_Original_Boat_Shoe_in_Classic_Brown_Leather_cJSCWiH7QmB",
+    "scale": 0.7097,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00960",
+    "source": "Womens_Authentic_Original_Boat_Shoe_in_Navy_Deerskin_50lWJaLWG8R",
+    "scale": 0.6732,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00961",
+    "source": "Womens_Betty_Chukka_Boot_in_Grey_Jersey_Sequin",
+    "scale": 0.7006,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00962",
+    "source": "Womens_Betty_Chukka_Boot_in_Navy_Jersey_Sequin_y0SsHk7dKUX",
+    "scale": 0.7041,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00963",
+    "source": "Womens_Betty_Chukka_Boot_in_Navy_aEE8OqvMII4",
+    "scale": 0.7052,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00964",
+    "source": "Womens_Betty_Chukka_Boot_in_Salt_Washed_Red_AL2YrOt9CRy",
+    "scale": 0.7071,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00965",
+    "source": "Womens_Bluefish_2Eye_Boat_Shoe_in_Brown_Deerskin_JJ2pfEHTZG7",
+    "scale": 0.6062,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00966",
+    "source": "Womens_Bluefish_2Eye_Boat_Shoe_in_Brown_Deerskin_i1TgjjO0AKY",
+    "scale": 0.6995,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00967",
+    "source": "Womens_Bluefish_2Eye_Boat_Shoe_in_Linen_Natural_Sparkle_Suede_kqi81aojcOR",
+    "scale": 0.7002,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00968",
+    "source": "Womens_Bluefish_2Eye_Boat_Shoe_in_Linen_Natural_Sparkle_Suede_w34KNQ41csH",
+    "scale": 0.7,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00969",
+    "source": "Womens_Bluefish_2Eye_Boat_Shoe_in_Linen_Oat",
+    "scale": 0.7182,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00970",
+    "source": "Womens_Bluefish_2Eye_Boat_Shoe_in_Linen_Oat_IbrSyJdpT3h",
+    "scale": 0.708,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00971",
+    "source": "Womens_Bluefish_2Eye_Boat_Shoe_in_Linen_Oat_niKJKeWsmxY",
+    "scale": 0.7072,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00972",
+    "source": "Womens_Bluefish_2Eye_Boat_Shoe_in_Tan",
+    "scale": 0.7014,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00973",
+    "source": "Womens_Bluefish_2Eye_Boat_Shoe_in_White_Tumbled_YG44xIePRHw",
+    "scale": 0.6986,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "exam"
+   },
+   {
+    "id": "Rigid/shoe/00974",
+    "source": "Womens_Cloud_Logo_Authentic_Original_Boat_Shoe_in_Black_Supersoft_8LigQYwf4gr",
+    "scale": 0.7071,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00975",
+    "source": "Womens_Cloud_Logo_Authentic_Original_Boat_Shoe_in_Black_Supersoft_cZR022qFI4k",
+    "scale": 0.7046,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   },
+   {
+    "id": "Rigid/shoe/00976",
+    "source": "adistar_boost_m",
+    "scale": 0.5743,
+    "tasks": [
+     "pack_objects_into_box"
+    ],
+    "pool": "train"
+   }
+  ],
+  "skipped": [
+   {
+    "src": "HyperX_Cloud_II_Headset_Gun_Metal",
+    "reason": "not in GSO category Shoe"
+   },
+   {
+    "src": "HyperX_Cloud_II_Headset_Red",
+    "reason": "not in GSO category Shoe"
+   },
+   {
+    "src": "MARTIN_WEDGE_LACE_BOOT",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "Mens_Authentic_Original_Boat_Shoe_in_Navy_Leather_xgoEcZtRNmH",
+    "reason": "mesh of Garment/Top_Long/00007"
+   },
+   {
+    "src": "REEF_BRAIDED_CUSHION",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "REEF_ZENFUN",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "Rayna_BootieWP",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "Timberland_Mens_Earthkeepers_Newmarket_6Inch_Cupsole_Boot",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "Tory_Burch_Kiernan_Riding_Boot",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "Tory_Burch_Sabe_65mm_Bootie_Split_Suede_in_Caramel",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "UGG_Bailey_Bow_Womens_Clogs_Black_7",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "UGG_Bailey_Button_Triplet_Womens_Boots_Black_7",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "UGG_Bailey_Button_Womens_Boots_Black_7",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "UGG_Classic_Tall_Womens_Boots_Chestnut_7",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "UGG_Classic_Tall_Womens_Boots_Grey_7",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "UGG_Jena_Womens_Java_7",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "Womens_Hikerfish_Boot_in_Black_Leopard_bVSNY1Le1sm",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "Womens_Hikerfish_Boot_in_Black_Leopard_ridcCWsv8rW",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "Womens_Hikerfish_Boot_in_Linen_Leather_Sparkle_Suede_QktIyAkonrU",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "Womens_Hikerfish_Boot_in_Linen_Leather_Sparkle_Suede_imlP8VkwqIH",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "Womens_Teva_Capistrano_Bootie",
+    "reason": "height outside (0.045, 0.095) m at the official length"
+   },
+   {
+    "src": "Womens_Teva_Capistrano_Bootie_ldjRT9yZ5Ht",
+    "reason": "height outside (0.045, 0.095) m at the official length"
    }
   ]
  }
