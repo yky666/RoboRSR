@@ -1,0 +1,44 @@
+# RSI subjects (rsi/AGENTS.md section 3): a subject is task family x axis x level. Each level is a fragment of a
+# randomization profile (scripts/datagen/rsi_profile.py); rsi_profile.compose() merges one level per axis into the
+# profile a layout set is generated with. "pool" stands for every asset of the party's own pool (plus the ones the
+# official training data shows). Position and yaw are resampled at every level, L0 included: no layout copies a pose.
+# Changed only by the humans running the RSI, between runs, never during one.
+version: 1
+
+families:                  # base tasks of the 12 _random variants; the scorecard reports per family
+  place: [stack_bowls, stack_blocks, hang_mugs, sort_nesting_dolls_by_size]
+  pack: [pack_objects_into_box, store_laptop_and_headphones]
+  tool: [push_T, sweep_blocks]
+  pour: [pour_liquid_into_cup]
+  articulated: [make_toast]
+  deformable: [fold_clothes]
+  symbolic: [arrange_largest_number]
+
+base: {position: true, yaw: true}
+
+axes:
+  instances:               # task objects: which instance, colour, size
+    L0: {instances: false}
+    L1: {instances: true}  # official training instances and the pool's new ones checked for the task
+    L2: {instances: true, color: true}
+    L3: {instances: true, color: true, scale: [0.85, 1.15]}
+  clutter:                 # distractors of the pool on the free table
+    L0: {}
+    L1: {clutter: {count: [2, 4], categories: []}}
+    L2: {clutter: {count: [6, 10], categories: []}}
+    L3: {clutter: {count: [12, 18], categories: []}}
+  surfaces:                # tabletop, ground, room walls, background
+    L0: {}
+    L1: {tables: pool, grounds: pool}
+    L2: {tables: pool, grounds: pool, rooms: [Simple_Room], walls: pool}
+    L3: {tables: pool, grounds: pool, rooms: [Simple_Room], walls: pool, background: {hdrs: pool, intensity: [500, 1500]}}
+  lighting:                # extra lights above the table
+    L0: {}
+    L1: {lights: {count: [1, 1], types: [Sphere, Disk], intensity: [0.5, 1.0], color_temperature: [4500, 6000]}}
+    L2: {lights: {count: [1, 2], types: [Sphere, Disk, Rect], intensity: [0.3, 1.5], color_temperature: [3500, 7000]}}
+    L3: {lights: {count: [2, 3], types: [Sphere, Disk, Rect, Distant], intensity: [0.2, 2.0], color_temperature: [2700, 9000]}}
+  camera:                  # head camera orientation, per parallel env at start-up; never shifted
+    L0: {}
+    L1: {camera: {ori_deg: 2}}
+    L2: {camera: {ori_deg: 5}}
+    L3: {camera: {ori_deg: 10}}

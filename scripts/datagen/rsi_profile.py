@@ -23,6 +23,7 @@ import rsi_assets
 
 ROOT = Path(__file__).resolve().parents[2]
 PROFILES_DIR = ROOT / "real2sim" / "benchmark_tasks"  # <task>/randomization.json
+SUBJECTS = ROOT / "rsi" / "subjects.yaml"
 LIGHT_TYPES = ("Sphere", "Disk", "Rect", "Cylinder", "Distant")
 LIGHT_REF = {"Sphere": 3e4, "Disk": 3e4, "Rect": 3e4, "Cylinder": 3e4, "Distant": 1.5e3}
 FLAGS = ("position", "yaw", "instances", "color")
@@ -139,3 +140,47 @@ def holdout_split(task):
     variant = f"{base}_random"
     config = ROOT / "task" / "RoboDojo" / "config"
     return base, variant if (config / f"{variant}.yml").is_file() else None
+
+
+def compose(subjects, levels, opts):
+    """The profile of {axis: level} (rsi/subjects.yaml loaded as `subjects`; axes left out are at L0) for the pool
+    of `opts` (options()): "pool" expands to every material / HDR that pool may use."""
+    expand = {"tables": "materials", "grounds": "materials", "walls": "materials", "rooms": "rooms"}
+    profile = {"pool": opts["pool"], **subjects["base"]}
+    for axis, table in subjects["axes"].items():
+        level = levels.get(axis, "L0")
+        if level not in table:
+            raise ValueError(f"{axis} has no level {level}")
+        for key, value in table[level].items():
+            if value == "pool":
+                value = list(opts[expand[key]])
+            elif key == "background" and value.get("hdrs") == "pool":
+                value = {**value, "hdrs": list(opts["hdrs"])}
+            profile[key] = value
+    if unknown := set(levels) - set(subjects["axes"]):
+        raise ValueError(f"no such axis: {', '.join(sorted(unknown))}")
+    return profile
+
+
+def main(argv=None):
+    import argparse
+    import json
+
+    import yaml
+
+    ap = argparse.ArgumentParser(description="Compose a randomization profile from subject levels (rsi/subjects.yaml)")
+    ap.add_argument("--assets", type=Path, required=True)
+    ap.add_argument("--pool", choices=("train", "exam"), required=True)
+    ap.add_argument("--levels", default="", help="axis=level,... ; axes left out are at L0")
+    ap.add_argument("--out", type=Path, required=True)
+    args = ap.parse_args(argv)
+    levels = dict(item.split("=") for item in args.levels.split(",") if item)
+    opts = options(args.assets, args.pool)
+    profile = compose(yaml.safe_load(SUBJECTS.read_text(encoding="utf-8")), levels, opts)
+    if error := check(profile, opts):
+        raise SystemExit(error)
+    args.out.write_text(json.dumps(profile, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+if __name__ == "__main__":
+    main()

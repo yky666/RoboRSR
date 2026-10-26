@@ -278,3 +278,23 @@ def test_camera_configs():
     cam = X.load_yaml(root / "env_cfg" / "camera" / "rsi_stack_bowls.yml")["random"]["cam_head"]
     assert env["config"]["camera"] == "rsi_stack_bowls"
     assert cam == {"enabled": True, "ori": {"min": [-2, -2, -2], "max": [2, 2, 2]}}  # no position jitter
+
+
+def test_subject_levels_compose():
+    """Every level of rsi/subjects.yaml composes into a profile the pool accepts; "pool" expands to the pool."""
+    import yaml
+
+    subjects = yaml.safe_load(X.rsi_profile.SUBJECTS.read_text(encoding="utf-8"))
+    opts = X.rsi_profile.options(assets(), "train", POOLS)
+    opts["rooms"] = [*opts["rooms"], "Simple_Room"]  # seen by the official training data, absent from the toy tree
+    tasks = [t for family in subjects["families"].values() for t in family]
+    assert len(tasks) == len(set(tasks)) == 12 and all(X.rsi_profile.holdout_split(t)[1] for t in tasks)
+    for axis, table in subjects["axes"].items():
+        assert list(table) == ["L0", "L1", "L2", "L3"]
+        for level in table:
+            profile = X.rsi_profile.compose(subjects, {axis: level}, opts)
+            assert X.rsi_profile.check(profile, opts) is None, (axis, level)
+            assert profile["position"] and profile["yaw"]  # no level copies a template pose
+    top = X.rsi_profile.compose(subjects, {a: "L3" for a in subjects["axes"]}, opts)
+    assert X.rsi_profile.check(top, opts) is None
+    assert top["tables"] == top["walls"] == opts["materials"] and top["background"]["hdrs"] == opts["hdrs"]
