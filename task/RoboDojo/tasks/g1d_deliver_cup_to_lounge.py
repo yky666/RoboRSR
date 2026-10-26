@@ -15,6 +15,7 @@ class DeliverCupToLoungeG1dCommon:
 
     TABLE = "blue"  # the round table with the four blue chairs
     EDGE_MARGIN = 0.04  # m: the cup's centre this far inside the table's rim
+    CUP = "cup"  # label of the cup to deliver
 
     def __init__(self, config, app, **kwargs):
         super().__init__(config, app, **kwargs)
@@ -42,11 +43,11 @@ class DeliverCupToLoungeG1dCommon:
         rm = self.reward_manager
         return [
             rm.is_A_xy_distance_close_to_pos(
-                "cup", pos=self.table_xy, dis_threshold=self.table_r[0] - self.EDGE_MARGIN
+                self.CUP, pos=self.table_xy, dis_threshold=self.table_r[0] - self.EDGE_MARGIN
             ),
             # the cup starts on the 0.833 m countertop: ~8 cm lower on the 0.75 m table, ~83 cm lower on the floor
-            rm.is_lift("cup", z_threshold=-0.15),
-            rm.is_axis_up("cup", axis=[0, 0, 1], threshold=15),
+            rm.is_lift(self.CUP, z_threshold=-0.15),
+            rm.is_axis_up(self.CUP, axis=[0, 0, 1], threshold=15),
             rm.is_all_gripper_open(open_threshold=0.6),
         ]
 

@@ -1,6 +1,6 @@
 # Project Handoff
 
-更新时间：2026-10-25
+更新时间：2026-10-26
 本会话分支：`komari/feat-g1d-aurora-tactile`；独立 worktree `../RoboRSR-g1d-aurora`，原基于 `8e0d7a7`，现合并远端 `main@961a9f5`。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
@@ -27,6 +27,7 @@
   - 杯对杯倒豆、量杯对倒：部分 seed 成功。
   - 壶倒杯：5.6 mm 的豆子会堵住 13 mm 的壶嘴。
   - 移动送杯 `g1d_deliver_cup_to_lounge`（`g1d_counter_mobile`）：seed 0 前 4 个布局 4/4。
+  - 冷水壶倒水再送杯 `g1d_pour_water_deliver_to_lounge`（`g1d_counter_mobile`）：seed 0 布局 0（见「最近任务」第一节）。
 - **数据**：所有数据集登记在 `scripts/datagen/registry.json`。目前有 2 份办公室量杯全量倒豆数据，各 100 条，LeRobot v3.0，都是按旧的 legacy 格式导出的：
   - 固定朝向的一份，已上传 ModelScope 私有仓库；
   - 随机左右手、随机朝向、大范围位置的一份，也已上传 ModelScope 私有仓库（单独的仓库）。
@@ -36,6 +37,19 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 吧台冷水壶倒水 + 端到客区圆桌：第二个移动操作任务（2026-10-26，`chongzheng/task-pour-deliver-lounge`）
+
+- **用户要求**：吧台场景里"在吧台倒完水，再拿到桌子上"的移动操作，要拼接后的 4 视角视频。用户明确要**用冷水壶倒水**（一开始做成杯对杯倒，被否了）。
+- **任务** `g1d_pour_water_deliver_to_lounge`（`g1d_counter_mobile`）：台面上放冷水壶（约 300 ml 水）和水杯。一只手抓壶把往**立在台面上的**杯子里倒水，壶放回原位，另一只手侧抓杯口下方把杯子拿起，底盘开到客区蓝色圆桌放下。判据：`delivered_checks()`（杯 `cup`）加 `is_A_fluid_in_B`（倒出 ≥ 20%，倒出的 ≥ 90% 在杯里；水花碎成 3 mm 小水滴，按洒出算，不像豆子任务那样忽略小团）。2100 步。
+- **布局** `build_asset.pour_deliver_layout`（`LOUNGE_TASKS`，seed 0–2 各 10 个）：取 `g1d_pour_water_into_cup` 同一条流水线（`pour_liquid_into_cup` → `swap_bottle_for_pitcher`），再做四件事：随底盘后移 5.3 cm（`MOBILE_BACK`）；去掉台面杂物和 `Geometry`（X5 的相机支架正好立在机器人站的位置，会把移动版底盘推走 8 cm；杂物总让布局稳定性检查不过）；壶限制在 |x| ≤ 0.12、y ≤ -0.44（`JUG_MAX_X/Y`）；豆子换成水。
+- **水**：stock 液体（PBD fluid + isosurface，`Linen_Blue.mdl`）改了四处：`particle_mass` 2.7e-5（3 mm 粒子按 1 g/ml，`FluidObject` 默认 0.5 g 重 20 倍，杯子直接从手里滑掉）；`cohesion` 0、去掉 `surface_tension`（真实质量下水抱成一个球整团甩出去）；`damping` 0（0.99 时倾到 75° 还倒不出）；壶里装量 `WATER_FILL`（1.2, 1.2, 1.6），约 300 ml（豆子的 510 ml 换成水对壶把抓握太重）。
+- **脚本专家** `scripted_demo.pour_deliver_actions`：`pour_actions` 新增 `fluid_label`、`dry`、`pour_target`、`hold_cup` 参数（默认值不变，壶倒豆行为不变）。水用 `WATER_DRY` 40° 快倾、倒出 `WATER_POUR` 30% 停；`hold_cup=False` 时杯子留在台面、另一只手不动（原来空中托杯那步在这个场景里够不到）。倒完把壶移回原位放下、手沿进来的方向退出回原位；再用 `lift_cup`（从 `deliver_cup_actions` 抽出来，可指定手臂；这里固定用不拿壶的那只手，`arm_for` 按 x 会选到壶那只手，从壶那边伸过去会撞）拿杯，再调 `carry_to_lounge`（同样从 `deliver_cup_actions` 抽出来：后退、绕椅子开到圆桌、降升降柱、放杯、退手）。
+- **移动版底盘出生时卡在地柜里**：`g1d_counter_mobile` 原来的根节点 y=-0.80 抄自桌面版；移动版底盘碰撞体和地柜重叠，reset 时被推回 5.3 cm（`base_x_joint` = -0.0527，之后不再变），于是按桌面版调好的物体位置对它都远了 5 cm。`env_cfg/robot/g1d_counter_mobile.yml` 根节点改为 -0.853（就是它实际站的位置，送杯任务行为不变）。`DeliverCupToLoungeG1dCommon` 加了类属性 `CUP`。
+- **`cam_third`**：吧台场景原来的第三视角在微波炉后面被挡住。新增 `env_cfg/camera/g1d_counter_mobile_camera.yml`（只给 `g1d_counter_mobile` 用）：相机在房间右前角 (0.7, -3.8, 2.3)，能同时看到吧台和客区圆桌。
+- **视频**：`5090-2:/data/robodojo-runs/pour-deliver-20261026/stitch4.sh <回合目录> episode_0000000 <输出>` 把 `cam_head`、`cam_third`、左右腕拼成 2×2（1280×960，带标签）。
+- **验证**：本机 `bash scripts/check.sh` 通过（ruff 0.11.7、76 个单测、任务清单）。`5090-2` 隔离目录 `/data/robodojo-runs/pour-deliver-jug-b/`（3 号卡；`Assets/` 硬链接自 `counter-lounge-20261023-163001`，只多了本任务布局）跑 seed 0 布局 0：`success_rate` 1.0、`eval_time` 1，壶倒出 37%、杯里 34%，底盘全程停在 (0, -0.853)，左手抬杯 8 cm，开到圆桌放下即判成功（41 s，1241 帧）。4 视角拼接视频在该目录 `keep/v17_4view.mp4`，本机 `output/pour_deliver/g1d_pour_water_deliver_4view.mp4`（不入库）。中途的失败：壶在 x 0.26 够不到被碰倒；相机支架把底盘推走 8 cm 后抓不到杯；按 x 选手选到壶那只手撞壶；杂物让稳定性检查跳过布局。
+- **没做**：只验证了 seed 0 布局 0（壶 (0.10, -0.45)、杯 (-0.04, -0.43)）。`JUG_MAX_X/Y` 是在相机支架还没去掉时定的（当时底盘被推走，远处的壶够不到），去掉支架后可能可以放宽。`g1d_pour_water_into_cup` 自己的布局（`build_layouts`）没改。没跑完整 `build_asset.py`（服务器缺 `g1d_v4`/`unitree_ros`），布局用 `build_lounge_layouts` 单独生成；共享资产库没动。
 
 ### Aurora 分支本机复测（2026-10-25，尚未提交）
 

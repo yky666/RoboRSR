@@ -84,7 +84,7 @@ python scripts/g1d/build_asset.py
 | `g1d_school` | `real_scene4` 学校实验室绿幕桌 | 0.763 m | 根节点 y=-0.79、左偏 1.63°，升降柱 0（桌面相对躯干的高差按拟合值保留） |
 | `g1d_shenzhen_lab` | `real_scene5` 深圳实验室办公桌（卷尺实测） | 0.75 m | 根节点 y=-0.73（站位未实测），升降柱各 0.035 |
 | `g1d_mobile` | `real_scene1` 办公室升降桌（移动版） | 0.68 m | 起点同 `g1d`，底盘可移动 |
-| `g1d_counter_mobile` | `real_scene2` 吧台 + 左侧客区（移动版） | 0.833 m（客区圆桌 0.75 m） | 起点同 `g1d_counter`，底盘可移动；任务 `g1d_deliver_cup_to_lounge`：从吧台拿杯子送到客区圆桌，椅子是可推动的刚体 |
+| `g1d_counter_mobile` | `real_scene2` 吧台 + 左侧客区（移动版） | 0.833 m（客区圆桌 0.75 m） | 根节点 y=-0.853（底盘碰到地柜，比 `g1d_counter` 靠后 5.3 cm），底盘可移动；任务 `g1d_deliver_cup_to_lounge`：从吧台拿杯子送到客区圆桌，椅子是可推动的刚体；`g1d_pour_water_deliver_to_lounge`：在吧台用冷水壶往杯里倒水，再把杯子端到客区圆桌 |
 
 布局写在 `Assets/Eval_Layout/RoboDojo/<配置>/`，评测结果也按配置分目录。
 
