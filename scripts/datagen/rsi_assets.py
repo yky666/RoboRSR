@@ -46,6 +46,9 @@ def layout_assets(layout):
     """Asset ids an eval layout uses, and the categories of its task objects."""
     ids, categories = set(), set()
     ids.add(f"room:{(layout.get('Room') or {}).get('default')}")
+    for group in (layout.get("Room") or {}).get("appearance") or []:  # surfaces rebound to a Material/<dir> MDL
+        if (mdl := (group.get("material") or {}).get("mdl")) and "/Material/" in mdl:
+            ids.add(f"material:{mdl.split('/Material/')[1].split('/')[0]}")
     ids.add(f"material:{(layout.get('Table') or {}).get('default')}")
     ids.add(f"material:{((layout.get('Ground') or {}).get('materials') or {}).get('default')}")
     ids.add(f"hdr:{(layout.get('Background') or {}).get('category_name')}")

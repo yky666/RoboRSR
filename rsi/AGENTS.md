@@ -16,7 +16,7 @@
 
 | 资产 | 官方总数 | T0 | 两方都能用（官方训练见过） | 训练池 / 考场池（7:3） |
 | :-- | :-- | :-- | :-- | :-- |
-| 房间 `Assets/Room` | 14 | 12（全被 `_random` 用掉） | `Simple_Room`、`Simple_Room_nolight` | 0 / 0 |
+| 房间 `Assets/Room` | 14 | 12（全被 `_random` 用掉） | `Simple_Room`、`Simple_Room_nolight` | 0 / 0 个新房间目录；变体靠换墙面（下面「房间」一行），墙面材质按材质池走 |
 | 桌面 / 地面 MDL 材质 | 504 | 494 | 2 种 | 342 / 135（官方剩下的 6 / 2，加新导入的 469 种 Poly Haven 材质） |
 | 干扰物 | 杂物 193 个 | 几乎全部 | 0 | 280 / 115（几乎全是新导入的 ManiTwin 物体，外加 5 个字母牌） |
 | 任务物体实例 | — | `_random` 和开放任务配置里的全部编号 | 34 个有数据任务配置里的编号 | 25 / 5：新导入的 ManiTwin 碗 6 / 1（只给叠碗）、带把马克杯 15 / 4（只给挂杯），外加 4 个 `Geometry` 的照片、垫块、显示器 |
@@ -62,7 +62,7 @@
 | 物体位姿 | 在任务配置的范围内重采样；把范围往外扩一级 | `scripts/datagen/x5_layouts.py` | 越界扩展要先确认专家还能解 |
 | 物体实例 | 同类别换实例；造新实例（形状、尺寸、颜色、材质变体） | 平台物体登记 + `scripts/objects/SKILL.md`；运行时换色、缩放；导入 `scripts/objects/manitwin.py instances` | 已导入 ManiTwin 碗 7 个、带把马克杯 19 个（10-25）。还缺：装箱的车、牙刷、锤子、鞋（ManiTwin 没有锤子、牙刷，鞋只有 1 只拖鞋，要从 GSO 补；车要能分出车头），倒水的杯和瓶（要验证能装液体） |
 | 干扰物 | 数量 0 → 5 → 10 → 20；类别；摆放密度 | `x5_layouts.py`（`clutter`）；导入 `scripts/objects/manitwin.py` | 已导入 ManiTwin 390 个（10-24）；更多可以从 ManiTwin、GSO、Objaverse-LVIS 导入 |
-| 房间 | 换房间 | `x5_layouts.py`（`rooms`） | **新房间**：现成的全部是 T0 或基础房间；可以用训练池 / 考场池的材质给 `Simple_Room` 换墙面做变体，或者导入 Real2Sim 场景 |
+| 房间 | 换房间；换 `Simple_Room` 的墙面和木墙板材质（房间变体） | `x5_layouts.py`（`rooms`、`walls`：布局 `Room.appearance`，运行时由 `room_overrides.py` 重新绑定材质，世界坐标投影） | 已做（10-26）：墙面、木墙板各从本池材质里抽一种，训练池 342 种材质；`rsi_assets.audit` 会检查墙面材质。头部相机只在画面上角看到墙，和榜单 12 种彩色房间可见的范围一样 |
 | 桌面 / 地面材质 | 从材质池里抽 | `x5_layouts.py`（`tables`、`grounds`）；`scripts/scenes/polyhaven_materials.py` | 已导入 Poly Haven PBR 材质 469 种（10-25）；官方 504 种里三套评测集用掉 494 种 |
 | 光照 | 额外灯光的类型、数量、亮度、色温；HDR 贴图和亮度 | `x5_layouts.py`（`lights`、`background`）；`scripts/scenes/polyhaven_hdris.py` | 已导入 Poly Haven 室内 HDR 40 张（10-24）；默认亮度要调低（10-23 有过曝） |
 | 相机 | 头部相机角度扰动 | `x5_layouts.py`（`camera.ori_deg`） | 不许平移：平移 2 cm 会让部分环境出图全黑 |

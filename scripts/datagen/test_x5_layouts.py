@@ -38,6 +38,7 @@ def assets():
         (root / "Room" / d).mkdir(parents=True)
     for d in ("material_0122", "material_0564", "material_0001", "material_0002", "material_0003"):
         (root / "Material" / d).mkdir(parents=True)
+        (root / "Material" / d / f"{d}.mdl").write_text("")
     (root / "Background").mkdir()
     for h in ("brown_photostudio_02_4k.hdr", "studio.hdr"):
         (root / "Background" / h).write_text("")
@@ -114,6 +115,7 @@ PROFILE = {
     "rooms": ["Simple_Room_red", "Simple_Room_nolight"],
     "tables": ["material_0001"],
     "grounds": ["material_0002"],
+    "walls": ["material_0001", "material_0002"],
     "background": {"hdrs": ["studio.hdr"], "intensity": [600, 1400]},
     "lights": {
         "count": [1, 2],
@@ -178,6 +180,10 @@ def test_layouts():
             seen.add(round(b["default_pos"][0], 3))
         assert layout["Room"]["default"] in PROFILE["rooms"] and layout["Table"]["default"] == "material_0001"
         assert layout["Ground"]["materials"]["default"] == "material_0002"
+        walls = layout["Room"]["appearance"]  # both rooms of the profile are Simple_Rooms
+        assert [len(w["prims"]) for w in walls] == [len(p) for p in X.SIMPLE_ROOM_SURFACES.values()]
+        assert {w["material"]["mdl"].split("/")[-2] for w in walls} <= {"material_0001", "material_0002"}
+        assert {f"material:{m}" for m in record["walls"].values()} <= X.rsi_assets.layout_assets(layout)[0]
         assert (
             layout["Background"]["category_name"] == "studio.hdr" and 600 <= layout["Background"]["intensity"] <= 1400
         )
