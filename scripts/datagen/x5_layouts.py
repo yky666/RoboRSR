@@ -9,7 +9,9 @@ fixtures) and redraws, per layout:
 - object instances from the base task's config, same category and group, never an index only its _random variant
   uses (those are the benchmark's held-out instances);
 - clutter from Object/RoboDojo/Clutter, placed on its stable faces like the benchmark's _random layouts;
-- the Room, the tabletop and ground MDL materials, the HDR background and its intensity, and extra lights;
+- the Room, the tabletop and ground MDL materials, a Simple_Room's wall and wood-panel materials (room variants: the
+  Room entry's appearance, env/scene_manager/objects/room_overrides.py), the HDR background and its intensity, and
+  extra lights;
 - head-camera orientation jitter, through a generated env config (the engine draws it once per parallel env at
   start-up).
 Positions are never copied from the templates, which are the benchmark's eval layouts. The HDR dome is shared by the
@@ -76,6 +78,30 @@ RESTYLE = {
     "store_laptop_and_headphones": {"scale": {"headset"}},
 }
 COLOR_HSV = ((0.0, 1.0), (0.45, 0.9), (0.35, 0.9))  # hue, saturation, value of a random colour
+# Simple_Room meshes (below the Room prim) a profile's walls rebinds, one material per surface: the 12 coloured
+# Simple_Room variants of the benchmark only recolour these materials (WhitePlastic, WoodWall)
+_ROOM = "simple_room/Towel_Room01_"
+SIMPLE_ROOM_SURFACES = {
+    "wall": [
+        f"{_ROOM}{m}"
+        for m in (
+            "wall_back_272/Towel_Room01_wall_back",
+            "wall_back001_274/Towel_Room01_wall_back001",
+            "wall_corner_276/Towel_Room01_wall_corner",
+            "wall_corner001_278/Towel_Room01_wall_corner001",
+            "wall_corner002_280/Towel_Room01_wall_corner002",
+            "wall_corner003_282/Towel_Room01_wall_corner003",
+            "wall_side_284/Towel_Room01_wall_side",
+            "wall_side001_286/Towel_Room01_wall_side001",
+        )
+    ],
+    "wood": [
+        f"{_ROOM}wood_wall_{n}/Towel_Room01_wood_wall_{m}"
+        for n, m in (("308", "1"), ("310", "2"), ("312", "3"), ("314", "4"), ("316", "5"), ("318", "6"), ("320", "7"))
+    ]
+    + [f"{_ROOM}wood_wall_008_322/Towel_Room01_wood_wall_008", f"{_ROOM}wood_wall_009_324/Towel_Room01_wood_wall_009"],
+}
+WALL_TILE_M = 1.0  # one texture repeat per metre of wall (world-space projection, room_overrides.py)
 SEED_RANGES = {"train": (1000, 4999), "exam": (5000, 9999)}  # layout seed folders per pool, rsi/AGENTS.md section 2
 
 
@@ -483,6 +509,13 @@ class Generator:
         p = self.profile
         if (rooms := p.get("rooms")) and "Room" in layout:
             layout["Room"]["default"] = record["room"] = rng.choice(rooms)
+        if (walls := p.get("walls")) and str((layout.get("Room") or {}).get("default", "")).startswith("Simple_Room"):
+            layout["Room"]["appearance"], record["walls"] = [], {}
+            for surface, prims in SIMPLE_ROOM_SURFACES.items():
+                material = record["walls"][surface] = rng.choice(walls)
+                mdl = sorted((self.assets.root / "Material" / material).glob("*.mdl"))[0].name
+                spec = {"kind": "mdl", "mdl": f"$Robodojo_ASSETS/Material/{material}/{mdl}", "tile_m": WALL_TILE_M}
+                layout["Room"]["appearance"].append({"prims": list(prims), "material": spec})
         if (tables := p.get("tables")) and "Table" in layout:
             layout["Table"]["default"] = record["table"] = rng.choice(tables)
         if (grounds := p.get("grounds")) and "Ground" in layout:

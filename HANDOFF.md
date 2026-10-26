@@ -37,6 +37,14 @@
 
 ## 最近任务
 
+### RSI 房间变体：换 `Simple_Room` 墙面材质（2026-10-26，短分支 `chongzheng/rsi-rooms`）
+
+- **用户要求**：继续解决随机化（X5 专家暂停，进度在 `chongzheng/x5-experts`）。
+- **做法**：不造新房间目录。布局的 `Room` 条目本来就支持 `appearance`（`env/scene_manager/objects/room_overrides.py`，给 Real2Sim 场景换面用的：运行时把指定 mesh 重新绑定到 MDL，世界坐标投影）。`Simple_Room` 的面分组：墙面（`WhitePlastic`：背墙、侧墙、墙角）、木墙板（`WoodWall`）；榜单 12 种彩色房间也只是改了这几种材质的颜色。
+- **代码**：随机方案加 `walls`（材质目录列表，只能选本池的，`rsi_profile.check`）；`x5_layouts.py` 对 `Simple_Room*` 每个布局给墙面、木墙板各抽一种写进 `Room.appearance`（`SIMPLE_ROOM_SURFACES`，每米一个贴图重复）；`rsi_assets.layout_assets` 把 `appearance` 里的材质也算进资产，审计覆盖到墙面。平台随机方案抽屉加「墙面材质池」。`real2sim/materials/library.json` 用合并资产重建（`scene_parts.py --library`）：多了 469 种 Poly Haven 材质（原条目一个没变），之前平台上选不到新材质。
+- **验证**：本机 `check.sh` 通过（`test_x5_layouts` 加了墙面断言），页面脚本 `node --check`。`5090-2:/data/robodojo-runs/rsi-merged-20261025/`（材质 + 新实例合并的资产）：训练池方案（`walls` = 336 种 Poly Haven 材质）生成 `stack_bowls_random` seed 1201 的 6 个布局，`audit` 通过，保持姿态跑完退出码 0、无不稳定、无 MDL 报错；头部相机最后一帧上角能看到不同的墙面（砖墙等）。
+- **没做**：平台没部署、没在浏览器点过；地面踢脚线（`WhitePlastic2`）、窗户、灯没换；新材质的预览缩略图只在服务器的 `real2sim/materials/preview/`（不入库）。
+
 ### Aurora 分支本机复测（2026-10-25，尚未提交）
 
 以下为用户提供的 Linux 工作站复测记录，标题及“尚未提交”等措辞保留该次复测结束时的状态；不是本 Windows 会话执行的仿真结果。用户随后已授权本会话将测试修复与记录提交、推送到本分支并提出 PR，提交状态见下方补记。

@@ -1884,17 +1884,17 @@ function viewTasks() {
   }).join('')}</tbody></table></div>` : `<div class="card">${empty('list', '没有符合条件的任务', '换一个维度或清空搜索')}</div>`}</div>`;
 }
 // an upstream task's randomization profile: real2sim/benchmark_tasks/<task>/randomization.json, read by
-// scripts/datagen/x5_layouts.py. Picker lists rm-rsi (rooms), mt-rsi-tabletop / mt-rsi-floor (MDL materials, picked
+// scripts/datagen/x5_layouts.py. Picker lists rm-rsi (rooms), mt-rsi-tabletop / mt-rsi-floor / mt-rsi-wall (MDL materials, picked
 // as library ids "mdl/<dir>", saved as the Material/ dir), hd-rsi (HDRs), cl-rsi (clutter categories).
 let RSI_OPTS = {train: null, exam: null};  // rsi_profile.options() per pool: rooms, materials, hdrs, clutter, ...
 let RS = null;
 const rso = () => RSI_OPTS[RS?.pool || 'train'];
 const RS_POOL_NAMES = {train: '训练池（数据方）', exam: '考场池（评测方）'};
 function setRsPool(pool) {  // the other pool's picks are not allowed in this one
-  Object.assign(RS, {pool, rooms: [], tables: [], grounds: [], hdrs: [], cats: []});
+  Object.assign(RS, {pool, rooms: [], tables: [], grounds: [], walls: [], hdrs: [], cats: []});
   render();
 }
-const RS_LISTS = {'rm-rsi': 'rooms', 'mt-rsi-tabletop': 'tables', 'mt-rsi-floor': 'grounds', 'hd-rsi': 'hdrs', 'cl-rsi': 'cats'};
+const RS_LISTS = {'rm-rsi': 'rooms', 'mt-rsi-tabletop': 'tables', 'mt-rsi-floor': 'grounds', 'mt-rsi-wall': 'walls', 'hd-rsi': 'hdrs', 'cl-rsi': 'cats'};
 const LIGHT_NAMES = {Sphere: '球光', Disk: '圆盘光', Rect: '矩形面光', Cylinder: '柱光', Distant: '平行光'};
 function rsState(d) {
   if (RS?.id === d.id) return RS;
@@ -1902,6 +1902,7 @@ function rsState(d) {
   RS = {id: d.id, pool: p.pool || 'train', position: p.position ?? true, yaw: p.yaw ?? true, instances: p.instances ?? true,
     color: p.color ?? false, scOn: Boolean(p.scale), scLo: p.scale?.[0] ?? 0.9, scHi: p.scale?.[1] ?? 1.1,
     rooms: [...(p.rooms || [])], tables: (p.tables || []).map((m) => `mdl/${m}`), grounds: (p.grounds || []).map((m) => `mdl/${m}`),
+    walls: (p.walls || []).map((m) => `mdl/${m}`),
     bgOn: Boolean(bg), hdrs: [...(bg?.hdrs || [])], bgLo: bg?.intensity?.[0] ?? '', bgHi: bg?.intensity?.[1] ?? '',
     liOn: Boolean(li), liN0: li?.count?.[0] ?? 1, liN1: li?.count?.[1] ?? 2, types: li?.types || ['Sphere', 'Disk', 'Rect'],
     liLo: li?.intensity?.[0] ?? 0.5, liHi: li?.intensity?.[1] ?? 1.5, ctLo: li?.color_temperature?.[0] ?? 3500, ctHi: li?.color_temperature?.[1] ?? 7500,
@@ -1934,7 +1935,8 @@ function rsiSection(d) {
     ${block('房间与表面', '每个布局从池子里抽一个；榜单 _random 换 11–12 种房间、20 多种桌面 / 地面材质', `<div class="wz-grid">
       <div class="fld wide"><label>房间池 <span class="opt">Assets/Room</span></label>${picker('rm-rsi', '搜索房间，如 Simple_Room_red')}</div>
       <div class="fld wide"><label>桌面材质池 <span class="opt">MDL</span></label>${picker('mt-rsi-tabletop', '搜索材质：名称或类别')}</div>
-      <div class="fld wide"><label>地面材质池 <span class="opt">MDL</span></label>${picker('mt-rsi-floor', '搜索材质：名称或类别')}</div></div>`)}
+      <div class="fld wide"><label>地面材质池 <span class="opt">MDL</span></label>${picker('mt-rsi-floor', '搜索材质：名称或类别')}</div>
+      <div class="fld wide"><label>墙面材质池 <span class="opt">MDL，只换 Simple_Room 的墙面和木墙板（每个布局各抽一种），就是房间变体</span></label>${picker('mt-rsi-wall', '搜索材质：名称或类别')}</div></div>`)}
     ${block('背景 HDR', '整个舞台共用一个穹顶：引擎取第一个并行环境的布局', `<div class="toolbar">${chk('bgOn', '随机背景', true)}</div>${r.bgOn ? `<div class="wz-grid">
       <div class="fld wide"><label>HDR 池 <span class="opt">留空保持原背景；本池可用 ${rso()?.hdrs?.length ?? '?'} 个</span></label>${picker('hd-rsi', '搜索 HDR')}</div>
       ${num('bgLo', '亮度最低', 50)}${num('bgHi', '亮度最高', 50)}</div>` : ''}`)}
@@ -1950,7 +1952,7 @@ function rsiSection(d) {
 async function saveRandomization(id, clear = false) {
   const n = (v) => (v === '' || v == null ? null : Number(v)), r = RS, dirOf = (m) => m.replace(/^mdl\//, '');
   const profile = clear ? null : {pool: r.pool, position: r.position, yaw: r.yaw, instances: r.instances, color: r.color,
-    rooms: r.rooms, tables: r.tables.map(dirOf), grounds: r.grounds.map(dirOf)};
+    rooms: r.rooms, tables: r.tables.map(dirOf), grounds: r.grounds.map(dirOf), walls: r.walls.map(dirOf)};
   if (profile && r.scOn) profile.scale = [n(r.scLo), n(r.scHi)];
   if (profile && r.bgOn) profile.background = {hdrs: r.hdrs, intensity: n(r.bgLo) == null && n(r.bgHi) == null ? null : [n(r.bgLo), n(r.bgHi)]};
   if (profile && r.liOn) profile.lights = {count: [n(r.liN0), n(r.liN1)], types: r.types, intensity: [n(r.liLo), n(r.liHi)], color_temperature: [n(r.ctLo), n(r.ctHi)]};

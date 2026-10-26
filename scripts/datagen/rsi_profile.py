@@ -7,6 +7,7 @@ and read by scripts/datagen/x5_layouts.py. Stdlib only, so the platform server c
      "position": true, "yaw": true, "instances": true,          # resampled within the task's own ranges / the pool
      "color": true, "scale": [0.9, 1.1],                        # task objects, only where x5_layouts.RESTYLE allows
      "rooms": [...], "tables": [...], "grounds": [...],         # Assets/Room, Assets/Material dirs; [] keeps the task's
+     "walls": [...],                                            # Assets/Material dirs for a Simple_Room's walls
      "background": {"hdrs": [...], "intensity": [lo, hi]},      # Assets/Background files
      "lights": {"count": [lo, hi], "types": ["Sphere"], "intensity": [lo, hi], "color_temperature": [lo, hi]},
      "clutter": {"count": [lo, hi], "categories": []},          # distractor categories of the pool, [] = all
@@ -25,7 +26,7 @@ PROFILES_DIR = ROOT / "real2sim" / "benchmark_tasks"  # <task>/randomization.jso
 LIGHT_TYPES = ("Sphere", "Disk", "Rect", "Cylinder", "Distant")
 LIGHT_REF = {"Sphere": 3e4, "Disk": 3e4, "Rect": 3e4, "Cylinder": 3e4, "Distant": 1.5e3}
 FLAGS = ("position", "yaw", "instances", "color")
-POOLS = ("rooms", "tables", "grounds")
+POOLS = ("rooms", "tables", "grounds", "walls")
 LIMITS = {  # (low, high) any range value must stay inside
     "background.intensity": (0, 1e5),
     "lights.count": (0, 8),
@@ -92,7 +93,12 @@ def check(profile, opts):
             return f"{flag} 只能是 true / false"
     if profile.get("scale") is not None and (error := _range(profile["scale"], "scale")):
         return error
-    pick = {"rooms": opts["rooms"], "tables": opts["materials"], "grounds": opts["materials"]}
+    pick = {
+        "rooms": opts["rooms"],
+        "tables": opts["materials"],
+        "grounds": opts["materials"],
+        "walls": opts["materials"],
+    }
     for key, allowed in pick.items():
         values = profile.get(key) or []
         if not isinstance(values, list) or (missing := [v for v in values if v not in allowed]):
