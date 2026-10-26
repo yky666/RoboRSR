@@ -37,6 +37,20 @@
 
 ## 最近任务
 
+### X5 脚本专家：叠碗（2026-10-25，短分支 `chongzheng/x5-experts`，进行中）
+
+- **用户要求**：随机化够用后，先做双臂 X5 的脚本专家，从叠碗、挂杯开始（这两个任务的新实例已经齐了）。
+- **官方数据的约定**（dsw-4 `/mnt/data/datasets/RoboDojo/data/RoboDojo/<task>/arx_x5/data`，每任务 100 条）：25 Hz；`action[t]` 就是 `state[t+1]`（关节、末端位姿、夹爪都是）；`delta_ee_poses` 与 `ee_poses` 数值相同；每帧存相机外参，内参一份；末端位姿是 `link6`（世界系）；夹爪 1 = 开；两臂轮流动作，各回初始关节零位。叠碗：中间的碗当底座，两侧的碗由同侧手臂斜着夹碗沿搬过去。
+- **代码**：
+  - `scripts/datagen/x5_expert.py`：`link6` 笛卡尔路径（每步 ≤ 6 mm）用环境的 cuRobo IK 逐步求关节，前一步作初值，IK 跳变（> 0.35 rad）重解 4 次取最近的；夹爪每步 0.1；`wall_pinch`（两指沿半径水平合拢，接近方向沿碗沿切线倾斜）。夹持面中心离 `link6` 0.150 m（`X5A.urdf`：joint7 在 0.0866，指垫 0.056–0.071）。
+  - `scripts/datagen/plugins/stack_bowls.py`（+ `stack_bowls_random.py`）：每只手两段，夹起（斜着夹碗沿、朝碗心倾斜，`GRASPS` 45–75° 依次试，抬 4 cm）+ 放置（按碗此刻的位姿：绕捏点找平、绕碗轴转腕、抬高余量依次试，第一个 IK 能走完整条路径的）；验收 `stacked_upright_home_v1` = 任务自己的判定连续 25 帧。`x5_expert.wall_pinch`（两指沿半径水平合拢）试过，没有更好，留作别的任务用。
+  - `collect.py`：插件写 `ACTIONS = "next_state"` 时按官方 X5 格式记录（全部状态键、动作取下一帧状态、`delta_ee_pose`、相机内外参）；G1-D 插件不变。`env_cfg/arx_x5_collect.yml` = `arx_x5` 打开相机矩阵。
+  - `CuroboPlanner` 加可选 `device`，`RobotManager` 传入 PhysX 所在的卡（Kit 设置 `/physics/cudaDevice`，并设为 torch 当前设备）：用 `--device cuda:N` 启动时 cuRobo 原来固定在 cuda:0，跨卡偶发 warp 内核找不到 / 非法内存访问。用 `CUDA_VISIBLE_DEVICES` 启动时不变。
+- **查明的坑**：官方 13 个碗的 `oriented_bbox` 在 xy 上转了 45°（比碗口大至多 40%），量碗要用 `aligned_bbox`；碗被夹碗沿后会在手里倾斜 17–56°（重力绕捏点转，斜着合拢还会把碗撬起 25°），倾斜着放会撞歪底座；X5 在近处高位（z 1.05–1.1、y −0.4..−0.2）够得到，远处（y ≥ 0）够不到，别扭的腕姿态才是多数 IK 失败的原因。`collect.py` 会 `os.execv` 成评测客户端，Isaac 不理 SIGTERM，停任务用运行目录里的 `stop_mine.sh`（按 cwd 找进程 `kill -9`）；`pkill -f <模式>` 会把执行它的 ssh 会话自己杀掉。
+- **现状**：官方 seed 0 的 12 个布局 7 个通过验收（0–5 号全过，6–11 号过 1 个），每条 480–610 帧（官方 204–460）；录下的 HDF5 键和官方一一对应（数值 float32，官方 float64）。失败 5 个：4 个是一只手跨过中线放第二个碗时 IK 不可达（x 过中线 0.14–0.17 m，或要抬到 z 1.13–1.16），1 个叠歪。只在官方布局上调过（只用来调专家，不进训练数据）；RSI 布局（新碗）还没跑。
+- **下一步**：按两臂可达性选底座（三个碗都试，选两只手放置位姿都能解的）；放置失败时换手；之后接 RSI 训练池布局（`stack_bowls_random`，新碗）批量采集、`audit`；再做挂杯。
+- **服务器**：`5090-2:/data/robodojo-runs/rsi-inst-20261025/`（`run_collect.sh <task> <seed> <gpu> <output> [ids]`，`output/x5_probe/`）。
+
 ### Aurora 分支本机复测（2026-10-25，尚未提交）
 
 以下为用户提供的 Linux 工作站复测记录，标题及“尚未提交”等措辞保留该次复测结束时的状态；不是本 Windows 会话执行的仿真结果。用户随后已授权本会话将测试修复与记录提交、推送到本分支并提出 PR，提交状态见下方补记。
