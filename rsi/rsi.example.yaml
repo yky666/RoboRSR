@@ -36,8 +36,11 @@ tasks: [stack_bowls, hang_mugs, push_T, make_toast, pack_objects_into_box, pour_
 
 budget:                    # per round
   data_episodes: 2000
-  exam_episodes: 1800      # 7 families x 5 axes x 30 at the frontier = 60%, +25% one level up, +15% L0 anchor
-  sealed_probe_episodes: 300   # 25 per task, built once at round 0
+  exam_episodes: 250       # 5 axes x 30 at the frontier = 60%, +25% one level up, +15% L0 anchor (families pooled)
+  capability_episodes_per_task: 10   # L0, the same layouts every round
+  sealed_probe_episodes: 120   # 10 per task, built once at round 0
+  start_eval: {tasks: 24, episodes_per_task: 10}  # the 12 base tasks and their _random variants, fixed layouts
+  calibration: {tasks: 5, episodes_per_task: 10}  # against the leaderboard's published per-task scores
   exploration_share: 0.3   # rule 2: data and exam both
 
 gates:                     # rsi/AGENTS.md section 5.4
