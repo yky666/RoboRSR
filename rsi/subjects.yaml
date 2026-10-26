@@ -5,7 +5,8 @@
 # Changed only by the humans running the RSI, between runs, never during one.
 version: 1
 
-families:                  # base tasks of the 12 _random variants; the scorecard reports per family
+families:                  # base tasks of the 12 _random variants; an exam spreads each axis evenly over them,
+                           # the scorecard pools them (per axis and level)
   place: [stack_bowls, stack_blocks, hang_mugs, sort_nesting_dolls_by_size]
   pack: [pack_objects_into_box, store_laptop_and_headphones]
   tool: [push_T, sweep_blocks]
