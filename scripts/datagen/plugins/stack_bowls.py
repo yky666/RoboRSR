@@ -78,6 +78,7 @@ class Episode:
         self.env, self.lm, self.rm = env, env.scene_manager.layout_manager, env.reward_manager
         self.arms = [X.Arm(env, "left"), X.Arm(env, "right")]
         self.start = {arm.prefix: (arm.q[0].copy(), arm.pose) for arm in self.arms}
+        self.checks = X.task_checks(env)
         bowls = {label: bowl(self.lm, label) for label in LABELS}
         by_x = sorted(LABELS, key=lambda label: bowls[label]["xy"][0])
         self.base = by_x[1]
@@ -112,7 +113,7 @@ class Episode:
             self.grasps[label] = grasp_kind
             self.approach[label] = approach
             return arm.take()
-        raise X.Unreachable(f"{label}: {last}")
+        raise X.Unreachable(last)
 
     def place(self, arm, label, stack):
         """Frames of the arm levelling the held `label` (it tilts in the grip: the wrist turns about the pinch point
@@ -166,7 +167,7 @@ class Episode:
                 try:
                     frames = phase(arm, label, stack)
                 except X.Unreachable as e:
-                    self.failure = str(e)
+                    self.failure = f"{phase.__name__} {label}: {e}"
                     self.env.success[0] = False  # collect.py stops and rejects the episode
                     return
                 yield from X.actions(self.arms, arm, frames)
@@ -195,7 +196,13 @@ class Episode:
         return dict(bowl_poses=np.asarray(self.history).reshape(-1, len(LABELS), 7))
 
     def summary(self):
-        return dict(base=self.base, order=self.order, grasps=self.grasps, failure=self.failure)
+        return dict(
+            base=self.base,
+            order=self.order,
+            grasps=self.grasps,
+            failure=self.failure,
+            final_checks=X.task_report(self.env, self.checks),
+        )
 
 
 def audit(privileged, quality):

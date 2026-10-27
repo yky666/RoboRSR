@@ -91,6 +91,15 @@ description: 在 RoboDojo 里用脚本专家批量生成 G1-D 仿真示教数据
 - `audit(privileged, quality)`：只用录下来的数据重新计算验收，不通过时抛出 `AssertionError`，返回审计指标。
 - 判据要比任务的 `run_reward` 更严格，并且只用实际几何（参照 `scripts/objects/measuring_cup_shape.py`，任务代码和插件读同一个形状模块）。
 - 在 `scripts/datagen/test_datagen.py` 加一个用合成数据跑 `audit()` 的用例。
+- 失败要说清楚：`summary()` 写 `failure`（专家放弃的阶段和原因，例如 `place bowl2: right IK fails at [...]`）和 `final_checks`（`x5_expert.task_report`：回合结束时任务判定的每一项是否成立），迭代报告靠它们归类。
+
+## 迭代改进专家（每改一版跑一轮）
+
+专家要在训练布局上验收率 ≥ 50% 才能用来造数据（`rsi/AGENTS.md` R0.3）。每改一版插件：
+
+1. 在固定的一组布局上采集（同一组布局前后成对比较）。调参用训练布局（`x5_layouts.py` 的 seed 1000–4999）；官方 seed 0 只能用来复现已知问题，不能拿来调到通过。
+2. `python scripts/datagen/expert_report.py <采集目录>... --out <报告目录> [--baseline <上一版>/report.json]`（仿真环境的 python，不启动 Isaac）。终端打出 markdown 摘要：验收率和 95% 区间、失败按原因归类（同一种失败去掉数字后合并）、和上一版逐类对比；`report.json` 是逐回合明细；`sheets/` 是失败回合头部相机的 6 帧拼图，先看图再改代码。
+3. 报告里的标记：单帧关节变化 > 0.16 rad 或末端位移 > 4 cm（官方叠碗示教最大 0.155 rad、3.7 cm），物体速度 > 1 m/s（被撞飞）或低于桌面 5 cm（掉下桌）。有标记的回合即使通过验收也要看一眼：可能是钻了仿真的空子。
 
 ## 上游榜单任务（dual X5）的随机布局
 

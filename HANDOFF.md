@@ -1,6 +1,6 @@
 # Project Handoff
 
-更新时间：2026-10-25
+更新时间：2026-10-27（X5 专家迭代报告，分支 `chongzheng/x5-stack-bowls-loop`，见「最近任务」第一节）
 本会话分支：`komari/feat-g1d-aurora-tactile`；独立 worktree `../RoboRSR-g1d-aurora`，原基于 `8e0d7a7`，现合并远端 `main@961a9f5`。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
@@ -36,6 +36,17 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### X5 专家的迭代报告（2026-10-27，短分支 `chongzheng/x5-stack-bowls-loop`，基于 `chongzheng/x5-experts`）
+
+- **用户要求**：README 里的 RSI 先不做真机，只做 RoboDojo 官方仿真；迭代对象是专家轨迹生成器（造训练数据用），第一个任务 `stack_bowls`。先做"每改一版专家跑一轮"的报告，再改专家。
+- **代码**：
+  - `scripts/datagen/expert_report.py`（+ `test_expert_report.py`）：读一批或几批 `collect.py` 输出（不启动 Isaac），逐回合归类结果（通过；开局拒绝；专家放弃，去掉数字后合并同类；回合结束时仍不成立的任务判定项），算每只手单帧最大关节变化和末端位移、`privileged/<名>_poses` 里物体的最大速度和最低高度并打标记，写 `report.json`（验收率 + 95% Wilson 区间 + 逐回合），给失败回合存头部相机 6 帧拼图 `sheets/`，终端打 markdown 摘要，`--baseline` 和上一版逐类对比。
+  - 阈值：单帧关节 > 0.16 rad、末端 > 4 cm（dsw-4 上官方叠碗 100 条实测最大 0.155 rad、3.7 cm，关节像是被限幅在 0.153；官方回合 204/444/780 帧），物体 > 1 m/s 或 z < 0.69 m。
+  - `plugins/stack_bowls.py`：`failure` 前加阶段和碗（`pick bowl1: ...` / `place bowl2: ...`），`summary()` 加 `final_checks`（`x5_expert.task_report`，和挂杯一致）。
+  - `scripts/datagen/SKILL.md` 加「迭代改进专家」一节。
+- **验证**：本机 ruff（0.11.7）和 `test_expert_report.py`、`test_x5_expert.py` 7 passed（uv 临时环境；本机没跑完整 `check.sh`，缺依赖）。`5090-2:/data/robodojo-runs/x5-loop-20261027/`（代码 = 本分支，`Assets`、`third_party` 软链接到 `rsi-inst-20261025`，`XPolicyLab` 到 `leaderboard-baseline-20261022`）上对 10-25 的旧探针出报告：叠碗 7/12（95% 区间 0.32–0.81；IK 不可达左右各 2，1 个保持不够），挂杯 3/12（判定不过 5、IK 跳变 3、够不到 1，1 个杯子被甩飞），和下面记录一致。专家单帧关节最大约 0.08 rad、末端约 1 cm，比官方慢，回合偏长（通过的 483–607 帧）。改过的插件在 3 号卡重跑官方 seed 0 的 6、10 号（`output/probe_r1`，只为检查记录字段）：结果同 10-25；6 号三只碗叠上、两臂回位，但 `bowl0` 倾斜 > 45°（上层碗歪着卡住）；10 号 `place bowl1: right IK fails at [-0.033, -0.238, 1.159]`。服务器上 `pytest scripts/datagen` 24 passed。
+- **下一步**：用 `x5_layouts.py` 生成 `stack_bowls` 的 L0 训练布局（seed 1000 段，20 个），作为固定的迭代集，跑出第 0 版报告；然后按报告改专家（先解决 4 个跨中线放碗 IK 不可达：按两臂可达性选底座）。
 
 ### X5 脚本专家：叠碗（2026-10-25，短分支 `chongzheng/x5-experts`，进行中）
 
