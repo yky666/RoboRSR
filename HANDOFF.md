@@ -1,6 +1,6 @@
 # Project Handoff
 
-更新时间：2026-10-25
+更新时间：2026-10-27
 本会话分支：`komari/feat-g1d-aurora-tactile`；独立 worktree `../RoboRSR-g1d-aurora`，原基于 `8e0d7a7`，现合并远端 `main@961a9f5`。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
@@ -36,6 +36,15 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### G1-D 分级泛化评测集加「L2 机器人位姿」，原 L2–L4 后移为 L3–L5（2026-10-27，短分支 `chongzheng/docs-eval-levels-robot-pose`）
+
+- **用户要求**：真机每次停靠的位置不同，机器人底座的左右位置、离桌距离、高度、偏航也要作为泛化变量，并放在 L2，其余各级依次后移。现在是 L0 孪生、L1 位置、L2 机器人位姿、L3 外观、L4 物体、L5 场景，每个任务约 275 个布局，专家可行性过滤改为 L0–L4。
+- **改动**：README 等级表和说明（L2 也要进训练布局；底座移动会改变头部相机视角和可达空间，和 L1 只移动物体不等价）；数采平台 `LEVELS` 和「登记任务」向导：第 4 步新增「机器人位姿随机」（左右位置、离桌距离、高度、偏航，默认全勾），勾了就开启 L2；外观开 L3、保留物体开 L4、保留场景开 L5，相关文字同步；「其他泛化」预设去掉「机器人站位 ±3 cm」；实现任务文本和抽屉摘要加机器人位姿一项。`registration.json` 新增 `robot_pose` 字段（`server.py`、`test_server.py`）。`scripts/datagen/SKILL.md`、`real2sim/scenes/SKILL.md` 的「L4 保留」改为 L5。
+- **L2 默认范围是暂定的**：左右 ±3 cm、离桌 ±3 cm、偏航 ±5°、升降柱 ±2 cm，以场景登记的站位实测为中心；应按真机 10–20 次停靠的实测分布再定。
+- **不受影响**：唯一已登记的任务 `g1d_pour_beans_any_cups` 只用 L0、L1，不用迁移；`rsi/subjects.yaml` 的 L0–L3 是各维度内部的难度级，和这套等级无关。平台数据库里任务的「已生成」布局数按等级键存，如果 `5090-2` 上有人填过 L2–L4，部署后会错位一级（需要时手动挪）。
+- **还没实现**：`env_cfg/robot/g1d.yml` 的 `default_root_pos` 是固定的，布局还不能按回合设底座位姿；实现任务文本已要求 coding agent 补上并确认 reset 时生效。
+- **验证**：本机 `test_server.py` 9 passed、ruff 0.11.7（改动的 Python 文件）、任务清单检查、`git diff --check`；`check.sh` 全量里的 `test_x5_layouts.py` 因本机环境缺 `transforms3d` 没跑（和本改动无关）。本机浏览器：向导第 4 步默认开启 L2，取消「高度」后依据更新，全部取消后 L2 关闭。没部署到 `5090-2`。
 
 ### RSI 协议 v0.5：起始评测和每轮考卷压缩（2026-10-26）
 
