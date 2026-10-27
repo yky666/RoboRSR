@@ -27,22 +27,22 @@
     {
      "path": "Background/Walls/back",
      "material": "wall",
-     "uv_m": null
+     "uv_m": 1.0
     },
     {
-     "path": "Background/Walls/front",
+     "path": "Background/Walls/east",
      "material": "wall",
-     "uv_m": null
+     "uv_m": 1.0
     },
     {
-     "path": "Background/Walls/left",
+     "path": "Background/Walls/alcove_back",
      "material": "wall",
-     "uv_m": null
+     "uv_m": 1.0
     },
     {
-     "path": "Background/Walls/right",
+     "path": "Background/Walls/west",
      "material": "wall",
-     "uv_m": null
+     "uv_m": 1.0
     }
    ],
    "materials": [
@@ -56,7 +56,7 @@
      "texture": null,
      "roughness": 0.9,
      "metallic": 0.0,
-     "tile_m": null
+     "tile_m": 1.0
     }
    ]
   },

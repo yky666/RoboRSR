@@ -58,7 +58,7 @@
    "name": "every render mesh has a bound material",
    "ok": true,
    "detail": {
-    "render_meshes": 37,
+    "render_meshes": 254,
     "unbound": []
    }
   },
@@ -66,14 +66,14 @@
    "name": "render triangle budget (< 100k)",
    "ok": true,
    "detail": {
-    "triangles": 480
+    "triangles": 7068
    }
   },
   {
    "name": "colliders are guide purpose (not rendered)",
    "ok": true,
    "detail": {
-    "colliders": 16,
+    "colliders": 92,
     "rendered": []
    }
   },
@@ -160,10 +160,62 @@
    }
   },
   {
+   "name": "one wall per outline segment",
+   "ok": true,
+   "detail": {
+    "walls": 10,
+    "segments": 10
+   }
+  },
+  {
+   "name": "ceiling and soffits close the room (no sky above the floor)",
+   "ok": true,
+   "detail": {
+    "uncovered_m2": 0.0
+   }
+  },
+  {
+   "name": "every furniture piece stands on the floor",
+   "ok": true,
+   "detail": {
+    "DeskRow": 0.0,
+    "LiftDesk": 0.0,
+    "chair_0": 0.0,
+    "chair_1": 0.0,
+    "chair_2": 0.0,
+    "chair_3": 0.0,
+    "chair_4": 0.0,
+    "Shelf": 0.0,
+    "Railing": 0.0
+   }
+  },
+  {
+   "name": "furniture inside the room outline",
+   "ok": true,
+   "detail": {
+    "outside": []
+   }
+  },
+  {
+   "name": "furniture pieces do not overlap each other, the desk or the cabinet",
+   "ok": true,
+   "detail": {
+    "overlaps": []
+   }
+  },
+  {
+   "name": "furniture keeps 1 m from the desk and the robot stance",
+   "ok": true,
+   "detail": {
+    "near": []
+   }
+  },
+  {
    "name": "textures have no unfilled (black) areas (< 1%)",
    "ok": true,
    "detail": {
-    "carpet.png": 0.0
+    "carpet.png": 0.0,
+    "perforated.png": 0.0
    }
   },
   {
@@ -174,7 +226,11 @@
      "/World/Lights/CeilingStrip_0",
      "/World/Lights/CeilingStrip_1",
      "/World/Lights/CeilingStrip_2",
-     "/World/Lights/CeilingStrip_3",
+     "/World/Lights/Downlight_0",
+     "/World/Lights/Downlight_1",
+     "/World/Lights/Downlight_2",
+     "/World/Lights/Downlight_3",
+     "/World/Lights/Downlight_4",
      "/World/Lights/AmbientDome"
     ]
    }
@@ -191,6 +247,6 @@
   "RTX rendering, exposure and colour match against the photos",
   "robot stand (not measured), light positions and brightness (not recorded), friction (estimates)"
  ],
- "passed": 22,
- "total": 22
+ "passed": 28,
+ "total": 28
 }

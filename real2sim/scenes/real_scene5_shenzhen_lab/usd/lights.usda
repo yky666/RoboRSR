@@ -12,10 +12,10 @@ def Xform "Lights"
     {
         float inputs:colorTemperature = 6000
         bool inputs:enableColorTemperature = 1
-        float inputs:height = 0.15
-        float inputs:intensity = 54000
-        float inputs:width = 1.2
-        double3 xformOp:translate = (0, -0.2, 2.78)
+        float inputs:height = 6.496
+        float inputs:intensity = 100000
+        float inputs:width = 0.06
+        double3 xformOp:translate = (0.09, -4.051, 2.917)
         uniform token[] xformOpOrder = ["xformOp:translate"]
     }
 
@@ -23,10 +23,10 @@ def Xform "Lights"
     {
         float inputs:colorTemperature = 6000
         bool inputs:enableColorTemperature = 1
-        float inputs:height = 0.15
-        float inputs:intensity = 54000
-        float inputs:width = 1.2
-        double3 xformOp:translate = (0, -1, 2.78)
+        float inputs:height = 6.496
+        float inputs:intensity = 100000
+        float inputs:width = 0.06
+        double3 xformOp:translate = (-3.31, -4.051, 2.917)
         uniform token[] xformOpOrder = ["xformOp:translate"]
     }
 
@@ -34,21 +34,80 @@ def Xform "Lights"
     {
         float inputs:colorTemperature = 6000
         bool inputs:enableColorTemperature = 1
-        float inputs:height = 0.15
-        float inputs:intensity = 54000
-        float inputs:width = 1.2
-        double3 xformOp:translate = (-1.6, -0.6, 2.78)
+        float inputs:height = 6.496
+        float inputs:intensity = 100000
+        float inputs:width = 0.06
+        double3 xformOp:translate = (-5.9, -4.051, 2.917)
         uniform token[] xformOpOrder = ["xformOp:translate"]
     }
 
-    def RectLight "CeilingStrip_3"
+    def DiskLight "Downlight_0" (
+        prepend apiSchemas = ["ShapingAPI"]
+    )
     {
         float inputs:colorTemperature = 6000
         bool inputs:enableColorTemperature = 1
-        float inputs:height = 0.15
-        float inputs:intensity = 54000
-        float inputs:width = 1.2
-        double3 xformOp:translate = (1.6, -0.6, 2.78)
+        float inputs:intensity = 1600000
+        float inputs:radius = 0.05
+        float inputs:shaping:cone:angle = 55
+        float inputs:shaping:cone:softness = 0.4
+        double3 xformOp:translate = (-6.37, -0.08, 2.8270000000000004)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def DiskLight "Downlight_1" (
+        prepend apiSchemas = ["ShapingAPI"]
+    )
+    {
+        float inputs:colorTemperature = 6000
+        bool inputs:enableColorTemperature = 1
+        float inputs:intensity = 1600000
+        float inputs:radius = 0.05
+        float inputs:shaping:cone:angle = 55
+        float inputs:shaping:cone:softness = 0.4
+        double3 xformOp:translate = (-4.57, -0.08, 2.8270000000000004)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def DiskLight "Downlight_2" (
+        prepend apiSchemas = ["ShapingAPI"]
+    )
+    {
+        float inputs:colorTemperature = 6000
+        bool inputs:enableColorTemperature = 1
+        float inputs:intensity = 1600000
+        float inputs:radius = 0.05
+        float inputs:shaping:cone:angle = 55
+        float inputs:shaping:cone:softness = 0.4
+        double3 xformOp:translate = (-3.01, -0.08, 2.8270000000000004)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def DiskLight "Downlight_3" (
+        prepend apiSchemas = ["ShapingAPI"]
+    )
+    {
+        float inputs:colorTemperature = 6000
+        bool inputs:enableColorTemperature = 1
+        float inputs:intensity = 1600000
+        float inputs:radius = 0.05
+        float inputs:shaping:cone:angle = 55
+        float inputs:shaping:cone:softness = 0.4
+        double3 xformOp:translate = (-0.64, -0.08, 2.8270000000000004)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def DiskLight "Downlight_4" (
+        prepend apiSchemas = ["ShapingAPI"]
+    )
+    {
+        float inputs:colorTemperature = 6000
+        bool inputs:enableColorTemperature = 1
+        float inputs:intensity = 1600000
+        float inputs:radius = 0.05
+        float inputs:shaping:cone:angle = 55
+        float inputs:shaping:cone:softness = 0.4
+        double3 xformOp:translate = (1.36, -0.08, 2.8270000000000004)
         uniform token[] xformOpOrder = ["xformOp:translate"]
     }
 
