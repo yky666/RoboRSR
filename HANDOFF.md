@@ -44,7 +44,8 @@
 - **L2 默认范围是暂定的**：左右 ±3 cm、离桌 ±3 cm、偏航 ±5°、升降柱 ±2 cm，以场景登记的站位实测为中心；应按真机 10–20 次停靠的实测分布再定。
 - **不受影响**：唯一已登记的任务 `g1d_pour_beans_any_cups` 只用 L0、L1，不用迁移；`rsi/subjects.yaml` 的 L0–L3 是各维度内部的难度级，和这套等级无关。平台数据库里任务的「已生成」布局数按等级键存，如果 `5090-2` 上有人填过 L2–L4，部署后会错位一级（需要时手动挪）。
 - **还没实现**：`env_cfg/robot/g1d.yml` 的 `default_root_pos` 是固定的，布局还不能按回合设底座位姿；实现任务文本已要求 coding agent 补上并确认 reset 时生效。
-- **验证**：本机 `test_server.py` 9 passed、ruff 0.11.7（改动的 Python 文件）、任务清单检查、`git diff --check`；`check.sh` 全量里的 `test_x5_layouts.py` 因本机环境缺 `transforms3d` 没跑（和本改动无关）。本机浏览器：向导第 4 步默认开启 L2，取消「高度」后依据更新，全部取消后 L2 关闭。没部署到 `5090-2`。
+- **验证**：本机 `test_server.py` 9 passed、ruff 0.11.7（改动的 Python 文件）、任务清单检查、`git diff --check`；`check.sh` 全量里的 `test_x5_layouts.py` 因本机环境缺 `transforms3d` 没跑（和本改动无关）。本机浏览器：向导第 4 步默认开启 L2，取消「高度」后依据更新，全部取消后 L2 关闭。
+- **PR 和部署**：[PR #30](https://github.com/Zheng-Chong/RoboRSR/pull/30)，还没合并。数采平台已部署这个分支提交（部署机从 `c5bfc22` 快进，原有未提交改动保留），`5090-2` 上 `test_server.py` 9 passed，重启后未登录 401。部署细节见本机 `.agent/ops.local.md`；PR 如果用 squash 合并，部署机下次不能直接快进到 `main`。
 
 ### RSI 协议 v0.5：起始评测和每轮考卷压缩（2026-10-26）
 
