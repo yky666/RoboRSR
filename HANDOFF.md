@@ -85,6 +85,7 @@
 - **还没实现**（实现任务文本里都已提示）：底座位姿不能按布局设（`env_cfg/robot/g1d.yml` 的 `default_root_pos` 固定）；评测客户端没有观测图像扰动的接口；`instructions.json` 还没有 `detailed` / `holdout` 的约定和读取。
 - **和 RSI 的关系**：`rsi/subjects.yaml` 也是「维度 × L0–L3」，但轴是实例、杂物、表面、灯光、相机；以后可以统一成这五个维度，RSI 补空间关系和语言对齐。
 - **验证**：本机 `test_server.py` 9 passed（新字段写入、`max: 0` 保留）、ruff 0.11.7、任务清单检查、`git diff --check`、内联脚本 `node --check`。本机浏览器（临时库）：第 4 步五个维度和默认档位（无保留资产时物体、场景为 L2）、物体开 L3 被拦、降回 L2 通过、语言设 L0 后范围收起；提交测试任务，`registration.json` 和实现任务文本正确（G3 中只开到 L2 的维度停在 L2），已删除；任务抽屉分级表、评测向导等级选项。
+- **部署**（[PR #31](https://github.com/Zheng-Chong/RoboRSR/pull/31) 未合并）：数采平台已部署 `a21b1ac`，部署机上另一会话的未提交平台改动三方合并保留（`5090-2` 上 `test_server.py` 12 passed）；数据库里三条任务登记已迁移（保留署名）。中途推送命令出错导致部署机工作区短暂退回旧提交、9 个 LFS 文件变成指针、仓库根目录属主被改，均已恢复并核对。细节和以后的注意事项见本机 `.agent/ops.local.md`。
 
 ### RSI 协议 v0.6：基模定为 OpenWAM-α 开源权重，起始评测 = 官方评测集 0 的简化版（2026-10-27，`chongzheng/rsi-openwam-start`）
 
