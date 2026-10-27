@@ -3,14 +3,15 @@
 The image is the label unrolled: u (left to right) runs counter-clockwise around the bottle seen from above, which is
 left to right for a viewer outside; v runs bottom to top. Bottom `share` of the height is the label's main colour, the
 rest its second colour. Front panel: picture, brand, Latin brand, product and volume; back panel: composition table,
-barcode, fine print and a QR code. Everything printed is generic or fictional except the 00000 twin's brand words.
+barcode, fine print and a QR code. The 00000 twin has its own layout traced from photos (nongfu_label). Everything
+printed is generic or fictional except the 00000 twin's brand words and emblem.
 """
 
 import os
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 # (file name, face index) per role; Noto CJK collections hold JP, KR, SC, TC, HK faces, SC is index 2
 FONTS = {
@@ -83,13 +84,14 @@ def text_width(draw, text, f, spacing):
     return sum(draw.textlength(ch, font=f) for ch in text) + spacing * f.size * (len(text) - 1)
 
 
-def draw_text(draw, text, f, cx, top, fill, spacing=0.0, anchor="c"):
-    """Draw `text` with letter spacing; cx is the centre (anchor c) or left edge (anchor l); top is the ink top."""
+def draw_text(draw, text, f, cx, top, fill, spacing=0.0, anchor="c", stroke=0):
+    """Draw `text` with letter spacing; cx is the centre (anchor c) or left edge (anchor l); top is the ink top.
+    stroke (px) thickens the glyphs."""
     w = text_width(draw, text, f, spacing)
     x = cx - w / 2 if anchor == "c" else cx
     y = top - draw.textbbox((0, 0), text, font=f)[1]
     for ch in text:
-        draw.text((x, y), ch, font=f, fill=fill)
+        draw.text((x, y), ch, font=f, fill=fill, stroke_width=stroke, stroke_fill=fill)
         x += draw.textlength(ch, font=f) + spacing * f.size
 
 
@@ -175,8 +177,131 @@ def qr(draw, x0, y0, s, ink, rng, n=25):
         draw.rectangle([x0 + i * c, y0 + j * c, x0 + (i + 1) * c - 0.5, y0 + (j + 1) * c - 0.5], fill=ink)
 
 
+def paste_text(img, text, role, box, fill, spacing=0.0, weight=0.04):
+    """Text whose ink is scaled to fill box (x0, y0, x1, y1) exactly, so it can be condensed like a printed logo;
+    weight (em) thickens the strokes toward the heavy faces of the real print."""
+    x0, y0, x1, y1 = (int(round(v)) for v in box)
+    f = font(role, 3 * (y1 - y0))
+    w = int(text_width(ImageDraw.Draw(img), text, f, spacing)) + 2 * f.size
+    mask = Image.new("L", (w, 2 * f.size))
+    draw_text(ImageDraw.Draw(mask), text, f, f.size // 2, f.size // 2, 255, spacing, "l", int(weight * f.size))
+    mask = mask.crop(mask.getbbox()).resize((x1 - x0, y1 - y0), Image.LANCZOS)
+    img.paste(Image.new("RGB", mask.size, fill), (x0, y0), mask)
+
+
+def mountain_logo(w, h, rng):
+    """农夫山泉 front emblem (RGBA w x h), traced from the product photo: a dark green peak over its striped
+    reflection, teal side mountains with snow streaks and their faint reflections, two birds."""
+    img = Image.new("RGBA", (w, h))
+    d = ImageDraw.Draw(img)
+    teal, mid, dark, lit = (98, 182, 162, 255), (38, 134, 100, 255), (6, 66, 36, 255), (22, 104, 60, 255)
+    wl = 0.58 * h  # water line
+    for (x0, xa, ya, x1), col in (((0.05, 0.26, 0.24, 0.42), teal), ((0.57, 0.71, 0.24, 0.93), mid)):
+        d.polygon([(x0 * w, wl), (xa * w, ya * h), (x1 * w, wl)], fill=col)
+        for k in range(3):  # thin snow streaks down from the ridge
+            s = 0.18 + 0.22 * k
+            xs, ys = xa + (x1 - xa) * s * 0.5, ya + (0.58 - ya) * s * 0.5
+            d.line([(xs * w, ys * h), ((xs - 0.02) * w, (ys + 0.16) * h)], fill=(255, 255, 255, 200),
+                   width=max(1, int(0.008 * w)))  # fmt: skip
+        for k in range(5):  # side reflections
+            y = wl + (0.035 + 0.045 * k) * h
+            half = (x1 - x0) / 2 * (1 - 0.15 * k) * w
+            cx = (x0 + x1) / 2 * w + rng.uniform(-0.01, 0.01) * w
+            d.rectangle([cx - half, y, cx + half, y + 0.018 * h], fill=(*col[:3], 150 - 25 * k))
+    d.polygon([(0.24 * w, wl), (0.47 * w, 0.07 * h), (0.72 * w, wl)], fill=dark)
+    d.polygon([(0.24 * w, wl), (0.47 * w, 0.07 * h), (0.43 * w, wl)], fill=lit)
+    for k in range(8):  # the peak's reflection narrows to a drop
+        y = wl + (0.03 + 0.048 * k) * h
+        half = 0.24 * (1 - k / 8.5) ** 1.3 * w
+        cx = 0.48 * w + rng.uniform(-0.012, 0.012) * w
+        d.rectangle([cx - half, y, cx + half, y + 0.026 * h], fill=dark)
+    for bx, by, s in ((0.62, 0.16, 0.030), (0.69, 0.11, 0.036)):
+        d.line([((bx - s) * w, (by - s) * h), (bx * w, by * h), ((bx + 0.6 * s) * w, (by - 1.2 * s) * h)],
+               fill=mid, width=max(2, int(0.012 * w)))  # fmt: skip
+    return img
+
+
+def nongfu_label(art, main, second, share, size, seed):
+    """Layout of the 00000 twin, after the photos: going right from the front (brand under the mountain emblem, the
+    red band dipping at the front) come a vertical barcode over fine print, a white photo panel the full label
+    height, then the composition table over a QR code. Drawn with the front at u 0.5, rolled to u 0.38."""
+    w, h = size
+    rng = np.random.default_rng(seed)
+    red, white, line = srgb(main), srgb(second), (18, 58, 34)
+    img = Image.new("RGB", size, white)
+    d = ImageDraw.Draw(img)
+    x = np.arange(w)
+    bump = np.clip(np.abs(x / w - 0.5) / art["dip_w"], 0, 1)
+    split = h * (1 - share) + art["dip"] * h * (1 + np.cos(np.pi * bump)) / 2
+    d.polygon([(0, h)] + list(zip(x, split)) + [(w - 1, h)], fill=red)
+    top, low = h * (1 - share), share * h  # band heights at the sides
+
+    # front, centred at u 0.5
+    lw, lh = int(0.23 * w), int(0.34 * h)
+    logo = mountain_logo(lw, lh, rng)
+    img.paste(logo, (int(0.5 * w - lw / 2), int(0.085 * h)), logo)
+    bw = 0.28 * w
+    paste_text(img, art["brand"], "bold", (0.5 * w - bw / 2, 0.555 * h, 0.5 * w + bw / 2, 0.694 * h), white, 0.08, 0.03)
+    f = font("regular", 0.022 * h)
+    d.text((0.5 * w + bw / 2 + 0.003 * w, 0.548 * h), "®", font=f, fill=white)
+    paste_text(img, art["latin"], "bold", (0.5 * w - bw / 2, 0.711 * h, 0.5 * w + bw / 2, 0.775 * h), white, 0.10)
+    paste_text(img, f"{art['product']}  净含量{art['volume']}", "bold",
+               (0.5 * w - bw / 2, 0.799 * h, 0.5 * w + bw / 2, 0.856 * h), white, weight=0.015)  # fmt: skip
+
+    # barcode (bars run around the bottle, digits upright along it) over fine print
+    bx0, bx1 = 0.70 * w, 0.83 * w
+    bar = Image.new("RGB", (int(0.30 * h), int(0.08 * w)), (255, 255, 255))
+    barcode(ImageDraw.Draw(bar), 0, 0, bar.width, bar.height, art["ean"], (15, 15, 15), rng)
+    img.paste(bar.rotate(90, expand=True), (int(bx0 + 0.01 * w), int(0.08 * h)))
+    lines = [s.format(**art["facts"]) for s in FINE_PRINT]
+    longest = max(lines, key=lambda s: text_width(d, s, font("regular", 100), 0))
+    fp = fit_text(d, longest, "regular", bx1 - bx0, 0.032 * h)
+    for i, s in enumerate(lines):
+        draw_text(d, s, fp, bx0, top + low * 0.12 + i * 0.046 * h, white, anchor="l")
+
+    # photo panel, white the full label height
+    px0, px1 = 0.85 * w, 0.985 * w
+    d.rectangle([px0, 0, px1, h], fill=white)
+    pic = picture("landscape", int(px1 - px0 - 0.012 * w), int(0.40 * h), red, white, rng)
+    img.paste(pic, (int(px0 + 0.006 * w), int(0.05 * h)))
+    for i, (s, role, k) in enumerate(((art["source"], "bold", 0.05), (art["tagline"], "regular", 0.035))):
+        f = fit_text(d, s, role, px1 - px0 - 0.012 * w, k * h)
+        draw_text(d, s, f, (px0 + px1) / 2, (0.49 + 0.07 * i) * h, line)
+    for i in range(6):  # small print under the photo
+        y = (0.64 + 0.045 * i) * h
+        d.rectangle([px0 + 0.008 * w, y, px1 - (0.008 + rng.uniform(0, 0.04)) * w, y + 0.014 * h], fill=(90, 90, 90))
+
+    # composition table over a QR code and two lines on the red band
+    tx0, tx1 = 0.04 * w, 0.29 * w
+    ink = red
+    f = fit_text(d, "饮用天然水物质成分表", "bold", tx1 - tx0, top * 0.11)
+    draw_text(d, "饮用天然水物质成分表", f, tx0, top * 0.10, ink, anchor="l")
+    f = fit_text(d, "每100mL含量 (μg/100mL)", "regular", (tx1 - tx0) * 0.7, top * 0.07)
+    draw_text(d, "每100mL含量 (μg/100mL)", f, tx0, top * 0.25, ink, anchor="l")
+    rh = top * 0.56 / len(WATER_TABLE)
+    fr = font("regular", rh * 0.62)
+    for i, (k, v) in enumerate(WATER_TABLE):
+        y = top * 0.36 + i * rh
+        d.line([(tx0, y), (tx1, y)], fill=ink, width=2)
+        draw_text(d, k, fr, tx0 + 4, y + rh * 0.18, ink, anchor="l")
+        draw_text(d, v, fr, tx1 - text_width(d, v, fr, 0) - 4, y + rh * 0.18, ink, anchor="l")
+    qs, m = 0.40 * low, 0.006 * w
+    qx, qy = tx0 + m, top + (low - qs) / 2
+    d.rectangle([qx - m, qy - m, qx + qs + m, qy + qs + m], fill=(255, 255, 255))
+    qr(d, qx, qy, qs, (15, 15, 15), rng)
+    for i, s in enumerate((art["note"], art["tagline"], "请勿重复灌装使用")):
+        f = fit_text(d, s, "regular", tx1 - qx - qs - 3 * m, low * 0.08)
+        draw_text(d, s, f, qx + qs + 2 * m, top + low * (0.25 + 0.16 * i), white, anchor="l")
+
+    d.rectangle([0, 0, w, 0.017 * h], fill=line)
+    d.rectangle([0, h - 0.022 * h, w, h], fill=line)
+    return ImageChops.offset(img, int(-0.12 * w), 0)
+
+
 def draw_label(art, main, second, share, size, seed):
     """Label image (PIL RGB, size = (w, h)). main / second: linear RGB of the bottom / top colour bands."""
+    if art.get("layout") == "nongfu":
+        return nongfu_label(art, main, second, share, size, seed)
     w, h = size
     rng = np.random.default_rng(seed)
     c_main, c_second = srgb(main), srgb(second)

@@ -5,9 +5,12 @@
 - plastic_bottle/00000: Real2Sim platform registration real2sim/objects/Clutter/plastic_bottle/00000 (spec.json, by
   徐鹤鸣, 2026-10-23 10:54:15): 农夫山泉 550 ml bottle, transparent, red-and-white label, static friction 0.35,
   开口直径 29.8 mm, 底部直径 64.7 mm (measured). The user added on 2026-10-23: 总高 227 mm without cap, empty mass
-  18 g (the registered 328 g included water; modelled empty, cap included), 开口直径 is the outer diameter. Shoulder,
-  neck finish, label band, grip grooves and the cap are estimated from the four photos. The registration asked for the
-  cap removed; the user asked on 2026-10-23 for a cap that can be twisted, so every bottle now has one.
+  18 g   (the registered 328 g included water; modelled empty, cap included), 开口直径 is the outer diameter. On 2026-10-27
+  the user sent a straight-on product photo: the shoulder, neck, label band, red-band dip and the label colours are
+  fitted to it (scaled by the 64.7 mm body and the 228.5 mm capped height), the label layout and the embossed arches
+  above it follow it and the four registration photos. Neck finish, grip grooves and the cap stay estimated. The
+  registration asked for the cap removed; the user asked on 2026-10-23 for a cap that can be twisted, so every bottle
+  now has one.
 - plastic_bottle/00001-00005: generalization variants of 00000 (not measured; colour, material, size and shape differ):
   380 ml mini, 1 L tall, frosted rounded-square, green waisted grip bottle, amber wide-mouth juice bottle.
 - Labels are textures drawn by bottle_label.py (needs a CJK font, see bottle_label.FONT_DIRS); variants carry
@@ -72,8 +75,10 @@ NONGFU = dict(
     R=0.03235,  # 底部直径 / 2, measured 64.7 mm: outer body diameter just above the bottom fillet
     SQ=2.0,  # section superellipse exponent: 2 = round
     FIL=0.004, FOOT=0.022, DOME=0.006,  # bottom edge fillet, inner edge of the standing ring, push-up height: estimated
-    Z_SH=0.158, SH_P=1.3,  # shoulder start (body full width below), shoulder fullness exponent: estimated
-    R_NECK=0.013,  # neck under the support ring, estimated (28 mm-class finish)
+    # shoulder from Z_SH up to the neck: r = R_NECK + (R - R_NECK) * (1 - t ** SH_A), fitted to the silhouette of
+    # a front product photo (0.13 mm rms); variants use the cosine taper with fullness exponent SH_P instead
+    Z_SH=0.142, SH_A=1.8, SH_P=1.3,
+    R_NECK=0.014,  # neck under the support ring, from the same photo
     NECK_H=0.005, RING_T=0.0015, R_RING=0.0165,  # neck height, support ring thickness and radius: estimated
     FINISH_H=0.0155,  # support ring top to mouth, estimated
     R_THREAD=0.0149,  # 开口直径 / 2, measured 29.8 mm: outer diameter of the threaded finish (thread crests)
@@ -81,8 +86,12 @@ NONGFU = dict(
     THREADS=(0.0085, 0.0045),  # thread crest rings, depth below the mouth: estimated
     GROOVES=(0.008, 0.013, 0.018), GROOVE_D=0.0010, GROOVE_W=0.003,  # grip grooves under the label: estimated
     WAIST=None,  # (depth, z0, z1) of an hourglass waist
-    LABEL=(0.026, 0.127, 0.60), RECESS=0.0006,  # label z0, z1, bottom-colour share; label panel recess: estimated
-    LABEL_RGB=((0.42, 0.015, 0.02), (0.90, 0.90, 0.88)),  # bottom (red), top (white); linear RGB
+    # label z0, z1 and bottom-colour share at the sides, from the front photo; label panel recess: estimated
+    LABEL=(0.027, 0.121, 0.60), RECESS=0.0006,
+    LABEL_RGB=((0.60, 0.005, 0.016), (0.90, 0.90, 0.88)),  # bottom (red, from the photo), top (white); linear RGB
+    # embossed band above the label: nested arches (radii), arch count around, groove depth and half-width, and a
+    # ring groove on top (z); visual only, from the photos
+    ARCHES=dict(radii=(0.026, 0.020, 0.014), n=6, depth=0.0007, width=0.0008, ring=0.153),
     TINT=(0.97, 0.98, 0.98), FROST=0.0,  # FROST: milky share of a frosted wall, 0 = clear
     MASS=0.018,  # measured empty (2026-10-23, from the user; the registered 328 g was the bottle with water)
     # screw cap, all estimated from the photos: red, knurled, tamper band on the bead; sits from the support ring up
@@ -90,8 +99,9 @@ NONGFU = dict(
     CAP_RIBS=64, RIB_D=0.0003, BAND_H=0.0045,  # knurl count and depth, tamper band height
     CAP_MASS=0.002, PITCH=0.0027, OPEN_TURNS=2.0,  # part of MASS; thread pitch (28 mm PCO 1881 class); turns to loosen
     ART=dict(
+        layout="nongfu", dip=0.07, dip_w=0.22,  # red band 7 % of the label height lower at the front, over +-0.22 u
         brand="农夫山泉", latin="NONGFU SPRING", tagline="天然水源 · 健康生活", product="饮用天然水", volume="550ml",
-        note="天然弱碱性水", picture="landscape", table="water", trim=(0.01, 0.10, 0.05), ean="6 900000 123457",
+        note="天然弱碱性水", source="水源地 · 深层湖水", ean="6 900000 123457",
         facts=dict(ingredients="水", shelf="24个月", standard="GB 19298"),
     ),
     WORDS=dict(
@@ -104,6 +114,7 @@ NONGFU = dict(
     ),
 )  # fmt: skip
 
+TWIN_ONLY = dict(SH_A=None, ARCHES=None, R_NECK=0.013)  # 00000 features the variants do not inherit
 VARIANTS = [  # generalization variants 00001-00005: overrides of NONGFU, all unmeasured (estimated)
     dict(
         H=0.168, R=0.0290, Z_SH=0.110, GROOVES=(0.007, 0.012), LABEL=(0.030, 0.092, 0.55),
@@ -239,8 +250,35 @@ class Bottle:
     def shoulder(self, t):
         g = self.g
         r0 = self.body(g["Z_SH"])
-        r = g["R_NECK"] + (r0 - g["R_NECK"]) * (1 + np.cos(np.pi * t ** g["SH_P"])) / 2
-        return r, 1 - t * t * (3 - 2 * t)
+        k = 1 - t ** g["SH_A"] if g["SH_A"] else (1 + np.cos(np.pi * t ** g["SH_P"])) / 2
+        return g["R_NECK"] + (r0 - g["R_NECK"]) * k, 1 - t * t * (3 - 2 * t)
+
+    def emboss_z(self):
+        """Z range of the embossed arch band (empty without ARCHES)."""
+        a = self.g["ARCHES"]
+        if not a:
+            return None
+        return self.g["LABEL"][1] + 0.001, a["ring"] + 3 * a["width"]
+
+    def emboss(self, pts):
+        """Press the ARCHES grooves into the shell vertices (both walls, radially), in place."""
+        a, band = self.g["ARCHES"], self.emboss_z()
+        if not a:
+            return
+        z = pts[:, 2]
+        sel = (z > band[0]) & (z < band[1]) & (np.hypot(pts[:, 0], pts[:, 1]) > 0)
+        p = pts[sel]
+        r = np.hypot(p[:, 0], p[:, 1])
+        s = np.arctan2(p[:, 1], p[:, 0]) * self.g["R"]  # unrolled arc length on the body
+        z0, span = band[0], 2 * np.pi * self.g["R"]
+        dist = np.abs(p[:, 2] - a["ring"])
+        for k in range(a["n"]):
+            ds = (s - k * span / a["n"] + span / 2) % span - span / 2
+            rho = np.hypot(ds, p[:, 2] - z0)
+            for radius in a["radii"]:
+                dist = np.minimum(dist, np.abs(rho - radius))
+        press = a["depth"] * np.exp(-((dist / a["width"]) ** 2))
+        pts[sel, :2] = p[:, :2] * ((r - press) / r)[:, None]
 
     def envelope(self, z):
         """Collider outer radius and section blend at z (fillet top up to the shoulder end)."""
@@ -257,6 +295,8 @@ class Bottle:
         windows += [(l0 - 0.004, l0 - 0.002), (l1 + 0.002, l1 + 0.004)]
         if g["WAIST"]:
             windows.append(g["WAIST"][1:])
+        if self.emboss_z():
+            windows.append(self.emboss_z())
         for a, b in windows:
             z += list(np.linspace(a, b, max(int((b - a) / 0.00025), 2) + 1))
         return np.unique(np.round([v for v in z if g["FIL"] < v <= g["Z_SH"]], 7))
@@ -267,6 +307,9 @@ class Bottle:
         H, R, FIL, FOOT, DOME = g["H"], g["R"], g["FIL"], g["FOOT"], g["DOME"]
         dome = [(s * FOOT, DOME * (1 - s * s) ** 2) for s in (0.25, 0.5, 0.75)]
         t = np.linspace(0, 1, 25)[1:]
+        if self.emboss_z():  # the grooves need rings every 0.25 mm where the band reaches the shoulder
+            zb = np.arange(*self.emboss_z(), 0.00025)
+            t = np.unique(np.r_[t, (zb[zb > g["Z_SH"]] - g["Z_SH"]) / (self.z_neck - g["Z_SH"])])
         sh = [(*self.shoulder(v), g["Z_SH"] + v * (self.z_neck - g["Z_SH"])) for v in t]
         zs = self.body_samples()
 
@@ -425,7 +468,9 @@ def build(g):
     outer, inner = b.profiles()
     label, label_uv, label_px = b.label()
     cap, cap_hull = b.cap()
-    parts = {"model": b.loft(outer + inner), "label": label, "cap": cap}
+    model = b.loft(outer + inner)
+    b.emboss(model[0])
+    parts = {"model": model, "label": label, "cap": cap}
     for name, part in parts.items():
         assert mp.signed_volume(*part) > 0, f"{name} has inward-facing winding"
     hulls = b.hulls()  # the bottle's; the cap collider closes the mouth on purpose, so the cavity check skips it
@@ -697,7 +742,7 @@ def save(type_dir, idx, c, g, mass, articulated=False):
 def main(type_dir):
     base = None
     for idx, over in enumerate([{}] + VARIANTS):
-        g = {**NONGFU, **over}
+        g = {**NONGFU, **TWIN_ONLY, **over} if over else NONGFU
         c = build(g)
         if idx == 0:
             base = c["ml"]

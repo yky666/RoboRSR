@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-27
-本会话分支：`chongzheng/merge-open-prs`（worktree `../RoboDojo-merge-prs`）：深圳实验室装共享库，6 个开着的 PR 合进 `main`，见「最近任务」第一节。上一会话 `chongzheng/scene-shenzhen-lab-room` 把深圳实验室补成整层房间（第二节）。下行保留主线历史。
+本会话分支：`chongzheng/objects-nongfu-refine`（worktree `../RoboDojo-nongfu`）：农夫山泉瓶的形状和标签按照片再优化，见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs` 把深圳实验室装共享库、6 个开着的 PR 合进 `main`（第二节）。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -21,7 +21,7 @@
   - 共享资产库缺 `measuring_cup`、`plastic_mug`，以及量杯任务的布局。
   - 学校的纸杯 `paper_cup/0000{0,1}`、纸盘 `paper_plate/0000{0,1,2}` 是孪生的拟合几何，没在平台登记，没有实测，未装共享库。平台上能看到它们（10-20 部署，见下面「数采平台」）。
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
-  - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。
+  - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。10-27 按照片重做了 00000 的瓶肩、压纹和标签，新版还没装共享库、没换平台预览。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
@@ -38,6 +38,24 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 农夫山泉瓶 `plastic_bottle/00000` 形状和标签再优化（2026-10-27，`chongzheng/objects-nongfu-refine`）
+
+- **用户要求**：数采平台上的农夫山泉建模再优化，包括形状和标签贴纸；附了一张正面商品图（网图，带水印，没入库）。
+- **形状**（`make_plastic_bottle.py`）：
+  - 用正面图的轮廓拟合瓶肩：横向按 64.7 mm 瓶身、纵向按 228.5 mm 带盖高定比例。原来的余弦瓶肩（158 mm 起收）比实物饱满，最好也有 1 mm 误差；改成 `r = R_NECK + (R − R_NECK)(1 − t^1.8)`，142 mm 起收，均方根误差 0.13 mm。新参数 `SH_A`，瓶颈 `R_NECK` 改成 14 mm。
+  - 标签上方 123–155 mm 加嵌套拱形压纹（`ARCHES`：一圈 6 组拱，每组 3 道，顶部一道环纹，深 0.7 mm）。只压视觉网格，在 `Bottle.emboss` 里对顶点做径向位移；压纹带里的轮廓每 0.25 mm 一圈。碰撞体不变。
+  - 标签从 26–127 mm 改为 27–121 mm（照片上两条深绿细线的位置）。
+  - 满口容积 583 ml（原 600 左右），尺寸核对 `开口直径` 29.8、`底部直径` 64.7 不变。
+- **标签**（`bottle_label.py` 新增 `nongfu_label`，只给 00000 用，ART 里写 `layout="nongfu"`）：
+  - 正面：白区是山形 logo，照商品图描的（深绿主峰、条纹倒影、两侧青绿山、两只鸟）；红区是品牌字、`NONGFU SPRING` 和「饮用天然水 净含量550ml」，三行都拉伸到照片上量出的框里。新函数 `paste_text`。
+  - 红白分界：两侧在 60%，正面中间下凹到 53%。红色和细线颜色取自照片（红 sRGB 约 205/15/35）。
+  - 四周按四张登记照片排：正面往右依次是竖排条码 + 细字、整高白底湖景照片面板、成分表 + 二维码。
+- **变体不变**：`TWIN_ONLY` 让 00001–00005 不继承 `SH_A`、`ARCHES` 和新瓶颈。本机对比 `origin/main`，5 个变体的网格、碰撞体、贴图逐字节一致。
+- **验证**：
+  - 本机：6 件 `build()` 断言全过（碰撞体 ≤ 64 点、不侵入空腔）；轮廓叠到商品图上吻合（`/tmp/nf/overlay2.png`，临时文件）；ruff 0.11.7 check / format、`git diff --check` 通过。`check.sh` 里的单测和任务清单检查在 `5090-2` 运行目录的仿真环境里跑（本机缺 h5py、opencv 等）：79 passed，清单检查通过。
+  - `5090-2` 隔离目录 `/data/robodojo-runs/nongfu-refine-20261027/`，`run.sh` 一键重跑，GPU 1、2：`check_object.py` Clutter 六件 OK（00000 z=0.1143、倾角 0°）；`check_bottle_cap.py` 六件落地 + 拧开 / 拧回都 OK。渲染图在 `preview/Clutter/plastic_bottle/00000/preview/sim.png`。
+- **没做**：新版没装共享库，也没换平台预览，这两步要用户同意（会覆盖 10-23 装的 `Clutter`、`Articulation` 的 `plastic_bottle/00000`，要先备份）。为了在本机跑几何，给 `paperagent` conda 环境装了 `usd-core`。
 
 ### 深圳实验室装共享库 + 合并全部开着的 PR（2026-10-27，`chongzheng/merge-open-prs`）
 
@@ -722,6 +740,7 @@
 
 - 2026-10-23：G1-D 夹爪限速每指 0.064 m/s（按真机遥操作数据），专家采集通过率不变（6/8 对 6/8），合爪 2 帧 → 5 帧。
 
+- 2026-10-27：农夫山泉瓶 00000 按正面商品图重拟合瓶肩（误差 0.13 mm），加拱形压纹，标签改按照片描的版式（山形 logo、正面下凹的红区、条码 / 照片 / 成分表顺序）；变体逐字节不变；`5090-2` 检查全过，未装共享库。
 - 2026-10-23：农夫山泉塑料瓶和 5 个变体加竖纹螺旋盖、程序绘制的贴图标签；另出能拧盖的 `Articulation/plastic_bottle`（旋转 + mimic 棱柱关节，两圈拧开），新增 `bottle_label.py`、`check_bottle_cap.py`。
 - 2026-10-23：真机 Motus 倒豆模型（ModelScope `Vincia/WanVlmMask-G1DPourBeansGenEps222-AbsQpos16-30000`）在上海实验室仿真量杯倒豆 0/20（夹爪总是夹空）；新增 `g1d_lab_beans_collect`，收入 `scripts/g1d/remote_policy.py`。
 - 2026-10-22：启动榜单冲分（20 天）：5090-2 建基线运行目录，拉齐官方 Assets、OpenWAM / pi0.5 官方 checkpoint 和两套推理环境，冒烟通过后启动两个模型 54 个任务的全量基线评测；确认 20 个榜单任务没有官方训练数据。
