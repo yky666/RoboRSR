@@ -166,7 +166,9 @@ MATERIALS = {
     "frame_grey": (lin((140, 141, 138)), 0.4, 0.5, 1.0, None),
     "shelf_blue": (lin((40, 85, 180)), 0.5, 0.3, 1.0, None),  # IMG_4953 (49, 84, 174)
     "chair_black": (lin((24, 24, 26)), 0.7, 0.0, 1.0, None),
-    "chair_grey": (lin((190, 192, 195)), 0.5, 0.0, 1.0, None),
+    "chair_mesh": (lin((30, 30, 32)), 0.9, 0.0, 0.85, None),  # see-through black mesh, IMG_4948
+    "chair_seat": (lin((34, 34, 36)), 0.9, 0.0, 1.0, None),  # the seat mesh reads solid black in the photos
+    "chair_grey": (lin((178, 180, 182)), 0.35, 0.4, 1.0, None),  # ergonomic chair's Y spine, IMG_4949
     "chrome": (lin((170, 172, 175)), 0.25, 0.9, 1.0, None),
     "glass": (lin((225, 235, 235)), 0.05, 0.0, 0.18, None),
     "plastic_white": (lin((225, 228, 228)), 0.4, 0.0, 1.0, None),  # turnstile, IMG_4952 (221, 224, 224)
@@ -534,46 +536,131 @@ def add_lift_desk(L):
     L.mesh(f"{base}/beam", box_c(xc, yc, d["length"] - 0.24, 0.04, top - 0.095, top - 0.065), "frame_grey")
 
 
-def chair_parts(style):
-    """An office chair in its own frame: floor point under the seat at the origin, the seat facing +X. Returns
-    [(name, mesh, material)] and the collider boxes. "task": black mesh back; "ergo": the back in a light grey frame."""
+def bar(p, q, w, h):
+    """Box of cross-section w (horizontal) x h from point p to point q."""
+    p, q = np.asarray(p, float), np.asarray(q, float)
+    d = q - p
+    length = float(np.linalg.norm(d))
+    m = trimesh.creation.box(extents=[length, w, h])
+    yaw, pitch = math.atan2(d[1], d[0]), -math.asin(d[2] / length)
+    t = trimesh.transformations.euler_matrix(0, pitch, yaw, "sxyz")
+    t[:3, 3] = (p + q) / 2
+    return m.apply_transform(t)
+
+
+def arc_points(width, radius, n):
+    """(x, y) across a back that wraps around the sitter: the middle furthest back, the sides curving forward."""
+    ys = np.linspace(-width / 2, width / 2, n)
+    return [(radius - math.sqrt(radius**2 - y**2), y) for y in ys]
+
+
+def curved_shell(width, z0, z1, radius, thick, n=9, top_widen=0.0):
+    """Curved panel (local x = 0 at its middle, wrapping forward), split into n vertical facets."""
+    lo, hi = arc_points(width, radius, n), arc_points(width + top_widen, radius, n)
     parts = []
-    for i in range(5):  # five-star base with casters
+    for (xa, ya), (xb, yb), (xc, yc), (xd, yd) in zip(lo[:-1], lo[1:], hi[:-1], hi[1:]):
+        v = []
+        for x, y, z in ((xa, ya, z0), (xb, yb, z0), (xd, yd, z1), (xc, yc, z1)):
+            v += [(x, y, z), (x - thick, y, z)]
+        hull = trimesh.Trimesh(vertices=v).convex_hull
+        parts.append(hull)
+    return trimesh.util.concatenate(parts)
+
+
+def chair_parts(style):
+    """An office chair in its own frame: floor point under the seat at the origin, the seat facing +X; built after
+    IMG_4948/4949/4950/4954. Both kinds are black (mesh back on a black frame, black seat, arms and headrest) on a
+    polished aluminium five-star base with twin-wheel casters. "task": wide padded headrest on a post; "ergo": loop
+    headrest on a curved stem and a light grey Y-shaped spine on the back (seen only from behind).
+    Returns [(name, mesh, material)] and the collider boxes."""
+    parts = []
+    for i in range(5):  # five-star base: legs taper and drop towards the casters
         a = math.radians(72 * i + 18)
-        leg = box_xyz(0.0, 0.31, -0.02, 0.02, 0.07, 0.10).apply_transform(
-            trimesh.transformations.rotation_matrix(a, [0, 0, 1])
-        )
-        parts.append((f"leg_{i}", leg, "chrome"))
-        parts.append(
-            (f"caster_{i}", cylinder(0.31 * math.cos(a), 0.31 * math.sin(a), 0.025, 0.0, 0.06, 8), "chair_black")
-        )
-    parts.append(("column", cylinder(0, 0, 0.025, 0.10, 0.42), "chrome"))
-    parts.append(("sleeve", cylinder(0, 0, 0.035, 0.08, 0.26), "chair_black"))
-    seat = trimesh.creation.extrude_polygon(rounded_rect(0.02, 0, 0.50, 0.50, 0.07), 0.08).apply_translation(
-        [0, 0, 0.42]
+        rot = trimesh.transformations.rotation_matrix(a, [0, 0, 1])
+        leg = bar((0.04, 0, 0.115), (0.31, 0, 0.075), 0.045, 0.035).apply_transform(rot)
+        tip = bar((0.24, 0, 0.083), (0.33, 0, 0.068), 0.032, 0.025).apply_transform(rot)
+        parts += [(f"leg_{i}", leg, "chrome"), (f"leg_tip_{i}", tip, "chrome")]
+        cx, cy = 0.315 * math.cos(a), 0.315 * math.sin(a)
+        parts.append((f"caster_stem_{i}", cylinder(cx, cy, 0.008, 0.05, 0.07, 8), "chair_black"))
+        for s in (-1, 1):  # twin wheels across the leg
+            wheel = trimesh.creation.cylinder(radius=0.03, height=0.018, sections=12)
+            wheel.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [0, 1, 0]))
+            wheel.apply_transform(trimesh.transformations.rotation_matrix(a + math.pi / 2, [0, 0, 1]))
+            off = 0.013 * s
+            wheel.apply_translation([cx - off * math.sin(a), cy + off * math.cos(a), 0.03])
+            parts.append((f"caster_{i}_{s + 1}", wheel, "chair_black"))
+    parts.append(("hub", cylinder(0, 0, 0.06, 0.09, 0.13, 16), "chrome"))
+    sleeve = trimesh.creation.cone(radius=0.045, height=0.5, sections=16)  # tapered gas-lift cover
+    sleeve = trimesh.intersections.slice_mesh_plane(sleeve, [0, 0, -1], [0, 0, 0.17], cap=True)
+    parts.append(("sleeve", sleeve.apply_translation([0, 0, 0.13]), "chair_black"))
+    parts.append(("column", cylinder(0, 0, 0.022, 0.29, 0.42, 12), "chrome"))
+    parts.append(("mechanism", box_c(0.0, 0, 0.26, 0.20, 0.40, 0.45), "chair_black"))
+    parts.append(("tilt_knob", cylinder(0.02, 0.13, 0.02, 0.405, 0.425, 10), "chair_black"))
+    # seat: black frame ring around a mesh panel, front edge rolled down (waterfall)
+    frame = rounded_rect(0.02, 0, 0.50, 0.50, 0.08).difference(rounded_rect(0.02, 0, 0.42, 0.42, 0.05))
+    parts.append(
+        ("seat_frame", trimesh.creation.extrude_polygon(frame, 0.05).apply_translation([0, 0, 0.45]), "chair_black")
     )
-    parts.append(("seat", seat, "chair_black"))
+    parts.append(("seat_mesh", trimesh.creation.extrude_polygon(rounded_rect(0.02, 0, 0.44, 0.44, 0.05), 0.02)
+                  .apply_translation([0, 0, 0.475]), "chair_seat"))  # fmt: skip
+    front = bar((0.26, -0.22, 0.48), (0.26, 0.22, 0.48), 0.05, 0.035)
+    parts.append(("seat_front", front, "chair_black"))
+    # back: curved mesh between two side rails, top and bottom rails, tilted 12 deg back about the seat rear
     tilt = trimesh.transformations.rotation_matrix(math.radians(-12), [0, 1, 0], [-0.22, 0, 0.55])
-    back = panel(0.46, 0.58, 0.04, 0.12).apply_translation([-0.22, 0, 0.56]).apply_transform(tilt)
-    parts.append(("back", back, "chair_black"))
-    if style == "ergo":
-        frame = panel(0.52, 0.64, 0.03, 0.14).apply_translation([-0.255, 0, 0.53]).apply_transform(tilt)
-        parts.append(("back_frame", frame, "chair_grey"))
-    head = panel(0.30, 0.14, 0.05, 0.05).apply_translation([-0.26, 0, 1.17]).apply_transform(tilt)
-    parts.append(("headrest", head, "chair_black"))
-    for s in (-1, 1):
-        parts.append((f"arm_post_{s + 1}", box_c(-0.02, 0.27 * s, 0.04, 0.03, 0.45, 0.66), "chair_black"))
-        parts.append((f"arm_pad_{s + 1}", box_c(0.02, 0.27 * s, 0.25, 0.07, 0.66, 0.69), "chair_black"))
-    colliders = [box_c(0, 0, 0.62, 0.62, 0.0, 0.12), box_c(0.02, 0, 0.5, 0.5, 0.42, 0.50),
-                 box_c(-0.26, 0, 0.08, 0.5, 0.52, 1.32).apply_transform(tilt)]  # fmt: skip
+    bx, z0, z1, w, wt, rad = -0.25, 0.56, 1.10, 0.38, 0.50, 0.42  # narrower at the seat, wider at the shoulders
+    shell = curved_shell(w - 0.04, z0 + 0.03, z1 - 0.03, rad, 0.012, top_widen=wt - w).apply_translation([bx, 0, 0])
+    parts.append(("back_mesh", shell.apply_transform(tilt), "chair_mesh"))
+    lo, hi = arc_points(w, rad, 2), arc_points(wt, rad, 2)
+    for k in range(2):
+        rail = bar((bx + lo[k][0], lo[k][1], z0), (bx + hi[k][0], hi[k][1], z1), 0.03, 0.035)
+        parts.append((f"back_rail_{k}", rail.apply_transform(tilt), "chair_black"))
+    for name, z, pts in (("back_top", z1, arc_points(wt, rad, 7)), ("back_bottom", z0, arc_points(w, rad, 7))):
+        for k, (p, q) in enumerate(zip(pts[:-1], pts[1:])):
+            seg = bar((bx + p[0], p[1], z), (bx + q[0], q[1], z), 0.035, 0.03)
+            parts.append((f"{name}_{k}", seg.apply_transform(tilt), "chair_black"))
+    lumbar = curved_shell(0.34, 0.64, 0.76, rad, 0.03, n=7).apply_translation([bx + 0.03, 0, 0])
+    parts.append(("lumbar", lumbar.apply_transform(tilt), "chair_black"))
+    parts.append(("back_bracket", bar((-0.12, 0, 0.44), (-0.27, 0, 0.62), 0.12, 0.04), "chair_black"))
+    if style == "ergo":  # the big black shell behind the seat-back joint
+        cover = curved_shell(0.30, 0.47, 0.68, 0.35, 0.05, n=7, top_widen=0.06).apply_translation([bx - 0.03, 0, 0])
+        parts.append(("back_cover", cover.apply_transform(tilt), "chair_black"))
+    if style == "task":  # wide padded headrest on a single post
+        post = bar((bx - 0.03, 0, z1 - 0.08), (bx - 0.03, 0, z1 + 0.08), 0.04, 0.025)
+        parts.append(("head_post", post.apply_transform(tilt), "chair_black"))
+        head = curved_shell(0.34, z1 + 0.06, z1 + 0.20, 0.35, 0.05, n=7).apply_translation([bx + 0.01, 0, 0])
+        parts.append(("headrest", head.apply_transform(tilt), "chair_black"))
+    else:  # loop headrest on a curved stem, grey Y spine behind the back
+        stem = bar((bx - 0.04, 0, z1 - 0.10), (bx - 0.06, 0, z1 + 0.10), 0.035, 0.03)
+        parts.append(("head_stem", stem.apply_transform(tilt), "chair_black"))
+        ring = curved_shell(0.30, z1 + 0.08, z1 + 0.22, 0.3, 0.03, n=7).apply_translation([bx - 0.01, 0, 0])
+        parts.append(("headrest_mesh", ring.apply_transform(tilt), "chair_mesh"))
+        for k, (zz, hh) in enumerate(((z1 + 0.08, 0.025), (z1 + 0.22, 0.03))):
+            edge = bar((bx - 0.03, -0.15, zz), (bx - 0.03, 0.15, zz), 0.04, hh)
+            parts.append((f"headrest_edge_{k}", edge.apply_transform(tilt), "chair_black"))
+        fork = (bx - 0.04, 0, 0.76)
+        parts.append(("spine", bar((bx - 0.03, 0, 0.58), fork, 0.07, 0.025).apply_transform(tilt), "chair_grey"))
+        for s in (-1, 1):
+            arm = bar(fork, (bx - 0.02 + hi[0][0], s * 0.17, z1 - 0.09), 0.05, 0.02)
+            parts.append((f"spine_arm_{s + 1}", arm.apply_transform(tilt), "chair_grey"))
+    for s in (-1, 1):  # L-shaped arms: bracket under the seat, upright post, pad
+        parts.append(
+            (f"arm_bracket_{s + 1}", bar((0.0, 0.10 * s, 0.43), (-0.03, 0.27 * s, 0.45), 0.05, 0.02), "chair_black")
+        )
+        parts.append(
+            (f"arm_post_{s + 1}", bar((-0.03, 0.27 * s, 0.44), (-0.01, 0.27 * s, 0.66), 0.05, 0.03), "chair_black")
+        )
+        pad = trimesh.creation.extrude_polygon(rounded_rect(0.03, 0.27 * s, 0.26, 0.08, 0.035), 0.03)
+        parts.append((f"arm_pad_{s + 1}", pad.apply_translation([0, 0, 0.66]), "chair_black"))
+    colliders = [box_c(0, 0, 0.66, 0.66, 0.0, 0.12), box_c(0.02, 0, 0.5, 0.5, 0.42, 0.50),
+                 box_c(-0.27, 0, 0.08, 0.5, 0.52, 1.32).apply_transform(tilt)]  # fmt: skip
     return parts, colliders
 
 
 def chair_xy(pos):
-    """Measured floor point (+-0.1 m), kept 0.36 m clear of the desk row front and 0.42 m clear of the column faces."""
+    """Measured floor point (+-0.1 m), kept 0.40 m clear of the desk row front and 0.42 m clear of the column faces."""
     x, y = pos[0], pos[1]
     if x > DESKS["x_front"] - 1.0:
-        x = min(x, DESKS["x_front"] - 0.36)
+        x = min(x, DESKS["x_front"] - 0.40)
     return r3(x), r3(min(y, ROOM["y_col"] - 0.42))
 
 

@@ -58,7 +58,7 @@
    "name": "every render mesh has a bound material",
    "ok": true,
    "detail": {
-    "render_meshes": 254,
+    "render_meshes": 464,
     "unbound": []
    }
   },
@@ -66,7 +66,7 @@
    "name": "render triangle budget (< 100k)",
    "ok": true,
    "detail": {
-    "triangles": 7068
+    "triangles": 13830
    }
   },
   {
