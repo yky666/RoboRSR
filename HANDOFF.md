@@ -44,7 +44,8 @@
 - **结果**（桌子坐标系，单位 m）：后墙吊顶下沿 2.83、深 0.75（和两根角柱齐平），穿孔铝板天花 2.93；角柱 x ∈ [2.34, 3.28] 和 [−8.19, −7.32]；东墙 x 3.28、西墙 −8.19、电梯墙 y −8.94（西端 x −5.55，往西南凹进到 y −10.60）；3 条灯条 x 0.09 / −3.31 / −5.90，后吊顶筒灯 5 个；两部电梯 KT3 / KT4 关于 x = 0 对称。家具：东墙 5 个工位模块（1.33 m，蓝挡板、活动柜）、西北升降桌、西墙蓝色货架、5 把椅子、电梯厅玻璃栏杆和闸机。数值和依据表在该目录 `PLAN.md`「房间（v2）」。
 - **代码**：`build_scene.py` 重写房间部分（10 段墙的轮廓、角柱、两条吊顶、穿孔板贴图、灯条和筒灯、电梯饰面），家具放在 `/Background/Furniture`（同上海实验室，Room 入口和 `scene_parts.py`、`render_scenes.py` 不用改）；灯光改成 3 条灯条 RectLight + 5 个锥形 DiskLight，强度按数值积分让桌面 / 后墙 / 近地面照度和旧标定相当。`check_scene.py` 桌子检查只看 `/World/Table`，新增墙段数、天花封闭、家具落地 / 在轮廓内 / 互不重叠 / 离桌子和站位 ≥ 1 m（28/28）。`preview.py` 加新机位叠图 `compare_room.jpg` 和俯视 `room.jpg`。`parts.json` 重生成（墙面 4 块、桌面、地板不变）。
 - **验证**：本机 `check_scene.py` 28/28、`preview.py` 7 个机位叠图（墙角、柱、工位、栏杆、货架都对得上，目测 ≲ 10 px）、ruff、`check.sh`。`5090-2` 隔离目录 `/data/robodojo-runs/shenzhen-room-20261027`（GPU 7；资产硬链接自 `shenzhen-beans-20261021`，只换 `Room/real_scene5`）：`render_scenes.py` 正常；`scripted_demo --env_cfg_type g1d_shenzhen_lab --task_name g1d_pour_beans_measuring_cups --seed 0` success_rate 1.0、eval_time 1，四路相机正常（之后只改了两把远处椅子的朝向，没重跑）。
-- **没做**：RTX 下按 IMG_4916 重新对色（灯光换了，颜色可能和 10-21 的标定有偏差）；房间尺寸没有卷尺；没装共享库（5090-2 共享库本来就缺 `real_scene5`），没更新平台预览。
+- **部署**（15:28，用户同意）：部署机 `/root/RoboDojo` 原在 `8838b1c`（另一会话的 `chongzheng/docs-eval-levels-robot-pose`，未进 `main`），在部署机上合并 `2d95c63` 得到 `5b45b39`（只在部署机，没推 GitHub；`HANDOFF.md` 两节都留）后快进。部署机别的会话 150 个未提交文件不动，只把重叠的 `HANDOFF.md`、`real2sim/ASSETS.md` stash 后放回（`ASSETS.md` 学校行取部署机版本、深圳行取新版本），仍是未提交状态；备份 `.cache/ff-deploy-20261027-152647/`。新照片和穿孔板贴图从本机补实体；预览整个换新（`scene.glb` 254 网格、RTX 封面、`compare_room.jpg` 等），旧的在 `.cache/shenzhen-preview-before-room-20261027`。重启后部署机 `test_server.py` 9 项通过，扫描到 14 张照片、新模型和封面，本机和公网首页 200、未登录 `/api/info` 401。
+- **没做**：RTX 下按 IMG_4916 重新对色（灯光换了，颜色可能和 10-21 的标定有偏差）；房间尺寸没有卷尺；没装共享库（5090-2 共享库本来就缺 `real_scene5`）。
 
 ### RSI 协议 v0.5：起始评测和每轮考卷压缩（2026-10-26）
 
