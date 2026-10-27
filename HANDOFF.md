@@ -47,6 +47,16 @@
 - **部署**（15:28，用户同意）：部署机 `/root/RoboDojo` 原在 `8838b1c`（另一会话的 `chongzheng/docs-eval-levels-robot-pose`，未进 `main`），在部署机上合并 `2d95c63` 得到 `5b45b39`（只在部署机，没推 GitHub；`HANDOFF.md` 两节都留）后快进。部署机别的会话 150 个未提交文件不动，只把重叠的 `HANDOFF.md`、`real2sim/ASSETS.md` stash 后放回（`ASSETS.md` 学校行取部署机版本、深圳行取新版本），仍是未提交状态；备份 `.cache/ff-deploy-20261027-152647/`。新照片和穿孔板贴图从本机补实体；预览整个换新（`scene.glb` 254 网格、RTX 封面、`compare_room.jpg` 等），旧的在 `.cache/shenzhen-preview-before-room-20261027`。重启后部署机 `test_server.py` 9 项通过，扫描到 14 张照片、新模型和封面，本机和公网首页 200、未登录 `/api/info` 401。
 - **没做**：RTX 下按 IMG_4916 重新对色（灯光换了，颜色可能和 10-21 的标定有偏差）；房间尺寸没有卷尺；没装共享库（5090-2 共享库本来就缺 `real_scene5`）。
 
+### G1-D 分级泛化评测集加「L2 机器人位姿」，原 L2–L4 后移为 L3–L5（2026-10-27，短分支 `chongzheng/docs-eval-levels-robot-pose`）
+
+- **用户要求**：真机每次停靠的位置不同，机器人底座的左右位置、离桌距离、高度、偏航也要作为泛化变量，并放在 L2，其余各级依次后移。现在是 L0 孪生、L1 位置、L2 机器人位姿、L3 外观、L4 物体、L5 场景，每个任务约 275 个布局，专家可行性过滤改为 L0–L4。
+- **改动**：README 等级表和说明（L2 也要进训练布局；底座移动会改变头部相机视角和可达空间，和 L1 只移动物体不等价）；数采平台 `LEVELS` 和「登记任务」向导：第 4 步新增「机器人位姿随机」（左右位置、离桌距离、高度、偏航，默认全勾），勾了就开启 L2；外观开 L3、保留物体开 L4、保留场景开 L5，相关文字同步；「其他泛化」预设去掉「机器人站位 ±3 cm」；实现任务文本和抽屉摘要加机器人位姿一项。`registration.json` 新增 `robot_pose` 字段（`server.py`、`test_server.py`）。`scripts/datagen/SKILL.md`、`real2sim/scenes/SKILL.md` 的「L4 保留」改为 L5。
+- **L2 默认范围是暂定的**：左右 ±3 cm、离桌 ±3 cm、偏航 ±5°、升降柱 ±2 cm，以场景登记的站位实测为中心；应按真机 10–20 次停靠的实测分布再定。
+- **不受影响**：唯一已登记的任务 `g1d_pour_beans_any_cups` 只用 L0、L1，不用迁移；`rsi/subjects.yaml` 的 L0–L3 是各维度内部的难度级，和这套等级无关。平台数据库里任务的「已生成」布局数按等级键存，如果 `5090-2` 上有人填过 L2–L4，部署后会错位一级（需要时手动挪）。
+- **还没实现**：`env_cfg/robot/g1d.yml` 的 `default_root_pos` 是固定的，布局还不能按回合设底座位姿；实现任务文本已要求 coding agent 补上并确认 reset 时生效。
+- **验证**：本机 `test_server.py` 9 passed、ruff 0.11.7（改动的 Python 文件）、任务清单检查、`git diff --check`；`check.sh` 全量里的 `test_x5_layouts.py` 因本机环境缺 `transforms3d` 没跑（和本改动无关）。本机浏览器：向导第 4 步默认开启 L2，取消「高度」后依据更新，全部取消后 L2 关闭。
+- **PR 和部署**：[PR #30](https://github.com/Zheng-Chong/RoboRSR/pull/30)，还没合并。数采平台已部署这个分支提交（部署机从 `c5bfc22` 快进，原有未提交改动保留），`5090-2` 上 `test_server.py` 9 passed，重启后未登录 401。部署细节见本机 `.agent/ops.local.md`；PR 如果用 squash 合并，部署机下次不能直接快进到 `main`。
+
 ### RSI 协议 v0.5：起始评测和每轮考卷压缩（2026-10-26）
 
 - **用户要求**：用 RoboDojo 完整评测作起点太慢，要简化；选了"官方起点用榜单数 + 校准、起始评测 24 任务各 10 回合 + 封存探针、每轮考卷约 400 回合、成绩单按维度汇总"。
