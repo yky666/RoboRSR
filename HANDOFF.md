@@ -57,6 +57,17 @@
 - **验证**：本机 `test_server.py` 9 passed、ruff 0.11.7（改动的 Python 文件）、任务清单检查、`git diff --check`；`check.sh` 全量里的 `test_x5_layouts.py` 因本机环境缺 `transforms3d` 没跑（和本改动无关）。本机浏览器：向导第 4 步默认开启 L2，取消「高度」后依据更新，全部取消后 L2 关闭。
 - **PR 和部署**：[PR #30](https://github.com/Zheng-Chong/RoboRSR/pull/30)，还没合并。数采平台已部署这个分支提交（部署机从 `c5bfc22` 快进，原有未提交改动保留），`5090-2` 上 `test_server.py` 9 passed，重启后未登录 401。部署细节见本机 `.agent/ops.local.md`；PR 如果用 squash 合并，部署机下次不能直接快进到 `main`。
 
+### RSI 协议 v0.6：基模定为 OpenWAM-α 开源权重，起始评测 = 官方评测集 0 的简化版（2026-10-27，`chongzheng/rsi-openwam-start`）
+
+- **用户要求**：用 OpenWAM 在 RoboDojo 上微调的开源权重作后训练基模，以 RoboDojo 官方评测为起点，但评测要简化。
+- **改动**：
+  - `rsi/AGENTS.md` v0.6：基模 = HF `OpenWAM/OpenWAM-Alpha-Sim-RoboDojo` `checkpoint_step_60000`（ee；榜单视频里的 ckpt 名是 `New_OpenWAM_RoboDojo_SFT_60k`，就是这份）。R0.5 原来是"5 任务校准 + 24 任务起点"两件事，合成一件：官方评测集 0 上 `rsi/start_eval_tasks.txt` 的 20 个任务各考布局 0–9（`--eval-num 10` 按布局编号取前 10 个，固定），共 200 个回合，同时当起点和校准。去掉的 4 个是能力缺口任务的 `_random`（`push_T`、`sweep_blocks`、`sort_nesting_dolls_by_size`、`arrange_largest_number`，榜单 0–2 分）。封存探针等 R0.4 建好后单独补考。
+  - `rsi/rsi.example.yaml`：`models` 只留 OpenWAM（Pi-05 拿掉），`budget.start_eval` 改成任务文件 + 官方 seed 0 + 判定参数，删掉 `calibration`。
+  - `rsi/baseline/openwam_alpha_leaderboard.json`：从榜单页面的前端代码（`assets/index-CjJl8yvH.js` 里内嵌的逐任务表）抓出的 OpenWAM-α 54 个任务的 Score 和成功率，加各维度汇总。之前记录"榜单是 JS 渲染、抓不到分数"，其实数据就嵌在 JS 里。
+  - `scripts/datagen/rsi_start.py`（+ `test_rsi_start.py`）：读 `<run_id>_<任务>/_result.json` 的逐回合分，和榜单逐任务比较：榜单分落在我们 10 回合均值的 bootstrap 95% 区间 ±5 分内算通过，最多允许 2 个任务不通过；输出 JSON 作 ledger 第 0 行的输入。
+- **验证**：本机 `pytest scripts/datagen/test_rsi_start.py` 通过，ruff 0.11.7 检查和格式化通过，YAML 能解析。没跑完整的 `check.sh`（本机 base 环境没有 pytest 和依赖），也没上 GPU 跑起始评测。
+- **起始评测 10-27 11:02 已在 `5090-3` 启动**（`5090-2` 当时只有 1 张空卡）：经内网（代理转发 rsync）把 `5090-2:/data/robodojo-runs/leaderboard-baseline-20261022/`（不含 eval_result、logs）和 `/root/miniconda3/envs/openwam-bench` 拷到 `5090-3` 的同一路径，权重 sha256 `78ca4e…0abb`；仿真用 `/data/lfwj/envs/RoboDojo`（另一会话的环境，IsaacLab/cuRobo 在 `/data/lfwj/RoboRSR`）。tmux `rsi-start` 跑运行目录里的 `rsi_start.sh`：三路，策略 GPU 1/2/3、仿真 GPU 5/6/7，run id `rsi_start_openwam_20261027`，跑完自动调用 `rsi_start.py`，结果写 `smoke_results/rsi_start_openwam_20261027.start.json`，日志 `logs/rsi_start_openwam_20261027.log`。预计 2–3 小时。`5090-4` 上也拷了一份权重到同一运行目录，没用上。
+
 ### RSI 协议 v0.5：起始评测和每轮考卷压缩（2026-10-26）
 
 - **用户要求**：用 RoboDojo 完整评测作起点太慢，要简化；选了"官方起点用榜单数 + 校准、起始评测 24 任务各 10 回合 + 封存探针、每轮考卷约 400 回合、成绩单按维度汇总"。

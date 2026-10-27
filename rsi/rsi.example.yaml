@@ -4,14 +4,12 @@ mode: adversarial          # adversarial | generate_only (exam frozen after roun
 rounds: 6
 
 models:                    # each runs its own RSI loop with the same exams and data budget
-  - policy: OpenWAM        # XPolicyLab/policy/<policy>
-    ckpt: OpenWAM-Alpha-Sim-RoboDojo
+  - policy: OpenWAM        # XPolicyLab/policy/<policy>; the base model M_0 every round post-trains from
+    ckpt: OpenWAM-Alpha-Sim-RoboDojo   # open weights fine-tuned on RoboDojo, HF OpenWAM/OpenWAM-Alpha-Sim-RoboDojo
+                                       # checkpoint_step_60000 (24.8 GB), the leaderboard's OpenWAM-α
     action_type: ee
     policy_env: /root/miniconda3/envs/openwam-bench
-  - policy: Pi_05
-    ckpt: sim              # resolves to checkpoints/RoboDojo-sim-arx_x5-joint-0
-    action_type: joint
-    policy_env: uv
+    leaderboard: rsi/baseline/openwam_alpha_leaderboard.json
 
 training:                  # fixed recipe from round 0 on; the data agent never changes it
   init: previous           # previous: M_r continues from M_{r-1} | base: every round from the starting checkpoint
@@ -39,8 +37,12 @@ budget:                    # per round
   exam_episodes: 250       # 5 axes x 30 at the frontier = 60%, +25% one level up, +15% L0 anchor (families pooled)
   capability_episodes_per_task: 10   # L0, the same layouts every round
   sealed_probe_episodes: 120   # 10 per task, built once at round 0
-  start_eval: {tasks: 24, episodes_per_task: 10}  # the 12 base tasks and their _random variants, fixed layouts
-  calibration: {tasks: 5, episodes_per_task: 10}  # against the leaderboard's published per-task scores
+  start_eval:              # R0.5: official set 0, layouts 0-9 of each task; also the calibration against the leaderboard
+    tasks_file: rsi/start_eval_tasks.txt   # 12 base tasks + 8 _random; no _random of the 4 capability-gap tasks
+    official_seed: 0
+    episodes_per_task: 10  # 200 episodes, ~7 h on one lane, <2 h on four
+    margin: 5              # scripts/datagen/rsi_start.py: points around the bootstrap interval
+    max_fail: 2
   exam_hours_max: 4        # R0.6: exam episodes per round set from the measured throughput, capped by this
   exploration_share: 0.3   # rule 2: data and exam both
 
