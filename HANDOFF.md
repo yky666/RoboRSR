@@ -1,6 +1,6 @@
 # Project Handoff
 
-更新时间：2026-10-27
+更新时间：2026-10-25
 本会话分支：`komari/feat-g1d-aurora-tactile`；独立 worktree `../RoboRSR-g1d-aurora`，原基于 `8e0d7a7`，现合并远端 `main@961a9f5`。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
@@ -46,7 +46,7 @@
   - `rsi/baseline/openwam_alpha_leaderboard.json`：从榜单页面的前端代码（`assets/index-CjJl8yvH.js` 里内嵌的逐任务表）抓出的 OpenWAM-α 54 个任务的 Score 和成功率，加各维度汇总。之前记录"榜单是 JS 渲染、抓不到分数"，其实数据就嵌在 JS 里。
   - `scripts/datagen/rsi_start.py`（+ `test_rsi_start.py`）：读 `<run_id>_<任务>/_result.json` 的逐回合分，和榜单逐任务比较：榜单分落在我们 10 回合均值的 bootstrap 95% 区间 ±5 分内算通过，最多允许 2 个任务不通过；输出 JSON 作 ledger 第 0 行的输入。
 - **验证**：本机 `pytest scripts/datagen/test_rsi_start.py` 通过，ruff 0.11.7 检查和格式化通过，YAML 能解析。没跑完整的 `check.sh`（本机 base 环境没有 pytest 和依赖），也没上 GPU 跑起始评测。
-- **起始评测还没跑**：10-27 上午 `5090-2` 只有 GPU 0 空闲（1 是 `owam-server`，2、5 是 `/data/ewam-eval`，3、6 是 `robodojo-pro_benchmark`，4 是 `rsi-gso-20261026` 留下的进程，占 10 GB、GPU 利用率 0，7 是别人的）。OpenWAM 和 Isaac 不能同卡，一路至少要两张卡。命令（在 `leaderboard-baseline-20261022/` 里，先把 `rsi/start_eval_tasks.txt` 拷过去）：`bash scripts/robodojo.sh benchmark --policy-dir XPolicyLab/policy/OpenWAM --ckpt OpenWAM-Alpha-Sim-RoboDojo --policy-env /root/miniconda3/envs/openwam-bench --action-type ee --eval-num 10 --tasks-file start_eval_tasks.txt --policy-gpu-ids <P> --env-gpu-ids <E> --run-id rsi_start_openwam_<日期>`，跑完 `python rsi_start.py --eval-root eval_result --run-id ... --tasks-file start_eval_tasks.txt --leaderboard ...`。
+- **起始评测 10-27 11:02 已在 `5090-3` 启动**（`5090-2` 当时只有 1 张空卡）：经内网（代理转发 rsync）把 `5090-2:/data/robodojo-runs/leaderboard-baseline-20261022/`（不含 eval_result、logs）和 `/root/miniconda3/envs/openwam-bench` 拷到 `5090-3` 的同一路径，权重 sha256 `78ca4e…0abb`；仿真用 `/data/lfwj/envs/RoboDojo`（另一会话的环境，IsaacLab/cuRobo 在 `/data/lfwj/RoboRSR`）。tmux `rsi-start` 跑运行目录里的 `rsi_start.sh`：三路，策略 GPU 1/2/3、仿真 GPU 5/6/7，run id `rsi_start_openwam_20261027`，跑完自动调用 `rsi_start.py`，结果写 `smoke_results/rsi_start_openwam_20261027.start.json`，日志 `logs/rsi_start_openwam_20261027.log`。预计 2–3 小时。`5090-4` 上也拷了一份权重到同一运行目录，没用上。
 
 ### RSI 协议 v0.5：起始评测和每轮考卷压缩（2026-10-26）
 
