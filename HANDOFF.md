@@ -27,6 +27,7 @@
   - 杯对杯倒豆、量杯对倒：部分 seed 成功。
   - 壶倒杯：5.6 mm 的豆子会堵住 13 mm 的壶嘴。
   - 移动送杯 `g1d_deliver_cup_to_lounge`（`g1d_counter_mobile`）：seed 0 前 4 个布局 4/4。
+  - 冷水壶倒水再送杯 `g1d_pour_water_deliver_to_lounge`（`g1d_counter_mobile`）：seed 0 布局 0（见「最近任务」第一节）。
 - **数据**：所有数据集登记在 `scripts/datagen/registry.json`。目前有 2 份办公室量杯全量倒豆数据，各 100 条，LeRobot v3.0，都是按旧的 legacy 格式导出的：
   - 固定朝向的一份，已上传 ModelScope 私有仓库；
   - 随机左右手、随机朝向、大范围位置的一份，也已上传 ModelScope 私有仓库（单独的仓库）。
@@ -36,6 +37,20 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 吧台冷水壶倒水 + 端到客区圆桌：第二个移动操作任务（2026-10-26，`chongzheng/task-pour-deliver-lounge`）
+
+- **用户要求**：吧台场景里"在吧台倒完水，再拿到桌子上"的移动操作，要拼接后的 4 视角视频。用户明确要**用冷水壶倒水**（一开始做成杯对杯倒，被否了）。
+- **任务** `g1d_pour_water_deliver_to_lounge`（`g1d_counter_mobile`）：台面上放冷水壶（约 300 ml 水）和水杯。一只手抓壶把往**立在台面上的**杯子里倒水，壶放回原位，另一只手侧抓杯口下方把杯子拿起，底盘开到客区蓝色圆桌放下。判据：`delivered_checks()`（杯 `cup`）加 `is_A_fluid_in_B`（倒出 ≥ 20%，倒出的 ≥ 90% 在杯里；水花碎成 3 mm 小水滴，按洒出算，不像豆子任务那样忽略小团）。2100 步。
+- **布局** `build_asset.pour_deliver_layout`（`LOUNGE_TASKS`，seed 0–2 各 10 个）：取 `g1d_pour_water_into_cup` 同一条流水线（`pour_liquid_into_cup` → `swap_bottle_for_pitcher`），再做四件事：随底盘后移 5.3 cm（`MOBILE_BACK`）；去掉台面杂物和 `Geometry`（X5 的相机支架正好立在机器人站的位置，会把移动版底盘推走 8 cm；杂物总让布局稳定性检查不过）；壶限制在 |x| ≤ 0.12、y ≤ -0.44（`JUG_MAX_X/Y`）；豆子换成水。
+- **水**：stock 液体（PBD fluid + isosurface，`Linen_Blue.mdl`）改了四处：`particle_mass` 2.7e-5（3 mm 粒子按 1 g/ml，`FluidObject` 默认 0.5 g 重 20 倍，杯子直接从手里滑掉）；`cohesion` 0、去掉 `surface_tension`（真实质量下水抱成一个球整团甩出去）；`damping` 0（0.99 时倾到 75° 还倒不出）；壶里装量 `WATER_FILL`（1.2, 1.2, 1.6），约 300 ml（豆子的 510 ml 换成水对壶把抓握太重）。
+- **脚本专家** `scripted_demo.pour_deliver_actions`：`pour_actions` 新增 `fluid_label`、`dry`、`pour_target`、`hold_cup` 参数（默认值不变，壶倒豆行为不变）。水用 `WATER_DRY` 40° 快倾、倒出 `WATER_POUR` 30% 停；`hold_cup=False` 时杯子留在台面、另一只手不动（原来空中托杯那步在这个场景里够不到）。倒完把壶移回原位放下、手沿进来的方向退出回原位；再用 `lift_cup`（从 `deliver_cup_actions` 抽出来，可指定手臂；这里固定用不拿壶的那只手，`arm_for` 按 x 会选到壶那只手，从壶那边伸过去会撞）拿杯，再调 `carry_to_lounge`（同样从 `deliver_cup_actions` 抽出来：后退、绕椅子开到圆桌、降升降柱、放杯、退手）。
+- **移动版底盘出生时卡在地柜里**：`g1d_counter_mobile` 原来的根节点 y=-0.80 抄自桌面版；移动版底盘碰撞体和地柜重叠，reset 时被推回 5.3 cm（`base_x_joint` = -0.0527，之后不再变），于是按桌面版调好的物体位置对它都远了 5 cm。`env_cfg/robot/g1d_counter_mobile.yml` 根节点改为 -0.853（就是它实际站的位置，送杯任务行为不变）。`DeliverCupToLoungeG1dCommon` 加了类属性 `CUP`。
+- **`cam_third`**：吧台场景原来的第三视角在微波炉后面被挡住。新增 `env_cfg/camera/g1d_counter_mobile_camera.yml`（只给 `g1d_counter_mobile` 用）：相机在房间右前角 (0.7, -3.8, 2.3)，能同时看到吧台和客区圆桌。
+- **视频**：`5090-2:/data/robodojo-runs/pour-deliver-20261026/stitch4.sh <回合目录> episode_0000000 <输出>` 把 `cam_head`、`cam_third`、左右腕拼成 2×2（1280×960，带标签）。
+- **10-26 下午复查（用户：夹爪和关节没限速、杯子最后没放到桌上）**：两点都属实。① 判据漏洞：握着 72–73 mm 的杯子时夹爪开度约 0.75，旧判据「张开 ≥ 0.6」直接通过，杯子悬在桌面上方时就判了成功、回合结束（送杯任务同样受影响）。`DeliverCupToLoungeG1dCommon` 改成杯子必须落在桌面高度（相对台面初始高度在 `drop ± REST_TOL` 内，`drop` 从 `build_params.json` 算）且夹爪开度 ≥ `OPEN` 0.85。② 限速：仿真里手臂执行器上限 5 rad/s、夹爪没有上限，专家指令也没限幅。新增 `scripted_demo.Limiter`（只对 `LIMITED` 里的本任务生效，其他专家和已有数据不变）：关节离软限位 `REAL_JOINT_MARGIN` 0.05 rad（同真机 `calib_arm_server.py`），每步不超过 `REAL_ARM_VMAX` 0.8 rad/s（标定工具包 docs/05 记录的真机回放最快速度），夹爪指令每步不超过 `REAL_GRIP_RATE`（Dex1-1 的 0.2 m/s 换算，0.15/步，`assemble.json`）。限幅后倒水的快倾（4°/步≈2 rad/s）跟不上、洒了 25%，所以 `pour_actions` 加了 `rate`，本任务用 `WATER_RATE` 0.4。执行器层面（`robot_config/g1d.py` 的 `velocity_limit_sim`）没改，所有 G1-D 任务共用。
+- **验证**：本机 `bash scripts/check.sh` 通过（77 个单测）。`5090-2` 隔离目录 `/data/robodojo-runs/pour-deliver-jug-c/`（7 号卡）跑 seed 0 布局 0：`success_rate` 1.0、`eval_time` 1，壶倒出 34%、杯里 33%，底盘全程停在 (0, -0.853)，开到圆桌后放杯、松手才判成功（50 s，1511 帧）；限幅日志：专家原本最大要求单步 0.447 rad（≈13 rad/s）、夹爪单步 0→1，都被截到上限。4 视角视频 `keep/v19_4view.mp4`，本机 `output/pour_deliver/g1d_pour_water_deliver_4view.mp4`（不入库）。对照：同布局不降倾倒速度（v18）倒出 44%、杯里只有 33%。上一版 v17（没限速、旧判据）的成功是假的：杯子还在手里。
+- **没做**：回合在松手瞬间结束，视频里看不到手退出；只验证了 seed 0 布局 0（壶 (0.10, -0.45)、杯 (-0.04, -0.43)）。`JUG_MAX_X/Y` 是在相机支架还没去掉时定的（当时底盘被推走，远处的壶够不到），去掉支架后可能可以放宽。`g1d_pour_water_into_cup` 自己的布局（`build_layouts`）没改。没跑完整 `build_asset.py`（服务器缺 `g1d_v4`/`unitree_ros`），布局用 `build_lounge_layouts` 单独生成；共享资产库没动。
 
 ### 深圳实验室 `real_scene5_shenzhen_lab` 补成整层房间（2026-10-27，`chongzheng/scene-shenzhen-lab-room`）
 

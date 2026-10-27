@@ -4,7 +4,7 @@ config:
   sim: g1d_sim_config
   scene: default
   robot: g1d_counter_mobile
-  camera: g1d_camera  # camera_config + cam_third
+  camera: g1d_counter_mobile_camera  # g1d_camera with cam_third moved to see the lounge
 
 observation:
   collect_freq: 30

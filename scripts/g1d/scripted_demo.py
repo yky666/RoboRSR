@@ -15,6 +15,8 @@ under policy name "scripted_demo".
     g1d_stack_blocks          stack the two outer blocks on the middle one, each with the arm on its side; arms back
     g1d_deliver_cup_to_lounge (g1d_counter_mobile) pick the cup from the counter, back off, drive to a gap between the
                               chairs at the lounge's round table, face it and set the cup down
+    g1d_pour_water_deliver_to_lounge (g1d_counter_mobile) the jug pour above with water, the jug set back down, then
+                              the cup, left standing on the counter for the pour, carried to the lounge table as above
 
 Usage (sim env, repo root):
     CUDA_VISIBLE_DEVICES=1 PYTHONPATH=.:XPolicyLab EVAL_NUM=1 python scripts/g1d/scripted_demo.py \
@@ -55,6 +57,15 @@ JUG_SPEED = 0.0035  # m per action carrying the jug: faster swings it about the 
 POUR_TARGET = 0.25  # of the half-full jug (~130 ml, 2/3 of a mug); the stream in flight tops it up
 FLOW = 0.0033  # of the beans per action (~50 ml/s): hold the tilt above this
 STEP_MARGIN = 12  # actions kept free after the jug is back upright, for the rising-edge success check
+# Real G1-D motion limits (Limiter): joints this far inside the URDF limits (the real arm server's margin); the
+# fastest arm joint speed in the real replays (elbow ~0.8 rad/s, calib toolkit docs/05); the Dex1-1's 0.2 m/s finger
+# speed over its 44.5 mm stroke, per 30 Hz action (real2sim/robot/g1d_v4/assemble.json)
+REAL_JOINT_MARGIN, REAL_ARM_VMAX, REAL_GRIP_RATE = 0.05, 0.8, 0.2 / 0.0445 / 30
+# Water in the jug (g1d_pour_water_deliver_to_lounge): it runs from ~45 deg; a third of the ~300 ml fill
+WATER_DRY, WATER_POUR = np.deg2rad(40), 0.3
+# tilt speeds scaled to stay under REAL_ARM_VMAX: the dry tilt's 4 deg/action is ~2 rad/s at the wrist, and clipped
+# to 0.8 rad/s the hand fell 12 cm behind the spout target
+WATER_RATE = 0.4
 # Second arm holding the cup
 CUP_LIFT = 0.015  # cup bottom above the table while held under the spout; higher puts the jug out of reach
 CUP_MEET = 0.0  # the cup is carried this much toward the jug (the cup arm is near the edge of its reach)
@@ -203,11 +214,14 @@ def cup_grasp(lm, out, label="cup", grip_up=CUP_GRIP_UP, pitch=CUP_PITCH, turn=0
     return grip, hand, rim, radius, pad_open(2 * (foot + (radius - foot) * up / (hi[2] - lo[2])))
 
 
-def pour_actions(env):
+def pour_actions(env, fluid_label="wine", dry=TILT_DRY, pour_target=POUR_TARGET, hold_cup=True, rate=1.0):
+    """Jug and cup as the module docstring says; fast tilt up to `dry`, then pour until `pour_target` of the jug's
+    fill has left it. Water runs from ~45 deg, the beans from TILT_DRY. Without `hold_cup` the cup stays on the table
+    and the other arm stays where it is. `rate` scales the tilt speeds."""
     lm = env.scene_manager.layout_manager
     pos, quat = lm.get_instance_pose(0, label="bottle")
     pitcher_pos, pitcher_rot = as_np(pos), from_wxyz(as_np(quat))
-    fluid = lm.get_scene_object(0, lm.get_instance_name(0, "wine"))
+    fluid = lm.get_scene_object(0, lm.get_instance_name(0, fluid_label))
 
     arms = [Arm(env, r) for r in env.robot_manager.robot_list if r.type == "target"]
     arm = min(arms, key=lambda a: abs(a.grasp_point()[0] - pitcher_pos[0]))
@@ -215,7 +229,7 @@ def pour_actions(env):
     cup0 = as_np(lm.get_instance_pose(0, label="cup")[0])
     side = np.sign(cup0[0] - pitcher_pos[0])  # the spout faces the cup (build_asset.py)
     cup_grip, cup_hand, rim0, cup_r, cup_open = cup_grasp(lm, side)  # the cup arm is beyond the cup
-    held_grip = cup_grip + [-side * CUP_MEET, 0, CUP_LIFT]
+    held_grip = cup_grip + ([-side * CUP_MEET, 0, CUP_LIFT] if hold_cup else 0.0)
     meet = held_grip[:2]
     rim = rim0 + CUP_LIFT
 
@@ -306,7 +320,8 @@ def pour_actions(env):
     )
     step = 0
     jug_path = list(waypoints(arm.grasp_point(), arm.pose()[1], jug_keys))
-    cup_path = list(waypoints(cup_arm.grasp_point(), cup_arm.pose()[1], cup_keys))
+    idle = (cup_arm.grasp_point(), cup_arm.pose()[1], 1.0)
+    cup_path = list(waypoints(cup_arm.grasp_point(), cup_arm.pose()[1], cup_keys)) if hold_cup else [idle]
     for j, c in itertools.zip_longest(jug_path, cup_path):
         yield act(j or jug_path[-1], c or cup_path[-1])
     held = as_np(lm.get_instance_pose(0, label="cup")[0])
@@ -321,7 +336,7 @@ def pour_actions(env):
         # the hand sits above the cup and would swing under the tilted jug: move the cup away so the hand stays put
         palm = cup_hand.apply([-PAD_REACH, 0, 0])
         shift = palm - lean.apply(palm)
-        hold_cup = (held_grip + [shift[0], shift[1], 0], lean * cup_hand, 0)
+        held = (held_grip + [shift[0], shift[1], 0], lean * cup_hand, 0)
         pos, quat = lm.get_instance_pose(0, label="cup")
         pos, rot = as_np(pos), from_wxyz(as_np(quat))
         top = (pos + rot.apply(cup_box))[:, 2].max()
@@ -331,20 +346,20 @@ def pour_actions(env):
         fix = np.clip(
             fix + SPOUT_GAIN * (lip_target - jug_pos - jug_rot.apply(SPOUT_IN_PITCHER)), -SPOUT_SLACK, SPOUT_SLACK
         )
-        return act((hand + fix, hand_rot, 0), hold_cup)
+        return act((hand + fix, hand_rot, 0), held if hold_cup else idle)
 
-    returning = int(np.ceil(TILT / RETURN_RATE)) + STEP_MARGIN
+    returning = int(np.ceil(TILT / (rate * RETURN_RATE))) + STEP_MARGIN
     theta, prev = 0.0, 0.0  # tilt until enough beans have left the jug, then back upright
-    while theta < TILT_DRY:
-        theta = min(theta + DRY_RATE, TILT_DRY)
+    while theta < dry:
+        theta = min(theta + rate * DRY_RATE, dry)
         yield steer(theta)
-    while (now := left_jug()) < POUR_TARGET and step < env.step_lim - returning:
+    while (now := left_jug()) < pour_target and step < env.step_lim - returning:
         if now - prev < FLOW:  # tilt further only while the stream is weak: a surge overshoots the cup
-            theta = min(theta + TILT_RATE, TILT)
+            theta = min(theta + rate * TILT_RATE, TILT)
         prev = now
         yield steer(theta)
     while theta > 0:
-        theta = max(theta - RETURN_RATE, 0.0)
+        theta = max(theta - rate * RETURN_RATE, 0.0)
         yield steer(theta)
     for _ in range(STEP_MARGIN):
         yield steer(0.0)
@@ -672,9 +687,16 @@ def deliver_cup_actions(env):
     off, drive through the lounge to a gap between the chairs at the round table, lowering the lift column for it on
     the way, face the table, set the cup down, open and slide the hand back out."""
     robot = Robot(env)
+    arm, open_cmd = yield from lift_cup(robot)
+    yield from carry_to_lounge(env, robot, arm, "cup", open_cmd)
+
+
+def lift_cup(robot, arm=None):
+    """Side-grasp the cup on the counter from the outside of `arm` (default: the arm on its side), just below the rim,
+    and lift it CARRY_UP; returns (arm, open command)."""
     lm = robot.lm
     cup0 = robot.object("cup")[0]
-    arm = robot.arm_for(cup0[0])
+    arm = arm or robot.arm_for(cup0[0])
     out = -1.0 if arm.arm_key.startswith("left") else 1.0
     bbox = lm.get_instance_bbox_vertices(lm.get_instance_name(0, "cup"), 0)
     height = bbox[:, 2].max() - bbox[:, 2].min()
@@ -692,6 +714,13 @@ def deliver_cup_actions(env):
         ],
     )
     print(f"[scripted_demo] lifted cup to {robot.object('cup')[0].round(3)} (from {cup0.round(3)})")
+    return arm, open_cmd
+
+
+def carry_to_lounge(env, robot, arm, label, open_cmd):
+    """With the cup `label` lifted in `arm`: back off from the counter, drive through the lounge to a gap between the
+    chairs at the round table, lowering the lift column for it on the way, face the table, set the cup down, open to
+    `open_cmd` and slide the hand back out."""
     start, yaw = robot.chassis()
     yield from robot.drive(start - BACK_OFF * np.array([np.cos(yaw), np.sin(yaw)]), reverse=True)
     table, r = np.asarray(env.table_xy[0]), env.table_r[0]
@@ -704,7 +733,7 @@ def deliver_cup_actions(env):
     spot = table + (r + TABLE_STAND - PLACE_AHEAD) * u
     # the cup sits in the hand as it does now (it may have slid in the grip on the way): keep that offset
     point, rot = arm.grasp_point(), arm.pose()[1]
-    centre, _, _, bottom, _ = robot.object("cup")
+    centre, _, _, bottom, _ = robot.object(label)
     down = np.r_[spot + point[:2] - centre[:2], env.table_z[0] + PLACE_GAP + point[2] - bottom]
     back = down - rot.apply([CUP_SLIDE, 0, 0])
     print(f"[scripted_demo] place cup at {spot.round(3)}, hand to {down.round(3)}")
@@ -719,7 +748,38 @@ def deliver_cup_actions(env):
         ],
     )
     checks = {c[0]: env.reward_manager.call_func_parser(c, 0) for c in env.delivered_checks()}
-    print(f"[scripted_demo] cup at {robot.object('cup')[0].round(3)}, checks {checks}, env success {env.success[0]}")
+    print(f"[scripted_demo] cup at {robot.object(label)[0].round(3)}, checks {checks}, env success {env.success[0]}")
+
+
+def pour_deliver_actions(env):
+    """Pour water from the jug into the cup standing on the counter as pour_actions does (the other hand waits), set
+    the jug back down where it stood (over its spot, down, open, back out of the handle, home), then pick the cup up
+    and carry it to the lounge table."""
+    robot = Robot(env)  # home poses from the start
+    jug0, _, _, counter_z, _ = robot.object("bottle")
+    yield from pour_actions(env, "water", WATER_DRY, WATER_POUR, hold_cup=False, rate=WATER_RATE)
+    robot.hold = {a.arm_key: a.q() for a in robot.arms}
+    jug_arm = robot.arm_for(jug0[0])
+    robot.grip[jug_arm.grip_key] = [0.0]
+    point, rot = jug_arm.grasp_point(), jug_arm.pose()[1]
+    centre, _, _, bottom, _ = robot.object("bottle")
+    down = np.r_[jug0[:2] + point[:2] - centre[:2], counter_z + PLACE_GAP + point[2] - bottom]
+    home, home_rot = robot.home[jug_arm.arm_key]
+    print(f"[scripted_demo] set the jug down at {jug0[:2].round(3)}, hand {down.round(3)}, chassis {robot.chassis()}")
+    yield from robot.move(
+        jug_arm,
+        [
+            (np.r_[down[:2], point[2]], rot, 0, max(int(np.linalg.norm(down[:2] - point[:2]) / JUG_SPEED), 30)),
+            (down, rot, 0, max(int((point[2] - down[2]) / JUG_SPEED), 30)),
+            (down, rot, OPEN, 15),  # release
+            (down + BEHIND, rot, OPEN, 30),  # out of the handle the way the fingers came in
+            (down + BEHIND + [0, 0, 0.1], rot, OPEN, 24),
+            (home, home_rot, 1.0, 54),
+        ],
+    )
+    # the other hand, from the far side of the jug (the cup may stand on the jug arm's side of the midline)
+    arm, open_cmd = yield from lift_cup(robot, next(a for a in robot.arms if a is not jug_arm))
+    yield from carry_to_lounge(env, robot, arm, "cup", open_cmd)
 
 
 def pickup_actions(env):
@@ -744,6 +804,9 @@ def stack_actions(env):
     yield from robot.go_home()
 
 
+# experts whose commands go through Limiter (the others predate it; their datasets were made without it)
+LIMITED = {"g1d_pour_water_deliver_to_lounge"}
+
 DEMOS = {
     "g1d_pour_water_into_cup": pour_actions,
     "g1d_pour_beans_cup_to_cup": cup_to_cup_actions,
@@ -751,16 +814,59 @@ DEMOS = {
     "g1d_general_pickup": pickup_actions,
     "g1d_stack_blocks": stack_actions,
     "g1d_deliver_cup_to_lounge": deliver_cup_actions,
+    "g1d_pour_water_deliver_to_lounge": pour_deliver_actions,
 }
+
+
+class Limiter:
+    """Real-robot motion limits on every command: arm joints REAL_JOINT_MARGIN inside their limits and at most
+    REAL_ARM_VMAX, the gripper command at most REAL_GRIP_RATE per action. Logs the fastest requested move."""
+
+    def __init__(self, env):
+        self.arms = [Arm(env, r) for r in env.robot_manager.robot_list if r.type == "target"]
+        self.q = {a.arm_key: a.q() for a in self.arms}
+        self.grip = {}
+        self.lim = {
+            a.arm_key: as_np(a.key.data.soft_joint_pos_limits[0, a.cols]).reshape(-1, 2)
+            + [REAL_JOINT_MARGIN, -REAL_JOINT_MARGIN]
+            for a in self.arms
+        }
+        self.dq_max = REAL_ARM_VMAX / 30  # rad per 30 Hz action
+        self.asked = self.asked_grip = 0.0
+
+    def __call__(self, action):
+        out = dict(action)
+        for a in self.arms:
+            if a.arm_key in out:
+                q = np.clip(np.asarray(out[a.arm_key], dtype=float), *self.lim[a.arm_key].T)
+                step = q - self.q[a.arm_key]
+                self.asked = max(self.asked, float(np.abs(step).max()))
+                self.q[a.arm_key] = self.q[a.arm_key] + np.clip(step, -self.dq_max, self.dq_max)
+                out[a.arm_key] = self.q[a.arm_key]
+            if a.grip_key in out:
+                g = float(out[a.grip_key][0])
+                prev = self.grip.get(a.grip_key, g)
+                self.asked_grip = max(self.asked_grip, abs(g - prev))
+                self.grip[a.grip_key] = prev + float(np.clip(g - prev, -REAL_GRIP_RATE, REAL_GRIP_RATE))
+                out[a.grip_key] = [self.grip[a.grip_key]]
+        return out
 
 
 def eval_one_episode(TASK_ENV, model_client):
     TASK_ENV.get_obs()  # initial frame (also triggers the pre-action reward check so is_lift records table height)
-    for action in DEMOS[TASK_ENV.task_name](TASK_ENV):
-        TASK_ENV.take_action(action)
+    actions = DEMOS[TASK_ENV.task_name](TASK_ENV)
+    limiter = Limiter(TASK_ENV) if TASK_ENV.task_name in LIMITED else None
+    for action in actions:
+        TASK_ENV.take_action(limiter(action) if limiter else action)
         if TASK_ENV.is_episode_end():
             break
         TASK_ENV.get_obs()  # streams the camera frames into the episode videos
+    if limiter:
+        print(
+            f"[scripted_demo] limiter: fastest requested arm step {limiter.asked:.3f} rad"
+            f" ({limiter.asked * 30:.2f} rad/s, cap {REAL_ARM_VMAX}),"
+            f" gripper {limiter.asked_grip:.3f} per action (cap {REAL_GRIP_RATE:.3f})"
+        )
     if not TASK_ENV.end_flag[0]:  # EvalEnv starts each episode with success=True: running out of script is a fail
         TASK_ENV.success[0] = False
         TASK_ENV.end_flag[0] = True

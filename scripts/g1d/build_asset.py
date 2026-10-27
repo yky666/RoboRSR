@@ -503,6 +503,11 @@ LOUNGE_SEEDS, LOUNGE_LAYOUTS = (0, 1, 2), 10
 # it from the outside (the cup pours' side grasp, scripted_demo.cup_grasp)
 CUP_X, CUP_Y = (0.06, 0.16), (-0.46, -0.38)
 CHAIR_JITTER, CHAIR_YAW_JITTER = 0.05, 10.0  # m, deg about each chair's photo pose
+# g1d_counter_mobile's chassis stands this much further back than g1d_counter's root (its -0.80 overlaps the cabinet)
+MOBILE_BACK = -0.053
+# jug within JUG_MAX_X of the midline and at least JUG_MAX_Y out (world y): its handle sits 6 cm further out, and the
+# jug hand fell short at x 0.26 and knocked the jug over at (0.14, -0.39); probed only at (0.09, -0.49)
+JUG_MAX_X, JUG_MAX_Y = 0.12, -0.44
 
 
 def _yaw_quat(deg):
@@ -549,7 +554,69 @@ def deliver_cup_layout(assets, room, room_pos, params, rng):
     }
 
 
-LOUNGE_TASKS = {"g1d_counter_mobile": {"g1d_deliver_cup_to_lounge": deliver_cup_layout}}
+# Water: the stock pour_liquid_into_cup liquid (PBD fluid, isosurface) made to flow at real mass
+WATER_MDL = "$Robodojo_ASSETS/Material/Fluid/Linen_Blue.mdl"  # the stock liquid's look: opaque blue
+# ~300 ml in the jug (the beans' PITCHER_FILL is ~510 ml, too heavy as water for the handle grip), its bottom kept
+WATER_FILL = (1.2, 1.2, 1.6)
+WATER_Z = PITCHER_FLUID_Z - 0.035 * (PITCHER_FILL[2] - WATER_FILL[2])
+WATER_PHYSICS = {
+    "type": "fluid",
+    "particle_system": {
+        "particle_contact_offset": 0.0025,
+        "contact_offset": 0.0025,
+        "rest_offset": 0.002,
+        "fluid_rest_offset": 0.0015,
+        "solid_rest_offset": 0.0015,
+        "max_velocity": 2,
+        "smoothing": False,
+        "anisotropy": False,
+        "isosurface": True,
+    },
+    # the stock cohesion 0.005 / surface tension 0.0074 hold the light (1 g/ml) particles together as one ball that
+    # leaves the vessel in a lump, and its damping 0.99 keeps them in up past 70 deg of tilt: off, the water pours
+    "particle_material": {"cohesion": 0.0, "friction": 0.1, "damping": 0.0, "gravity_scale": 1.0, "viscosity": 0.0091},
+    "interaction_with_object": True,
+    # 3 mm particles (2 x fluid_rest_offset) at 1 g/ml; FluidObject's 0.5 g default weighs ~20x that
+    "particle_mass": 2.7e-5,
+}
+
+
+def pour_deliver_layout(assets, room, room_pos, params, rng):
+    """g1d_counter's jug-and-cup layout (pour_liquid_into_cup through swap_bottle_for_pitcher), drawn at random, moved
+    MOBILE_BACK with the chassis, without the clutter, the jug's beans made ~300 ml of water; the lounge chairs as in
+    deliver_cup_layout."""
+    _, _, xy, scale, swap = ("g1d_pour_water_into_cup", *G1D_TASKS["g1d_pour_water_into_cup"])
+    top = params["table"]["top_z"]
+    shift = next(v[3] for v in SCENES.values() if v[1] == room and v[2] == room_pos)
+    files = sorted((assets / "Eval_Layout/RoboDojo/arx_x5").rglob("pour_liquid_into_cup_*.json"), key=_layout_sort_key)
+    layout = None
+    while layout is None:
+        index = rng.randrange(len(files))
+        layout = squeeze(json.loads(files[index].read_text()), scale)
+        layout.pop("Geometry", None)  # the X5 camera stand, where the robot stands (build_layouts drops it too)
+        layout = swap(move_into_real_scene(layout, xy, room, room_pos, top), assets, index, top)
+        jug = layout and layout["Rigid"]["pitcher"][0]["default_pos"]
+        if jug and (abs(jug[0] + shift[0]) > JUG_MAX_X or jug[1] + shift[1] + MOBILE_BACK > JUG_MAX_Y):
+            layout = None
+    shift_objects(layout, (shift[0], shift[1] + MOBILE_BACK, 0.0))
+    # only the jug and the cup: the stock clutter on the counter keeps failing the layout stability check
+    layout["Rigid"] = {k: es for k, es in layout["Rigid"].items() if k in ("pitcher", "water_cup")}
+    fluid = layout["Fluid"]["wuliangye"][0]
+    fluid["label"], fluid["physics"] = "water", WATER_PHYSICS
+    fluid["visual"] = {"visible": True, "visual_mdl_path": WATER_MDL, "scale": list(WATER_FILL)}
+    fluid["scale"] = [1 / s for s in WATER_FILL]
+    fluid["zlim"] = [WATER_Z] * 2
+    fluid["default_pos"][2] += WATER_Z - PITCHER_FLUID_Z
+    layout["Rigid"]["lounge_chair"] = deliver_cup_layout(assets, room, room_pos, params, rng)["Rigid"]["lounge_chair"]
+    return layout
+
+
+LOUNGE_TASKS = {
+    "g1d_counter_mobile": {
+        "g1d_deliver_cup_to_lounge": deliver_cup_layout,
+        "g1d_pour_water_deliver_to_lounge": pour_deliver_layout,
+    }
+}
 
 
 def build_lounge_layouts(assets, config, room, room_pos, dst):

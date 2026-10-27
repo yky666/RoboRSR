@@ -15,6 +15,10 @@ class DeliverCupToLoungeG1dCommon:
 
     TABLE = "blue"  # the round table with the four blue chairs
     EDGE_MARGIN = 0.04  # m: the cup's centre this far inside the table's rim
+    CUP = "cup"  # label of the cup to deliver
+    REST_TOL = 0.02  # m: the cup's height change from the counter to the table, within this, counts as standing on it
+    # grippers at least this open: holding a 72-73 mm cup leaves them ~0.75 open, so 0.6 passed with the cup still held
+    OPEN = 0.85
 
     def __init__(self, config, app, **kwargs):
         super().__init__(config, app, **kwargs)
@@ -23,6 +27,7 @@ class DeliverCupToLoungeG1dCommon:
         self.table_xy = [None] * self.num_envs
         self.table_r = [None] * self.num_envs
         self.table_z = [None] * self.num_envs
+        self.drop = 0.0  # tabletop height minus countertop height (the cup starts on the counter)
 
     def _post_setup_scene(self, sim):
         super()._post_setup_scene(sim)
@@ -33,7 +38,9 @@ class DeliverCupToLoungeG1dCommon:
         self.reward_manager.reset()
         for env_idx in range(self.num_envs):
             room = self.scene_manager.config[f"env{env_idx}"]["Room"]
-            lounge = json.loads((Path(room["usd_path"]).parent / "usd" / "build_params.json").read_text())["lounge"]
+            params = json.loads((Path(room["usd_path"]).parent / "usd" / "build_params.json").read_text())
+            lounge = params["lounge"]
+            self.drop = lounge["table_top_z"] - params["table"]["top_z"]
             self.table_xy[env_idx] = list(np.add(lounge["tables"][self.TABLE], room["default_pos"][:2]))
             self.table_r[env_idx] = lounge["table_r"]
             self.table_z[env_idx] = lounge["table_top_z"] + room["default_pos"][2]
@@ -42,12 +49,14 @@ class DeliverCupToLoungeG1dCommon:
         rm = self.reward_manager
         return [
             rm.is_A_xy_distance_close_to_pos(
-                "cup", pos=self.table_xy, dis_threshold=self.table_r[0] - self.EDGE_MARGIN
+                self.CUP, pos=self.table_xy, dis_threshold=self.table_r[0] - self.EDGE_MARGIN
             ),
-            # the cup starts on the 0.833 m countertop: ~8 cm lower on the 0.75 m table, ~83 cm lower on the floor
-            rm.is_lift("cup", z_threshold=-0.15),
-            rm.is_axis_up("cup", axis=[0, 0, 1], threshold=15),
-            rm.is_all_gripper_open(open_threshold=0.6),
+            # standing on the table: the cup starts on the 0.833 m countertop, the table is ~8 cm lower (a cup still
+            # held above it is higher, one on the floor ~83 cm lower)
+            rm.is_lift(self.CUP, z_threshold=self.drop - self.REST_TOL),
+            rm.is_not_lift(self.CUP, z_threshold=self.drop + self.REST_TOL),
+            rm.is_axis_up(self.CUP, axis=[0, 0, 1], threshold=15),
+            rm.is_all_gripper_open(open_threshold=self.OPEN),
         ]
 
     def run_reward(self):

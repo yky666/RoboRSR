@@ -83,6 +83,7 @@ DIMENSION_TASKS: dict[str, tuple[str, ...]] = {
         "g1d_general_pickup",
         "g1d_stack_blocks",
         "g1d_deliver_cup_to_lounge",
+        "g1d_pour_water_deliver_to_lounge",
     ),
 }
 
