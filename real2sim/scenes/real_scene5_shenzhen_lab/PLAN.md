@@ -1,6 +1,6 @@
 # real_scene5：深圳实验室办公桌 建模说明
 
-v1（2026-10-21），依据平台登记 `registration.json`（卷尺实测）和 6 张手机照片 `reference/IMG_4913–4918.jpeg`（iPhone Air 主摄，26 mm 等效）。场景变更时同步更新本文件。
+v1（2026-10-21），依据平台登记 `registration.json`（卷尺实测）和 6 张手机照片 `reference/IMG_4913–4918.jpeg`（iPhone Air 主摄，26 mm 等效）。v2（2026-10-27）按 8 张房间全景 `reference/IMG_4948–4955.jpg` 把桌子周围补成整层房间（墙、角柱、天花板、家具），见「房间（v2）」。场景变更时同步更新本文件。
 
 ## 文件
 
@@ -8,16 +8,17 @@ v1（2026-10-21），依据平台登记 `registration.json`（卷尺实测）和
 | --- | --- |
 | `registration.json` | 平台登记（卷尺实测、桌子、环境、灯光），原样保留 |
 | `fit_photo.py` | 5 张照片上手标的桌沿、立柱、桌脚和柜角，桌面尺寸固定为卷尺值，联合反求相机位姿、共享焦距、桌腿和柜子位置，写 `fit_photo.json` |
-| `build_scene.py` | 读 `fit_photo.json`，生成 `usd/`（`background.usda`、`table.usda`、`cabinet.usda`、`lights.usda`、`scene.usda`、地毯贴图）和 Room 入口 `real_scene5.usd` |
-| `check_scene.py` | 离线检查，写 `check_report.json`（22/22 通过） |
-| `preview.py` | numpy 光栅化预览（`preview/`，不入库）。`compare_photo.jpg` 每行：照片、拟合相机下的渲染、桌子和柜子的模型边线叠在照片上；只核对几何 |
+| `fit_room.py` | 房间照片 8 张上手标的墙角、吊顶边、柱边、工位、墙上设备，分 5 步拟合 7 个机位和房间尺寸，再把像素反投影到已知平面量家具和灯位，写 `fit_room.json` |
+| `build_scene.py` | 读 `fit_photo.json` 和 `fit_room.json`，生成 `usd/`（`background.usda` 含房间和 `/Background/Furniture`、`table.usda`、`cabinet.usda`、`lights.usda`、`scene.usda`、地毯和穿孔板贴图）和 Room 入口 `real_scene5.usd` |
+| `check_scene.py` | 离线检查，写 `check_report.json`（28/28 通过） |
+| `preview.py` | numpy 光栅化预览（`preview/`，不入库）。`compare_photo.jpg`：桌子照片、渲染、桌柜边线叠图；`compare_room.jpg`：房间照片、渲染、房间和家具边线叠图；`room.jpg` 两个角落俯视；只核对几何 |
 
 运行（本机无 Isaac 也可）：
 
 ```bash
 uv run --no-project --python 3.11 --with usd-core --with trimesh --with numpy --with shapely \
     --with opencv-python-headless --with scipy --with mapbox-earcut --with manifold3d \
-    sh -c "python fit_photo.py && python build_scene.py && python check_scene.py && python preview.py"
+    sh -c "python fit_photo.py && python fit_room.py && python build_scene.py && python check_scene.py && python preview.py"
 ```
 
 ## 坐标系
@@ -36,8 +37,8 @@ uv run --no-project --python 3.11 --with usd-core --with trimesh --with numpy --
 | 桌腿 | 两条 T 形升降腿：立柱 x = ±0.472、y = +0.005；脚 y ∈ [−0.243, 0.251] | 拟合（立柱边线、脚端帽） |
 | 立柱截面、两节分界高 0.45 m、侧梁、横梁 | 5–6 cm 等 | 目测 |
 | 储物柜 | 0.75 × 0.45 × 1.20 m（宽 × 深 × 高），x ∈ [1.227, 1.977]，背贴墙 | 尺寸登记；位置拟合（柜顶角、前左立边） |
-| 踢脚线 | 高 0.08 m，黑色 | 目测 |
-| 房间 | x ∈ [−2.5, 2.5]，y ∈ [−3.0, 0.30]，高 2.8 m | 后墙登记；侧墙、前墙、层高没拍到，放在视野外 |
+| 踢脚线 | 高 0.08 m，黑色；电梯墙白色挂板没有 | 目测 |
+| 房间 | 见「房间（v2）」 | `fit_room.py` |
 
 拟合残差：桌沿 ≤ 3.7 px，桌脚和柜角 ≤ 8 px（端帽、柜顶盖较模糊，sigma 取 4 px）。焦距拟合 773.6 px（1024 px 宽），与 EXIF 26 mm 等效换算的 769 px 一致，说明卷尺尺度和照片自洽。4916 里柜子的手标点和 4914 底边（被袋子挡住）误差 8–100 px，是标错了，已剔除；剔除后模型的柜子在 4916 上也对得上（见 `preview/compare_photo.jpg`）。
 
@@ -47,9 +48,35 @@ uv run --no-project --python 3.11 --with usd-core --with trimesh --with numpy --
 - 登记写“灰色条纹瓷砖”，照片是蓝灰条纹方块地毯，用 4913 里一块 0.3 m 的干净区域按地面单应性矫正、镜像平铺（亮度乘 0.67，同 real_scene3）。
 - 桌上有一块 ChArUco 标定板，但没登记格子边长和位置，没有用。下次采集按 `real2sim/scenes/SKILL.md` 量格子边长，可以用 `charuco.py solve` 复核相机。
 
+
+## 房间（v2，2026-10-27）
+
+8 张照片里有 7 张是站在约 (−1.2, −4.4) 一处转身拍的（拟合出的机位彼此相差 < 0.6 m，可互相校核），IMG_4951（电梯）在别处拍，只目测用。拍照时桌子已拉离墙面、往柜子挪了约 0.3 m（对照墙上插座），所以房间不按桌子定尺度，而是按没动过的东西：柜子（登记尺寸、`fit_photo` 位置）、桌左三个插座（用 IMG_4914 的拟合相机反投影，x = −1.905 / −1.429 / −0.950）、IMG_4913 里柜子右侧的竖直墙角。焦距沿用 773.6 px。孪生里的桌子仍在登记位置。
+
+| 项 | 取值 | 依据 |
+| --- | --- | --- |
+| 后墙吊顶 | 下沿 2.83 m，深 0.75 m（前沿和两根角柱正面齐平） | IMG_4955 正对后墙 + IMG_4948、4949 联合拟合，残差 ≤ 4 px（IMG_4948 柜子底边 13 px，鲁棒损失降权） |
+| 穿孔铝板天花 | 2.93 m，0.6 m 板缝；北到后墙吊顶，南到电梯侧吊顶边 y = −7.65 | 同上；IMG_4950 |
+| 灯条 | 3 条，沿 Y，x = 0.09 / −3.31 / −5.90，宽 6 cm，两端离吊顶 0.35 m；x = −1.32 一条黑色条缝 | IMG_4955、4953、4954 反投影 |
+| 筒灯 | 后吊顶 x = −6.37 / −4.57 / −3.01 / −0.64 / 1.36（y ≈ −0.08）；电梯侧吊顶 5 个按目测 | IMG_4955、4954；IMG_4952 |
+| 东北角柱 | x ∈ [2.34, 3.28]，凸出 0.75 m | 联合拟合 |
+| 西北角柱 | x ∈ [−8.19, −7.32]，同深 | IMG_4954（用吊顶上的烟感、摄像头、筒灯定机位） |
+| 东墙 / 西墙 | x = 3.28 / −8.19 | 联合拟合；IMG_4953（机位先验取共同站位） |
+| 电梯墙 | y = −8.94，x 从东墙到 −5.55；其西是凹进区，南到 y = −10.60 | IMG_4950 东南角、IMG_4952 墙端（用西墙报警器、标识、开关定机位） |
+| 电梯 | KT3 x ∈ [−1.92, −0.66]，KT4 [0.66, 1.91]，深色木饰面到吊顶，门高 2.2 m | IMG_4952、4950 各一边，按 IMG_4951 对称 |
+| 工位 | 东墙 5 个模块 × 1.33 m，y ∈ [−7.39, −0.74]，桌面前沿离墙 0.57 m，高 0.75；每模块一块蓝色挡板 1.1 × 0.35 m、一个三抽活动柜 | IMG_4949 桌腿 −0.87 / −3.35 / −4.68；IMG_4950 最后两个模块 |
+| 升降桌 | 西北柱东侧贴后墙，1.4 × 0.7 m，高 0.73，灰褐桌面灰色 T 腿 | IMG_4954，尺寸常见规格 |
+| 货架 | 西墙，y ∈ [−4.10, −2.69]，深 0.5，高 1.9，层板 0.18 / 0.63 / 1.04 / 1.47 m，蓝色 | IMG_4953 |
+| 椅子 | 5 把：工位 1（黑网椅）、2、3、5（灰框人体工学椅），升降桌前 1 把；位置为照片反投影（±0.1 m），离桌面前沿 ≥ 0.36 m，朝向目测 | IMG_4948、4949、4950、4954 |
+| 栏杆和闸机 | 1.1 m 玻璃栏杆：东段 y = −7.85 从东墙到 x = −0.68；闸机两柱 x = −0.78 / −1.62；西段 y = −7.74 到 x = −2.62 再折回电梯墙 | IMG_4950、4952 立柱落地点 |
+
+只建桌子、椅子、架子、隔断（栏杆、闸机、工位挡板）；纸箱、袋子、桌上杂物、未组装的桌架、航空箱、墙上标牌和电梯旁小设备都没建。家具放在 `background.usda` 的 `/Background/Furniture`（同 real_scene3），所以 Room 入口、`scene_parts.py`、`render_scenes.py` 都不用改；碰撞体全是盒体。
+
+叠图（`preview/compare_room.jpg`）：7 个机位下墙角、吊顶边、柱子、工位、栏杆、货架、升降桌的模型边线都落在照片对应位置上，偏差目测 ≲ 10 px。
+
 ## 灯光（`lighting.status: recorded`）
 
-登记：室内顶部顶条，面光源，颜色和照片对齐；没有色温、照度和位置。建模为 4 条 1.2 × 0.15 m 的 RectLight 贴天花板（桌子正上方、机器人上方、左右各一条），6000 K，强度 54000，加 Dome 150。Isaac 相机没有白平衡，墙的乳白、桌子和柜子的颜色写在材质里（从 4916 取 sRGB）。
+登记：室内顶部顶条，面光源，颜色和照片对齐；没有色温、照度和位置。v1 建模为 4 条 1.2 × 0.15 m 的 RectLight（强度 54000），按下表对过色。v2 按照片位置改成 3 条灯条 RectLight（0.06 m 宽，100000）加 5 个后吊顶筒灯 DiskLight（r 0.05 m，1.6e6，锥角 55°，打出照片里后墙的光斑），6000 K，Dome 150；强度按数值积分让桌面、后墙、近处地面的照度和 v1 相当（桌面 1.01 倍、后墙 0.74–0.91、地面 1.24），**没有在 RTX 下重新对色**。Isaac 相机没有白平衡，墙的乳白、桌子和柜子的颜色写在材质里（从 4916 取 sRGB）。
 
 颜色按 Isaac RTX 渲染和照片对齐：把 `cam_third` 放到 4916 的拟合位姿，比墙、桌面、地毯三块区域的 sRGB 中值（照片 / 仿真）：
 
@@ -75,9 +102,12 @@ uv run --no-project --python 3.11 --with usd-core --with trimesh --with numpy --
 - 再把 `cam_third` 放到 4916、4913 的拟合位姿各跑一次（只改运行目录里的 `g1d_camera.yml`，跑完还原），用于上面的颜色对齐，两次都 success_rate 1.0。
 - `preview/compare_isaac.jpg`：照片和 Isaac 渲染（Gemini 96° 画面按照片 67° 视场中心裁剪放大）并排；`preview/robot_cameras_isaac.jpg`：最终灯光下四路相机的首、中、末帧（这次 `cam_third` 在 4916 位姿）。
 
+- **2026-10-27，v2 房间，5090-2 隔离目录 `/data/robodojo-runs/shenzhen-room-20261027`**（GPU 7；资产硬链接自 `shenzhen-beans-20261021`，只换 `Room/real_scene5`，共享库没动）：`render_scenes.py` 正常（墙上有筒灯光斑，不过曝）；`scripted_demo.py --env_cfg_type g1d_shenzhen_lab --task_name g1d_pour_beans_measuring_cups --seed 0`：success_rate 1.0、eval_time 1，四路相机正常，`cam_third` 里能看到穿孔天花和灯条、货架、角柱、电梯厅栏杆。
+
 ## 未覆盖
 
 - 机器人站位卷尺、头部 / 腕部相机叠图（需要真机画面和关节角）。
 - 灯光位置和亮度没记录；未和头部相机对比。
-- 柜子右侧的墙体凸出、地上的纸箱和杂物没建；柜门细节是示意。
+- 房间尺寸没有卷尺实测（按柜子和插座定尺度）；椅子朝向、升降桌尺寸、电梯侧筒灯是目测；地上的纸箱和杂物按要求没建；柜门细节是示意。
+- v2 灯光没在 RTX 下按 IMG_4916 重新对色。
 - 摩擦系数是估计值。

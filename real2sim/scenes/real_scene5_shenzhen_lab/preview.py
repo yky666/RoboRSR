@@ -185,6 +185,30 @@ def main():
         cv2.resize(np.vstack(rows), None, fx=0.5, fy=0.5),
         [cv2.IMWRITE_JPEG_QUALITY, 85],
     )
+    # room photos with the cameras of fit_room.py: photo | render | edges of the room and the furniture on the photo
+    room_fit = json.loads((HERE / "fit_room.json").read_text())
+    room = [
+        o
+        for o in scene
+        if o["path"].startswith("/World/Background/") and not o["path"].endswith(("/Floor", "/Ceiling"))
+    ]
+    hfov = math.degrees(2 * math.atan(512 / fit["focal_px"]))
+    rows = []
+    for name, cam in sorted(room_fit["cameras"].items()):
+        R, eye = cv2.Rodrigues(np.array(cam["rvec"]))[0], np.array(cam["eye"])
+        view = cv2.cvtColor(
+            render(scene, eye=eye, target=None, hfov_deg=hfov, size=(1024, 768), R=R), cv2.COLOR_RGB2BGR
+        )
+        mask = render(room, eye=eye, target=None, hfov_deg=hfov, size=(1024, 768), bg=(0, 0, 1), R=R)
+        edges = cv2.Canny(cv2.cvtColor(mask, cv2.COLOR_RGB2GRAY), 10, 30)
+        overlay = cv2.imread(str(HERE / "reference" / name))
+        overlay[cv2.dilate(edges, np.ones((2, 2), np.uint8)) > 0] = (0, 0, 255)
+        rows.append(np.hstack([cv2.imread(str(HERE / "reference" / name)), view, overlay]))
+    cv2.imwrite(
+        str(HERE / "preview" / "compare_room.jpg"),
+        cv2.resize(np.vstack(rows), None, fx=0.5, fy=0.5),
+        [cv2.IMWRITE_JPEG_QUALITY, 85],
+    )
     # Estimated G1-D head camera: root 0.13 m behind the table edge, head ~0.15 m ahead of the root, ~1.25 m high
     # (+0.07 m lift), pitched 47.6 deg down (scripts/g1d/left_robot_config.yml), ~96 deg h-FOV as in the sim config.
     front = json.loads((USD / "build_params.json").read_text())["table"]["front_y"]
@@ -194,6 +218,9 @@ def main():
     cv2.imwrite(str(HERE / "preview" / "robot_head.jpg"), cv2.cvtColor(head, cv2.COLOR_RGB2BGR))
     top = render(scene, eye=(-1.4, -2.4, 2.0), target=(0.4, 0.0, 0.5), hfov_deg=70, size=(1024, 768))
     cv2.imwrite(str(HERE / "preview" / "overview.jpg"), cv2.cvtColor(top, cv2.COLOR_RGB2BGR))
+    views = [((3.0, -8.4, 2.6), (-4.0, -3.0, 0.6)), ((-7.8, -0.4, 2.6), (1.0, -6.0, 0.6))]  # SE and NW corners, high
+    room_views = [render(scene, eye=e, target=t, hfov_deg=90, size=(1024, 768)) for e, t in views]
+    cv2.imwrite(str(HERE / "preview" / "room.jpg"), cv2.cvtColor(np.hstack(room_views), cv2.COLOR_RGB2BGR))
     print("wrote", HERE / "preview")
 
 

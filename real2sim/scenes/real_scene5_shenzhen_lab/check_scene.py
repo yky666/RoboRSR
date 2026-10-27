@@ -12,6 +12,8 @@ import tempfile
 import cv2
 import numpy as np
 from pxr import Usd, UsdGeom, UsdLux, UsdPhysics, UsdShade, UsdUtils
+from shapely.geometry import Polygon, box
+from shapely.ops import unary_union
 
 HERE = Path(__file__).resolve().parent
 USD = HERE / "usd"
@@ -93,16 +95,17 @@ def main():
     )
 
     cb = {str(p.GetPath()).rsplit("/", 1)[-1]: bounds(p, cache) for p in colliders}
+    in_table = {str(p.GetPath()).rsplit("/", 1)[-1] for p in colliders if str(p.GetPath()).startswith("/World/Table/")}
     lo, hi = cb["top"]
     model = dict(table_top_z=float(hi[2]), table_length=float(hi[0] - lo[0]), table_width=float(hi[1] - lo[1]))
     diffs = {k: round(abs(model[k] - tape[k]), 4) for k in model}
     add("tabletop collider matches the tape (< 1 cm)", all(d < 0.01 for d in diffs.values()), diffs)
     sz = np.array(UsdGeom.Mesh(st.GetPrimAtPath("/World/Table/Top/slab")).GetPointsAttr().Get())[:, 2]
     add("visible tabletop coincides with the collider", abs(sz.max() - t["top_z"]) < 1e-4, dict(z=float(sz.max())))
-    table_parts = {n: b for n, b in cb.items() if not n.startswith(("wall_", "floor", "Cabinet"))}
+    table_parts = {n: b for n, b in cb.items() if n in in_table}
     above = [n for n, (a, b) in table_parts.items() if n != "top" and b[2] > t["top_z"] + 1e-4]
     add("nothing of the table sticks out above the tabletop", not above, dict(above=above))
-    feet = {n: round(float(b[0][2]), 4) for n, b in cb.items() if n.endswith("_foot")}
+    feet = {n: round(float(b[0][2]), 4) for n, b in table_parts.items() if n.endswith("_foot")}
     add("two feet stand on the floor", len(feet) == 2 and all(abs(z) < 1e-4 for z in feet.values()), feet)
     back = max(b[1][1] for b in table_parts.values())
     wall = cb["wall_back"][0][1]
@@ -130,6 +133,87 @@ def main():
         not hits,
         dict(root=root.tolist(), hits=hits),
     )
+
+    bp = json.loads((USD / "build_params.json").read_text())
+    room = Polygon([a for _, a, _ in bp["outline"]])
+    walls = [
+        p
+        for p in render
+        if str(p.GetPath()).startswith("/World/Background/Walls/") and "skirting" not in str(p.GetPath())
+    ]
+    add(
+        "one wall per outline segment",
+        len(walls) == len(bp["outline"]),
+        dict(walls=len(walls), segments=len(bp["outline"])),
+    )
+    cover = unary_union(
+        [
+            box(
+                *bounds(st.GetPrimAtPath(f"/World/Background/{n}"), cache)[0][:2],
+                *bounds(st.GetPrimAtPath(f"/World/Background/{n}"), cache)[1][:2],
+            )
+            for n in ("Ceiling", "Soffit/back", "Soffit/elevator_side")
+        ]  # fmt: skip
+    )
+    columns = room.convex_hull.intersection(box(-99, bp["room"]["y_col"], 99, 99)).difference(cover)
+    gap = room.difference(cover.union(columns)).area
+    add("ceiling and soffits close the room (no sky above the floor)", gap < 1e-3, dict(uncovered_m2=round(gap, 4)))
+
+    def group(path):
+        parts = path.split("/")
+        if path.startswith("/World/Background/Colliders/"):
+            name = parts[-1]
+            return (
+                name.rsplit("_", 1)[0]
+                if name.startswith("chair_")
+                else name.split("_")[1]
+                if name.startswith("Furniture_")
+                else None
+            )
+        if path.startswith("/World/Background/Furniture/"):
+            return parts[5] if parts[4] == "Chairs" else parts[4]
+        return None
+
+    groups = {}
+    for p in meshes:
+        g = group(str(p.GetPath()))
+        if g:
+            a, b = bounds(p, cache)
+            groups.setdefault(g, []).append((p.HasAPI(UsdPhysics.CollisionAPI), a, b))
+    floor = {g: round(float(min(a[2] for _, a, _ in v)), 4) for g, v in groups.items()}
+    add("every furniture piece stands on the floor", all(abs(z) < 1e-3 for z in floor.values()), floor)
+    outside = [
+        g
+        for g, v in groups.items()
+        for c, a, b in v
+        if c and not room.buffer(1e-3).contains(box(a[0], a[1], b[0], b[1]))
+    ]
+    add("furniture inside the room outline", not outside, dict(outside=sorted(set(outside))))
+    solid = {g: [(a, b) for c, a, b in v if c] for g, v in groups.items()}
+    solid |= {"Table": list(table_parts.values()), "Cabinet": [cab]}
+    clash = sorted(
+        {
+            f"{g}/{h}"
+            for g in solid
+            for h in solid
+            if g < h
+            for a, b in solid[g]
+            for c, d in solid[h]
+            if (np.minimum(b, d) - np.maximum(a, c) > 1e-3).all()
+        }  # fmt: skip
+    )
+    add("furniture pieces do not overlap each other, the desk or the cabinet", not clash, dict(overlaps=clash))
+    work = box(-t["length"] / 2, root[1] - ROBOT_STAND_R, t["length"] / 2, bp["room"]["y_n"]).buffer(1.0)
+    near = sorted(
+        {
+            g
+            for g, v in solid.items()
+            if g not in ("Table", "Cabinet")
+            for a, b in v
+            if work.intersects(box(a[0], a[1], b[0], b[1]))
+        }
+    )
+    add("furniture keeps 1 m from the desk and the robot stance", not near, dict(near=near))
 
     black = {
         f.name: round(float((cv2.imread(str(f)).max(2) < 8).mean()), 4)

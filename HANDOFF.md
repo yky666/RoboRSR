@@ -1,7 +1,7 @@
 # Project Handoff
 
-更新时间：2026-10-26
-本会话分支：`komari/feat-g1d-aurora-tactile`；独立 worktree `../RoboRSR-g1d-aurora`，原基于 `8e0d7a7`，现合并远端 `main@961a9f5`。下行保留主线历史。
+更新时间：2026-10-27
+本会话分支：`chongzheng/scene-shenzhen-lab-room`（worktree `../RoboDojo-shenzhen-room`，基于 `origin/main@0936067`）：深圳实验室场景补成整层房间，见「最近任务」第一节。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -15,7 +15,7 @@
   - 头部用双目的左眼 `cam_head`（棋盘格标定 fx≈279.5，宇树合同外参），两个腕部相机 fx≈314；投影到真机画面核对过（误差 0.4–3.6 px）。
   - 关节驱动参数（刚度 4400、阻尼 40）和夹爪力是拍定的，没做系统辨识。同事把"相机+动作标定工具包"作为 `g1d_calib_toolkit_20261019.zip` 传到了仓库根目录，还没接入。
   - 构建：`python scripts/g1d/build_asset.py`（读 `real2sim/robot/g1d_v4`）。下载官方资产后先跑一次 `utils/update_embodiment_config_path.py`。
-- **场景**（`real2sim/scenes/`）：env 配置 `g1d` 是办公室，`g1d_counter` 是吧台（移动版 `g1d_counter_mobile` 加了左侧客区，见「最近任务」第一节），`g1d_lab` 是公司实验室，`g1d_school` 是学校实验室绿幕桌，`g1d_shenzhen_lab` 是深圳实验室办公桌。前三个从照片拟合，尺度靠先验；学校的来自同事用真机相机画面拟合的 MuJoCo 孪生；深圳实验室是第一个按平台登记、用卷尺定尺度的场景（卷尺三项通过，站位和叠图待做）。其余都没有卷尺实测，都没有叠图验收。状态汇总：`python scripts/scenes/acceptance.py`（目前全部 pending）。新场景先在数采平台登记（≥ 5 张照片 + 卷尺实测，写 `registration.json`），再按 `real2sim/scenes/SKILL.md` 交给 coding agent 建模。新场景先在数采平台「登记场景」（至少 5 张照片 + 卷尺实测，写 `real2sim/scenes/<场景>/registration.json`），再按 `real2sim/scenes/SKILL.md` 建模。
+- **场景**（`real2sim/scenes/`）：env 配置 `g1d` 是办公室，`g1d_counter` 是吧台（移动版 `g1d_counter_mobile` 加了左侧客区，见「最近任务」第一节），`g1d_lab` 是公司实验室，`g1d_school` 是学校实验室绿幕桌，`g1d_shenzhen_lab` 是深圳实验室办公桌。前三个从照片拟合，尺度靠先验；学校的来自同事用真机相机画面拟合的 MuJoCo 孪生；深圳实验室是第一个按平台登记、用卷尺定尺度的场景（卷尺三项通过，站位和叠图待做），10-27 起按房间全景补成整层房间。其余都没有卷尺实测，都没有叠图验收。状态汇总：`python scripts/scenes/acceptance.py`（目前全部 pending）。新场景先在数采平台登记（≥ 5 张照片 + 卷尺实测，写 `registration.json`），再按 `real2sim/scenes/SKILL.md` 交给 coding agent 建模。新场景先在数采平台「登记场景」（至少 5 张照片 + 卷尺实测，写 `real2sim/scenes/<场景>/registration.json`），再按 `real2sim/scenes/SKILL.md` 建模。
 - **物体**：每件资产的来源和匹配程度看 `real2sim/ASSETS.md`。按数采平台的登记（`real2sim/objects/<id>/spec.json` + 照片）给实物建模，交给 coding agent 时按 `scripts/objects/SKILL.md`；平台物体页生成的「建模任务」文本第一行就指向它。
   - 量杯、塑料马克杯、红豆有实测尺寸和质量。
   - 共享资产库缺 `measuring_cup`、`plastic_mug`，以及量杯任务的布局。
@@ -52,11 +52,21 @@
 - **验证**：本机 `bash scripts/check.sh` 通过（77 个单测）。`5090-2` 隔离目录 `/data/robodojo-runs/pour-deliver-jug-c/`（7 号卡）跑 seed 0 布局 0：`success_rate` 1.0、`eval_time` 1，壶倒出 34%、杯里 33%，底盘全程停在 (0, -0.853)，开到圆桌后放杯、松手才判成功（50 s，1511 帧）；限幅日志：专家原本最大要求单步 0.447 rad（≈13 rad/s）、夹爪单步 0→1，都被截到上限。4 视角视频 `keep/v19_4view.mp4`，本机 `output/pour_deliver/g1d_pour_water_deliver_4view.mp4`（不入库）。对照：同布局不降倾倒速度（v18）倒出 44%、杯里只有 33%。上一版 v17（没限速、旧判据）的成功是假的：杯子还在手里。
 - **没做**：回合在松手瞬间结束，视频里看不到手退出；只验证了 seed 0 布局 0（壶 (0.10, -0.45)、杯 (-0.04, -0.43)）。`JUG_MAX_X/Y` 是在相机支架还没去掉时定的（当时底盘被推走，远处的壶够不到），去掉支架后可能可以放宽。`g1d_pour_water_into_cup` 自己的布局（`build_layouts`）没改。没跑完整 `build_asset.py`（服务器缺 `g1d_v4`/`unitree_ros`），布局用 `build_lounge_layouts` 单独生成；共享资产库没动。
 
+### 深圳实验室 `real_scene5_shenzhen_lab` 补成整层房间（2026-10-27，`chongzheng/scene-shenzhen-lab-room`）
+
+- **用户要求**：按 8 张深圳实验室全景照片优化现有场景，包括天花板；物体只要桌子、椅子、架子、隔断，不要细小物品。
+- **测量**（`fit_room.py` → `fit_room.json`，照片入库 `reference/IMG_4948–4955.jpg`）：7 张照片是同一站位约 (−1.2, −4.4) 转身拍的，拟合出的机位互相印证。拍照时桌子已被拉离墙、往柜子挪了约 0.3 m，所以尺度取自柜子、墙上三个插座（旧 IMG_4914 相机反投影）和 IMG_4913 的墙角；孪生里桌子仍在登记位置。分 5 步拟合（联合 → 工位腿 → 吊顶设备 → 西墙 → 西墙设备），再把像素反投影到已知平面量家具和灯位。
+- **结果**（桌子坐标系，单位 m）：后墙吊顶下沿 2.83、深 0.75（和两根角柱齐平），穿孔铝板天花 2.93；角柱 x ∈ [2.34, 3.28] 和 [−8.19, −7.32]；东墙 x 3.28、西墙 −8.19、电梯墙 y −8.94（西端 x −5.55，往西南凹进到 y −10.60）；3 条灯条 x 0.09 / −3.31 / −5.90，后吊顶筒灯 5 个；两部电梯 KT3 / KT4 关于 x = 0 对称。家具：东墙 5 个工位模块（1.33 m，蓝挡板、活动柜）、西北升降桌、西墙蓝色货架、5 把椅子、电梯厅玻璃栏杆和闸机。数值和依据表在该目录 `PLAN.md`「房间（v2）」。
+- **代码**：`build_scene.py` 重写房间部分（10 段墙的轮廓、角柱、两条吊顶、穿孔板贴图、灯条和筒灯、电梯饰面），家具放在 `/Background/Furniture`（同上海实验室，Room 入口和 `scene_parts.py`、`render_scenes.py` 不用改）；灯光改成 3 条灯条 RectLight + 5 个锥形 DiskLight，强度按数值积分让桌面 / 后墙 / 近地面照度和旧标定相当。`check_scene.py` 桌子检查只看 `/World/Table`，新增墙段数、天花封闭、家具落地 / 在轮廓内 / 互不重叠 / 离桌子和站位 ≥ 1 m（28/28）。`preview.py` 加新机位叠图 `compare_room.jpg` 和俯视 `room.jpg`。`parts.json` 重生成（墙面 4 块、桌面、地板不变）。
+- **验证**：本机 `check_scene.py` 28/28、`preview.py` 7 个机位叠图（墙角、柱、工位、栏杆、货架都对得上，目测 ≲ 10 px）、ruff、`check.sh`。`5090-2` 隔离目录 `/data/robodojo-runs/shenzhen-room-20261027`（GPU 7；资产硬链接自 `shenzhen-beans-20261021`，只换 `Room/real_scene5`）：`render_scenes.py` 正常；`scripted_demo --env_cfg_type g1d_shenzhen_lab --task_name g1d_pour_beans_measuring_cups --seed 0` success_rate 1.0、eval_time 1，四路相机正常（之后只改了两把远处椅子的朝向，没重跑）。
+- **没做**：RTX 下按 IMG_4916 重新对色（灯光换了，颜色可能和 10-21 的标定有偏差）；房间尺寸没有卷尺；没装共享库（5090-2 共享库本来就缺 `real_scene5`），没更新平台预览。
+
 ### RSI 协议 v0.5：起始评测和每轮考卷压缩（2026-10-26）
 
 - **用户要求**：用 RoboDojo 完整评测作起点太慢，要简化；选了"官方起点用榜单数 + 校准、起始评测 24 任务各 10 回合 + 封存探针、每轮考卷约 400 回合、成绩单按维度汇总"。
 - **依据**（10-22 基线，`5090-2:/data/robodojo-runs/leaderboard-baseline-20261022/`）：已经是每卡 10 个并行环境、OpenWAM 批推理，慢在 OpenWAM 推理本身，一路（策略卡 + 仿真卡）每小时约 30 个回合；54 任务原生回合数约 1900 回合，3 路约 21 小时（脚本估每路 15.6 小时）。OpenWAM 25 GB 权重放不下和 Isaac 同卡，`5090-2` 最多 4 路。
 - **改动**：`rsi/AGENTS.md` v0.5：R0.5 官方起点不重跑（用榜单逐任务成绩，抽 5 任务 × 10 回合校准），RSI 起点 = 24 任务 × 10 回合（固定布局）+ 封存探针，约 4–5 小时；封存探针改成每任务 10 个布局（L0 2、单维 L2 各 1、全 L2 3），每轮同一组成对比较；成绩单按维度 × 级别汇总（各任务族合并，保留率先在任务内按 L0 归一再合并），考卷要求改成每个维度前沿 ≥ 30 回合且各族大致平均；能力缺口任务每轮 10 个 L0 回合；考试一轮约 430 回合、3.5–4 小时。`rsi.example.yaml` 预算随之改（考卷 250、封存 120、起始评测和校准字段）；`subjects.yaml` 注释改为成绩单合并各族。
+- **补充**：第 0 轮加 R0.6，按 R0.5 的作业记录实测每个模型的吞吐 v 和路数 w，考试时长 ≈ 回合数 ÷（v × w），每轮考试控制在 4 小时内（`exam_hours_max`），超出就减考卷，但每个维度前沿不少于 30 回合；两个模型并行时按慢的定节奏。
 - **验证**：纯文档，`check.sh`。
 
 ### RSI 协议 v0.4：裁判拆成判定层和运维 Agent（2026-10-26）
@@ -588,7 +598,7 @@
 - **新流水线还没跑过整批**：collection_v3 是用旧采集器采的，下一批数据应该改用 `scripts/datagen/run_batch.py`。
 - **学校场景**：桌面高度和底盘偏航都依赖假设（零升降、12 号电机即躯干偏航），要用卷尺和叠图核对；从 sys01 拷真机头部和腕部画面（`outputs/g1d-real2sim`）做叠图。杯盘要在数采平台登记实测后，按 `scripts/objects/SKILL.md` 重建。
 - **共享库的倒豆布局过期**：`g1d`、`g1d_counter`、`g1d_lab` 的倒水、杯对杯布局是旧豆子参数（4 mm，`particle_mass` 6e-5），和当前 `build_asset.py`（5.6 mm）不一致；`g1d_shenzhen_lab` 已是新参数。要统一，就在隔离目录重跑 `build_asset.py`，经同意后替换（先备份）。
-- **深圳实验室**：已合并、部署；5090-2 的共享库里还没有；站位卷尺（桌沿到根节点、横向偏移）和三视角叠图后，`acceptance.py` 才能通过。
+- **深圳实验室**：已合并、部署；5090-2 的共享库里还没有；10-27 的整层房间版灯光没重新对色，装库前先在 RTX 下按 IMG_4916 对一次；站位卷尺（桌沿到根节点、横向偏移）和三视角叠图后，`acceptance.py` 才能通过。
 - **场景**：除深圳实验室外没有卷尺实测，都没有叠图；`real_scene1` 和 09-21 那次真机运行时的摆放不一样，那批画面不能用来叠图。下次去现场按 `real2sim/scenes/SKILL.md` 一次采齐。
 - **真机对齐**：
   - 动力学没做系统辨识；末端位姿动作还不支持（需要 G1-D 的 cuRobo 配置，并且左右臂各用一个 planner）；
@@ -624,6 +634,7 @@
 
 ## 最近历史
 
+- 2026-10-27：深圳实验室场景按 8 张全景照片补成整层房间（角柱、吊顶 + 穿孔铝板天花和灯条、工位、升降桌、货架、椅子、电梯厅栏杆闸机），`5090-2` 上 RTX 渲染和量杯脚本演示通过。
 - 2026-10-24：RSI 导入 ManiTwin 干扰物 390 个（尺寸去重、地面和桌面两道稳定性筛查）、Poly Haven 室内 HDR 40 张；T0 改为统计三套官方评测集（seed 0/1/2），材质成为新缺口（504 种里 494 种被评测用掉）。
 - 2026-10-24：RSI 资产分池 `rsi/assets/pools.json`（规则 1 严格口径，T0 813 项），X5 布局生成器和平台接入分池、干扰物池、新实例、换色缩放白名单；`5090-2` 上 `hang_mugs_random` 10 个布局验证正常。严格口径下现成的房间、干扰物、新实例几乎为零，要造新资产。
 - 2026-10-25：办公室西墙（有门的墙面）按用户指出的改成磨砂玻璃，门加白框、执手、刷卡器；Isaac RTX 渲染确认后装进共享库并部署。
