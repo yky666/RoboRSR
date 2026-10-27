@@ -21,7 +21,7 @@
   - 共享资产库缺 `measuring_cup`、`plastic_mug`，以及量杯任务的布局。
   - 学校的纸杯 `paper_cup/0000{0,1}`、纸盘 `paper_plate/0000{0,1,2}` 是孪生的拟合几何，没在平台登记，没有实测，未装共享库。平台上能看到它们（10-20 部署，见下面「数采平台」）。
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
-  - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。10-27 按照片重做了 00000 的瓶肩、压纹和标签，新版还没装共享库、没换平台预览。
+  - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。10-27 按照片重做了 00000 的瓶肩、压纹和标签，已装共享库、换了平台预览。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
@@ -51,11 +51,16 @@
   - 正面：白区是山形 logo，照商品图描的（深绿主峰、条纹倒影、两侧青绿山、两只鸟）；红区是品牌字、`NONGFU SPRING` 和「饮用天然水 净含量550ml」，三行都拉伸到照片上量出的框里。新函数 `paste_text`。
   - 红白分界：两侧在 60%，正面中间下凹到 53%。红色和细线颜色取自照片（红 sRGB 约 205/15/35）。
   - 四周按四张登记照片排：正面往右依次是竖排条码 + 细字、整高白底湖景照片面板、成分表 + 二维码。
-- **变体不变**：`TWIN_ONLY` 让 00001–00005 不继承 `SH_A`、`ARCHES` 和新瓶颈。本机对比 `origin/main`，5 个变体的网格、碰撞体、贴图逐字节一致。
+- **变体的形状和贴图不变**：`TWIN_ONLY` 让 00001–00005 不继承 `SH_A`、`ARCHES` 和新瓶颈。本机对比 `origin/main`，5 个变体的网格、碰撞体、贴图逐字节一致。变体质量按「本体 18 g × 容积比」估算，本体满口容积变了，变体质量跟着变了约 0.1 g（如 00001 从 10.4 g 变成 10.5 g）。
 - **验证**：
   - 本机：6 件 `build()` 断言全过（碰撞体 ≤ 64 点、不侵入空腔）；轮廓叠到商品图上吻合（`/tmp/nf/overlay2.png`，临时文件）；ruff 0.11.7 check / format、`git diff --check` 通过。`check.sh` 里的单测和任务清单检查在 `5090-2` 运行目录的仿真环境里跑（本机缺 h5py、opencv 等）：79 passed，清单检查通过。
   - `5090-2` 隔离目录 `/data/robodojo-runs/nongfu-refine-20261027/`，`run.sh` 一键重跑，GPU 1、2：`check_object.py` Clutter 六件 OK（00000 z=0.1143、倾角 0°）；`check_bottle_cap.py` 六件落地 + 拧开 / 拧回都 OK。渲染图在 `preview/Clutter/plastic_bottle/00000/preview/sim.png`。
-- **没做**：新版没装共享库，也没换平台预览，这两步要用户同意（会覆盖 10-23 装的 `Clutter`、`Articulation` 的 `plastic_bottle/00000`，要先备份）。为了在本机跑几何，给 `paperagent` conda 环境装了 `usd-core`。
+- **已装共享库、换平台预览**（用户 10-27 同意）：
+  - 运行目录 `ovl/` 里 `Clutter`、`Articulation` 两个 `plastic_bottle/` 整体替换进 `/data/robodojo-assets/Assets/Object/RoboDojo/`，`diff -r` 一致。6 件都换了，这样共享库和脚本输出一致（变体质量见上）。
+  - 平台镜像 `/root/RoboDojo_assets/Assets` 的 12 份 `metadata.json`、`description.json` 和 `real2sim/objects/Clutter/plastic_bottle/0000{0..5}/preview/` 也都换了。用临时会话调了一次 `/api/scan`，扫完就注销了；平台上 00000 显示的是新的检查结果（17:23）和新渲染图。
+  - 旧版三处都备份在 `5090-2:/data/robodojo-runs/nongfu-refine-20261027/backup-before-install/{shared,mirror,preview}`。
+  - 部署机 `/root/RoboDojo` 的代码没动，本分支还没合进 `main`。
+- 为了在本机跑几何，给 `paperagent` conda 环境装了 `usd-core`。
 
 ### 深圳实验室装共享库 + 合并全部开着的 PR（2026-10-27，`chongzheng/merge-open-prs`）
 
@@ -740,7 +745,7 @@
 
 - 2026-10-23：G1-D 夹爪限速每指 0.064 m/s（按真机遥操作数据），专家采集通过率不变（6/8 对 6/8），合爪 2 帧 → 5 帧。
 
-- 2026-10-27：农夫山泉瓶 00000 按正面商品图重拟合瓶肩（误差 0.13 mm），加拱形压纹，标签改按照片描的版式（山形 logo、正面下凹的红区、条码 / 照片 / 成分表顺序）；变体逐字节不变；`5090-2` 检查全过，未装共享库。
+- 2026-10-27：农夫山泉瓶 00000 按正面商品图重拟合瓶肩（误差 0.13 mm），加拱形压纹，标签改按照片描的版式（山形 logo、正面下凹的红区、条码 / 照片 / 成分表顺序）；变体形状和贴图逐字节不变；`5090-2` 检查全过，经用户同意装进共享库、换了平台预览（旧版有备份）。
 - 2026-10-23：农夫山泉塑料瓶和 5 个变体加竖纹螺旋盖、程序绘制的贴图标签；另出能拧盖的 `Articulation/plastic_bottle`（旋转 + mimic 棱柱关节，两圈拧开），新增 `bottle_label.py`、`check_bottle_cap.py`。
 - 2026-10-23：真机 Motus 倒豆模型（ModelScope `Vincia/WanVlmMask-G1DPourBeansGenEps222-AbsQpos16-30000`）在上海实验室仿真量杯倒豆 0/20（夹爪总是夹空）；新增 `g1d_lab_beans_collect`，收入 `scripts/g1d/remote_policy.py`。
 - 2026-10-22：启动榜单冲分（20 天）：5090-2 建基线运行目录，拉齐官方 Assets、OpenWAM / pi0.5 官方 checkpoint 和两套推理环境，冒烟通过后启动两个模型 54 个任务的全量基线评测；确认 20 个榜单任务没有官方训练数据。
