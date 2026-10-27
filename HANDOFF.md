@@ -1,6 +1,6 @@
 # Project Handoff
 
-更新时间：2026-10-25
+更新时间：2026-10-27
 本会话分支：`komari/feat-g1d-aurora-tactile`；独立 worktree `../RoboRSR-g1d-aurora`，原基于 `8e0d7a7`，现合并远端 `main@961a9f5`。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
@@ -36,6 +36,17 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### RSI 协议 v0.6：基模定为 OpenWAM-α 开源权重，起始评测 = 官方评测集 0 的简化版（2026-10-27，`chongzheng/rsi-openwam-start`）
+
+- **用户要求**：用 OpenWAM 在 RoboDojo 上微调的开源权重作后训练基模，以 RoboDojo 官方评测为起点，但评测要简化。
+- **改动**：
+  - `rsi/AGENTS.md` v0.6：基模 = HF `OpenWAM/OpenWAM-Alpha-Sim-RoboDojo` `checkpoint_step_60000`（ee；榜单视频里的 ckpt 名是 `New_OpenWAM_RoboDojo_SFT_60k`，就是这份）。R0.5 原来是"5 任务校准 + 24 任务起点"两件事，合成一件：官方评测集 0 上 `rsi/start_eval_tasks.txt` 的 20 个任务各考布局 0–9（`--eval-num 10` 按布局编号取前 10 个，固定），共 200 个回合，同时当起点和校准。去掉的 4 个是能力缺口任务的 `_random`（`push_T`、`sweep_blocks`、`sort_nesting_dolls_by_size`、`arrange_largest_number`，榜单 0–2 分）。封存探针等 R0.4 建好后单独补考。
+  - `rsi/rsi.example.yaml`：`models` 只留 OpenWAM（Pi-05 拿掉），`budget.start_eval` 改成任务文件 + 官方 seed 0 + 判定参数，删掉 `calibration`。
+  - `rsi/baseline/openwam_alpha_leaderboard.json`：从榜单页面的前端代码（`assets/index-CjJl8yvH.js` 里内嵌的逐任务表）抓出的 OpenWAM-α 54 个任务的 Score 和成功率，加各维度汇总。之前记录"榜单是 JS 渲染、抓不到分数"，其实数据就嵌在 JS 里。
+  - `scripts/datagen/rsi_start.py`（+ `test_rsi_start.py`）：读 `<run_id>_<任务>/_result.json` 的逐回合分，和榜单逐任务比较：榜单分落在我们 10 回合均值的 bootstrap 95% 区间 ±5 分内算通过，最多允许 2 个任务不通过；输出 JSON 作 ledger 第 0 行的输入。
+- **验证**：本机 `pytest scripts/datagen/test_rsi_start.py` 通过，ruff 0.11.7 检查和格式化通过，YAML 能解析。没跑完整的 `check.sh`（本机 base 环境没有 pytest 和依赖），也没上 GPU 跑起始评测。
+- **起始评测还没跑**：10-27 上午 `5090-2` 只有 GPU 0 空闲（1 是 `owam-server`，2、5 是 `/data/ewam-eval`，3、6 是 `robodojo-pro_benchmark`，4 是 `rsi-gso-20261026` 留下的进程，占 10 GB、GPU 利用率 0，7 是别人的）。OpenWAM 和 Isaac 不能同卡，一路至少要两张卡。命令（在 `leaderboard-baseline-20261022/` 里，先把 `rsi/start_eval_tasks.txt` 拷过去）：`bash scripts/robodojo.sh benchmark --policy-dir XPolicyLab/policy/OpenWAM --ckpt OpenWAM-Alpha-Sim-RoboDojo --policy-env /root/miniconda3/envs/openwam-bench --action-type ee --eval-num 10 --tasks-file start_eval_tasks.txt --policy-gpu-ids <P> --env-gpu-ids <E> --run-id rsi_start_openwam_<日期>`，跑完 `python rsi_start.py --eval-root eval_result --run-id ... --tasks-file start_eval_tasks.txt --leaderboard ...`。
 
 ### RSI 协议 v0.5：起始评测和每轮考卷压缩（2026-10-26）
 
