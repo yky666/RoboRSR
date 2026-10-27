@@ -1,0 +1,27 @@
+{
+  "id": "Rigid/marker_box/00000",
+  "name": "记号笔纸盒",
+  "name_en": "marker box",
+  "material": "纸板（按原模型材质判断）",
+  "color": "米色",
+  "features": "flat rectangular box、printed top、sharp edges",
+  "requirements": "由本地已建模资产导入并优化；不做物理测试。",
+  "notes": "来源：本地资产 scene6/marker_box（盒子/内件）。去重时合并了 5 个重复/旧版本：scene7/marker_box、pour_scene_v2/pen_box、scene5/pen_box、pour_scene/pen_box、scene4_asset_pack/box。尺寸、质量均为原模型的估计值，非实测；原清单质量 100 g。",
+  "estimated_dimensions_mm": {
+    "X": 130.0,
+    "Y": 83.2,
+    "Z": 28.2
+  },
+  "estimated_mass_g": 100.0,
+  "measured": false,
+  "generalization": {
+    "count": 5,
+    "requirements": "参数由 coding agent 设计，彼此差异明显",
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "coding agent（本地资产导入）",
+  "updated_at": "2026-10-27 14:16:50"
+}

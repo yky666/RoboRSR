@@ -1,0 +1,27 @@
+{
+  "id": "Rigid/tumbler/00000",
+  "name": "不锈钢吸管杯杯体",
+  "name_en": "tumbler",
+  "material": "拉丝金属（按原模型材质判断）",
+  "color": "灰色",
+  "features": "tall cylinder、open top、slightly tapered base",
+  "requirements": "由本地已建模资产导入并优化；不做物理测试。",
+  "notes": "来源：本地资产 scene6/steel_tumbler（杯子）。去重时合并了 1 个重复/旧版本：scene7/steel_tumbler。尺寸、质量均为原模型的估计值，非实测；原清单质量 200 g。",
+  "estimated_dimensions_mm": {
+    "X": 77.0,
+    "Y": 77.0,
+    "Z": 174.0
+  },
+  "estimated_mass_g": 200.0,
+  "measured": false,
+  "generalization": {
+    "count": 5,
+    "requirements": "参数由 coding agent 设计，彼此差异明显",
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "coding agent（本地资产导入）",
+  "updated_at": "2026-10-27 14:16:50"
+}

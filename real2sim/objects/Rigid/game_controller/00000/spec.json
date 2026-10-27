@@ -1,0 +1,27 @@
+{
+  "id": "Rigid/game_controller/00000",
+  "name": "白色手柄",
+  "name_en": "game controller",
+  "material": "亮面塑料（按原模型材质判断）",
+  "color": "白色",
+  "features": "elongated rounded body、buttons on top、tapered end",
+  "requirements": "由本地已建模资产导入并优化；不做物理测试。",
+  "notes": "来源：本地资产 scene1_asset_pack/white_controller（手柄）。去重时合并了 0 个重复/旧版本。尺寸、质量均为原模型的估计值，非实测；原清单质量 160 g。",
+  "estimated_dimensions_mm": {
+    "X": 130.0,
+    "Y": 62.0,
+    "Z": 57.0
+  },
+  "estimated_mass_g": 160.0,
+  "measured": false,
+  "generalization": {
+    "count": 5,
+    "requirements": "参数由 coding agent 设计，彼此差异明显",
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "coding agent（本地资产导入）",
+  "updated_at": "2026-10-27 14:16:50"
+}

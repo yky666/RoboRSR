@@ -1,0 +1,27 @@
+{
+  "id": "Rigid/storage_box/00000",
+  "name": "灰色收纳盒",
+  "name_en": "storage box",
+  "material": "哑光塑料（按原模型材质判断）",
+  "color": "灰色",
+  "features": "shallow square box、rounded corners、open top",
+  "requirements": "由本地已建模资产导入并优化；不做物理测试。",
+  "notes": "来源：本地资产 scene6/storage_box（盒子/内件）。去重时合并了 1 个重复/旧版本：scene7/storage_box。尺寸、质量均为原模型的估计值，非实测；原清单质量 120 g。",
+  "estimated_dimensions_mm": {
+    "X": 177.0,
+    "Y": 172.0,
+    "Z": 72.0
+  },
+  "estimated_mass_g": 120.0,
+  "measured": false,
+  "generalization": {
+    "count": 5,
+    "requirements": "参数由 coding agent 设计，彼此差异明显",
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "coding agent（本地资产导入）",
+  "updated_at": "2026-10-27 14:16:50"
+}

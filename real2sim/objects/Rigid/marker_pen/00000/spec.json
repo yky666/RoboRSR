@@ -1,0 +1,27 @@
+{
+  "id": "Rigid/marker_pen/00000",
+  "name": "黑色记号笔",
+  "name_en": "marker pen",
+  "material": "亮面塑料（按原模型材质判断）",
+  "color": "黑色",
+  "features": "long thin cylinder、capped end、slim body",
+  "requirements": "由本地已建模资产导入并优化；不做物理测试。",
+  "notes": "来源：本地资产 scene6/marker_pen（笔）。去重时合并了 2 个重复/旧版本：scene7/marker_pen、scene5/marker_pen。尺寸、质量均为原模型的估计值，非实测；原清单质量 14 g。",
+  "estimated_dimensions_mm": {
+    "X": 143.5,
+    "Y": 15.0,
+    "Z": 14.0
+  },
+  "estimated_mass_g": 14.0,
+  "measured": false,
+  "generalization": {
+    "count": 5,
+    "requirements": "参数由 coding agent 设计，彼此差异明显",
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "coding agent（本地资产导入）",
+  "updated_at": "2026-10-27 14:16:50"
+}

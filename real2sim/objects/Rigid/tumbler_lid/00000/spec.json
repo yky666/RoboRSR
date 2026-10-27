@@ -1,0 +1,27 @@
+{
+  "id": "Rigid/tumbler_lid/00000",
+  "name": "不锈钢杯盖",
+  "name_en": "tumbler lid",
+  "material": "磨砂半透明塑料（按原模型材质判断）",
+  "color": "半透明",
+  "features": "thin round disc、straw hole、raised rim",
+  "requirements": "由本地已建模资产导入并优化；不做物理测试。",
+  "notes": "来源：本地资产 scene6/steel_lid（盖子）。去重时合并了 1 个重复/旧版本：scene7/steel_lid。尺寸、质量均为原模型的估计值，非实测；原清单质量 25 g。",
+  "estimated_dimensions_mm": {
+    "X": 76.0,
+    "Y": 76.0,
+    "Z": 9.5
+  },
+  "estimated_mass_g": 25.0,
+  "measured": false,
+  "generalization": {
+    "count": 5,
+    "requirements": "参数由 coding agent 设计，彼此差异明显",
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "coding agent（本地资产导入）",
+  "updated_at": "2026-10-27 14:16:50"
+}

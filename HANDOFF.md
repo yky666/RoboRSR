@@ -21,6 +21,7 @@
   - 共享资产库缺 `measuring_cup`、`plastic_mug`，以及量杯任务的布局。
   - 学校的纸杯 `paper_cup/0000{0,1}`、纸盘 `paper_plate/0000{0,1,2}` 是孪生的拟合几何，没在平台登记，没有实测，未装共享库。平台上能看到它们（10-20 部署，见下面「数采平台」）。
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
+  - 本地已建模物体导入（2026-10-27，分支 `z/objects-local-asset-import`）：用户本机 84 条物体记录去重后得到 27 件本体，每件 5 个泛化变体，共 162 个，已装共享库并补平台元数据镜像；尺寸、质量都是估计值，按用户要求没做物理检验。细节、跳过和剔除的物体见 `real2sim/ASSETS.md` 末节；入口 `scripts/objects/local_import/`，隔离目录 `5090-2:/data/robodojo-runs/local-asset-import-20261027/`。遗留：`game_controller/00000` 本体几何粗糙；标签换色只是乘性着色，效果偏弱。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。

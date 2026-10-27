@@ -1,0 +1,27 @@
+{
+  "id": "Rigid/tissue_box/00000",
+  "name": "纸巾盒",
+  "name_en": "tissue box",
+  "material": "纸板（按原模型材质判断）",
+  "color": "浅蓝色",
+  "features": "rectangular box、top opening、tissue sticking out",
+  "requirements": "由本地已建模资产导入并优化；不做物理测试。",
+  "notes": "来源：本地资产 real_scene1/tissue_box（盒子/内件）。去重时合并了 0 个重复/旧版本。尺寸、质量均为原模型的估计值，非实测；原清单质量 240 g。",
+  "estimated_dimensions_mm": {
+    "X": 155.0,
+    "Y": 92.5,
+    "Z": 115.0
+  },
+  "estimated_mass_g": 240.0,
+  "measured": false,
+  "generalization": {
+    "count": 5,
+    "requirements": "参数由 coding agent 设计，彼此差异明显",
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "coding agent（本地资产导入）",
+  "updated_at": "2026-10-27 14:16:50"
+}

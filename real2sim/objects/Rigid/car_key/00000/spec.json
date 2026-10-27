@@ -1,0 +1,27 @@
+{
+  "id": "Rigid/car_key/00000",
+  "name": "车钥匙",
+  "name_en": "car key",
+  "material": "亮面塑料（按原模型材质判断）",
+  "color": "黑色",
+  "features": "flat rounded rectangle、buttons on the face、small and thin",
+  "requirements": "由本地已建模资产导入并优化；不做物理测试。",
+  "notes": "来源：本地资产 scene4_asset_pack/car_key（钥匙）。去重时合并了 3 个重复/旧版本：pour_scene/car_key、pour_scene_v2/car_key、scene5/car_key。尺寸、质量均为原模型的估计值，非实测；原清单质量 45 g。",
+  "estimated_dimensions_mm": {
+    "X": 67.5,
+    "Y": 33.0,
+    "Z": 14.9
+  },
+  "estimated_mass_g": 45.0,
+  "measured": false,
+  "generalization": {
+    "count": 5,
+    "requirements": "参数由 coding agent 设计，彼此差异明显",
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "coding agent（本地资产导入）",
+  "updated_at": "2026-10-27 14:16:50"
+}

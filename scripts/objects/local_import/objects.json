@@ -1,0 +1,758 @@
+[
+    {
+        "key":  "scene1_asset_pack/measuring_jug",
+        "scene":  "scene1_asset_pack",
+        "id":  "measuring_jug",
+        "name":  "透明量杯",
+        "category":  "壶/量杯",
+        "entry":  "scene1_asset_pack/assets/scene1/objects/measuring_jug.usda",
+        "mass_g":  140
+    },
+    {
+        "key":  "scene1_asset_pack/white_cup",
+        "scene":  "scene1_asset_pack",
+        "id":  "white_cup",
+        "name":  "白色杯子",
+        "category":  "杯子",
+        "entry":  "scene1_asset_pack/assets/scene1/objects/white_cup.usda",
+        "mass_g":  40
+    },
+    {
+        "key":  "scene1_asset_pack/metal_cup",
+        "scene":  "scene1_asset_pack",
+        "id":  "metal_cup",
+        "name":  "金属杯子",
+        "category":  "杯子",
+        "entry":  "scene1_asset_pack/assets/scene1/objects/metal_cup.usda",
+        "mass_g":  120
+    },
+    {
+        "key":  "scene1_asset_pack/white_controller",
+        "scene":  "scene1_asset_pack",
+        "id":  "white_controller",
+        "name":  "白色手柄",
+        "category":  "手柄",
+        "entry":  "scene1_asset_pack/assets/scene1/objects/white_controller.usda",
+        "mass_g":  160
+    },
+    {
+        "key":  "scene2_asset_pack/jug_robot",
+        "scene":  "scene2_asset_pack",
+        "id":  "jug_robot",
+        "name":  "量杯 A · 靠机器人",
+        "category":  "壶/量杯",
+        "entry":  "scene2_asset_pack/assets/scene2/objects/jug_robot.usda",
+        "mass_g":  130
+    },
+    {
+        "key":  "scene2_asset_pack/jug_front",
+        "scene":  "scene2_asset_pack",
+        "id":  "jug_front",
+        "name":  "量杯 B · 靠外侧",
+        "category":  "壶/量杯",
+        "entry":  "scene2_asset_pack/assets/scene2/objects/jug_front.usda",
+        "mass_g":  130
+    },
+    {
+        "key":  "scene2_asset_pack/cup_robot",
+        "scene":  "scene2_asset_pack",
+        "id":  "cup_robot",
+        "name":  "水杯 1 · 靠机器人",
+        "category":  "杯子",
+        "entry":  "scene2_asset_pack/assets/scene2/objects/cup_robot.usda",
+        "mass_g":  150
+    },
+    {
+        "key":  "scene2_asset_pack/cup_middle",
+        "scene":  "scene2_asset_pack",
+        "id":  "cup_middle",
+        "name":  "水杯 2 · 中间",
+        "category":  "杯子",
+        "entry":  "scene2_asset_pack/assets/scene2/objects/cup_middle.usda",
+        "mass_g":  150
+    },
+    {
+        "key":  "scene2_asset_pack/cup_front",
+        "scene":  "scene2_asset_pack",
+        "id":  "cup_front",
+        "name":  "水杯 3 · 靠外侧",
+        "category":  "杯子",
+        "entry":  "scene2_asset_pack/assets/scene2/objects/cup_front.usda",
+        "mass_g":  150
+    },
+    {
+        "key":  "scene2_asset_pack/brown_toy",
+        "scene":  "scene2_asset_pack",
+        "id":  "brown_toy",
+        "name":  "棕色玩偶",
+        "category":  "玩偶/软质代理",
+        "entry":  "scene2_asset_pack/assets/scene2/objects/brown_toy.usda",
+        "mass_g":  80
+    },
+    {
+        "key":  "scene3_pour_pack/source_cup",
+        "scene":  "scene3_pour_pack",
+        "id":  "source_cup",
+        "name":  "源杯 · 右手抓取",
+        "category":  "杯子",
+        "entry":  "scene3_pour_pack/assets/objects/source_cup.usdc",
+        "mass_g":  165
+    },
+    {
+        "key":  "scene3_pour_pack/receiver_cup",
+        "scene":  "scene3_pour_pack",
+        "id":  "receiver_cup",
+        "name":  "接水杯",
+        "category":  "杯子",
+        "entry":  "scene3_pour_pack/assets/objects/receiver_cup.usdc",
+        "mass_g":  165
+    },
+    {
+        "key":  "scene3_pour_pack/basket_right",
+        "scene":  "scene3_pour_pack",
+        "id":  "basket_right",
+        "name":  "右侧篮子",
+        "category":  "篮子",
+        "entry":  "scene3_pour_pack/assets/objects/basket_right.usdc",
+        "mass_g":  190
+    },
+    {
+        "key":  "scene3_pour_pack/basket_left",
+        "scene":  "scene3_pour_pack",
+        "id":  "basket_left",
+        "name":  "左侧篮子",
+        "category":  "篮子",
+        "entry":  "scene3_pour_pack/assets/objects/basket_left.usdc",
+        "mass_g":  190
+    },
+    {
+        "key":  "scene3_pour_pack/toy",
+        "scene":  "scene3_pour_pack",
+        "id":  "toy",
+        "name":  "棕色玩偶与绿色小龟",
+        "category":  "玩偶/软质代理",
+        "entry":  "scene3_pour_pack/assets/objects/toy.usdc",
+        "mass_g":  75
+    },
+    {
+        "key":  "scene3_pour_pack/paper",
+        "scene":  "scene3_pour_pack",
+        "id":  "paper",
+        "name":  "纸团",
+        "category":  "纸团",
+        "entry":  "scene3_pour_pack/assets/objects/paper.usdc",
+        "mass_g":  3
+    },
+    {
+        "key":  "scene4_asset_pack/pitcher",
+        "scene":  "scene4_asset_pack",
+        "id":  "pitcher",
+        "name":  "透明竖纹水壶",
+        "category":  "壶/量杯",
+        "entry":  "scene4_asset_pack/assets/objects/pitcher.usdc",
+        "mass_g":  550
+    },
+    {
+        "key":  "scene4_asset_pack/cup_white",
+        "scene":  "scene4_asset_pack",
+        "id":  "cup_white",
+        "name":  "白色金属内胆杯",
+        "category":  "杯子",
+        "entry":  "scene4_asset_pack/assets/objects/cup_white.usdc",
+        "mass_g":  165
+    },
+    {
+        "key":  "scene4_asset_pack/cup_black",
+        "scene":  "scene4_asset_pack",
+        "id":  "cup_black",
+        "name":  "黑色横纹杯",
+        "category":  "杯子",
+        "entry":  "scene4_asset_pack/assets/objects/cup_black.usdc",
+        "mass_g":  95
+    },
+    {
+        "key":  "scene4_asset_pack/box",
+        "scene":  "scene4_asset_pack",
+        "id":  "box",
+        "name":  "纸盒",
+        "category":  "盒子/内件",
+        "entry":  "scene4_asset_pack/assets/objects/box.usdc",
+        "mass_g":  85
+    },
+    {
+        "key":  "scene4_asset_pack/car_key",
+        "scene":  "scene4_asset_pack",
+        "id":  "car_key",
+        "name":  "车钥匙",
+        "category":  "钥匙",
+        "entry":  "scene4_asset_pack/assets/objects/car_key.usdc",
+        "mass_g":  45
+    },
+    {
+        "key":  "scene4_asset_pack/paper",
+        "scene":  "scene4_asset_pack",
+        "id":  "paper",
+        "name":  "纸团",
+        "category":  "纸团",
+        "entry":  "scene4_asset_pack/assets/objects/paper.usdc",
+        "mass_g":  3
+    },
+    {
+        "key":  "pour_scene/pitcher",
+        "scene":  "pour_scene",
+        "id":  "pitcher",
+        "name":  "水壶",
+        "category":  "壶/量杯",
+        "entry":  "pour_scene/assets/pitcher.usd",
+        "mass_g":  420
+    },
+    {
+        "key":  "pour_scene/cup_white",
+        "scene":  "pour_scene",
+        "id":  "cup_white",
+        "name":  "白色杯子",
+        "category":  "杯子",
+        "entry":  "pour_scene/assets/cup_white.usd",
+        "mass_g":  160
+    },
+    {
+        "key":  "pour_scene/cup_black",
+        "scene":  "pour_scene",
+        "id":  "cup_black",
+        "name":  "黑色杯子",
+        "category":  "杯子",
+        "entry":  "pour_scene/assets/cup_black.usd",
+        "mass_g":  100
+    },
+    {
+        "key":  "pour_scene/pen_box",
+        "scene":  "pour_scene",
+        "id":  "pen_box",
+        "name":  "笔盒",
+        "category":  "盒子/内件",
+        "entry":  "pour_scene/assets/pen_box.usd",
+        "mass_g":  150
+    },
+    {
+        "key":  "pour_scene/car_key",
+        "scene":  "pour_scene",
+        "id":  "car_key",
+        "name":  "车钥匙",
+        "category":  "钥匙",
+        "entry":  "pour_scene/assets/car_key.usd",
+        "mass_g":  45
+    },
+    {
+        "key":  "pour_scene/paper_ball",
+        "scene":  "pour_scene",
+        "id":  "paper_ball",
+        "name":  "纸团",
+        "category":  "纸团",
+        "entry":  "pour_scene/assets/paper_ball.usd",
+        "mass_g":  6
+    },
+    {
+        "key":  "pour_scene_v2/pitcher",
+        "scene":  "pour_scene_v2",
+        "id":  "pitcher",
+        "name":  "水壶",
+        "category":  "壶/量杯",
+        "entry":  "pour_scene_v2/assets/pitcher.usd",
+        "mass_g":  420
+    },
+    {
+        "key":  "pour_scene_v2/cup_white",
+        "scene":  "pour_scene_v2",
+        "id":  "cup_white",
+        "name":  "白色杯子",
+        "category":  "杯子",
+        "entry":  "pour_scene_v2/assets/cup_white.usd",
+        "mass_g":  160
+    },
+    {
+        "key":  "pour_scene_v2/cup_black",
+        "scene":  "pour_scene_v2",
+        "id":  "cup_black",
+        "name":  "黑色杯子",
+        "category":  "杯子",
+        "entry":  "pour_scene_v2/assets/cup_black.usd",
+        "mass_g":  100
+    },
+    {
+        "key":  "pour_scene_v2/pen_box",
+        "scene":  "pour_scene_v2",
+        "id":  "pen_box",
+        "name":  "笔盒",
+        "category":  "盒子/内件",
+        "entry":  "pour_scene_v2/assets/pen_box.usd",
+        "mass_g":  150
+    },
+    {
+        "key":  "pour_scene_v2/car_key",
+        "scene":  "pour_scene_v2",
+        "id":  "car_key",
+        "name":  "车钥匙",
+        "category":  "钥匙",
+        "entry":  "pour_scene_v2/assets/car_key.usd",
+        "mass_g":  45
+    },
+    {
+        "key":  "pour_scene_v2/paper_ball",
+        "scene":  "pour_scene_v2",
+        "id":  "paper_ball",
+        "name":  "纸团",
+        "category":  "纸团",
+        "entry":  "pour_scene_v2/assets/paper_ball.usd",
+        "mass_g":  6
+    },
+    {
+        "key":  "real_scene1/blue_cup_near",
+        "scene":  "real_scene1",
+        "id":  "blue_cup_near",
+        "name":  "近侧蓝色杯子",
+        "category":  "杯子",
+        "entry":  "real_scene1/assets/blue_cup_near.usd",
+        "mass_g":  90
+    },
+    {
+        "key":  "real_scene1/blue_cup_far",
+        "scene":  "real_scene1",
+        "id":  "blue_cup_far",
+        "name":  "远侧蓝色杯子",
+        "category":  "杯子",
+        "entry":  "real_scene1/assets/blue_cup_far.usd",
+        "mass_g":  90
+    },
+    {
+        "key":  "real_scene1/black_cup",
+        "scene":  "real_scene1",
+        "id":  "black_cup",
+        "name":  "黑色杯子",
+        "category":  "杯子",
+        "entry":  "real_scene1/assets/black_cup.usd",
+        "mass_g":  70
+    },
+    {
+        "key":  "real_scene1/tissue_box",
+        "scene":  "real_scene1",
+        "id":  "tissue_box",
+        "name":  "纸巾盒",
+        "category":  "盒子/内件",
+        "entry":  "real_scene1/assets/tissue_box.usd",
+        "mass_g":  240
+    },
+    {
+        "key":  "real_scene1/brown_plush",
+        "scene":  "real_scene1",
+        "id":  "brown_plush",
+        "name":  "棕色毛绒物",
+        "category":  "玩偶/软质代理",
+        "entry":  "real_scene1/assets/brown_plush.usd",
+        "mass_g":  65
+    },
+    {
+        "key":  "scene5/drink_bottle",
+        "scene":  "scene5",
+        "id":  "drink_bottle",
+        "name":  "饮料瓶",
+        "category":  "瓶子",
+        "entry":  "scene5/assets/drink_bottle.usd",
+        "mass_g":  520
+    },
+    {
+        "key":  "scene5/cup_white",
+        "scene":  "scene5",
+        "id":  "cup_white",
+        "name":  "白色杯子",
+        "category":  "杯子",
+        "entry":  "scene5/assets/cup_white.usd",
+        "mass_g":  160
+    },
+    {
+        "key":  "scene5/cup_black",
+        "scene":  "scene5",
+        "id":  "cup_black",
+        "name":  "黑色杯子",
+        "category":  "杯子",
+        "entry":  "scene5/assets/cup_black.usd",
+        "mass_g":  100
+    },
+    {
+        "key":  "scene5/pen_box",
+        "scene":  "scene5",
+        "id":  "pen_box",
+        "name":  "笔盒",
+        "category":  "盒子/内件",
+        "entry":  "scene5/assets/pen_box.usd",
+        "mass_g":  150
+    },
+    {
+        "key":  "scene5/car_key",
+        "scene":  "scene5",
+        "id":  "car_key",
+        "name":  "车钥匙",
+        "category":  "钥匙",
+        "entry":  "scene5/assets/car_key.usd",
+        "mass_g":  45
+    },
+    {
+        "key":  "scene5/paper_ball",
+        "scene":  "scene5",
+        "id":  "paper_ball",
+        "name":  "纸团",
+        "category":  "纸团",
+        "entry":  "scene5/assets/paper_ball.usd",
+        "mass_g":  6
+    },
+    {
+        "key":  "scene5/bottle_cap",
+        "scene":  "scene5",
+        "id":  "bottle_cap",
+        "name":  "瓶盖",
+        "category":  "盖子",
+        "entry":  "scene5/assets/bottle_cap.usd",
+        "mass_g":  4
+    },
+    {
+        "key":  "scene5/spare_lid",
+        "scene":  "scene5",
+        "id":  "spare_lid",
+        "name":  "备用盖",
+        "category":  "盖子",
+        "entry":  "scene5/assets/spare_lid.usd",
+        "mass_g":  25
+    },
+    {
+        "key":  "scene5/empty_bottle",
+        "scene":  "scene5",
+        "id":  "empty_bottle",
+        "name":  "空瓶",
+        "category":  "瓶子",
+        "entry":  "scene5/assets/empty_bottle.usd",
+        "mass_g":  23
+    },
+    {
+        "key":  "scene5/marker_pen",
+        "scene":  "scene5",
+        "id":  "marker_pen",
+        "name":  "记号笔",
+        "category":  "笔",
+        "entry":  "scene5/assets/marker_pen.usd",
+        "mass_g":  12
+    },
+    {
+        "key":  "scene5/cloth_toy",
+        "scene":  "scene5",
+        "id":  "cloth_toy",
+        "name":  "布质玩偶",
+        "category":  "玩偶/软质代理",
+        "entry":  "scene5/assets/cloth_toy.usd",
+        "mass_g":  65
+    },
+    {
+        "key":  "scene6/green_bottle",
+        "scene":  "scene6",
+        "id":  "green_bottle",
+        "name":  "绿色细颈饮料瓶",
+        "category":  "瓶子",
+        "entry":  "scene6/assets/green_bottle.usd",
+        "mass_g":  300
+    },
+    {
+        "key":  "scene6/white_cup",
+        "scene":  "scene6",
+        "id":  "white_cup",
+        "name":  "白色金属内胆杯",
+        "category":  "杯子",
+        "entry":  "scene6/assets/white_cup.usd",
+        "mass_g":  160
+    },
+    {
+        "key":  "scene6/marker_pen",
+        "scene":  "scene6",
+        "id":  "marker_pen",
+        "name":  "黑色记号笔",
+        "category":  "笔",
+        "entry":  "scene6/assets/marker_pen.usd",
+        "mass_g":  14
+    },
+    {
+        "key":  "scene6/basket_left",
+        "scene":  "scene6",
+        "id":  "basket_left",
+        "name":  "空瓶收纳篮",
+        "category":  "篮子",
+        "entry":  "scene6/assets/basket_left.usd",
+        "mass_g":  220
+    },
+    {
+        "key":  "scene6/basket_right",
+        "scene":  "scene6",
+        "id":  "basket_right",
+        "name":  "软质物品收纳篮",
+        "category":  "篮子",
+        "entry":  "scene6/assets/basket_right.usd",
+        "mass_g":  220
+    },
+    {
+        "key":  "scene6/empty_bottle",
+        "scene":  "scene6",
+        "id":  "empty_bottle",
+        "name":  "篮内透明空瓶",
+        "category":  "瓶子",
+        "entry":  "scene6/assets/empty_bottle.usd",
+        "mass_g":  25
+    },
+    {
+        "key":  "scene6/paper_ball",
+        "scene":  "scene6",
+        "id":  "paper_ball",
+        "name":  "篮内纸团",
+        "category":  "纸团",
+        "entry":  "scene6/assets/paper_ball.usd",
+        "mass_g":  6
+    },
+    {
+        "key":  "scene6/green_cap",
+        "scene":  "scene6",
+        "id":  "green_cap",
+        "name":  "篮内绿色瓶盖",
+        "category":  "盖子",
+        "entry":  "scene6/assets/green_cap.usd",
+        "mass_g":  3
+    },
+    {
+        "key":  "scene6/plush_toy",
+        "scene":  "scene6",
+        "id":  "plush_toy",
+        "name":  "棕色软质挂件近似模型",
+        "category":  "玩偶/软质代理",
+        "entry":  "scene6/assets/plush_toy.usd",
+        "mass_g":  70
+    },
+    {
+        "key":  "scene6/red_can",
+        "scene":  "scene6",
+        "id":  "red_can",
+        "name":  "红色易拉罐",
+        "category":  "罐子",
+        "entry":  "scene6/assets/red_can.usd",
+        "mass_g":  270
+    },
+    {
+        "key":  "scene6/steel_tumbler",
+        "scene":  "scene6",
+        "id":  "steel_tumbler",
+        "name":  "不锈钢吸管杯杯体",
+        "category":  "杯子",
+        "entry":  "scene6/assets/steel_tumbler.usd",
+        "mass_g":  200
+    },
+    {
+        "key":  "scene6/steel_lid",
+        "scene":  "scene6",
+        "id":  "steel_lid",
+        "name":  "不锈钢杯盖",
+        "category":  "盖子",
+        "entry":  "scene6/assets/steel_lid.usd",
+        "mass_g":  25
+    },
+    {
+        "key":  "scene6/metal_straw",
+        "scene":  "scene6",
+        "id":  "metal_straw",
+        "name":  "金属吸管",
+        "category":  "吸管",
+        "entry":  "scene6/assets/metal_straw.usd",
+        "mass_g":  12
+    },
+    {
+        "key":  "scene6/water_bottle",
+        "scene":  "scene6",
+        "id":  "water_bottle",
+        "name":  "绿色盖塑料饮料瓶",
+        "category":  "瓶子",
+        "entry":  "scene6/assets/water_bottle.usd",
+        "mass_g":  530
+    },
+    {
+        "key":  "scene6/marker_box",
+        "scene":  "scene6",
+        "id":  "marker_box",
+        "name":  "记号笔纸盒",
+        "category":  "盒子/内件",
+        "entry":  "scene6/assets/marker_box.usd",
+        "mass_g":  100
+    },
+    {
+        "key":  "scene6/storage_box",
+        "scene":  "scene6",
+        "id":  "storage_box",
+        "name":  "灰色收纳盒",
+        "category":  "盒子/内件",
+        "entry":  "scene6/assets/storage_box.usd",
+        "mass_g":  120
+    },
+    {
+        "key":  "scene6/storage_lid",
+        "scene":  "scene6",
+        "id":  "storage_lid",
+        "name":  "收纳盒盖",
+        "category":  "盖子",
+        "entry":  "scene6/assets/storage_lid.usd",
+        "mass_g":  35
+    },
+    {
+        "key":  "scene6/round_insert",
+        "scene":  "scene6",
+        "id":  "round_insert",
+        "name":  "收纳盒内浅色圆形物近似模型",
+        "category":  "盒子/内件",
+        "entry":  "scene6/assets/round_insert.usd",
+        "mass_g":  45
+    },
+    {
+        "key":  "scene7/white_cup",
+        "scene":  "scene7",
+        "id":  "white_cup",
+        "name":  "白色金属内胆杯",
+        "category":  "杯子",
+        "entry":  "scene7/assets/white_cup.usd",
+        "mass_g":  160
+    },
+    {
+        "key":  "scene7/marker_pen",
+        "scene":  "scene7",
+        "id":  "marker_pen",
+        "name":  "黑色记号笔",
+        "category":  "笔",
+        "entry":  "scene7/assets/marker_pen.usd",
+        "mass_g":  14
+    },
+    {
+        "key":  "scene7/basket_left",
+        "scene":  "scene7",
+        "id":  "basket_left",
+        "name":  "空瓶收纳篮",
+        "category":  "篮子",
+        "entry":  "scene7/assets/basket_left.usd",
+        "mass_g":  220
+    },
+    {
+        "key":  "scene7/basket_right",
+        "scene":  "scene7",
+        "id":  "basket_right",
+        "name":  "软质物品收纳篮",
+        "category":  "篮子",
+        "entry":  "scene7/assets/basket_right.usd",
+        "mass_g":  220
+    },
+    {
+        "key":  "scene7/empty_bottle",
+        "scene":  "scene7",
+        "id":  "empty_bottle",
+        "name":  "篮内透明空瓶",
+        "category":  "瓶子",
+        "entry":  "scene7/assets/empty_bottle.usd",
+        "mass_g":  25
+    },
+    {
+        "key":  "scene7/paper_ball",
+        "scene":  "scene7",
+        "id":  "paper_ball",
+        "name":  "篮内纸团",
+        "category":  "纸团",
+        "entry":  "scene7/assets/paper_ball.usd",
+        "mass_g":  6
+    },
+    {
+        "key":  "scene7/plush_toy",
+        "scene":  "scene7",
+        "id":  "plush_toy",
+        "name":  "棕色软质挂件近似模型",
+        "category":  "玩偶/软质代理",
+        "entry":  "scene7/assets/plush_toy.usd",
+        "mass_g":  70
+    },
+    {
+        "key":  "scene7/red_can",
+        "scene":  "scene7",
+        "id":  "red_can",
+        "name":  "保留原形饮口的红色易拉罐",
+        "category":  "罐子",
+        "entry":  "scene7/assets/red_can.usd",
+        "mass_g":  270
+    },
+    {
+        "key":  "scene7/steel_tumbler",
+        "scene":  "scene7",
+        "id":  "steel_tumbler",
+        "name":  "不锈钢吸管杯杯体",
+        "category":  "杯子",
+        "entry":  "scene7/assets/steel_tumbler.usd",
+        "mass_g":  200
+    },
+    {
+        "key":  "scene7/steel_lid",
+        "scene":  "scene7",
+        "id":  "steel_lid",
+        "name":  "不锈钢杯盖",
+        "category":  "盖子",
+        "entry":  "scene7/assets/steel_lid.usd",
+        "mass_g":  25
+    },
+    {
+        "key":  "scene7/metal_straw",
+        "scene":  "scene7",
+        "id":  "metal_straw",
+        "name":  "金属吸管",
+        "category":  "吸管",
+        "entry":  "scene7/assets/metal_straw.usd",
+        "mass_g":  12
+    },
+    {
+        "key":  "scene7/water_bottle",
+        "scene":  "scene7",
+        "id":  "water_bottle",
+        "name":  "绿色盖塑料饮料瓶",
+        "category":  "瓶子",
+        "entry":  "scene7/assets/water_bottle.usd",
+        "mass_g":  530
+    },
+    {
+        "key":  "scene7/marker_box",
+        "scene":  "scene7",
+        "id":  "marker_box",
+        "name":  "记号笔纸盒",
+        "category":  "盒子/内件",
+        "entry":  "scene7/assets/marker_box.usd",
+        "mass_g":  100
+    },
+    {
+        "key":  "scene7/storage_box",
+        "scene":  "scene7",
+        "id":  "storage_box",
+        "name":  "灰色收纳盒",
+        "category":  "盒子/内件",
+        "entry":  "scene7/assets/storage_box.usd",
+        "mass_g":  120
+    },
+    {
+        "key":  "scene7/storage_lid",
+        "scene":  "scene7",
+        "id":  "storage_lid",
+        "name":  "收纳盒盖",
+        "category":  "盖子",
+        "entry":  "scene7/assets/storage_lid.usd",
+        "mass_g":  35
+    },
+    {
+        "key":  "scene7/round_insert",
+        "scene":  "scene7",
+        "id":  "round_insert",
+        "name":  "收纳盒内浅色圆形物近似模型",
+        "category":  "盒子/内件",
+        "entry":  "scene7/assets/round_insert.usd",
+        "mass_g":  45
+    }
+]

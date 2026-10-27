@@ -89,3 +89,15 @@
 - 实物照片放 `real2sim/objects/<类型>/<类别>/<编号>/reference/`（数采平台物体页也能上传到这里），仿真渲染由 `check_object.py --image-dir real2sim/objects` 生成到同一 id 的 `preview/`（不入库）。
 - 装进或更新服务器共享资产库后改“共享库”一栏（流程见 README「改服务器共享资产库」）。
 - 核对共享库：`ssh 5090-2 'ls /data/robodojo-assets/Assets/Object/RoboDojo/Rigid/<类别>'`。
+
+## 2026-10-27 本地已建模物体导入（27 件本体 + 135 个泛化变体）
+
+用户本机 10 个场景包里的 84 条物体记录（本机清单 `LOCAL_OBJECT_ASSETS.md`，不入库）去重、优化后导入。全部是 `Rigid`，类别都是新名；每类 `00000` 起是本体，后续编号是泛化变体（`metadata.json` 带 `variant_of` 和 `variant_params`）。本体：`measuring_jug/00000`、`wide_cup/00000`、`game_controller/00000`、`tapered_cup/00000`、`water_pitcher/00000`、`marker_box/00000`、`car_key/00000`、`paper_wad/00000`、`paper_wad/00001`、`storage_basket/00000`、`storage_basket/00001`、`drink_bottle/00000`、`glass_bottle/00000`、`empty_bottle/00000`、`water_bottle/00000`、`bottle_cap/00000`、`bottle_cap/00001`、`round_lid/00000`、`tumbler_lid/00000`、`storage_box_lid/00000`、`marker_pen/00000`、`soda_can/00000`、`tumbler/00000`、`straw/00000`、`storage_box/00000`、`ring_disc/00000`、`tissue_box/00000`。
+
+- 去重：49 条是完全相同的副本或同一实物的旧版本，保留最新、质量最好的一版（被合并的来源写在各本体 `spec.json` 的 `notes`）；5 件与已有实测孪生重合，未导入（`ceramic_cup`、`Clutter/metal_cup`、`plastic_cup/00001`、`water_cup/00000`、`capybara_plush`）；3 件质量过差剔除（scene3、scene4 的碎面纸团，scene1 的 metal_cup）。
+- 优化：原点在包围盒中心，瓶子竖直，把手朝 +X 并写 `functional.handle`；篮子 8.9 万 → 3 万面、绿瓶盖 2.2 万 → 4000 面；碰撞凸包每个 ≤ 64 顶点，超过 48 个的按空间聚类合并（易拉罐 247 → 48、绿瓶 161 → 48、水壶 109 → 48、饮料瓶 81 → 48），合并前后核对容器开口没有被封住；材质按原模型改成 OmniPBR / OmniSurface / OmniGlass。
+- 泛化：每件 5 个，颜色、材质、尺寸（截面和高度分开缩放，可抓取物体窄边 ≤ 80 mm）、形状（锥度、鼓肚、收腰、圆角方形、椭圆、拱顶、倾斜、褶皱）都变；变体质量按表面积比和材质密度比换算。
+- 匹配等级：尺寸、质量、外观都是「估计」（沿用原模型），摩擦「默认」。饮料瓶、水瓶原清单 520 / 530 g（疑含内容物），截到 0.5 kg。
+- 验证：只经 `RigidObject` 加载并 RTX 渲染（`preview/sim.png`）；按用户要求没有做落地、碰撞等物理检验。
+- 共享库：已装（2026-10-27），平台元数据镜像已补；全部是新目录，没有覆盖，回滚清单 `/data/robodojo-assets/backups/added-local-asset-import-20261027-142105.txt`。
+- 生成：`scripts/objects/local_import/`（`extract_objects.py` 统计与去重、`extract_parts.py` 拆部件、`build_assets.py` 生成本体和变体、`render_assets.py` 只渲染预览、`run_all.sh` / `install_assets.sh` 是本次的运行与安装记录）。源 USD 不入库，在 `5090-2:/data/robodojo-runs/local-asset-import-20261027/src/`。
