@@ -11,9 +11,9 @@ the three official sets with native episode counts; we run set 0 only, so small 
 
 import argparse
 import json
+from pathlib import Path
 import random
 import sys
-from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 LEADERBOARD = ROOT / "rsi" / "baseline" / "openwam_alpha_leaderboard.json"

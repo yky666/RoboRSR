@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-27
-本会话分支：`chongzheng/scene-shenzhen-lab-room`（worktree `../RoboDojo-shenzhen-room`，基于 `origin/main@0936067`）：深圳实验室场景补成整层房间，见「最近任务」第一节。下行保留主线历史。
+本会话分支：`chongzheng/merge-open-prs`（worktree `../RoboDojo-merge-prs`）：深圳实验室装共享库，6 个开着的 PR 合进 `main`，见「最近任务」第一节。上一会话 `chongzheng/scene-shenzhen-lab-room` 把深圳实验室补成整层房间（第二节）。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,17 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 深圳实验室装共享库 + 合并全部开着的 PR（2026-10-27，`chongzheng/merge-open-prs`）
+
+- **用户要求**：深圳实验室装进共享资产库；处理本仓库（`origin` Zheng-Chong/RoboRSR）所有 PR 并合并。`gh` 没设默认仓库时会列出 upstream（RoboDojo 官方）的 10 个外部 PR，那些不是本仓库的，没动。
+- **共享库**（经用户同意，15:42）：`5090-2:/data/robodojo-assets/Assets` 新增 `Room/real_scene5`（10-27 整层房间版）和 `Eval_Layout/RoboDojo/g1d_shenzhen_lab`（574 个：拾取 34、杯对杯 55、倒水 48、叠块 55 × seed 0/1/2，和 `g1d_lab` 同一套；量杯任务因共享库没有 `measuring_cup` 不生成，同 10-21）。两者原本都不存在，没有覆盖，装前目录清单在 `backups/listing-before-shenzhen-20261027-154209.txt`。布局在隔离目录 `/data/robodojo-runs/shenzhen-install-20261027`（`Assets/` 除 `Room/real_scene5` 外全部软链接共享库）用当前代码的 `build_asset.build_layouts` 只生成这个配置；同样生成的 `g1d_lab` 和共享库比只差倒豆 / 倒水的豆子粒子参数（共享库仍是旧 4 mm，已知），所以生成输入一致。验证：同目录 `g1d_stack_blocks`、`g1d_general_pickup` seed 0 都是 success_rate 1.0、eval_time 1；拷入后 `diff -r` 一致。平台元数据镜像里本来就有同样的 574 个布局（逐文件一致）。
+- **PR**：#30（L2 机器人位姿等级）、#29（RSI v0.6）、#28（倒水 + 送到客区）、#26（夹爪限速 0.064 m/s）、#24（夹爪力传感 + 55 N / 3.6e4）、#25（带盖塑料瓶）按此顺序合进 `chongzheng/merge-open-prs`，再快进推 `main`（GitHub 自动标为已合并）。冲突：
+  - `env/robot_manager/robot_config/g1d.py` 夹爪执行器：#24 的 55 N / 3.6e4（10-21 用户拍板的参数）和 #26 的限速都保留（#26 记录里写明两边都留）。**G1-D 夹爪默认物理因此变了**：已有数据都是 20 N / 1e4、不限速时采的（见「剩余事项」）。
+  - `HANDOFF.md` 各节都保留（「项目状态」里两条夹爪说明合成一条）；`README.md`、`real2sim/ASSETS.md` 两边新增的行都保留。
+  - #29 的 CI 失败是 `rsi_start.py`、`test_rsi_start.py` 两处 import 排序（ruff I001），已修。
+- **验证**：本机 `check.sh`（78 passed、1 skipped）。合并后代码在 `5090-2:/data/robodojo-runs/merge-prs-20261027`（GPU 6）跑 `g1d_shenzhen_lab` 量杯 seed 0：success_rate 1.0、eval_time 1（55 N 和限速同时生效的第一次运行）。#28 的移动任务没重跑（要 `g1d_counter_mobile` 布局，隔离目录里没有；作者已验证）。
+- **没做**：部署机 `/root/RoboDojo` 没更新到这次的 `main`（上面还有别的会话 150 个未提交文件，要的话照 10-27 15:28 那次做）。
 
 ### 吧台冷水壶倒水 + 端到客区圆桌：第二个移动操作任务（2026-10-26，`chongzheng/task-pour-deliver-lounge`）
 
@@ -646,7 +657,7 @@
   - 真机升降是速度接口，部署端要按官方 PD 示例把 `lift_joint_state` 换成 `HeightAdjust`；真机 `rt/hispeed_state` 高度的零点和仿真 0（最低）是否一致没核对；底盘加减速、腰和升降的动力学都没做辨识。
 
 - **主工作区里未提交的改动**（10-20 晚核对）：`CLAUDE.md`、`HANDOFF.md`、`README.md`、`real2sim/scenes/SKILL.md`、`scripts/g1d/export_office_beans.py`，主要是「服务器切到 5090-2」那次的文档改动；主工作区的本地 `main` 还停在 `a694da5`，落后 `origin/main`。物体 SKILL 已随 PR #5 合并。
-- **共享库缺 10-20 之后装的东西**：`/data/robodojo-assets/Assets` 是 10-20 的快照，之后装的内容没进来，缺 `Room/real_scene4`、`Room/real_scene5`，以及 `Eval_Layout/RoboDojo/` 下的 `g1d_school`、`g1d_shenzhen_lab`、`g1d_mobile`。要用这几个场景，先在隔离目录跑 `build_asset.py` 验证，经同意后补装。worktree `.claude/worktrees/object-wizard` 里还有一份没提交的同类文档改动，已被这次提交取代，不要再合。
+- **共享库缺 10-20 之后装的东西**：`/data/robodojo-assets/Assets` 是 10-20 的快照，之后装的内容没进来，缺 `Room/real_scene4` 和 `Eval_Layout/RoboDojo/` 下的 `g1d_school`、`g1d_mobile`（`real_scene5`、`g1d_shenzhen_lab` 已在 10-27 补装）。要用这几个场景，先在隔离目录跑 `build_asset.py` 验证，经同意后补装。worktree `.claude/worktrees/object-wizard` 里还有一份没提交的同类文档改动，已被这次提交取代，不要再合。
 - **采集配置下的严格判据有方差**：同一组动作回放，2 条里有 1 条最后差 1 颗豆子。评估策略时，严格成功率要在同一布局上重复多次才有意义。
 - **物体运行时随机还没有任务打开**：要用就在 `build_asset.py` 的 `RANDOMIZE` 加任务和标签，在隔离目录重新生成布局、跑脚本专家，先问用户（会改那个任务的评测布局）。打开前确认任务和脚本专家只从缩放后的包围盒取尺寸；`cup_grasp` 的 `contact_circle`、量杯腔体计数都没按缩放修正。
 - **XPolicyLab 注册**：`XPolicyLab/utils/robot/_robot_info.json` 里还没有 `g1d*`，用 XPolicyLab 的 `train.sh` 会拿不到动作维度。要给 XPolicyLab 提 PR（子模块不在本仓库里改）。
@@ -654,7 +665,7 @@
 - **新流水线还没跑过整批**：collection_v3 是用旧采集器采的，下一批数据应该改用 `scripts/datagen/run_batch.py`。
 - **学校场景**：桌面高度和底盘偏航都依赖假设（零升降、12 号电机即躯干偏航），要用卷尺和叠图核对；从 sys01 拷真机头部和腕部画面（`outputs/g1d-real2sim`）做叠图。杯盘要在数采平台登记实测后，按 `scripts/objects/SKILL.md` 重建。
 - **共享库的倒豆布局过期**：`g1d`、`g1d_counter`、`g1d_lab` 的倒水、杯对杯布局是旧豆子参数（4 mm，`particle_mass` 6e-5），和当前 `build_asset.py`（5.6 mm）不一致；`g1d_shenzhen_lab` 已是新参数。要统一，就在隔离目录重跑 `build_asset.py`，经同意后替换（先备份）。
-- **深圳实验室**：已合并、部署；5090-2 的共享库里还没有；10-27 的整层房间版灯光没重新对色，装库前先在 RTX 下按 IMG_4916 对一次；站位卷尺（桌沿到根节点、横向偏移）和三视角叠图后，`acceptance.py` 才能通过。
+- **深圳实验室**：已合并、部署，10-27 装进共享库（整层房间版）；灯光没在 RTX 下按 IMG_4916 重新对色；站位卷尺（桌沿到根节点、横向偏移）和三视角叠图后，`acceptance.py` 才能通过。
 - **场景**：除深圳实验室外没有卷尺实测，都没有叠图；`real_scene1` 和 09-21 那次真机运行时的摆放不一样，那批画面不能用来叠图。下次去现场按 `real2sim/scenes/SKILL.md` 一次采齐。
 - **夹爪参数**：10-21 按下面的估算改成每指刚度 3.6e4 N/m、上限 55 N（之前 1e4、20 N）。**已有的两份 100 条量杯数据和 10-22 的深圳 500 条杯或马克杯数据（`g1d_shenzhen_pour_beans_cup_or_mug_500`）都是在旧参数下采的**，现在的 env 和它们不再完全一致；评估用这两份数据训练的策略时，要知道夹爪变了（夹持时的开度不变，力变大）。
   - **真机设定**（10-21 在 `ssh unitree` 上只读查看）：遥操作采集（`~/g1d_infra/teleop/robot_control/robot_arm.py`）、策略评测客户端（`~/client/jepa_g1d_client/g1d_jepa_client.py`、`motus_client`），以及 unitree_lerobot 官方的 `Dex1_1_Gripper_Controller`，用的都是电机层 PD：`kp=5.0`、`kd=0.05`、`tau=0`，读数 q 范围 0（闭合）到 5.36（张开）。每步指令都裁到当前位置附近：遥操作 ±0.18 rad（再加平滑滤波），评测客户端闭合时最多超前 0.3 rad（`GRIP_SQUEEZE`）。没有显式的力矩上限，真正决定夹持力的是 kp 乘以这个误差上限：遥操作最多约 0.9 N·m，评测最多约 1.5 N·m。
@@ -683,7 +694,7 @@
 0. RSI：先读 `rsi/AGENTS.md`。资产分池、ManiTwin 干扰物、Poly Haven HDR 已完成（见「最近任务」前两节），新资产在 `5090-2:/data/robodojo-runs/rsi-assets-20261024/`，用 `rsi_assets.py link` 合并进运行目录。下一步按优先级：材质（Poly Haven PBR 贴图转 MDL，官方材质被三套评测集用完了）→ 房间变体（新材质给 `Simple_Room` 换墙面）→ GSO 的鞋和玩具 → 任务物体的新实例 → 12 个 `_random` 任务基础版的 X5 脚本专家。每次加完新资产都要重跑 `rsi_assets.py scan` 并把 `pools.json` 入库。
 0. 榜单：基线已停（16:35，用户要求），先问用户是否续跑；续跑后收两份基线（`smoke_results/baseline_*_20261022.md`，核对每个任务 `eval_time >= 1`），按任务对比 OpenWAM / pi0.5 / 有无官方数据；看失败视频做归类；然后开始把 `collect.py` 和插件接口推广到 dual X5，按优先级给无官方数据的任务写专家。
 0. 实现平台登记的 `g1d_pour_beans_any_cups`：在平台任务抽屉复制「实现任务」文本交给 coding agent（输入 `real2sim/tasks/g1d_pour_beans_any_cups/registration.json`）。
-0. 深圳实验室（已合并、部署，共享库待补装）：去现场量站位、拍头部 / 腕部画面做叠图（`overlay.py --env-cfg g1d_shenzhen_lab`）。
+0. 深圳实验室（已合并、部署、装共享库）：去现场量站位、拍头部 / 腕部画面做叠图（`overlay.py --env-cfg g1d_shenzhen_lab`）。
 0. 部署机快进：别的会话在部署机上还有 28 个未提交文件，快进照 10-24 16:58 那次做（先 stash、快进、pop，新增 LFS 文件从本机补实际内容）。
 1. 先看 `git log`、本文件和 `scripts/datagen/CONTRACT.md`。主工作区里还有物体建模 SKILL 会话没提交的改动（见"最近任务"里的"并行会话"）；拉取新的 `main` 前，先让那个会话提交，或者先 stash。
 2. 下一批数据用新流水线采集。先跑单回合探针，确认 `joint_names`、夹爪 state 和图像都正常，再按 `scripts/datagen/SKILL.md` 批量采集、导出、审计、回放，最后登记。
@@ -694,6 +705,7 @@
 
 ## 最近历史
 
+- 2026-10-27：深圳实验室（整层房间版、574 个评测布局）装进 `5090-2` 共享库；本仓库 6 个开着的 PR（#24、#25、#26、#28、#29、#30）合进 `main`，G1-D 夹爪默认改为 55 N / 3.6e4 并限速 0.064 m/s。
 - 2026-10-27：深圳实验室场景按 8 张全景照片补成整层房间（角柱、吊顶 + 穿孔铝板天花和灯条、工位、升降桌、货架、椅子、电梯厅栏杆闸机），`5090-2` 上 RTX 渲染和量杯脚本演示通过。
 - 2026-10-24：RSI 导入 ManiTwin 干扰物 390 个（尺寸去重、地面和桌面两道稳定性筛查）、Poly Haven 室内 HDR 40 张；T0 改为统计三套官方评测集（seed 0/1/2），材质成为新缺口（504 种里 494 种被评测用掉）。
 - 2026-10-24：RSI 资产分池 `rsi/assets/pools.json`（规则 1 严格口径，T0 813 项），X5 布局生成器和平台接入分池、干扰物池、新实例、换色缩放白名单；`5090-2` 上 `hang_mugs_random` 10 个布局验证正常。严格口径下现成的房间、干扰物、新实例几乎为零，要造新资产。
