@@ -664,14 +664,44 @@ const OBJ_STAGES = [
 ];
 
 const DIMS = {custom: 'G1-D 自建', generalization: '泛化', memory: '记忆', precision: '精细', 'long-horizon': '长程', open: '开放'};
-const LEVELS = [
-  ['L0', '孪生', '无变化，与真机评测一一对应：真实工位、真实物体、打印摆放垫上的位置', 25],
-  ['L1', '位置', '物体位置和朝向：可达范围内 y ≈ [-0.55, -0.25]，旋转 ±30°', 50],
-  ['L2', '机器人位姿', '底座相对桌子的停靠位姿，以场景登记的站位为中心：左右 ±3 cm、离桌距离 ±3 cm、偏航 ±5°、升降柱 ±2 cm；按真机多次停靠的实测再定', 50],
-  ['L3', '外观', '亮度 ×0.5–2、色温 3000–6500 K、灯的位置；桌面 / 地面 / 背景纹理；头部相机 ±1 cm / ±2°，腕部 ±0.5 cm / ±2°', 50],
-  ['L4', '物体', '保留实例（没见过的尺寸、颜色、材质）+ 3–8 个干扰物', 50],
-  ['L5', '场景', '2 个不进训练的场景（如厨房台面、窄桌），桌高 ±5 cm', 50],
+// generalization axes, each graded L1–L3 (default ranges per level); L3 is never in training. Grade Gk puts every axis
+// at min(k, the axis's top level); the diagnostic set raises one axis at a time with the others at L0.
+const AXES = [
+  ['spatial', '空间关系', '机器人底座位姿、桌高、桌面物体位置', [
+    '物体在孪生位置附近 ±5 cm、朝向 ±15°；机器人站位和桌高不变',
+    '物体在全可达范围（桌面物体 y≈[-0.55, -0.25]）、朝向 ±30°；底座左右 ±3 cm、离桌 ±3 cm、偏航 ±5°、升降柱 ±2 cm；桌高 ±3 cm',
+    '底座和桌高超出训练范围（左右 ±6 cm、偏航 ±10°、桌高 ±5 cm）；物体放到可达边缘']],
+  ['scene', '场景视觉', '光照、桌面和环境纹理、干扰物、不同场景', [
+    '灯光亮度、色温在场景实测值附近小幅变化',
+    '灯光位置和数量变化；桌面、地面、墙面换训练池纹理；2–4 个训练用干扰物',
+    '保留场景、保留纹理；6–10 个干扰物，含评测保留干扰物']],
+  ['object', '物体属性', '物体颜色、纹理、同类实例、尺寸缩放', [
+    '物体颜色随机',
+    '训练候选里的同类实例和纹理；尺寸等比缩放 ±15%',
+    '评测保留实例（没见过的形状、材质）；缩放超出训练范围']],
+  ['camera', '视角成像', '各相机外参偏移、图像亮度 / 对比度 / 饱和度 / 噪声', [
+    '图像亮度、对比度、饱和度 ±10%',
+    '相机外参：头部 ±1 cm / ±2°，腕部 ±0.5 cm / ±2°；图像扰动 ±25%，加噪声',
+    '外参超出训练范围（头部 ±2 cm / ±5°）；模糊、过曝或欠曝']],
+  ['language', '语言对齐', '物体的简短 / 详细描述，靠指令区分目标', [
+    '训练指令的同义改写',
+    '简短或详细描述（颜色、尺寸、相对位置）；场景里放同类干扰物，必须靠描述区分目标',
+    '没见过的说法和属性组合；干扰物和目标只差一个属性']],
 ];
+const AXIS_NAME = Object.fromEntries(AXES.map(([k, name]) => [k, name]));
+const AXIS_TOP = {0: 'L0 不变', 1: 'L1 轻度', 2: 'L2 训练范围全开', 3: 'L3 分布外'};
+const GRADES = [
+  ['G0', '孪生', '所有维度 L0，与真机评测一一对应', 25],
+  ['G1', '轻度', '所有维度 L1', 50],
+  ['G2', '训练范围全开', '所有维度 L2，训练分布的上限', 50],
+  ['G3', '分布外', '所有维度 L3，训练里都没见过', 50],
+];
+const DIAG_N = 10;  // diagnostic layouts per axis and level
+// a registration's top level per axis (a task without one gets the full plan), the grades it reaches, what each sets
+const axisTop = (r, k) => (r?.generalization ? r.generalization[k]?.max ?? 0 : 3);
+const gradesOf = (r) => GRADES.filter((g, i) => !i || AXES.some(([k]) => axisTop(r, k) >= i));
+const gradeMix = (r, i) => AXES.map(([k, name]) => `${name} L${Math.min(i, axisTop(r, k))}`).join('、');
+const diagCount = (r) => (r?.diagnostic ?? DIAG_N) * sum(AXES.map(([k]) => axisTop(r, k)));
 const experts = (eps) => eps.filter((e) => e.auto.policy === 'scripted_demo');
 const rate = (eps) => (eps.length ? eps.filter((e) => e.auto.success).length / eps.length : null);
 const qualified = (eps) => eps.filter((e) => e.qa === 'pass' && e.auto.success);
@@ -930,7 +960,7 @@ const SCENE_WIZ = [
   ['环境与灯光', '记下要建模的周围环境和灯光，用于渲染外观对齐；不知道的留空。'],
 ];
 const SCENE_TYPES = ['办公桌', '吧台 / 高台面', '实验台', '厨房台面', '课桌', '餐桌'];
-const PURPOSES = {twin: '真机孪生（L0，对应真机评测）', train: '训练用泛化场景', holdout: 'L5 保留场景（不进训练）'};
+const PURPOSES = {twin: '真机孪生（L0，对应真机评测）', train: '训练用泛化场景', holdout: '保留场景（场景视觉 L3，不进训练）'};
 const SUPPORTS = ['四条腿', '四条腿 + 横档 / 抽屉', '柜体，下方封闭', '靠墙固定台面', '框架 / 工作站'];
 const DAYLIGHT = {'': '未记录', none: '没有窗户', blocked: '有窗，已遮挡', yes: '有自然光，随时段变化'};
 const SCENE_PHOTO_HINT = '正前方（机器人站位）、左前、右前、左侧、右侧、斜上俯视；每张都拍到整个桌面和四条边，不变焦、关自动微距、分辨率一致；有 ChArUco 标定板就平放在桌上一起拍';
@@ -957,7 +987,7 @@ function viewScenes() {
         ${sceneName(d) !== d.id ? `<div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>` : ''}
         <div class="small muted">${esc(sceneDims(d))} · 照片 ${a.photos?.length || 0} · 预览 ${a.previews?.length || 0}</div>${progress(rs)}${stageChips(rs)}</div></article>`;
   }).join('');
-  return `<div class="page">${pageHead('场景重建', `real2sim/scenes/ 下 ${twins.length} 个孪生场景 · 目标 7 个（3 个孪生 + 2 个训练用泛化 + 2 个 L5 保留）。新场景先登记：至少 ${MIN_SCENE_PHOTOS} 张照片加卷尺实测`,
+  return `<div class="page">${pageHead('场景重建', `real2sim/scenes/ 下 ${twins.length} 个孪生场景 · 目标 7 个（3 个孪生 + 2 个训练用泛化 + 2 个保留）。新场景先登记：至少 ${MIN_SCENE_PHOTOS} 张照片加卷尺实测`,
     `<button class="btn btn-primary" type="button" onclick="openNewScene(this)">${ic('plus')}登记场景</button>`)}
     ${twins.length ? `<div class="grid scene-grid">${cardsHtml}</div>` : `<div class="card">${empty('scan', '还没有场景', '点「登记场景」新建，或在 real2sim/scenes/ 下建场景目录后点「同步项目数据」')}</div>`}
     ${bench.length ? `<h2 class="section-title">${ic('layers')}RoboDojo 基准场景 <span class="muted small">env_cfg/scene/ · 任务按 _task.yml 的 scene_config 选用，不是真实场景孪生</span></h2>
@@ -1369,6 +1399,8 @@ const EVAL_STATUS = {submitted: '待受理', deploying: '部署中', evaluating:
 const evalState = (s) => ({done: 'ok', failed: 'bad', cancelled: 'na'})[s] || 'todo';
 const ACTION_SPACES = {joint16: '关节角 16 维（双臂 7 + 夹爪 1，数据契约默认）', eef: '末端位姿', body: '关节角 + 腰 / 升降 / 底盘'};
 const EVAL_CAMS = {head: '头部', left_wrist: '左腕', right_wrist: '右腕', third: '第三人称'};
+const EVAL_LEVELS = [...GRADES, ['D', '单维度诊断']];
+const evalLevels = (r) => (r.levels || []).map((k) => `${k} ${(EVAL_LEVELS.find(([x]) => x === k) || [])[1] || ''}`.trim()).join('、');
 const EVAL_LANGS = {en: '英文指令', zh: '中文指令', none: '不用指令'};
 const FRAMEWORKS = ['OpenWAM', 'ACT', 'Diffusion Policy', 'π0 / π0.5', 'SmolVLA', 'LeRobot 其他策略', 'XPolicyLab 已有策略'];
 const PRIORITIES = {normal: '普通', high: '加急'};
@@ -1421,7 +1453,7 @@ function evalBrief(d) {  // the task for a coding agent that deploys and evaluat
     fact('指令', EVAL_LANGS[r.language]), fact('推理环境', r.env), fact('显存', r.gpu_gb && `${r.gpu_gb} GB`), fact('动作块 / 推理频率', r.chunk),
     '',
     '评测范围（任务：env 配置）：', ...tasks,
-    fact('泛化等级', (r.levels || []).join('、') + '（用任务已有的分级评测布局；缺的等级在交付说明里列出，不要临时造）'),
+    fact('泛化等级', `${evalLevels(r)}（用任务已有的分级评测布局；缺的等级在交付说明里列出，不要临时造）`),
     fact('回合', `每个任务 × env 配置 ${r.layouts ?? 50} 个布局，每个布局重复 ${r.repeats ?? 3} 次，成功率附 95% 区间`),
     r.expert ? '- 对照：有脚本专家的任务，同一批布局再用 scripted_demo 跑一遍' : null,
     fact('截止', r.due), fact('优先级', PRIORITIES[r.priority]), fact('备注', r.notes),
@@ -1431,7 +1463,7 @@ function evalBrief(d) {  // the task for a coding agent that deploys and evaluat
     '2. 接入：优先用 XPolicyLab 的策略服务（policy 目录 + deploy.yml，WebSocket）；XPolicyLab 里没有对应策略时，在运行目录写进程内适配器，用 src/eval_client/main.py 的 --policy_module 跑（适配器不进本仓库，需要通用化时给 XPolicyLab 提 PR）。观测和动作按 CONTRACT 对齐（16 维顺序、夹爪 state 是实测开度、30 Hz、图像键名），不一致的写进交付说明。',
     `3. 先冒烟 1 回合：_result.json 的 eval_time ≥ 1、相机视频齐全、动作不越限；再按上面的范围跑全量。颗粒任务用 g1d_beans_collect（1/600 s）。只用没有 train 标记的评测布局。策略名用 ${d.id}。`,
     `4. 把运行目录的 eval_result/ 同步到 5090-2:${INFO.root}/eval_result/，平台据此在「数据质检」里列出这些回合和视频。`,
-    `5. 写 ${dir}/result.json，平台读它显示结果：{"evaluated_at": "...", "summary": "一两句结论", "runs": [{"task", "env_cfg", "level", "layouts", "repeats", "episodes", "success_rate", "ci95": [lo, hi], "expert_success_rate", "eval_time", "result_dir"}], "issues": "部署和对齐中的问题"}。放到部署机同一路径并提交入库。`,
+    `5. 写 ${dir}/result.json，平台读它显示结果：{"evaluated_at": "...", "summary": "一两句结论", "runs": [{"task", "env_cfg", "level"（综合等级如 "G2"，诊断如 "spatial:L3"）, "layouts", "repeats", "episodes", "success_rate", "ci95": [lo, hi], "expert_success_rate", "eval_time", "result_dir"}], "issues": "部署和对齐中的问题"}。放到部署机同一路径并提交入库。`,
     '6. 过程中在平台上把这条评测的状态改成「部署中」「评测中」，完成后改「已完成」或「失败」，在评测记录里写原因。',
   ].filter((line) => line !== null).join('\n');
 }
@@ -1456,7 +1488,7 @@ function drawerEval(d) {
       <dt>接口</dt><dd class="small">${esc([r.embodiment, ACTION_SPACES[r.action_space], (r.cameras || []).map((c) => EVAL_CAMS[c] || c).join('、'), EVAL_LANGS[r.language]].filter(Boolean).join(' · '))}</dd>
       <dt>推理环境</dt><dd class="small">${esc([r.env, r.gpu_gb && `${r.gpu_gb} GB`, r.chunk].filter(Boolean).join(' · ') || '—')}</dd>
       <dt>任务</dt><dd>${(r.tasks || []).map((x) => link('task', x)).join('、') || '—'}</dd><dt>场景</dt><dd>${(r.scenes || []).map((x) => link('scene', x, sceneName(S.scene.find((s) => s.id === x) || {id: x}))).join('、') || '任务有布局的全部场景'}</dd>
-      <dt>等级 / 回合</dt><dd class="small">${esc((r.levels || []).join('、'))} · 每个任务 × env 配置 ${r.layouts ?? '—'} 个布局 × ${r.repeats ?? '—'} 次${r.expert ? ' · 脚本专家对照' : ''}</dd>
+      <dt>等级 / 回合</dt><dd class="small">${esc(evalLevels(r))} · 每个任务 × env 配置 ${r.layouts ?? '—'} 个布局 × ${r.repeats ?? '—'} 次${r.expert ? ' · 脚本专家对照' : ''}</dd>
       <dt>截止 / 优先级</dt><dd class="small">${esc(r.due || '—')} · ${esc(PRIORITIES[r.priority] || '普通')}</dd></dl>
       <div class="form" style="margin-top:10px">${row('备注', 'reg.notes', area(d, 'reg.notes'))}</div>`)}`,
   };
@@ -1492,7 +1524,8 @@ function drawerNewEval() {
       ${fld('ne-chunk', '动作块 / 推理频率', text('ne-chunk', '如：每次推理输出 30 步，30 Hz 执行'), {wide: true})}</div>`)}`)}
     ${pane(1, `${group('任务', `${picker('tk-eval', '搜索任务名称或 id')}<small class="muted">至少一个；每个任务在它有评测布局的 env 配置上测。</small>`)}
     ${group('场景 <span class="opt">可选</span>', `${picker('sc-eval', '只测这些场景；留空 = 任务有布局的全部场景')}`)}
-    ${group('泛化等级与回合', `<div class="toggles">${LEVELS.map(([k, name]) => `<label class="toggle"><input type="checkbox" data-elevel="${k}" ${['L0', 'L1'].includes(k) ? 'checked' : ''}><span>${ic('check')}<b class="mono">${k}</b> ${name}</span></label>`).join('')}</div>
+    ${group('泛化等级与回合', `<div class="toggles">${EVAL_LEVELS.map(([k, name]) => `<label class="toggle"><input type="checkbox" data-elevel="${k}" ${k === 'D' || k === 'G3' ? '' : 'checked'}><span>${ic('check')}<b class="mono">${k}</b> ${name}</span></label>`).join('')}</div>
+      <small class="muted">综合等级 Gk：所有维度同时升到第 k 档；单维度诊断 D：每次只升一个维度，看是哪类能力掉点。</small>
       <div class="wz-grid" style="margin-top:12px">
       ${fld('ne-layouts', '每个任务 × env 配置的布局数', '<input id="ne-layouts" type="number" min="1" step="1" value="50">')}
       ${fld('ne-repeats', '每个布局重复次数', '<input id="ne-repeats" type="number" min="1" step="1" value="3">', {hint: '仿真有随机性，至少 3 次才能给出成功率区间'})}
@@ -1625,7 +1658,7 @@ function photoStrip(d) {
 const DIM_HINT = '每项写「名称 数值」，单位 mm，按物体形状自己定名称，如：开口直径 82，底部直径 64，高 135';
 const GEN_ATTRS = {color: '颜色', material: '材质', size: '尺寸', shape: '形状'};
 const GEN_HINT = '如：尺寸和形状保持不变，只改颜色，做红、蓝、绿各一个；或只写要求，具体参数由 coding agent 设计';
-const GEN_NOTE = '颜色和整体尺寸优先用运行时随机：仿真按布局给物体换色、等比缩放，不建新资产。形状、材质等要另建变体资产：同一类别下的新编号，不是实物孪生、没有实测，在平台上收进本体的卡片。都用于训练多样性或保留评测（L4 物体泛化）。';
+const GEN_NOTE = '颜色和整体尺寸优先用运行时随机：仿真按布局给物体换色、等比缩放，不建新资产。形状、材质等要另建变体资产：同一类别下的新编号，不是实物孪生、没有实测，在平台上收进本体的卡片。都用于训练多样性或保留评测（物体属性维度）。';
 const materialList = () => `<datalist id="dl-materials">${MATERIALS.map((m) => `<option value="${esc(m)}">`).join('')}</datalist>`;
 const runtimeText = (g = {}) => [g.rt_color && '颜色', num(g.rt_scale) && Number(g.rt_scale) > 0 && `尺寸 ±${g.rt_scale}%`].filter(Boolean).join(' · ');
 function genBrief(d) {  // brief lines for the generalization asked in step 3 of the registration
@@ -1820,7 +1853,7 @@ function drawerNewScene() {
       <div class="fld"><label>场景目录</label><code id="ns-id" class="wz-id">填写英文名称后生成</code></div>
       ${fld('ns-type', '类型', text('ns-type', '厨房台面', 'list="dl-scene-types"'))}
       ${fld('ns-location', '地点', text('ns-location', '楼栋、房间号'))}
-      ${fld('ns-purpose', '用途', `<select id="ns-purpose">${opts({'': '未定', ...PURPOSES}, 'twin')}</select>`, {wide: true, hint: '月度目标 7 个场景：3 个孪生 + 2 个训练用泛化 + 2 个 L5 保留'})}</div>`)}
+      ${fld('ns-purpose', '用途', `<select id="ns-purpose">${opts({'': '未定', ...PURPOSES}, 'twin')}</select>`, {wide: true, hint: '月度目标 7 个场景：3 个孪生 + 2 个训练用泛化 + 2 个保留'})}</div>`)}
     ${group(`多角度照片 <span class="opt">至少 ${MIN_SCENE_PHOTOS} 张</span>`, `${photoDrop(`${SCENE_PHOTO_HINT} · jpg / png / webp · 单张 ≤ 25 MB`)}
       <p id="ns-photo-count" class="small txt-bad" style="margin:10px 0 0">已选 0 张 / 至少 ${MIN_SCENE_PHOTOS} 张</p>`)}`)}
     ${pane(1, `${group('桌面（卷尺）', `<div class="wz-grid">
@@ -1983,11 +2016,12 @@ function drawerTask(d) {
     body: `${d.implementation ? sec('自主数采与训练进展', `<p>${esc(d.implementation.progress)}</p><p>${esc(d.implementation.detail)}</p><p>实现入口：<code>${esc(d.implementation.path)}</code></p><div class="toolbar">${(d.implementation.evidence || []).map((p) => `<a class="btn" target="_blank" rel="noopener" href="${file(p)}">${esc(base(p))}</a>`).join('')}</div>`) : ''}${d.registered ? taskRegSection(d) : ''}${a.dimension !== 'custom' && a.pools ? rsiSection(d) : ''}${sec('流程', `${progress(rs)}<div style="height:10px"></div>${stageList(rs)}`)}
     ${sec('采集计划', `<div class="form">${row('负责人', 'owner', sel(d, 'owner', memberOpts(d.owner)), '从平台账号里选')}
       ${row('合格回合目标', 'target', inp(d, 'target', 'number', 'min="0" placeholder="500"'))}${row('备注', 'notes', area(d, 'notes'))}</div>`)}
-    ${sec('分级泛化评测集', `<p class="hint" style="margin:0 0 10px">每一级只改变一个因素，其余与 L0 相同；布局预先生成为固定 JSON，并先用 scripted_demo 过滤，L0–L4 专家成功率目标 ≥ 80%。</p>
-      <div class="table-wrap"><table class="plain"><thead><tr><th>级别</th><th>变化因素与范围</th><th class="num">目标</th><th>已生成</th></tr></thead><tbody>
-      ${LEVELS.filter(([k]) => !d.reg?.levels || d.reg.levels[k]).map(([k, name, range, target]) => `<tr><td class="nowrap"><b class="mono">${k}</b> ${name}</td>
-        <td class="small">${d.reg?.levels ? esc(d.reg.levels[k].range) : range}</td><td class="num">${d.reg?.levels?.[k]?.target ?? target}</td>
-        <td style="width:110px">${inp(d, `levels.${k}`, 'number', `min="0" style="width:90px" aria-label="${k} 已生成布局数"`)}</td></tr>`).join('')}</tbody></table></div>`)}
+    ${sec('分级泛化评测集', `<p class="hint" style="margin:0 0 10px">五个维度各分 L1–L3，L3 不进训练；综合等级 Gk 让所有维度同时升到第 k 档（不超过该维度的最高档），难度逐级递增；单维度诊断每次只升一个维度。布局预先生成为固定 JSON，并先用 scripted_demo 过滤，G0–G2 专家成功率目标 ≥ 80%。</p>
+      <div class="table-wrap"><table class="plain"><thead><tr><th>等级</th><th>各维度档位</th><th class="num">目标</th><th>已生成</th></tr></thead><tbody>
+      ${[...gradesOf(d.reg).map(([g, name, desc, target]) => [g, name, d.reg?.generalization ? gradeMix(d.reg, Number(g[1])) : desc, d.reg?.grades?.[g] ?? target]),
+        ['D', '单维度诊断', `每个维度每档 ${d.reg?.diagnostic ?? DIAG_N} 个，其余维度 L0`, diagCount(d.reg)]].map(([g, name, desc, target]) => `<tr><td class="nowrap"><b class="mono">${g}</b> ${name}</td>
+        <td class="small">${esc(desc)}</td><td class="num">${target}</td>
+        <td style="width:110px">${inp(d, `grades.${g}`, 'number', `min="0" style="width:90px" aria-label="${g} 已生成布局数"`)}</td></tr>`).join('')}</tbody></table></div>`)}
     ${sec('物体与标签', objects.length ? `<div class="chips">${objects.map(([oid, labels]) => `<a class="tag" href="#objects" data-go="object" data-id="${esc(oid)}">${esc(oid)}${labels.length ? ` · ${esc(labels.join(', '))}` : ''}</a>`).join('')}</div>`
       : '<div class="small muted">只解析 G1-D 自建任务用到的物体</div>')}
     ${sec('评测布局', Object.keys(a.layouts || {}).length ? `<div class="chips">${Object.entries(a.layouts).map(([c, n]) => `<span class="tag">${esc(c)} · ${n}</span>`).join('')}</div>`
@@ -2004,44 +2038,40 @@ function drawerTask(d) {
 }
 const TASK_WIZ = [
   ['任务定义', '新建一个 G1-D 任务，或给已有任务登记泛化方案。任务定义和成功判据要写清楚：语言指令由 coding agent 从定义总结并转写，判据会变成 run_reward 里的检查。'],
-  ['物体与干扰物', '每个角色是任务里的一类物体（对应任务配置的 label），从物体资产里选它可用的物体；干扰物另选。位置、朝向的随机在第 4 步 L1 里设。'],
-  ['可用场景', '训练场景用于采集数据；L5 保留场景只在评测时出现，不进训练。'],
-  ['泛化等级', '等级按前面的选择自动开启：位置随机开 L1，机器人位姿随机开 L2，外观随机开 L3，角色或干扰物选了评测保留物体开 L4，保留场景开 L5。这里只调整各级的范围和评测布局数。'],
+  ['物体与干扰物', '每个角色是任务里的一类物体（对应任务配置的 label），从物体资产里选它可用的物体；干扰物另选。评测保留物体只用于物体属性 L3；位置、朝向等随机在第 4 步设。'],
+  ['可用场景', '训练场景用于采集数据；保留场景只用于场景视觉 L3 的评测，不进训练。'],
+  ['泛化等级', '五个维度各选最高开到哪一档，并调整各档范围：L1 轻度、L2 训练范围全开、L3 分布外（不进训练）。综合等级 G0–G3 和单维度诊断按这里自动生成。'],
 ];
 const HANDS = {'': '未定', left: '左手', right: '右手', either: '任一手（随布局）', both: '双手'};
 const INST_LANGS = {zh: '中文', en: '英文'};
 let CLUTTER = {};  // {category: instances} of the Clutter library, loaded when the task wizard opens
 const CLUTTER_N = () => (Object.keys(CLUTTER).length ? `${Object.keys(CLUTTER).length} 类、${sum(Object.values(CLUTTER))} 个` : '镜像里没有');
-const EXTRA_PRESETS = ['桌高 ±5 cm', '物体初始姿态（倒放 / 侧放）', '控制延迟 / 动作噪声'];
+const EXTRA_PRESETS = ['物体初始姿态（倒放 / 侧放）', '手臂初始姿态', '控制延迟 / 动作噪声'];
 const langText = (ins) => (ins?.languages || []).map((l) => INST_LANGS[l] || l).join('、');
 const instText = (ins) => `${langText(ins)}${ins.languages.length > 1 ? '各' : ''} ${ins.count} 条`;
 let NT = null;  // the task wizard's lists: {roles: [{label, candidates, holdout, count}], dis: {candidates, holdout}, scenes: {train, holdout}}
-const RANDOMIZE = {position: '位置', yaw: '朝向'};
-const ROBOT_POSE = {lateral: '左右位置', distance: '离桌距离', height: '高度（升降柱）', yaw: '偏航'};
-const APPEARANCE = {light: '灯光（亮度、色温、灯的位置）', texture: '桌面 / 地面 / 背景纹理', camera: '相机位姿扰动'};
-function levelReasons() {  // {level: why it is on, or null}; levels follow from the earlier steps
-  const picked = (sel) => [...$$(`${sel}:checked`)];
-  const random = picked('[data-random]').map((c) => RANDOMIZE[c.dataset.random]);
-  const robot = picked('[data-robot]').map((c) => ROBOT_POSE[c.dataset.robot].replace(/（.*/, ''));
-  const appear = picked('[data-appear]').map((c) => APPEARANCE[c.dataset.appear].replace(/（.*/, ''));
-  const held = NT.roles.filter((r) => r.holdout.length).map((r) => `${r.label || '未命名角色'} ${r.holdout.length} 个`);
-  if (NT.dis.holdout.length) held.push(`干扰物 ${NT.dis.holdout.length} 个`);
-  return {
-    L0: '始终开启',
-    L1: random.length ? `随机${random.join('、')}` : null,
-    L2: robot.length ? `随机${robot.join('、')}` : null,
-    L3: appear.length ? `随机${appear.join('、')}` : null,
-    L4: held.length ? `保留物体：${held.join('、')}` : null,
-    L5: NT.scenes.holdout.length ? `${NT.scenes.holdout.length} 个保留场景` : null,
-  };
-}
-const LEVEL_OFF = {L1: '没勾位置或朝向', L2: '没勾机器人位姿随机', L3: '第 3 步没勾外观随机', L4: '第 2 步没有给角色或干扰物选评测保留物体', L5: '第 3 步没选保留场景'};
-function renderLevels() {
-  const why = levelReasons();
-  $('#nt-levels').innerHTML = LEVELS.map(([k, name]) => `<div class="nt-level${why[k] ? '' : ' off'}">
-    <div class="nt-level-h">${st(why[k] ? 'ok' : 'na', why[k] ? '开启' : '不开启')}<b class="mono">${k}</b> ${name}<span class="small muted">${esc(why[k] || LEVEL_OFF[k])}</span></div>
-    ${why[k] ? `<div class="wz-grid"><div class="fld wide"><label for="nt-range-${k}">变化因素与范围</label><textarea id="nt-range-${k}" rows="2" oninput="NT.levels.${k}.range = this.value">${esc(NT.levels[k].range)}</textarea></div>
-      <div class="fld"><label for="nt-ltarget-${k}">评测布局数</label><input id="nt-ltarget-${k}" type="number" min="0" step="5" value="${NT.levels[k].target}" oninput="NT.levels.${k}.target = ntNum(this.value)"></div></div>` : ''}</div>`).join('');
+// L3 of these axes needs held-out assets picked in an earlier step: [check, what is missing]
+const AXIS_NEEDS = {
+  object: [() => NT.roles.some((r) => r.holdout.length), '第 2 步没有给角色选评测保留物体'],
+  scene: [() => NT.scenes.holdout.length, '第 3 步没有选保留场景'],
+};
+function renderAxes() {  // the axes (top level, ranges per level), then the grades and the diagnostic set they make
+  AXES.forEach(([k]) => {  // held-out assets picked earlier open L3 until the top level is set by hand
+    if (AXIS_NEEDS[k] && !NT.axes[k].set) NT.axes[k].max = AXIS_NEEDS[k][0]() ? 3 : 2;
+  });
+  const reg = {generalization: NT.axes};
+  $('#nt-levels').innerHTML = AXES.map(([k, name, what]) => {
+    const ax = NT.axes[k], need = AXIS_NEEDS[k];
+    return `<div class="nt-level${ax.max ? '' : ' off'}">
+    <div class="nt-level-h"><b>${name}</b><span class="small muted">${what}</span>
+      <select id="nt-top-${k}" aria-label="${name}最高档" style="margin-left:auto" onchange="NT.axes.${k}.max = Number(this.value); NT.axes.${k}.set = true; renderAxes()">${opts(AXIS_TOP, String(ax.max))}</select></div>
+    ${need && ax.max === 3 && !need[0]() ? `<small class="txt-bad">L3 需要保留资产：${need[1]}</small>` : ''}
+    ${ax.max ? `<div class="wz-grid">${ax.ranges.slice(0, ax.max).map((t, i) => `<div class="fld wide"><label for="nt-range-${k}-${i}">L${i + 1} ${AXIS_TOP[i + 1].slice(3)}</label>
+      <textarea id="nt-range-${k}-${i}" rows="2" oninput="NT.axes.${k}.ranges[${i}] = this.value">${esc(t)}</textarea></div>`).join('')}</div>` : ''}</div>`;
+  }).join('') + `<div class="nt-level"><div class="nt-level-h"><b>评测布局</b><span class="small muted">综合等级让所有维度同时升档，单维度诊断每次只升一个</span></div>
+    <div class="wz-grid">${gradesOf(reg).map(([g, name]) => `<div class="fld"><label for="nt-grade-${g}"><b class="mono">${g}</b> ${name}</label>
+      <input id="nt-grade-${g}" type="number" min="0" step="5" value="${NT.grades[g]}" oninput="NT.grades.${g} = ntNum(this.value)"><small>${esc(gradeMix(reg, Number(g[1])))}</small></div>`).join('')}
+    <div class="fld"><label for="nt-diag"><b class="mono">D</b> 单维度诊断（每维度每档）</label><input id="nt-diag" type="number" min="0" step="5" value="${NT.diag}" oninput="NT.diag = ntNum(this.value)" onchange="renderAxes()"><small>共 ${diagCount({...reg, diagnostic: NT.diag})} 个</small></div></div></div>`;
 }
 const newRole = (label = '', candidates = []) => ({label, candidates, holdout: [], count: 1});
 // picker keys: r<i> / h<i> = role i's training candidates / held-out objects, dis / dish = distractors, sc-* = scenes
@@ -2191,7 +2221,7 @@ function renderRoles() {
     ${wzFld(`nt-role-${i}`, `角色 ${i + 1}`, `<input id="nt-role-${i}" class="mono" value="${esc(r.label)}" placeholder="source_cup" autocomplete="off" oninput="NT.roles[${i}].label = this.value.trim()">`, {req: true, hint: '任务配置的 label，字母数字下划线'})}
     ${wzFld(`nt-count-${i}`, '每回合数量', `<input id="nt-count-${i}" type="number" min="1" step="1" value="${r.count}" oninput="NT.roles[${i}].count = ntNum(this.value)">`)}
     <div class="fld wide"><label>训练候选<em aria-hidden="true">*</em></label>${objPicker(`r${i}`)}<small>训练布局每回合从中选</small></div>
-    <div class="fld wide"><label>评测保留 <span class="opt">选了就开启 L4</span></label>${objPicker(`h${i}`, '训练里没见过的同类物体（尺寸、颜色、材质不同）')}<small>只在 L4 评测集里出现，不进训练</small></div>
+    <div class="fld wide"><label>评测保留 <span class="opt">物体属性 L3 用</span></label>${objPicker(`h${i}`, '训练里没见过的同类物体（尺寸、颜色、材质不同）')}<small>只在物体属性 L3 的评测布局里出现，不进训练</small></div>
     <div class="fld" style="justify-content:flex-end">${NT.roles.length > 1 ? `<button class="btn" type="button" onclick="NT.roles.splice(${i}, 1); renderRoles()">${ic('trash')}删除角色</button>` : ''}</div></div></div>`).join('');
 }
 function drawerNewTask() {
@@ -2222,7 +2252,7 @@ function drawerNewTask() {
     ${group('干扰物 <span class="opt">可选</span>', `<div class="wz-grid">
       <div class="fld"><label>每回合数量</label><div class="pair"><input id="nt-dis-min" type="number" min="0" step="1" placeholder="最少" aria-label="干扰物最少"><input id="nt-dis-max" type="number" min="0" step="1" placeholder="最多" aria-label="干扰物最多"></div></div>
       <div class="fld wide"><label>训练用干扰物</label>${objPicker('dis')}<small>从物体资产里挑，训练布局随机放</small></div>
-      <div class="fld wide"><label>评测保留干扰物 <span class="opt">选了就开启 L4</span></label>${objPicker('dish', '训练里没见过的干扰物')}<small>只在 L4 评测集里出现</small></div>
+      <div class="fld wide"><label>评测保留干扰物 <span class="opt">场景视觉 L3 用</span></label>${objPicker('dish', '训练里没见过的干扰物')}<small>只在场景视觉 L3 的评测布局里出现</small></div>
       <div class="fld wide"><label class="check"><input id="nt-dis-lib" type="checkbox" onchange="$('#nt-clutter').hidden = !this.checked">也从杂物库随机取</label>
         <small>杂物库是共享资产库的 Object/RoboDojo/Clutter/（${CLUTTER_N()}），由其中的 clutter.yml 索引；任务配置的 Clutter 段引用它，生成布局时按数量和区域随机摆放。</small>
         <div id="nt-clutter" hidden>${Object.keys(CLUTTER).length ? `<div class="toggles clutter-cats">${Object.entries(CLUTTER).map(([c, n]) => `<label class="toggle"><input type="checkbox" data-clutter="${esc(c)}"><span>${ic('check')}${esc(c)} <small class="muted">${n}</small></span></label>`).join('')}</div>
@@ -2231,17 +2261,11 @@ function drawerNewTask() {
     ${pane(2, `${group('训练场景', `${picker('sc-train', '搜索场景名称、类型、id 或 env 配置')}
       <div class="presets"><button type="button" onclick="addBuiltScenes()">${ic('plus', 'ic-sm')}加入全部已建模场景</button></div>
       <small class="muted">采集训练数据用；还没建模的场景也能选，coding agent 等它建好再生成布局。</small>`)}
-    ${group('L5 保留场景 <span class="opt">选了 L5 才需要</span>', `${picker('sc-holdout', '搜索场景名称、类型、id 或 env 配置')}
-      <small class="muted">只在评测时出现，不进训练；选了就开启 L5。选进这里会自动从训练场景里移走。</small>`)}
-    ${group('外观随机 <span class="opt">可选，勾了就开启 L3</span>', `<div class="toggles">${Object.entries(APPEARANCE).map(([k, txt]) => `<label class="toggle"><input type="checkbox" data-appear="${k}"><span>${ic('check')}${txt}</span></label>`).join('')}</div>
-      <small class="muted">训练布局和 L3 评测集都按这些随机；具体范围由 coding agent 设定。</small>`)}`)}
-    ${pane(3, `${group('位置随机 <span class="opt">勾了就开启 L1</span>', `<div class="toggles">${Object.entries(RANDOMIZE).map(([r, txt]) => `<label class="toggle"><input type="checkbox" data-random="${r}" checked onchange="renderLevels()"><span>${ic('check')}${txt}</span></label>`).join('')}</div>
-      <small class="muted">训练布局和 L1 评测集都按这些随机；具体范围由 coding agent 按可达范围和物体尺寸设定。都不勾就是全部固定摆放。</small>`)}
-    ${group('机器人位姿随机 <span class="opt">勾了就开启 L2</span>', `<div class="toggles">${Object.entries(ROBOT_POSE).map(([k, txt]) => `<label class="toggle"><input type="checkbox" data-robot="${k}" checked onchange="renderLevels()"><span>${ic('check')}${txt}</span></label>`).join('')}</div>
-      <small class="muted">真机每次停靠都有偏差。训练布局和 L2 评测集都按这些随机底座位姿，以场景登记的机器人站位为中心，范围按真机多次停靠的实测定。都不勾就是固定站位。</small>`)}
-    ${group('泛化等级 <span class="opt">按前面的选择自动开启</span>', `<div id="nt-levels"></div>
-      <small class="muted">评测布局数：每级预先生成的固定布局，只用于评测、不进训练，让不同策略在同一批布局上比较。训练数据量看第 1 步的合格回合目标。</small>`)}
-    ${group('其他泛化 <span class="opt">可选</span>', `<textarea id="nt-extra" rows="3" placeholder="上面六级没覆盖的维度和范围"></textarea>
+    ${group('保留场景 <span class="opt">场景视觉 L3 用</span>', `${picker('sc-holdout', '搜索场景名称、类型、id 或 env 配置')}
+      <small class="muted">只在场景视觉 L3 的评测布局里出现，不进训练。选进这里会自动从训练场景里移走。</small>`)}`)}
+    ${pane(3, `${group('泛化维度', `<div id="nt-levels"></div>
+      <small class="muted">训练布局按每个维度的最高档随机，但不超过 L2；L3 只出现在评测布局里。范围是默认值，由 coding agent 按任务和场景实测细化。评测布局只用于评测、不进训练，让不同策略在同一批布局上比较；训练数据量看第 1 步的合格回合目标。</small>`)}
+    ${group('其他泛化 <span class="opt">可选</span>', `<textarea id="nt-extra" rows="3" placeholder="五个维度没覆盖的变化和范围"></textarea>
       <div class="presets">${EXTRA_PRESETS.map((t) => `<button type="button" onclick="addExtra(this)">${ic('plus', 'ic-sm')}${esc(t)}</button>`).join('')}</div>`)}
     ${group('实现要求', `<div class="wz-grid">
       ${fld('nt-expert', '脚本专家思路', note('nt-expert', '如：左手侧抓高杯杯身，抬起后移到矮杯上方倾倒，右手扶住矮杯'), {wide: true})}
@@ -2254,8 +2278,9 @@ async function openNewTask(btn) {
   if (restoreDraft('new-task', btn)) return;
   try { CLUTTER = await api('/api/clutter'); } catch { CLUTTER = {}; }
   NT = {roles: [newRole()], dis: {candidates: [], holdout: []}, scenes: {train: [], holdout: []},
-    levels: Object.fromEntries(LEVELS.map(([k, , range, target]) => [k, {range, target}]))};
-  WZ = {steps: TASK_WIZ, check: taskWizError, idCheck: taskIdError, onStep: (n) => n === 3 && renderLevels()};
+    axes: Object.fromEntries(AXES.map(([k, , , ranges]) => [k, {max: 3, ranges: [...ranges]}])),
+    grades: Object.fromEntries(GRADES.map(([g, , , target]) => [g, target])), diag: DIAG_N};
+  WZ = {steps: TASK_WIZ, check: taskWizError, idCheck: taskIdError, onStep: (n) => n === 3 && renderAxes()};
   WIZ_AT = 0;
   openDrawer('new-task', 'new', btn);
   renderRoles();
@@ -2312,6 +2337,10 @@ function taskWizError() {  // [message, field selector] blocking the current ste
     if (lo != null && hi != null && lo > hi) return ['干扰物最少数量不能大于最多数量', '#nt-dis-min'];
   }
   if (WIZ_AT === 2 && !NT.scenes.train.length) return ['至少选一个训练场景', '#nt-chips-sc-train + .opick input'];
+  if (WIZ_AT === 3) {
+    const k = Object.keys(AXIS_NEEDS).find((x) => NT.axes[x].max === 3 && !AXIS_NEEDS[x][0]());
+    if (k) return [`${AXIS_NAME[k]}开到 L3 需要保留资产（${AXIS_NEEDS[k][1]}），或把最高档降到 L2`, `#nt-top-${k}`];
+  }
   return [''];
 }
 async function createTask(btn) {
@@ -2326,10 +2355,9 @@ async function createTask(btn) {
     distractors: {count: lo == null && hi == null ? null : [lo ?? 0, hi ?? lo], candidates: NT.dis.candidates, holdout: NT.dis.holdout, clutter_library: $('#nt-dis-lib').checked,
       clutter_categories: $('#nt-dis-lib').checked ? [...$$('[data-clutter]:checked')].map((c) => c.dataset.clutter) : []},
     scenes: Object.fromEntries([...NT.scenes.train.map((id) => [id, 'train']), ...NT.scenes.holdout.map((id) => [id, 'holdout'])]),
-    randomize: [...$$('[data-random]:checked')].map((c) => c.dataset.random),
-    robot_pose: [...$$('[data-robot]:checked')].map((c) => c.dataset.robot),
-    levels: Object.fromEntries(Object.entries(levelReasons()).filter(([, why]) => why).map(([k]) => [k, NT.levels[k]])),
-    appearance: [...$$('[data-appear]:checked')].map((c) => c.dataset.appear),
+    generalization: Object.fromEntries(AXES.map(([k]) => [k, {max: NT.axes[k].max,
+      ranges: Object.fromEntries(NT.axes[k].ranges.slice(0, NT.axes[k].max).map((t, i) => [`L${i + 1}`, t]))}])),
+    grades: Object.fromEntries(gradesOf({generalization: NT.axes}).map(([g]) => [g, NT.grades[g]])), diagnostic: NT.diag,
     extra: value('#nt-extra'), expert: value('#nt-expert'), requirements: value('#nt-req'), notes: value('#nt-notes'),
   };
   btn.disabled = true;
@@ -2351,7 +2379,8 @@ function taskBrief(d) {  // the task for a coding agent that implements this reg
   const sceneLine = (use) => live(S.scene).filter((s) => r.scenes?.[s.id] === use)
     .map((s) => `${s.id}（${(s.auto.configs || []).join('、') || '还没建模'}）`).join('、');
   const roles = (r.roles || []).map((x) => `  - ${x.label} × ${x.count}：训练 ${x.candidates.join('、') || '（未选）'}${x.holdout?.length ? `；评测保留 ${x.holdout.join('、')}` : ''}`);
-  const dis = r.distractors || {}, levels = Object.entries(r.levels || {});
+  const dis = r.distractors || {}, top = (k) => axisTop(r, k);
+  const grades = gradesOf(r).map(([g, name]) => `  - ${g} ${name}（${r.grades?.[g] ?? '—'} 个布局）：${gradeMix(r, Number(g[1]))}`);
   return [
     r.existing
       ? `为已有的 G1-D 任务 ${d.id}（${r.name}）按平台登记的方案补齐泛化评测布局和采集设置，按仓库 CLAUDE.md 的任务约定和 scripts/datagen/SKILL.md 做。先 git fetch，从最新的 origin/main 开独立 worktree 和短分支。`
@@ -2364,15 +2393,18 @@ function taskBrief(d) {  // the task for a coding agent that implements this reg
     fact('语言指令', r.instructions && `由你从任务定义总结，${instText(r.instructions)}`), fact('成功判据', r.success),
     fact('用手', HANDS[r.hand || ''] === '未定' ? '' : HANDS[r.hand]), fact('预计时长', r.horizon_s ? `${r.horizon_s} s` : ''), fact('合格回合目标', r.target),
     '- 物体角色：', ...roles,
-    r.randomize?.length ? `- 位置随机：训练布局和 L1 评测集每回合随机${r.randomize.map((k) => RANDOMIZE[k] || k).join('、')}，范围由你定：位置在机器人可达范围内（桌面物体 y≈[-0.55, -0.25]）、物体之间不重叠且留出抓取空间；朝向按抓取方式定，抓不到的角度不要采。L0 孪生布局固定摆放。范围写进任务配置和交付说明。`
-      : '- 位置随机：不随机，所有布局固定摆放。',
-    r.robot_pose?.length ? `- 机器人位姿随机：训练布局和 L2 评测集每回合随机底座的${r.robot_pose.map((k) => ROBOT_POSE[k] || k).join('、')}，以场景登记的机器人站位为中心，范围按真机多次停靠的实测定（没有实测时先用 L2 的默认范围，并在交付说明里写明）。L0 孪生布局用登记的站位。env_cfg/robot/ 下的 default_root_pos 是固定的，要让每个布局能覆盖底座位姿，并确认 reset 时生效。`
-      : '- 机器人位姿随机：不随机，所有布局用固定站位。',
-    r.appearance?.length ? `- 外观随机：训练布局和 L3 评测集随机${r.appearance.map((k) => APPEARANCE[k] || k).join('、')}，范围由你定（灯光放在 Room 里，色温和亮度围绕场景登记的实测值变化）。` : null,
     dis.count || dis.candidates?.length || dis.holdout?.length || dis.clutter_library ? `- 干扰物：每回合 ${dis.count ? dis.count.join('–') : '若干'} 个${dis.candidates?.length ? `，训练从 ${dis.candidates.join('、')} 中取` : ''}${dis.holdout?.length ? `，评测保留 ${dis.holdout.join('、')}` : ''}${dis.clutter_library ? `，也从杂物库随机取（任务配置的 Clutter 段，yaml_path: Clutter/clutter.yml；${dis.clutter_categories?.length ? `只取类别 ${dis.clutter_categories.join('、')}，按这些类别另写一份 clutter 索引或在采样时过滤` : '整个杂物库'}）` : ''}` : '- 干扰物：无',
-    fact('训练场景', sceneLine('train')), fact('L5 保留场景', sceneLine('holdout')),
-    '- 泛化等级：', ...levels.map(([k, v]) => `  - ${k}（目标 ${v.target ?? '—'} 个布局）：${v.range}`),
-    [...(r.roles || []).flatMap((x) => x.holdout || []), ...(dis.holdout || [])].length ? '- 评测保留物体（上面标「评测保留」的）只出现在 L4 评测集里，不能出现在任何训练布局中；L4 布局用它们替换同一角色的训练物体，干扰物同理。' : null,
+    fact('训练场景', sceneLine('train')), fact('保留场景（场景视觉 L3）', sceneLine('holdout')),
+    '- 泛化维度（各分 L1 轻度、L2 训练范围全开、L3 分布外；范围是默认值，按任务和场景实测细化，写进任务配置和交付说明）：',
+    ...AXES.map(([k, name]) => (top(k) ? `  - ${name}（最高 L${top(k)}）：${Object.entries(r.generalization?.[k]?.ranges || {}).map(([l, t]) => `${l} ${t}`).join('；')}` : `  - ${name}：不变，所有布局与孪生一致`)),
+    '- 训练布局：每个维度按 min(最高档, L2) 随机；L3 的范围、保留物体、保留场景、保留说法都不能出现在任何训练布局里。',
+    '- 评测布局（固定 JSON，只用于评测）：综合等级每个维度同时取 min(k, 最高档)，难度逐级递增：', ...grades,
+    `  - D 单维度诊断：每个维度每档 ${r.diagnostic ?? DIAG_N} 个，只升这一个维度，其余维度 L0`,
+    top('spatial') >= 2 ? '- 空间关系 L2 起随机机器人底座位姿：env_cfg/robot/ 下的 default_root_pos 是固定的，要让每个布局能覆盖底座位姿并确认 reset 时生效；范围以场景登记的机器人站位为中心，按真机多次停靠的实测定，没有实测时用默认值并在交付说明里写明。' : null,
+    top('camera') ? '- 视角成像的图像扰动（亮度、饱和度、噪声等）要在观测送进策略之前做；评测客户端还没有这个接口，先实现，做不了的在交付说明里列出。' : null,
+    top('language') >= 2 ? `- 语言对齐 L2 起要能靠指令区分目标：布局里放同类干扰物；${dir}/instructions.json 另加 "detailed"（带颜色、尺寸、相对位置的描述）${top('language') === 3 ? '和 "holdout"（只用于 L3 评测的说法和属性组合，不能出现在训练里）' : ''}。` : null,
+    (r.roles || []).some((x) => x.holdout?.length) ? '- 角色的评测保留物体只出现在物体属性 L3 的布局里（G3 和对应诊断），用它们替换同一角色的训练物体。' : null,
+    dis.holdout?.length ? '- 评测保留干扰物只出现在场景视觉 L3 的布局里。' : null,
     fact('其他泛化', r.extra),
     fact('脚本专家思路', r.expert), fact('其他要求', r.requirements), fact('备注', r.notes),
     '',
@@ -2382,7 +2414,7 @@ function taskBrief(d) {  // the task for a coding agent that implements this reg
       : `1. 新建 task/RoboDojo/config/${d.id}.yml 和 task/RoboDojo/tasks/${d.id}.py（导出类名与模块名一致，继承 TaskEnv）。Rigid 每个角色一组：category 列候选物体，select_mode.label 用角色名，和代码里的 label 一字不差；干扰物用 Clutter。run_reward 用 self.reward_manager.check 按上面的成功判据实现，不能恒为真；step_lim 按预计时长 × 30 Hz 留余量。`,
     `2. 语言指令：从任务定义总结出${langText(r.instructions)}指令，每种语言 ${r.instructions?.count ?? 'N'} 条转写。意思和任务定义一致，换说法和句式，不加定义里没有的信息（物体颜色、位置等只有定义里写了才能用）；英文自然口语、祈使句。第一条是最直接的规范说法。写进 ${dir}/instructions.json，格式 {"zh": [...], "en": [...]}（只放选了的语言），任务的 gen_instruction 返回这些句子（desc_manager 每回合随机选一句）。用户审过 instructions.json 再批量采集。`,
     '3. 候选物体、干扰物和保留实例必须已在共享资产库；缺的先按 scripts/objects/SKILL.md 建（平台登记的在 real2sim/objects/）。保留实例不进训练布局。',
-    `4. 在 scripts/g1d/scripted_demo.py 加（或沿用）这个任务的脚本专家，在 scripts/g1d/build_asset.py 里为每个训练场景的 env 配置生成布局；选中的每个泛化等级按上面的范围生成一套固定布局，先用 scripted_demo 过滤，L0–L4 专家成功率 ≥ 80%。L5 只用保留场景；还没建模的场景等它建好再生成。`,
+    `4. 在 scripts/g1d/scripted_demo.py 加（或沿用）这个任务的脚本专家，在 scripts/g1d/build_asset.py 里为每个训练场景的 env 配置生成训练布局；按上面的方案为每个综合等级和单维度诊断各生成一套固定评测布局，先用 scripted_demo 过滤，G0–G2 专家成功率 ≥ 80%。场景视觉 L3 的布局只放在保留场景里；还没建模的场景等它建好再生成。`,
     '5. 在 5090-2 的隔离目录（/data/robodojo-runs/）每个训练场景跑一次 scripted_demo seed 0：_result.json 的 eval_time ≥ 1、三路相机视频齐全；通过后再按 scripts/datagen/SKILL.md 批量采集。',
     `6. 跑 python scripts/internal/task_inventory.py --format json --check 和 bash scripts/check.sh；提交配置、任务代码、专家、build_asset.py 改动、${dir}/registration.json 和 instructions.json。改共享资产库前先征得同意。`,
   ].filter((line) => line !== null).join('\n');
@@ -2401,17 +2433,13 @@ function instructionList(d) {  // what was asked for, and what the coding agent 
 function taskRegSection(d) {
   const r = d.reg || {}, t = (f, label) => row(label, `reg.${f}`, area(d, `reg.${f}`));
   const scenes = (use) => live(S.scene).filter((s) => r.scenes?.[s.id] === use).map((s) => link('scene', s.id, sceneName(s))).join('、') || '—';
-  const levels = Object.entries(r.levels || {});
   return `${d.implementation ? '' : sec(`${ic('terminal')}${r.existing ? '泛化方案' : '实现任务'}（给 coding agent）`, `<p class="hint" style="margin:0 0 8px">登记信息已写入
       <a target="_blank" rel="noopener" href="${file(`${INFO.root}/real2sim/tasks/${d.id}/registration.json`)}">real2sim/tasks/${esc(d.id)}/registration.json</a>。把下面这段交给 coding agent；实现后同步，流程自动推进。</p>${code(taskBrief(d))}`)}
     ${sec('语言指令', instructionList(d))}
     ${sec('登记的方案', `<dl class="kv"><dt>物体角色</dt><dd>${(r.roles || []).map((x) => `<div><b class="mono">${esc(x.label)}</b> × ${x.count}：${x.candidates.map((o) => link('object', o, objLabel(o))).join('、')}${x.holdout?.length ? `<div class="small muted">评测保留：${x.holdout.map((o) => link('object', o, objLabel(o))).join('、')}</div>` : ''}</div>`).join('') || '—'}</dd>
       <dt>干扰物</dt><dd>${r.distractors?.count ? `${r.distractors.count.join('–')} 个` : '—'}${(r.distractors?.candidates || []).length ? `：${r.distractors.candidates.map((o) => link('object', o, objLabel(o))).join('、')}` : ''}${r.distractors?.clutter_library ? `（含杂物库：${r.distractors.clutter_categories?.length ? esc(r.distractors.clutter_categories.join('、')) : '全部类别'}）` : ''}${(r.distractors?.holdout || []).length ? `<div class="small muted">评测保留：${r.distractors.holdout.map((o) => link('object', o, objLabel(o))).join('、')}</div>` : ''}</dd>
-      <dt>位置随机</dt><dd>${r.randomize?.length ? r.randomize.map((k) => RANDOMIZE[k] || k).join('、') : '不随机'}</dd>
-      <dt>机器人位姿随机</dt><dd>${r.robot_pose?.length ? r.robot_pose.map((k) => ROBOT_POSE[k] || k).join('、') : '固定站位'}</dd>
-      <dt>外观随机</dt><dd>${r.appearance?.length ? r.appearance.map((k) => APPEARANCE[k] || k).join('、') : '不随机'}</dd>
-      <dt>训练场景</dt><dd>${scenes('train')}</dd><dt>L5 保留场景</dt><dd>${scenes('holdout')}</dd>
-      <dt>泛化等级</dt><dd>${levels.map(([k, v]) => `<div><b class="mono">${k}</b> · 目标 ${v.target ?? '—'}：<span class="small">${esc(v.range)}</span></div>`).join('') || '—'}</dd>
+      <dt>训练场景</dt><dd>${scenes('train')}</dd><dt>保留场景</dt><dd>${scenes('holdout')}</dd>
+      <dt>泛化维度</dt><dd>${AXES.map(([k, name]) => `<div><b>${name}</b> · ${AXIS_TOP[axisTop(r, k)]}${Object.entries(r.generalization?.[k]?.ranges || {}).map(([l, t]) => `<div class="small"><b class="mono">${l}</b> ${esc(t)}</div>`).join('')}</div>`).join('')}</dd>
 </dl>
       <p class="hint">物体、场景和等级要改就删除登记后重新登记；下面的文字字段可以直接改，改动会写回 registration.json。</p>
       <div class="form">${t('definition', '任务定义')}${t('success', '成功判据')}${t('extra', '其他泛化')}${t('expert', '脚本专家思路')}${t('requirements', '其他要求')}${t('notes', '备注')}</div>`)}`;

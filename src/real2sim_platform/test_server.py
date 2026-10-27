@@ -472,11 +472,10 @@ def test_http():
         ]
         reg = {"name": "擦桌子", "definition": "用海绵把桌上的污渍擦掉", "success": "污渍清除", "roles": roles}
         reg["instructions"] = {"count": 5, "languages": ["zh", "en"]}
-        reg["randomize"] = ["position"]
-        reg["robot_pose"] = ["distance", "yaw"]
-        reg["appearance"] = ["light"]
+        generalization = {"spatial": {"max": 2, "ranges": {"L1": "±5 cm", "L2": "可达范围"}}, "camera": {"max": 0}}
+        reg |= {"generalization": generalization, "grades": {"G0": 25, "G1": 50, "G2": 50}, "diagnostic": 10}
         reg |= {"scenes": {"real_scene3_lab": "train", "real_scene1_office": "holdout", "real_scene2_counter": ""}}
-        reg |= {"levels": {"L0": {"target": 25, "range": "孪生"}}, "distractors": {"count": None, "candidates": []}}
+        reg |= {"distractors": {"count": None, "candidates": []}}
         assert request("PUT", "/api/items?kind=task&id=../x", json.dumps({"registered": True}))[0] == 400
         assert request("PUT", task, json.dumps({"registered": True, "reg": reg, "owner": "alice"}))[0] == 200
         written = json.loads((tmp / "tasks/g1d_wipe_table/registration.json").read_text(encoding="utf-8"))
@@ -487,10 +486,9 @@ def test_http():
             "train": [{"scene": "real_scene3_lab", "env_cfg": ["g1d_lab"]}],
             "holdout": [{"scene": "real_scene1_office", "env_cfg": ["g1d", "g1d_aurora_lite_ws", "g1d_mobile"]}],
         }
-        assert "distractors" not in written and written["levels"] == {"L0": {"target": 25, "range": "孪生"}}
+        assert "distractors" not in written and written["generalization"] == generalization  # max 0 kept
+        assert written["grades"] == {"G0": 25, "G1": 50, "G2": 50} and written["diagnostic"] == 10
         assert written["instructions"] == {"count": 5, "languages": ["zh", "en"]} and "instruction" not in written
-        assert written["randomize"] == ["position"] and written["appearance"] == ["light"]
-        assert written["robot_pose"] == ["distance", "yaw"]
         assert server.scan_tasks(tmp)["g1d_wipe_table"]["instructions"] is None  # not written by the agent yet
         transcribed = {"zh": ["把桌子擦干净"], "en": ["Wipe the table clean."]}
         (tmp / "tasks/g1d_wipe_table/instructions.json").write_text(json.dumps(transcribed, ensure_ascii=False))
