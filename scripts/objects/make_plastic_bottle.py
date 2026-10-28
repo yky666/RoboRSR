@@ -81,7 +81,9 @@ NONGFU = dict(
     # a front product photo (0.13 mm rms); variants use the cosine taper with fullness exponent SH_P instead
     Z_SH=0.142, SH_A=1.8, SH_P=1.3,
     R_NECK=0.014,  # neck under the support ring, from the same photo
-    NECK_H=0.005, RING_T=0.0015, R_RING=0.0165,  # neck height, support ring thickness and radius: estimated
+    # neck height, support ring thickness and radius: estimated; the ring 0.9 mm inside the cap's radius so a gripper
+    # closing on the cap misses it (as wide, the twisting fingers pinched the ring and turned the whole bottle)
+    NECK_H=0.005, RING_T=0.0015, R_RING=0.016,
     FINISH_H=0.0155,  # support ring top to mouth, estimated
     R_THREAD=0.0149,  # 开口直径 / 2, measured 29.8 mm: outer diameter of the threaded finish (thread crests)
     R_CORE=0.0138, R_BORE=0.011,  # finish root and bore radius: estimated
@@ -118,7 +120,9 @@ NONGFU = dict(
     ),
 )  # fmt: skip
 
-TWIN_ONLY = dict(SH_A=None, ARCHES=None, R_NECK=0.013, CAP_T=0.0016)  # 00000 features the variants do not inherit
+TWIN_ONLY = dict(
+    SH_A=None, ARCHES=None, R_NECK=0.013, CAP_T=0.0016, R_RING=0.0165
+)  # 00000 features the variants do not inherit
 VARIANTS = [  # generalization variants 00001-00005: overrides of NONGFU, all unmeasured (estimated)
     dict(
         H=0.168, R=0.0290, Z_SH=0.110, GROOVES=(0.007, 0.012), LABEL=(0.030, 0.092, 0.55),
