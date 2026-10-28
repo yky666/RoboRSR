@@ -825,9 +825,6 @@ def twist_cap_actions(env):
     ready = Rotation.from_euler("z", np.deg2rad(CAP_YAW) - TWIST_STROKE / 2) * TOP_ROT  # stroke start
     turned = Rotation.from_euler("z", TWIST_STROKE) * ready
     clear = centre + [0, 0, robot.object("bottle")[2][2] / 2] + CAP_CLEAR
-    # the twisting hand turns before the bottle is held: whipping it round later jerked the holding hand and the
-    # light bottle in its grip blew up
-    yield from robot.move(arm, [(clear, arm.pose()[1], open_cmd, 45), (clear, ready, open_cmd, 120)])
     body, hand, _, _, body_open = cup_grasp(lm, out, "bottle", BOTTLE_HOLD_UP, pitch=0)
     approach = body - hand.apply([CUP_SLIDE, 0, 0])
     print(f"[scripted_demo] bottle at {centre.round(3)}: hold with {holder.arm_key} at {body.round(3)}")
@@ -840,25 +837,41 @@ def twist_cap_actions(env):
             (body, hand, 0, 15),  # close
         ],
     )
+    # then a light hold, as Robot.pick: squeezed at full force the bottle jumped and tipped ~30 deg in the grip ~3 s on
+    fingers = as_np(holder.key.data.joint_pos[0, list(holder.robot.gripper_joint_indices)])
+    yield from robot.move(holder, [(body, hand, float(np.clip((0.023 - fingers.mean()) / 0.0445, 0.0, 1.0)), 10)])
+
+    def holding(actions):
+        """`actions` with the holding hand kept where it closed, in the world: on fixed joint targets it drifted as
+        the other arm moved, and the bottle, its foot on the table, tipped ~30 deg"""
+        for action in actions:
+            robot.hold[holder.arm_key] = action[holder.arm_key] = holder.ik(body, hand)
+            yield action
+
     centre, rot, ext, _, _ = robot.object("bottle")  # where the hold left it
     grip = centre + rot.apply([0, 0, ext[2] / 2 - CAP_GRIP_DOWN])
     print(f"[scripted_demo] cap at {grip.round(3)} with {arm.arm_key}, open {open_cmd:.2f}")
-    yield from robot.move(
-        arm,
-        [
-            (grip + [0, 0, CAP_APPROACH], ready, open_cmd, 60),
-            (grip + [0, 0, HOVER], ready, open_cmd, 30),
-            (grip, ready, open_cmd, 30),
-        ],
+    yield from holding(
+        robot.move(
+            arm,
+            [
+                (clear, arm.pose()[1], open_cmd, 45),
+                # slowly: whipped round in 1.5 s, it jerked the holding hand and the bottle tipped 32 deg in its grip
+                (clear, ready, open_cmd, 120),
+                (grip + [0, 0, CAP_APPROACH], ready, open_cmd, 60),
+                (grip + [0, 0, HOVER], ready, open_cmd, 30),
+                (grip, ready, open_cmd, 30),
+            ],
+        )
     )
-    print(f"[scripted_demo] at the cap: grip err {np.linalg.norm(arm.grasp_point() - grip):.3f} m", flush=True)
+    print(f"[scripted_demo] at the cap: grip off by {(arm.grasp_point() - grip).round(3)} m", flush=True)
     z0 = grip[2]
     for k in range(TWIST_STROKES):
         start, rot0 = cap(), arm.pose()[1]
         point = np.r_[grip[:2], z0 + start["cap_lift"]]
-        yield from robot.move(arm, [(point, ready, 0, 15)])
+        yield from holding(robot.move(arm, [(point, ready, 0, 15)]))
         rise = CAP_PITCH * TWIST_STROKE / (2 * np.pi)
-        yield from robot.move(arm, [(point + [0, 0, rise], turned, 0, TWIST_ACTIONS)])
+        yield from holding(robot.move(arm, [(point + [0, 0, rise], turned, 0, TWIST_ACTIONS)]))
         turn = (arm.pose()[1] * rot0.inv()).as_rotvec()[2]
         end = cap()
         err = np.linalg.norm(arm.grasp_point() - point - [0, 0, rise])
@@ -870,7 +883,7 @@ def twist_cap_actions(env):
             flush=True,
         )
         point = np.r_[grip[:2], z0 + end["cap_lift"]]
-        yield from robot.move(arm, [(point, turned, open_cmd, 12), (point, ready, open_cmd, TWIST_ACTIONS)])
+        yield from holding(robot.move(arm, [(point, turned, open_cmd, 12), (point, ready, open_cmd, TWIST_ACTIONS)]))
 
 
 def stack_actions(env):
