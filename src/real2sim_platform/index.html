@@ -1684,12 +1684,18 @@ function objList() {
     && (!q || `${d.id} ${d.name || ''} ${d.auto.name || ''} ${(d.auto.tasks || []).join(' ')}`.toLowerCase().includes(q)))
     .sort((x, y) => Number(ownObj(y)) - Number(ownObj(x)) || x.id.localeCompare(y.id));
 }
+// a variant rides on its base's card only when the base is in the same list; otherwise (e.g. filtered by review state) it gets its own card
+const cardDocs = (docs) => docs.filter((d) => !docs.includes(baseOf(d)));
+const tally = (docs) => {
+  const v = docs.filter((d) => baseOf(d)).length;
+  return v ? `${docs.length}（本体 ${docs.length - v} + 变体 ${v}）` : `${docs.length}`;
+};
 function objBody(docs) {
-  return UI.obj.view === 'cards' ? `<div class="grid cards">${docs.filter((d) => !baseOf(d)).map((d) => {
+  return UI.obj.view === 'cards' ? `<div class="grid cards">${cardDocs(docs).map((d) => {
       const rs = evalStages(OBJ_STAGES, d);
       return `<article class="card mcard" data-open="object" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开物体 ${esc(d.id)}">${objMedia(d)}
         <div class="mcard-b"><div class="mcard-t">${objCheck(d)}<b>${esc(objName(d))}</b>${reviewChip(d)}</div>
-          <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>
+          <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div>
           <div class="small muted">${measured(d) ? `实测 ${esc(dimText(d))}` : `模型 ${mm(d.auto.size)} mm${d.twin ? ' · 未实测' : ''}`}</div>
           ${ownerText(d) ? `<div class="small ${d.owner ? '' : 'muted'}">${ic('users', 'ic-sm')} ${esc(ownerText(d))}</div>` : ''}${progress(rs)}</div></article>`;
     }).join('')}</div>`
@@ -1704,15 +1710,15 @@ function objBody(docs) {
 }
 function libSection(lib, docs) {
   const f = UI.obj, r2s = lib.id === 'real2sim', n = docs.length;  // variants included, as in the list view
-  const counts = Object.fromEntries(Object.keys(REVIEW).map((k) => [k, docs.filter((d) => d.review_state === k).length]));
+  const counts = Object.fromEntries(Object.keys(REVIEW).map((k) => [k, docs.filter((d) => d.review_state === k)]));
 
-  const shown = r2s && f.status ? docs.filter((d) => d.review_state === f.status) : docs;
-  const picked = f.view === 'cards' ? shown.filter((d) => !baseOf(d)) : shown, all = picked.length && picked.every((d) => UI.osel.has(d.id));
+  const shown = r2s && f.status ? counts[f.status] : docs;
+  const picked = f.view === 'cards' ? cardDocs(shown) : shown, all = picked.length && picked.every((d) => UI.osel.has(d.id));
   const pickAll = picked.length ? `<label class="check"><input type="checkbox" ${all ? 'checked' : ''} data-ids="${esc(picked.map((d) => d.id).join('\n'))}"
     onchange="selectObjs(this.dataset.ids.split('\\n'), this.checked)">全选本组 ${picked.length} 件</label>` : '';
   const statusBar = r2s ? `<div class="toolbar lib-status"><div class="segctl" role="group" aria-label="按审核状态查看">
-      ${[['', '全部', docs.length], ...Object.entries(REVIEW).map(([k, [, label]]) => [k, label, counts[k]])].map(([k, label, c]) => `<button type="button"
-        aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
+      ${[['', '全部', docs], ...Object.entries(REVIEW).map(([k, [, label]]) => [k, label, counts[k]])].map(([k, label, c]) => `<button type="button"
+        aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${tally(c)}</span></button>`).join('')}</div>
       <span class="muted small">${ME?.admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核</span><span class="sp"></span>${pickAll}</div>`
     : pickAll ? `<div class="toolbar lib-status"><span class="sp"></span>${pickAll}</div>` : '';
   const none = f.q || f.photo || f.status || f.owner ?
@@ -1720,7 +1726,7 @@ function libSection(lib, docs) {
     : lib.custom ? empty('box', '库里还没有物体', '登记物体后，在物体详情的「资产库」里选这个库') : empty('box', '还没有物体', '点「登记物体」新建');
   return `<details class="lib" data-lib="${esc(lib.id)}" ${f.closed.has(lib.id) ? '' : 'open'} ontoggle="toggleLib(this)">
     <summary>${ic('chev-r', 'chev')}${ic(lib.icon)}<span>${esc(lib.name)}</span><span class="count">${n}</span>
-      ${r2s ? Object.entries(REVIEW).map(([k, [s, label]]) => (counts[k] ? st(s, `${label} ${counts[k]}`) : '')).join('') : ''}
+      ${r2s ? Object.entries(REVIEW).map(([k, [s, label]]) => (counts[k].length ? st(s, `${label} ${counts[k].length}`) : '')).join('') : ''}
       <span class="muted small lib-desc">${esc(lib.description || lib.source || '')}</span></summary>
     ${statusBar}${shown.length ? objBody(shown) : `<div class="card">${none}</div>`}</details>`;
 }
