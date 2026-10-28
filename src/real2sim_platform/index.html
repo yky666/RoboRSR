@@ -297,8 +297,10 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 @media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
 .compare figure { margin: 0; min-width: 0; }
 .compare figcaption { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
-.hero { display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; padding: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); color: var(--muted); cursor: zoom-in; }
-.hero img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hero { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; padding: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); color: var(--muted); cursor: zoom-in; }
+/* pinned to the 4:3 box: in the grid a tall photo would size the row and be cut at the bottom (a top crop) */
+.hero img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+
 .hero.empty-hero { gap: 6px; padding: 16px; cursor: default; font-size: 12px; text-align: center; }
 .strip { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; }
 .strip .item { position: relative; flex: none; }
