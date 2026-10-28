@@ -1640,8 +1640,9 @@ const objName = (d) => d.name || d.auto.name || d.auto.category;
 // generalization variants (metadata.json "variant_of") sit on their base object's card
 const baseOf = (d) => (d.auto.variant_of && d.auto.variant_of !== d.id ? S.object.find((x) => x.id === d.auto.variant_of) : null);
 const variantsOf = (id) => S.object.filter((x) => x.auto.variant_of === id && x.id !== id);
-// registered here (d.twin), or built into the Real2Sim object library (Object/Real2Sim/, not the benchmark's RoboDojo/)
-const twinObj = (d) => Boolean(d.twin || d.auto.library === 'Real2Sim');
+// registered here (d.twin), built into the Real2Sim object library (Object/Real2Sim/, not the benchmark's RoboDojo/),
+// or a generalization variant (metadata/check.json "variant_of", even one built but not installed yet) or its base
+const twinObj = (d) => Boolean(d.twin || d.auto.library === 'Real2Sim' || d.auto.variant_of || variantsOf(d.id).length);
 const objPath = (d) => `Assets/Object/${d.auto?.library || 'Real2Sim'}/${d.id}`;
 const ownObj = (d) => Boolean(d.auto.generator || twinObj(d));
 function objMedia(d, thumb = false) {

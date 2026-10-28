@@ -61,6 +61,8 @@
   - 搬后：新代码直接用真实共享库跑倒水 1.0、杯对杯 0.0；旧代码经软链接跑倒水 1.0，两边都没有报错。
   - 新平台代码对镜像扫描：195 件归 Real2Sim，官方物体归 RoboDojo。
 - **平台修正**：生成脚本按类别名模糊匹配，`bottle/00061`（官方瓶子）因为 `make_plastic_bottle.py` 里有 `"bottle"` 被当成自建、进了 Real2Sim 分区。现在磁盘上在 RoboDojo 库的物体不再匹配生成脚本；`auto.library` 对还没建模型的物体为空。镜像里另把学校纸杯、纸盘（5 件，只在镜像、不在共享库）也搬到了 Real2Sim。
+- **部署**（PR #35 合并为 `82bf33c` 后，11:22）：部署机工作区有其他会话的 149 个未提交改动，按上次的做法只替换本 PR 改到的 26 个代码文件，文档不动。其中 `index.html` 部署机上有另一会话 11:12 的照片框 CSS 热修复，用 `git merge-file`（基准 `65d7d5b`）三方合并，无冲突，两边都保留。替换前的文件备份在 `.cache/backup-before-real2sim-lib-20261028-112218.tgz`。部署机上 `test_server.py` 全部通过，按 `.cache/run-platform.sh` 的方式重启，隧道会话没动。
+- **跟进**（`chongzheng/platform-variant-section`）：已经建好但还没装库的泛化变体（`metal_cup`、`ceramic_cup`、`iphone_17_pro_max` 的变体，只有 `check.json` 里的 `variant_of`），以及它们的本体，原来落在 RoboDojo 分区，现在也归 Real2Sim。用页面自己的分组代码对线上 279 件跑了一遍：Real2Sim 224 件，RoboDojo 55 件，后者全是磁盘上 RoboDojo 库里的官方物体。
 - **遗留**：
   - 软链接是过渡用的：等旧运行目录不再用（它们的 `Assets/Object/RoboDojo/Rigid/pitcher` 等链到共享库），并且主线合并了本分支，再删掉。删之前先确认没有在跑的作业。
   - 平台没部署：`5090-2` 的工作区里有其他会话未提交的改动，等合并后按 `.agent/ops.local.md` 更新。
