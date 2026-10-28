@@ -24,7 +24,7 @@
   --shadow-3: 0 24px 60px rgba(17, 17, 19, .18);
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Segoe UI", Roboto, sans-serif;
   --mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
-  --gbar: 52px; --sub: 56px; --top: calc(var(--gbar) + var(--sub));
+  --gbar: 56px; --sub: 56px; --top: calc(var(--gbar) + var(--sub));
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -56,7 +56,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .brand:hover { text-decoration: none; }
 .brand small { display: block; color: var(--muted); font-size: 11.5px; }
 /* text-only logo: heavy "Banzhi", light "Flywheel", a blue full stop */
-.wordmark { display: inline-flex; align-items: baseline; font-size: 19px; font-weight: 800; line-height: 1; letter-spacing: -.045em; white-space: nowrap; }
+.wordmark { display: inline-flex; align-items: baseline; font-size: 23px; font-weight: 800; line-height: 1; letter-spacing: -.045em; white-space: nowrap; }
 .wordmark em { font-style: normal; font-weight: 400; letter-spacing: -.035em; }
 .wordmark::after { content: ""; width: .26em; height: .26em; margin-left: .08em; border-radius: 50%; background: var(--link); }
 .gbar .products { display: flex; flex: none; align-items: stretch; gap: 24px; margin: 0; overflow: visible; }
@@ -65,7 +65,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .product[aria-current="page"] { color: var(--text); font-weight: 600; }
 .product[aria-current="page"]::after { content: ""; position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; border-radius: 2px; background: var(--text); }
 .login-brand { flex-direction: column; align-items: flex-start; gap: 8px; }
-.login-brand .wordmark { font-size: 24px; }
+.login-brand .wordmark { font-size: 30px; }
 .gbar .me { align-self: center; margin-left: auto; }
 .gbar .me .sp { display: none; }
 .side { position: sticky; top: var(--gbar); z-index: 5; display: flex; align-items: center; gap: 24px; min-height: var(--sub); padding: 0 max(40px, calc((100% - 1440px) / 2)); background: rgba(250, 250, 251, .92); border-bottom: 1px solid var(--border); backdrop-filter: saturate(180%) blur(12px); }
@@ -118,7 +118,7 @@ main { flex: 1; min-width: 0; padding: 36px 40px 72px; }
 @media (max-width: 720px) {
   .gbar { gap: 18px; padding: 0 14px; }
   .gbar .products { gap: 16px; }
-  .wordmark { font-size: 17px; }
+  .wordmark { font-size: 19px; }
   .side { flex-wrap: wrap; gap: 0 12px; padding: 8px 14px 0; }
   .side nav { flex: 1 1 100%; order: 3; margin: 4px 0 0 -12px; padding-bottom: 8px; }
   .side-foot { margin-left: auto; }
