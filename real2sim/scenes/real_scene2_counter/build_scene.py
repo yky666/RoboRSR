@@ -57,7 +57,7 @@ SINK = dict(
 # The faucet stands on the back rim right of the sink centre (both photos); the fit sees its visible base front.
 FAUCET = dict(x=r3(F["faucet_x"]), y=r3(SINK["cy"] + SINK["sy"] / 2 + 0.035), height=0.30, reach=0.17, r=0.012)
 BASKET = dict(dx=0.12, dy=-0.02, r=0.09, h=0.085)  # strainer basket hanging in the sink's right half
-MICROWAVE = dict(w=0.485, d=r3(F["mw_d"]), h=0.29, x0=r3(F["mw_x0"]), front=r3(F["mw_front"] + DY))
+CARD = (r3(F["mw_x0"] + 0.17), r3(F["mw_front"] + DY + 0.10))  # notice card on the countertop
 WALL = dict(y=COUNTER["depth"] / 2, height=r3(F["alcove_top"]))  # alcove ceiling (wood soffit) height
 # Shelves run from the left column and stop short of the right one; z: top surface heights.
 SHELVES = dict(
@@ -122,14 +122,17 @@ TABLE = dict(top_z=0.75, top_r=r3(LF["table_r"]), top_t=0.03, col_r=0.035, base_
 TABLES = {"blue": lounge_xy(LF["table_x"], LF["table_y"]), "white": lounge_xy(-4.0, -2.9)}
 # Chairs (Rigid lounge_chair/<index>, scripts/objects/make_lounge_chair.py) face their table: (table, index, bearing
 # deg of the chair seen from the table centre, distance). The blue four stand in a cross turned a little off the axes
-# (floor contacts back-projected through the lounge3 camera, 0.45-0.9 m out: evened to 0.75 m); the white two by eye.
+# (floor contacts back-projected through the lounge3 camera, 0.45-0.9 m out: evened to 0.75 m); the white table also
+# has four (the user, 10-28), set out in a cross by eye as the photos only show its edge.
 CHAIRS = [
     ("blue", 0, 185, 0.75),
     ("blue", 0, 265, 0.75),
     ("blue", 0, 350, 0.75),
     ("blue", 0, 85, 0.75),
     ("white", 1, 30, 0.75),
-    ("white", 1, -30, 0.75),
+    ("white", 1, 120, 0.75),
+    ("white", 1, 210, 0.75),
+    ("white", 1, 300, 0.75),
 ]
 # Two stainless pedal bins side by side against the wainscot (back-projected from lounge2 and lounge3), and a socket.
 # Shape from bins.jpg: rounded corners, a stainless lid, a black base band and a black pedal; the left one is for
@@ -232,8 +235,6 @@ MATERIALS = {
     "basket_mesh": ((0.35, 0.35, 0.36), 0.45, 1.0, 0.6, None),
     "dispenser_back": ((0.55, 0.56, 0.58), 0.25, 1.0, 1.0, None),
     "bin_label": ((1.0, 1.0, 1.0), 0.6, 0.0, 1.0, "bin_label.png"),
-    "microwave_black": ((0.015, 0.015, 0.017), 0.20, 0.0, 1.0, None),
-    "microwave_front": ((1.0, 1.0, 1.0), 0.08, 0.0, 1.0, "microwave_front.png"),
     "poster": ((1.0, 1.0, 1.0), 0.6, 0.0, 1.0, "poster.png"),
     "frame_white": ((0.82, 0.82, 0.80), 0.4, 0.0, 1.0, None),
     "socket_white": ((0.84, 0.84, 0.82), 0.4, 0.0, 1.0, None),
@@ -636,9 +637,6 @@ def build_textures():
     cv2.imwrite(str(TEX / "wood.png"), cv2.resize(wood, (256, 1024)))
     cv2.imwrite(str(TEX / "terrazzo.png"), terrazzo(im))
     cv2.imwrite(str(TEX / "marble.png"), marble())
-    cv2.imwrite(
-        str(TEX / "microwave_front.png"), warp(im, [(614, 472), (812, 497), (812, 640), (619, 585)], (512, 300))
-    )
     cv2.imwrite(str(TEX / "poster.png"), poster_texture(im, im2))
     cv2.imwrite(str(TEX / "bin_label.png"), bin_label_texture(im2))
     cv2.imwrite(str(TEX / "ceiling_wood.png"), perforated_wood())
@@ -782,23 +780,13 @@ def add_counter(L):
     L.mesh("Faucet/lever", box_c(f["x"] + 0.03, f["y"], top + 0.04, 0.06, 0.012, 0.012), "chrome")
     L.collider("Colliders/faucet_riser", box_c(f["x"], f["y"], top, 0.05, 0.05, f["height"]))
     L.collider("Colliders/faucet_arc", swept_tube(pts[11:], f["r"], sections=8).convex_hull)
-    m = MICROWAVE
-    x0, x1, y0, y1 = m["x0"], m["x0"] + m["w"], m["front"], m["front"] + m["d"]
-    L.mesh("Microwave/body", box_xyz(x0, x1, y0 + 0.004, y1, top + 0.012, top + m["h"]), "microwave_black")
-    L.mesh(
-        "Microwave/front",
-        quad((x0, y0, top + 0.012), (x1, y0, top + 0.012), (x1, y0, top + m["h"]), (x0, y0, top + m["h"])),
-        "microwave_front",
-        uv=rect_uv(0, x0, x1, top + 0.012, top + m["h"]),
-    )
-    for i, (fx, fy) in enumerate([(fx, fy) for fx in (x0 + 0.04, x1 - 0.04) for fy in (y0 + 0.05, y1 - 0.05)]):
-        L.mesh(f"Microwave/foot_{i}", cyl(fx, fy, top, 0.012, 0.012, 12), "plastic_black")
-    card = box_c(x0 + 0.17, y0 + 0.10, top + m["h"], 0.075, 0.004, 0.10)
-    card.apply_transform(
-        trimesh.transformations.rotation_matrix(math.radians(-12), [1, 0, 0], [x0 + 0.17, y0 + 0.10, top + m["h"]])
-    )
-    L.mesh("Microwave/card", card, "card")
-    L.collider("Colliders/microwave", box_xyz(x0, x1, y0, y1, top, top + m["h"]))
+    # The microwave is gone (the 10-28 photos; it stays the scale basis of fit_photo.py); its notice card now stands on
+    # the countertop where it was.
+    cx, cy = CARD
+    card = box_c(cx, cy, top, 0.075, 0.004, 0.10)
+    card.apply_transform(trimesh.transformations.rotation_matrix(math.radians(-12), [1, 0, 0], [cx, cy, top]))
+    L.mesh("Card", card, "card")
+    L.collider("Colliders/card", box_c(cx, cy, top, 0.08, 0.03, 0.10))
 
 
 def add_background(L):
@@ -1244,7 +1232,6 @@ def main():
         ),
         columns={n: v * k for n, v in COLUMNS.items()},
         sink={n: v * k for n, v in SINK.items()},
-        microwave={n: v * k for n, v in MICROWAVE.items()},
         shelf_top_z=[z * k for z in SHELVES["z"]],
         # the lounge for mobile tasks (layouts place the chairs, scripts/g1d/build_asset.py)
         lounge=dict(

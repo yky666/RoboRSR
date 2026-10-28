@@ -85,7 +85,6 @@
      "glow_warm.png",
      "green_band.png",
      "marble.png",
-     "microwave_front.png",
      "poster.png",
      "terrazzo.png",
      "wallpaper.png",
@@ -105,7 +104,7 @@
    "name": "every render mesh has a bound material",
    "ok": true,
    "detail": {
-    "render_meshes": 230,
+    "render_meshes": 224,
     "unbound": []
    }
   },
@@ -113,7 +112,7 @@
    "name": "render triangle budget (< 100k)",
    "ok": true,
    "detail": {
-    "triangles": 18566
+    "triangles": 18360
    }
   },
   {
@@ -156,7 +155,7 @@
    }
   },
   {
-   "name": "microwave stands on the countertop",
+   "name": "notice card stands on the countertop",
    "ok": true,
    "detail": {
     "bottom": 0.833

@@ -105,8 +105,8 @@ def main():
         dict(first_hit=first, bowl_bottom=round(top_z - params["table"]["slab"] - s["depth"] + 0.003, 4)),
     )
 
-    mw = cb["microwave"]
-    add("microwave stands on the countertop", abs(mw[0][2] - top_z) < 1e-4, dict(bottom=round(float(mw[0][2]), 4)))
+    bottom = float(cb["card"][0][2])
+    add("notice card stands on the countertop", abs(bottom - top_z) < 1e-4, dict(bottom=round(bottom, 4)))
     floating = []
     for level, z in zip(("lower", "upper"), params["shelf_top_z"]):
         for n, b in cb.items():
