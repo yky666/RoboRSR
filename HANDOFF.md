@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-28
-本会话分支：`chongzheng/platform-variant-twins`（worktree `../RoboDojo-variant-twins`）：自建孪生搬到独立的 `Object/Real2Sim` 物体库（代码、共享库都已搬），见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
+本会话分支：`chongzheng/platform-pitcher-variants`（worktree `../RoboDojo-pitcher-variants`）：三个冷水壶在平台上合成变体，见「最近任务」第一节。再之前 `chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库（第二节）。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第三节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,13 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 数采平台：三个 water pitcher 合成一张「冷水壶」卡片（2026-10-28，`chongzheng/platform-pitcher-variants`）
+
+- `Rigid/pitcher/00000–00002` 是 `make_pitcher.py` 同一把壶的烟灰/琥珀/透明三色，之前在物体页是三张都叫 "water pitcher" 的卡片。现在 00001、00002 的 `metadata.json` 写 `"variant_of": "Rigid/pitcher/00000"`，收进 00000 的卡片。
+- 改动：`make_pitcher.py` 给非 0 号写 `variant_of`；5090-2 共享库 `/data/robodojo-assets/Assets` 和平台镜像 `/root/RoboDojo_assets/Assets` 里这两份 `metadata.json` 直接补了这个键（仿真运行时不读它）。备份在 `5090-2:/data/robodojo-runs/pitcher-variants-20261028-113722/`（两边原文件 + 平台数据库）。
+- 平台录入的中文名（数据库 `name` 字段，记在「种政」名下）：00000「冷水壶」，00001「冷水壶（琥珀色）」，00002「冷水壶（透明）」。另一组 `water_pitcher/00000–00005`（已被驳回、待补实物照片重建）没动。
+- 验证：平台重扫后三条的 `auto.variant_of` 符合预期；部署机页面的卡片视图会过滤掉变体。没重启服务，也没在浏览器里看。
 
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 
