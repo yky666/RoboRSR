@@ -1,0 +1,32 @@
+{
+  "id": "Rigid/plastic_box/00000",
+  "twin": true,
+  "asset_origin": "physical_object",
+  "name": "塑料盒子",
+  "name_en": "plastic box",
+  "material": "PP 塑料",
+  "color": "下半部分白色，上半部分灰色",
+  "mass_g": 151,
+  "dimensions_mm": "方形盒子，圆形边角，外边长151.5mm，内边长140.2mm",
+  "generalization": {
+    "count": 6,
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "徐鹤鸣",
+  "updated_at": "2026-10-28 12:45:09",
+  "reference_source": "实物照片",
+  "dimension_policy": "measured",
+  "physics_requirements": "不测试",
+  "features": "下半部分白色，上半部分灰色",
+  "mass_policy": "measured",
+  "requirements": "无特殊要求",
+  "modeling_confirmation": {
+    "version": "real-object-v1",
+    "revision": "d2d8e8f89fe7b43ffa9fb6fdb2aa2488a97c79b9ac903d77d2764019d38e731f",
+    "by": "徐鹤鸣",
+    "at": 1793162709.3021355
+  }
+}

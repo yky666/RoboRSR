@@ -67,6 +67,7 @@ python scripts/objects/make_airpods.py            # 耳机充电盒 airpods
 python scripts/objects/make_lounge_chair.py       # 吧台客区的扶手椅 lounge_chair（蓝、白）
 python scripts/objects/make_plastic_cups.py       # 量杯 measuring_cup、塑料马克杯 plastic_mug（含 5 个泛化变体）
 python scripts/objects/make_plastic_bottle.py     # 带盖塑料瓶 plastic_bottle（Clutter/ 刚体，Articulation/ 能拧盖；标签要中文字体，见 bottle_label.py）
+python scripts/objects/make_plastic_box.py        # 塑料收纳盒 plastic_box 00000–00006（灰色外沿 + 白色盒身，开口中空）
 
 # 5. 构建 G1-D 机器人（读 real2sim/robot/g1d_v4，写 Assets/Robots/g1d/）、红豆材质，
 #    安装 4 个场景到 Assets/Room/real_scene{1,2,3,4}/，并为每个场景生成 G1-D 任务的评测布局。
