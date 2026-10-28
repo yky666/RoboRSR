@@ -26,8 +26,8 @@
   - 金属杯 `Clutter/metal_cup/00000` 和 6 个泛化变体：按平台登记建，未做仿真验证，未装共享库（见「最近任务」）。
   - 陶瓷杯 `Rigid/ceramic_cup/00000` 和 6 个泛化变体：按平台登记建，`check_object.py` 落地 + 渲染，未装共享库（见「最近任务」）。
   - iPhone 17 Pro Max `Rigid/iphone_17_pro_max/0000{0,1,2}`：按苹果官网参数建（未登记实物），三种配色，未装共享库（见「最近任务」）。
-  - 塑料杯 `Rigid/plastic_cup/00001` 和 6 个泛化变体：按平台登记建，未装共享库（见「最近任务」）。
-  - 易拉罐 `Rigid/soda_can/00006`（零度可乐，已开罐）和 6 个泛化变体：按平台登记建，未装共享库（见「最近任务」）。
+  - 塑料杯 `Rigid/plastic_cup/00001` 和 6 个泛化变体：按平台登记建，已装共享库（2026-10-28）（见「最近任务」）。
+  - 易拉罐 `Rigid/soda_can/00006`（零度可乐，已开罐）和 6 个泛化变体：按平台登记建，已装共享库（2026-10-28）（见「最近任务」）。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
   - 杯对杯倒豆、量杯对倒：部分 seed 成功。
@@ -48,12 +48,12 @@
 
 - 平台建模任务（种政 10-28 登记，附平台生成的 `modeling_prompt.md`）：零度可乐细长罐，已开罐，13 g，直径 57.7、高度 146.5 mm，要求「开口要建模正确」。新脚本 `scripts/objects/make_soda_can.py` 生成 00006 和 6 个泛化变体 00007–00012（涂装、材质、尺寸、形状都变）；00000–00005 是导入的网格，不受影响。
 - 结构：罐身中空（罐底拱顶 + 直筒 + 收颈 + 卷边）；罐盖低于卷边约 6 mm、带沉槽，由 4 块凸板拼成、留出倒饮口，从开口能看到深色内壁；拉环立起 80°，有指孔和铆钉。碰撞体：罐底 + 罐壁分片 + 罐盖 4 块（开口处留空）+ 拉环；脚本自检确认罐内空腔和开口上方没有碰撞体。`measurements_mm` 的高度到卷边顶、不含拉环（包围盒含拉环，高 160.6 mm）。没有实测摩擦，不写摩擦键。
-- 验证：`measurements_mm` 两项误差 0；`check_object.py --image-dir` 七件 OK，`sim.png`、`check.json` 已同步到部署机。`modeling_prompt.md` 列的碰撞通道、夹持等检验按用户定的流程没做。生成结果在 5090-2 `/data/robodojo-runs/objects-1028/ovl/Rigid/soda_can/`，未装共享库。
+- 验证：`measurements_mm` 两项误差 0；`check_object.py --image-dir` 七件 OK，`sim.png`、`check.json` 已同步到部署机。`modeling_prompt.md` 列的碰撞通道、夹持等检验按用户定的流程没做。生成结果在 5090-2 `/data/robodojo-runs/objects-1028/ovl/Rigid/soda_can/`；已装共享库 `Object/Real2Sim`（2026-10-28，新增目录、没有覆盖，回滚清单 `/data/robodojo-assets/backups/added-objects-1028-20261028-120048.txt`）。
 
 ### 塑料杯 `Rigid/plastic_cup/00001`（2026-10-28，分支 `z/objects-cup-can-1028`）
 
 - 平台建模任务（种政 10-28 登记）：半透明蓝色 PP 杯，24 g，开口外径 80.2、底部直径 54.8、高度 132.6 mm。新脚本 `scripts/objects/make_plastic_cup.py` 生成 00001 和 6 个泛化变体 00002–00007（`variant_of` 00001）；00000 仍由 `make_water_cup.py --plastic` 生成。杯型复用 `make_metal_cup.Cup`（薄壁锥形、卷边、杯底内凹；碰撞体底板 + 杯壁分片，杯口不封），只换材质：半透明用 OmniSurface（乳白份额 + 透射染色），透明用 OmniGlass，不透明用 OmniPBR。没有实测摩擦，不写摩擦键。
-- 验证：`measurements_mm` 三项误差 0；`check_object.py --image-dir` 七件 OK（倾角 0°），`sim.png`、`check.json` 已同步到部署机。生成结果在 5090-2 `/data/robodojo-runs/objects-1028/ovl/Rigid/plastic_cup/`，未装共享库。
+- 验证：`measurements_mm` 三项误差 0；`check_object.py --image-dir` 七件 OK（倾角 0°），`sim.png`、`check.json` 已同步到部署机。生成结果在 5090-2 `/data/robodojo-runs/objects-1028/ovl/Rigid/plastic_cup/`；已装共享库 `Object/Real2Sim`（2026-10-28，新增目录、没有覆盖，回滚清单 `/data/robodojo-assets/backups/added-objects-1028-20261028-120048.txt`）。
 
 ### iPhone 17 Pro Max `Rigid/iphone_17_pro_max`（2026-10-27，分支 `z/objects-iphone-17-pro-max`）
 
