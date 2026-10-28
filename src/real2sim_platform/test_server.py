@@ -670,6 +670,13 @@ def test_object_review_and_libraries(tmp_path, monkeypatch):
         assert call("boss", "PUT", obj, {"review_action": "reopen"})[1]["review_state"] == "review"  # undo the approval
         assert call("bob", "PUT", obj, {"review_action": "reopen"})[0] == 403
         call("boss", "PUT", obj, {"review_action": "approve"})
+
+        auto = {**store.get("object", oid)["auto"], "photos": ["/r/a.jpg", "/r/b.jpg", "/r/c.jpg"]}
+        store.sync("object", {oid: auto})
+        assert call("bob", "PUT", obj, {"photo_order": "c.jpg"})[0] == 400
+        doc = call("bob", "PUT", obj, {"photo_order": ["c.jpg", "a.jpg"]})[1]
+        assert doc["auto"]["photos"] == ["/r/c.jpg", "/r/a.jpg", "/r/b.jpg"]  # unlisted ones stay at the end
+
         store.sync("object", {oid: {"built": True, "check": {"checked_at": "t2"}}})  # rebuilt: review again
         assert server.review_state(store.get("object", oid)) == "review"
 

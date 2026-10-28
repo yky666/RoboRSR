@@ -613,8 +613,18 @@ def review_state(doc):
     return {"approved": "done", "rejected": "rebuild"}.get(review.get("state"), "review")
 
 
+def ordered_photos(doc):
+    """auto.photos in the order dragged on the page (photo_order: file names); the first is the cover, photos not in
+    the list (new uploads) keep their place at the end."""
+    rank = {name: i for i, name in enumerate(doc.get("photo_order") or [])}
+    photos = (doc.get("auto") or {}).get("photos") or []
+    return sorted(photos, key=lambda p: rank.get(Path(p).name, len(rank)))
+
+
 def public_object(doc):
-    return {**object_registration.public_object(doc), "review_state": review_state(doc)}
+    public = object_registration.public_object(doc)
+    public["auto"] = {**public.get("auto", {}), "photos": ordered_photos(doc)}
+    return {**public, "review_state": review_state(doc)}
 
 
 def delete_blocker(kind, doc, user):
@@ -1257,6 +1267,10 @@ class Handler(BaseHTTPRequestHandler):
             fields.pop("modeling_confirmation", None)
             fields.pop("modeling", None)
             fields.pop("review", None)  # written below, by admins only
+            order = fields.get("photo_order")
+            if order is not None and not (isinstance(order, list) and all(isinstance(n, str) for n in order)):
+                return self.send_json({"error": "照片顺序要是文件名列表"}, 400)
+
             current = self.store.get(kind, id_) or {"id": id_, "auto": {}}
             library = fields.get("library")
             if library and library not in BUILTIN_LIBRARIES and not self.store.get("library", library):

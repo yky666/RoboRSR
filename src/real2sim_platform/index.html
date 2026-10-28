@@ -303,6 +303,11 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .strip { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; }
 .strip .item { position: relative; flex: none; }
 .strip .gthumb { width: 64px; }
+.strip .item[draggable="true"] { cursor: grab; }
+.strip .item.dragging { opacity: .4; }
+.strip .item.drop-before .gthumb { box-shadow: -3px 0 0 var(--primary); }
+.strip .item.drop-after .gthumb { box-shadow: 3px 0 0 var(--primary); }
+
 .del { position: absolute; top: 3px; right: 3px; display: grid; place-items: center; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 6px; background: rgba(15, 23, 42, .75); color: #fff; cursor: pointer; opacity: 0; transition: opacity .15s; }
 .item:hover .del, .del:focus-visible { opacity: 1; }
 .upload { position: relative; overflow: hidden; }
@@ -1826,10 +1831,57 @@ async function removeLibrary(id) {
   render();
   toast(`已删除资产库 ${id}`);
 }
+// real-object photos are reordered by dragging their thumbnails (or Alt + arrow keys); the first one is the cover
+function movePhoto(oid, from, to) {
+  const d = S.object.find((x) => x.id === oid), photos = [...(d?.auto.photos || [])];
+  if (!d || from === to || to < 0 || to >= photos.length) return;
+  photos.splice(to, 0, ...photos.splice(from, 1));
+  d.auto.photos = photos;  // shown at once; the server returns the same order
+  render();
+  save('object', oid, {photo_order: photos.map(base)}, true).then((saved) => saved || load());  // no redraw: keeps focus
+
+}
+let PHOTO_DRAG = null;  // {oid, from}
+document.addEventListener('dragstart', (ev) => {
+  const item = ev.target.closest?.('.item[data-pi]');
+  if (!item) return;
+  PHOTO_DRAG = {oid: item.dataset.oid, from: Number(item.dataset.pi)};
+  ev.dataTransfer.effectAllowed = 'move';
+  ev.dataTransfer.setData('text/plain', item.dataset.pi);
+  item.classList.add('dragging');
+});
+document.addEventListener('dragover', (ev) => {
+  const item = PHOTO_DRAG && ev.target.closest?.('.item[data-pi]');
+  $$('.item.drop-before, .item.drop-after').forEach((x) => x.classList.remove('drop-before', 'drop-after'));
+  if (!item || item.dataset.oid !== PHOTO_DRAG.oid) return;
+  ev.preventDefault();
+  const r = item.getBoundingClientRect();
+  item.classList.add(ev.clientX < r.left + r.width / 2 ? 'drop-before' : 'drop-after');
+});
+document.addEventListener('drop', (ev) => {
+  const item = PHOTO_DRAG && ev.target.closest?.('.item[data-pi]');
+  if (!item || item.dataset.oid !== PHOTO_DRAG.oid) return;
+  ev.preventDefault();
+  const to = Number(item.dataset.pi) + (item.classList.contains('drop-after') ? 1 : 0), {oid, from} = PHOTO_DRAG;
+  movePhoto(oid, from, to > from ? to - 1 : to);
+});
+document.addEventListener('dragend', () => {
+  PHOTO_DRAG = null;
+  $$('.item.dragging, .item.drop-before, .item.drop-after').forEach((x) => x.classList.remove('dragging', 'drop-before', 'drop-after'));
+});
+document.addEventListener('keydown', (ev) => {
+  const item = ev.altKey && (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') && ev.target.closest?.('.item[data-pi]');
+  if (!item) return;
+  ev.preventDefault();
+  const from = Number(item.dataset.pi), to = from + (ev.key === 'ArrowLeft' ? -1 : 1);
+  movePhoto(item.dataset.oid, from, to);
+  setTimeout(() => $(`#drawer .item[data-pi="${to}"] .gthumb`)?.focus(), 0);
+});
 function photoStrip(d) {
   const photos = d.auto.photos || [];
   GAL[`obj-photos-${d.id}`] = photos;
-  return photos.map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="obj-photos-${esc(d.id)}" data-i="${i}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${file(p)}" alt=""></button>
+  return photos.map((p, i) => `<div class="item" draggable="true" data-oid="${esc(d.id)}" data-pi="${i}" title="拖动调整顺序，第一张是封面；聚焦后 Alt + ← / → 也能移动">
+    <button class="gthumb" type="button" data-lb="obj-photos-${esc(d.id)}" data-i="${i}" aria-label="查看 ${esc(base(p))}（第 ${i + 1} 张${i ? '' : '，封面'}）"><img loading="lazy" draggable="false" src="${file(p)}" alt=""></button>
     <button class="del" type="button" data-path="${esc(p)}" onclick="deletePhoto(this.dataset.path)" aria-label="删除 ${esc(base(p))}">${ic('trash', 'ic-sm')}</button></div>`).join('');
 }
 const DIM_HINT = '每项写「名称 数值」，单位 mm，按物体形状自己定名称，如：开口直径 82，底部直径 64，高 135';
