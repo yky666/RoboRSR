@@ -1,0 +1,162 @@
+# Generalization spec of g1d_pour_beans_measuring_cups: README "三、分级泛化评测集" (five axes x L1-L3, composite
+# grades G0-G3, single-axis diagnostics) made concrete for the office measuring-cup bean pour. The Notion table
+# "RSI 的分级泛化" D1-D5 map onto the axes (D1 spatial, D2 scene, D3 object, D4 camera, D5 language); D6 (task
+# composition) is out of scope for this task.
+#
+# DRAFT: the numbers await the user's confirmation and nothing reads this file yet. The layout generator that will
+# read it writes the training candidates and every graded eval seed from the same sampler, so a value seen in
+# training is never re-drawn as "out of distribution".
+#
+# Conventions
+# - Ranges are offsets from the twin (L0) unless named abs_*; metres and degrees.
+# - Levels nest: L1 within L2. L3 samples the L3 range minus the L2 range (never seen in training). An axis without
+#   an L3 entry for a knob keeps that knob at its L2 range in L3.
+# - Every sampled value goes into the layout file (key "Generalization": grade or diagnostic, level per axis, and the
+#   values), so collection, replay and eval reproduce it and results can be grouped by level. Values the engine
+#   applies live where it reads them (marked below: existing field, or NEW = engine support still to be written).
+version: 1
+task: g1d_pour_beans_measuring_cups
+status: draft
+
+scenes:  # env configs with the 1/600 s granular physics (CONTRACT: no bean pours at 1/300 s)
+  twin: g1d_beans_collect                            # office real_scene1, the real-robot twin
+  train: [g1d_beans_collect, g1d_lab_beans_collect]  # scene L2
+  holdout: [g1d_shenzhen_lab_beans_collect]          # scene L3 only, never in training
+
+assets:
+  # G1-D reuses the RSI 7:3 split (rsi/assets/pools.json) for clutter and materials, so G1-D training data never
+  # holds an asset of the RSI exam pool; T0 (official eval assets) is never used.
+  train_pool: rsi pools.train
+  holdout_pool: rsi pools.exam
+
+train:
+  sample: L2 on every axis, jointly    # candidates cover L0-L2; run_batch.py writes split.json "train"
+  target_episodes: 500
+  seeds: [1000, 1999]                  # Eval_Layout/RoboDojo/<config_name>/<seed>/
+
+eval:
+  # Composite grade Gk: every axis at min(k, its max). Diagnostic: one axis at L1/L2/L3, the others at L0.
+  grades: {G0: 25, G1: 50, G2: 50, G3: 50}  # G2 split evenly over the train scenes; G3 in the holdout scene
+  diagnostic_per_level: 10
+  repeats: 3                                # granular strict check varies between runs (CONTRACT)
+  seeds: {G0: 5000, G1: 5001, G2: 5002, G3: 5003, diagnostic: "51<axis><level>"}  # axis 1-5 in the order below
+  expert_filter: {grades: [G0, G1, G2], min_success: 0.8}  # scripted expert on every eval layout first
+  report: success_rate per grade and per axis x level, with intervals; expert success alongside
+
+axes:
+  spatial:  # D1: objects, robot base, lift column, table height
+    max: 3
+    L0:
+      cups: {source: {abs_x: [-0.16, -0.10], abs_y: [-0.39, -0.31], yaw: 45},   # task config ranges
+             target: {abs_x: [0.10, 0.16], abs_y: [-0.39, -0.31], yaw: 45}}
+      pour_hand: left
+    L1:
+      cups: {xy: 0.05, yaw: 15}     # around the twin pose
+    L2:
+      cups:                         # prepare_office_beans_layouts.py ranges (probed: 16/23 strict passes inside)
+        abs_x: {tall: [0.05, 0.22], short: [0.05, 0.18]}   # |x|, mirrored by the pouring hand
+        abs_y: [-0.46, -0.28]
+        abs_yaw: [0, 90]            # full period of the square section, so yaw has no L3
+      pour_hand: random             # balanced left / right
+      robot: {lateral: 0.03, distance: 0.03, yaw: 5, lift: 0.02}   # NEW layout field "Robot"
+      table_height: 0.03            # Room.table_lift (scripts/scenes/appearance.py); the robot does not follow
+    L3:
+      cups: {abs_y: [-0.50, -0.25], abs_x: {tall: [0.05, 0.26], short: [0.05, 0.22]}}  # reach edge
+      robot: {lateral: 0.06, distance: 0.06, yaw: 10, lift: 0.04}
+      table_height: 0.05
+    notes:
+      - lift is the column total (LZ_mt_Joint + LZ_it_Joint, half each), sampled inside the joint limits [0, 0.21]
+        each; the office twin sits at 0, so there it only rises.
+      - Base ranges are README defaults; the real docking spread (Notion comment "离桌距离要求很严格") should replace
+        them once measured.
+      - The expert solves IK on world-frame Jacobians, so base shifts carry over; flat_turn assumes the robot faces
+        +y, so base yaw needs the wrist turn measured from the robot heading.
+
+  scene:  # D2: lighting, surfaces, distractors, scene
+    max: 3
+    L0: {scene: twin, lights: as_built, surfaces: as_built, distractors: 0}
+    L1:
+      lights: {intensity_scale: [0.8, 1.25], color_temperature_shift: 500}   # NEW Room.lighting
+    L2:
+      scene: train
+      lights:
+        intensity_scale: [0.5, 2.0]
+        color_temperature: [3000, 6500]   # K, absolute
+        sun_direction: 20                  # deg, office DistantLight
+        extra: {count: [0, 2], types: [Sphere, Disk, Rect]}
+      surfaces: {floor: train_pool, wall: train_pool, tabletop: train_pool}   # Room.appearance (existing)
+      distractors: {count: [2, 4], pool: train_pool}
+    L3:
+      scene: holdout
+      lights: {intensity_scale: [0.3, 3.0], color_temperature: [2500, 8000]}
+      surfaces: {floor: holdout_pool, wall: holdout_pool, tabletop: holdout_pool}
+      distractors: {count: [6, 10], pool: holdout_pool}
+    notes:
+      - Surfaces were not picked in the first round; added because README scene L2 includes them and appearance.py
+        already writes them. Drop if unwanted.
+      - Distractors follow prepare_bean_pour_layouts.py (zones behind and beside the cups, footprints >= 0.16 m from
+        a cup centre, upright, random yaw, Clutter entries); zones come from each scene's table. When 6-10 do not fit,
+        the layout keeps what fits and records the count.
+      - Plugin rejects an episode when a distractor moves > 2 cm (as g1d_pour_beans_cup_or_mug).
+
+  object:  # D3: colour, size
+    max: 3
+    L0: {color: asset, scale: 1}
+    L1: {color: random}                  # Rigid visual.color (existing, build_asset.randomize_objects)
+    L2: {color: random, scale: [0.85, 1.15]}   # per cup, uniform; mass x s^3 (existing)
+    L3: {color: random, scale: [0.75, 1.25]}
+    notes:
+      - Colour was not picked in the first round; it is README object L1 and costs nothing. Drop if unwanted.
+      - L3 here is scale out of range only. README wants a held-out instance at object L3; there are only the two
+        real cups (variants are on the unmerged branch chongzheng/objects-measuring-cup-variants). Until they land
+        this deviates from that rule.
+      - Scale needs code (none of it uses the layout scale today) - the cavity test (measuring_cup_shape.in_cavity,
+        task run_reward, plugin counts) scaled per cup, the expert's grip depth C2C_RIM_DOWN and contact radius
+        scaled, and the bean block in the source cup scaled with it (the bean count then follows s^3 and is recorded).
+      - Grip width. The body under the flange is 68 mm and the gripper reads 0.75 on it, so the full opening is about
+        91 mm; 1.25 x 68 = 85 mm leaves little margin. The expert filter decides the top of L3.
+
+  camera:  # D4: extrinsics, image
+    max: 3
+    L0: {extrinsics: calibrated, image: clean}
+    L1:
+      image: {brightness: 0.10, contrast: 0.10, saturation: 0.10}   # relative, per camera
+    L2:
+      extrinsics: {cam_head: {pos: 0.01, ori: 2}, cam_left_wrist: {pos: 0.005, ori: 2},
+                   cam_right_wrist: {pos: 0.005, ori: 2}}            # NEW layout field "Camera" (link-local offset)
+      image: {brightness: 0.25, contrast: 0.25, saturation: 0.25,
+              channel_gain: 0.10,            # white balance / colour cast
+              noise_std: 0.02,               # of full scale
+              jpeg_quality: [60, 95]}
+    L3:
+      extrinsics: {cam_head: {pos: 0.02, ori: 5}, cam_left_wrist: {pos: 0.01, ori: 5},
+                   cam_right_wrist: {pos: 0.01, ori: 5}}
+      image: {brightness: 0.40, contrast: 0.40, saturation: 0.40, channel_gain: 0.20,
+              blur_px: [1, 3], exposure_gamma: [0.5, 2.0],
+              white_balance_jump: true}      # gains switch once at a random frame
+    notes:
+      - Image perturbation is NEW, a hook in obs_manager right before the observation goes out, so collection
+        records what the policy sees (CONTRACT) and eval applies the same; noise is seeded per layout, camera and
+        frame. Each camera draws its own values (real head frames are yellower and darker, wrist frames whiter).
+      - Extrinsic translation must be render-checked per camera; the head lens sits inside the head shell, and on
+        X5 translation blacked out some envs.
+      - The real head/wrist colour cast itself is a twin calibration (fixed L0 tone from real recordings), not part
+        of this axis.
+
+  language:  # D5: paraphrases, descriptions, target by instruction
+    max: 3
+    L0: {instruction: canonical}   # gen_instruction today
+    L1: {instruction: train_paraphrases}
+    L2:
+      instruction: train_descriptions   # short or detailed: size, capacity, colour, side, front/back
+      same_category_distractor: 1       # a third, empty measuring cup; the instruction alone names the target
+    L3:
+      instruction: holdout_paraphrases  # phrasings and attribute combinations never in training
+      same_category_distractor: 1       # differs from the target in one attribute only
+    instructions_file: real2sim/tasks/g1d_pour_beans_measuring_cups/instructions.json   # NEW
+    counts: {train_paraphrases: 10, holdout_paraphrases: 5}
+    notes:
+      - The layout stores the instruction it was given, and the task's gen_instruction returns it, so an eval layout
+        always gets the same sentence.
+      - With the distractor cup, beans landing in it count as outside, so the strict acceptance already fails them.
+      - English only (the policy receives English).

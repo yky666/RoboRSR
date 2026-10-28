@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-28
-本会话分支：`chongzheng/platform-variant-twins`（worktree `../RoboDojo-variant-twins`）：自建孪生搬到独立的 `Object/Real2Sim` 物体库（代码、共享库都已搬），见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
+本会话分支：`chongzheng/datagen-generalization-spec`（worktree `../RoboDojo-gen-spec`）：量杯倒豆任务的分级泛化规格草案，等用户确认，见「最近任务」第一节。之前 `chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库（第二节）；`chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第三节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,21 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 量杯倒豆的分级泛化规格（草案，2026-10-28，`chongzheng/datagen-generalization-spec`）
+
+- **用户要求**：Notion「RSI 的分级泛化」表（D1 空间、D2 场景视觉、D3 物体属性、D4 视角成像、D5 语言、D6 任务组合）能不能直接用来选泛化项、生成数据，并为选中的项设计评测布局。用户选定：在 `g1d_pour_beans_measuring_cups` 上做；第一批要机器人站位和升降、物体尺寸、干扰物、相机外参、图像扰动、指令改写、光照和跨场景留出；先出规格给用户确认，再写代码。
+- **做法**：表的 D1–D5 就是 README「三、分级泛化评测集」的五个维度（D6 不在本任务范围内），所以规格直接按 README 的 L0–L3、G0–G3 和单维度诊断写，没有另起一套。规格文件是 `real2sim/tasks/g1d_pour_beans_measuring_cups/generalization.yaml`：每个维度、每档的参数和范围；训练候选按全 L2 联合采样（seed 1000–1999，目标 500 条）；评测 G0 25、G1–G3 各 50，诊断每维度每档 10（seed 5000–5003、51<维度><档>），共 325 个布局、每个跑 3 次；G0–G2 先用专家过滤，要求 ≥ 80%。所有采样值写进布局的 `Generalization` 键。干扰物和材质沿用 RSI 的 7:3 分池（训练池 / 考场池），G1-D 训练不碰考场资产。
+- **规格里写明的缺口**（实现时要做）：
+  - 布局里还没有机器人站位（`Robot`）、相机外参（`Camera`）、灯光（`Room.lighting`）三个字段，图像扰动也没有观测钩子；
+  - 缩放要改杯腔判据、专家夹持深度和豆子初始那一团；
+  - 语言 L2 以上要加第三只空量杯做同类干扰物，指令每个布局固定一句；
+  - 物体 L3 只有"缩放超出范围"，没有保留实例（量杯变体分支 `chongzheng/objects-measuring-cup-variants` 没合并），和 README 的规则不一致；
+  - 办公室机器人的升降柱已经在下限 0，只能往上变；
+  - `flat_turn` 假设机器人朝 +y，加了底座偏航后手腕转角要按机器人朝向算。
+  - 规格里另外加了用户没勾的两项（场景 L2 的表面材质、物体 L1 的颜色），都是 README 阶梯的一部分、已有实现，用户可以删。
+- **验证**：本机用 PyYAML 解析规格，按维度最高档算出 325 个评测布局；`git diff --check`。没有代码改动，没跑 GPU。
+- **下一步**：用户确认或修改规格里的数值以后，按顺序实现：布局生成器（读规格，写训练候选和各档评测 seed）、引擎的新字段、观测钩子、插件和专家的缩放与干扰物、指令文件；然后在 `5090-2` 隔离目录里每档先跑专家过滤。
 
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 
@@ -793,6 +808,7 @@
 
 0. RSI：先读 `rsi/AGENTS.md`。资产分池、ManiTwin 干扰物、Poly Haven HDR 已完成（见「最近任务」前两节），新资产在 `5090-2:/data/robodojo-runs/rsi-assets-20261024/`，用 `rsi_assets.py link` 合并进运行目录。下一步按优先级：材质（Poly Haven PBR 贴图转 MDL，官方材质被三套评测集用完了）→ 房间变体（新材质给 `Simple_Room` 换墙面）→ GSO 的鞋和玩具 → 任务物体的新实例 → 12 个 `_random` 任务基础版的 X5 脚本专家。每次加完新资产都要重跑 `rsi_assets.py scan` 并把 `pools.json` 入库。
 0. 榜单：基线已停（16:35，用户要求），先问用户是否续跑；续跑后收两份基线（`smoke_results/baseline_*_20261022.md`，核对每个任务 `eval_time >= 1`），按任务对比 OpenWAM / pi0.5 / 有无官方数据；看失败视频做归类；然后开始把 `collect.py` 和插件接口推广到 dual X5，按优先级给无官方数据的任务写专家。
+0. 量杯倒豆分级泛化：先请用户确认 `real2sim/tasks/g1d_pour_beans_measuring_cups/generalization.yaml`，再按「最近任务」第一节的「下一步」实现。
 0. 实现平台登记的 `g1d_pour_beans_any_cups`：在平台任务抽屉复制「实现任务」文本交给 coding agent（输入 `real2sim/tasks/g1d_pour_beans_any_cups/registration.json`）。
 0. 深圳实验室（已合并、部署、装共享库）：去现场量站位、拍头部 / 腕部画面做叠图（`overlay.py --env-cfg g1d_shenzhen_lab`）。
 0. 部署机快进：别的会话在部署机上还有 28 个未提交文件，快进照 10-24 16:58 那次做（先 stash、快进、pop，新增 LFS 文件从本机补实际内容）。
@@ -805,6 +821,7 @@
 
 ## 最近历史
 
+- 2026-10-28：量杯倒豆的分级泛化规格草案 `real2sim/tasks/g1d_pour_beans_measuring_cups/generalization.yaml`（五个维度都到 L3，325 个评测布局），等用户确认后再实现。
 - 2026-10-28：PR #31–#34 合进 `main`（泛化维度与综合等级、物体资产库分组与审核、塑料马克杯变体、吧台岛台），数采平台部署到合并后的 `main`。
 - 2026-10-28：塑料马克杯 `plastic_mug` 补 `measurements_mm`（误差 0），新增 5 个泛化变体 `00001–00005`，`check_object` 全部 OK。
 - 2026-10-28：吧台场景按 6 张新照片加过道里的高吧台和绿色岛台（含吧凳、线形吊灯），去掉现场已撤的微波炉，白色圆桌改为 4 把椅子，天花板灯槽改为垂直于墙，右侧木柜墙和饮水机按正面照片重排，垃圾桶加照片贴花；脚本专家送杯后退改为 0.5 m 让出吧凳。`5090-2` 上 RTX 渲染、倒水送杯 1/1、送杯 2/4（另 2 个是抓杯失败，旧场景下一样）。
