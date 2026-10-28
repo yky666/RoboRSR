@@ -71,6 +71,7 @@ python scripts/objects/make_metal_cup.py          # 金属杯 metal_cup（写入
 python scripts/objects/make_ceramic_cup.py        # 陶瓷杯 ceramic_cup
 python scripts/objects/make_iphone_17_pro_max.py  # iPhone 17 Pro Max（宇宙橙、深蓝、银色）
 python scripts/objects/make_plastic_cup.py        # 塑料杯 plastic_cup 00001–00007（00000 见 make_water_cup.py --plastic）
+python scripts/objects/make_soda_can.py           # 易拉罐 soda_can 00006–00012（已开罐；00000–00005 是导入的网格）
 
 # 5. 构建 G1-D 机器人（读 real2sim/robot/g1d_v4，写 Assets/Robots/g1d/）、红豆材质，
 #    安装 4 个场景到 Assets/Room/real_scene{1,2,3,4}/，并为每个场景生成 G1-D 任务的评测布局。

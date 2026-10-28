@@ -1,0 +1,33 @@
+{
+  "id": "Rigid/soda_can/00006",
+  "name": "零度可乐罐",
+  "name_en": "soda can",
+  "material": "铝",
+  "color": "铝原色带涂装",
+  "mass_g": 13,
+  "dimensions_mm": "直径57.7mm，高度146.5mm",
+  "features": "带有涂装，顶部和底部为铝金属原色",
+  "requirements": "这是个易拉罐，带有开口，要建模正确",
+  "generalization": {
+    "count": 6,
+    "requirements": "涂装允许改动",
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "种政",
+  "updated_at": "2026-10-28 10:48:05",
+  "twin": true,
+  "asset_origin": "physical_object",
+  "reference_source": "拍摄",
+  "dimension_policy": "measured",
+  "mass_policy": "measured",
+  "physics_requirements": "刚体",
+  "modeling_confirmation": {
+    "version": "real-object-v1",
+    "revision": "09d0972bde3b0703d5e45a20a30ba1092bde5fbb7292d1111926ed9a3643c690",
+    "by": "种政",
+    "at": 1793155685.758499
+  }
+}
