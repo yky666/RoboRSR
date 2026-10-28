@@ -1,10 +1,16 @@
-"""Wrap-around label artwork for make_plastic_bottle.py (numpy + PIL only, so it can be previewed without pxr).
+"""Label artwork for make_plastic_bottle.py (numpy + PIL only, so it can be previewed without pxr).
 
-The image is the label unrolled: u (left to right) runs counter-clockwise around the bottle seen from above, which is
-left to right for a viewer outside; v runs bottom to top. Bottom `share` of the height is the label's main colour, the
-rest its second colour. Front panel: picture, brand, Latin brand, product and volume; back panel: composition table,
-barcode, fine print and a QR code. Everything printed is generic or fictional except the registered twins' brand
-words (00000, 00006).
+draw_label: wrap-around label (00000-00005). The image is the label unrolled: u (left to right) runs counter-clockwise
+around the bottle seen from above, which is left to right for a viewer outside; v runs bottom to top. Bottom `share`
+of the height is the label's main colour, the rest its second colour. Front panel: picture, brand, Latin brand,
+product and volume; back panel: composition table, barcode, fine print and a QR code.
+
+Square tea bottles (00006-00012) carry three separate labels, each image as seen from outside (left to right, top to
+bottom): a front panel, a back panel and a neck band. photo_panel / photo_band rectify them from the registration
+photos (00006); front_panel / back_panel / neck_band draw generalized ones (00007-00012). two_sided appends the
+label's reverse, which shows through the clear bottle.
+
+Everything drawn is generic or fictional except the registered twins' brand words (00000, 00006).
 """
 
 import os
@@ -249,4 +255,182 @@ def draw_label(art, main, second, share, size, seed):
     qy = split + (low - qs) / 2
     d.rectangle([bx1 - qs - 2 * m, qy - m, bx1, qy + qs + m], fill=(255,) * 3)
     qr(d, bx1 - qs - m, qy, qs, (15, 15, 15), rng)
+    return img
+
+
+# Square tea bottles (00006-00012): front panel, back panel and neck band, each drawn as seen from outside.
+TEA_TABLE = [("能量", "0 kJ"), ("蛋白质", "0 g"), ("脂肪", "0 g"), ("碳水化合物", "0 g"), ("钠", "{sodium}")]
+TEA_FINE_PRINT = [
+    "配料：{ingredients}",
+    "产品类型：{kind}",
+    "保质期：{shelf}",
+    "贮存条件：避免阳光直射，常温保存",
+    "执行标准：{standard}",
+    "生产日期：见瓶身",
+    "开启后请尽快饮用，不宜久置",
+    "客服热线：400-000-0000",
+]
+
+
+def homography(src, dst):
+    """3 x 3 matrix mapping the four points src [(x, y)] onto dst."""
+    a = []
+    for (x, y), (u, v) in zip(src, dst):
+        a += [[x, y, 1, 0, 0, 0, -u * x, -u * y], [0, 0, 0, x, y, 1, -v * x, -v * y]]
+    h = np.linalg.solve(np.array(a, float), np.array(dst, float).reshape(-1))
+    return np.r_[h, 1.0].reshape(3, 3)
+
+
+def sample(photo, x, y):
+    """Bilinear RGB (float 0-255) of a PIL image at pixel coordinates x, y (arrays of one shape)."""
+    a = np.asarray(photo.convert("RGB"), np.float32)
+    x = np.clip(np.asarray(x) - 0.5, 0, a.shape[1] - 1.001)
+    y = np.clip(np.asarray(y) - 0.5, 0, a.shape[0] - 1.001)
+    x0, y0 = np.floor(x).astype(int), np.floor(y).astype(int)
+    fx, fy = (x - x0)[..., None], (y - y0)[..., None]
+    top = a[y0, x0] * (1 - fx) + a[y0, x0 + 1] * fx
+    return top * (1 - fy) + (a[y0 + 1, x0] * (1 - fx) + a[y0 + 1, x0 + 1] * fx) * fy
+
+
+def photo_panel(photo, quad, size):
+    """Label on a flat face, rectified from a photo: quad is its corners (top left, top right, bottom right, bottom
+    left) in photo pixels. Returns float RGB (h, w, 3)."""
+    w, h = size
+    hm = homography([(0, 0), (w, 0), (w, h), (0, h)], quad)
+    u, v = np.meshgrid(np.arange(w) + 0.5, np.arange(h) + 0.5)
+    p = hm @ np.stack([u.ravel(), v.ravel(), np.ones(u.size)])
+    return sample(photo, (p[0] / p[2]).reshape(h, w), (p[1] / p[2]).reshape(h, w))
+
+
+def photo_band(photo, cx, rx, top, bottom, phi, seen, size):
+    """Label on a vertical cylinder, unrolled from a photo taken square-on to its centre line: a point at angle a
+    (0 = facing the camera, + = image right) is at x = cx + rx sin(a); the label's top and bottom edges are ellipse arcs
+    with y = (y at a = 0, y at a = +-90 deg). phi: (a0, a1) radians spanned by the output; columns beyond +-seen (too
+    oblique in the photo) get the row's median colour. Returns float RGB (h, w, 3)."""
+    w, h = size
+    a = np.linspace(phi[0], phi[1], w)
+    v = (np.arange(h) + 0.5) / h
+    yt = top[1] + (top[0] - top[1]) * np.cos(a)
+    yb = bottom[1] + (bottom[0] - bottom[1]) * np.cos(a)
+    y = yt[None] + v[:, None] * (yb - yt)[None]
+    rgb = sample(photo, np.broadcast_to(cx + rx * np.sin(np.clip(a, -seen, seen))[None], y.shape), y)
+    out = np.abs(a) > seen
+    rgb[:, out] = np.median(rgb[:, ~out], axis=1)[:, None]
+    return rgb
+
+
+def even_light(rgb, background, target):
+    """Divide out the photo's smooth lighting: per channel, fit a quadratic in (x, y) to the `background` pixels (bool
+    mask) and rescale so that they come out as `target` (sRGB). Returns a PIL image."""
+    h, w, _ = rgb.shape
+    y, x = np.mgrid[0:h, 0:w] / np.array([h, w], float)[:, None, None]
+    basis = np.stack([np.ones_like(x), x, y, x * x, x * y, y * y], -1)
+    out = np.empty_like(rgb)
+    for k in range(3):
+        coef = np.linalg.lstsq(basis[background], rgb[..., k][background], rcond=None)[0]
+        out[..., k] = rgb[..., k] / np.maximum(basis @ coef, 1.0) * target[k]
+    return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
+
+
+def two_sided(img, backing, show):
+    """The label image next to its reverse (right half): the backing colour with `show` of the print showing through.
+    The reverse uses the same (u, v) as the front, so it reads mirrored from inside the bottle, as the real one does."""
+    w, h = img.size
+    a = np.asarray(img, np.float32)
+    rev = (1 - show) * np.array(backing, np.float32) + show * a
+    out = Image.new("RGB", (2 * w, h))
+    out.paste(img, (0, 0))
+    out.paste(Image.fromarray(rev.astype(np.uint8)), (w, 0))
+    return out
+
+
+def front_panel(art, size, seed):
+    """Front label (w x h, portrait): product band on top, the brand set vertically, a picture and the tagline."""
+    w, h = size
+    rng = np.random.default_rng(seed)
+    paper, ink, accent = srgb(art["paper"]), srgb(art["ink"]), srgb(art["accent"])
+    img = Image.new("RGB", size, paper)
+    d = ImageDraw.Draw(img)
+    band = int(0.14 * h)
+    d.rectangle([0, 0, w, band], fill=accent)
+    f = fit_text(d, art["product"], "bold", 0.60 * w, 0.055 * h, spacing=0.08)
+    draw_text(d, art["product"], f, 0.06 * w, 0.022 * h, paper, spacing=0.08, anchor="l")
+    f = fit_text(d, art["volume"], "bold", 0.26 * w, 0.045 * h)
+    draw_text(d, art["volume"], f, 0.94 * w - text_width(d, art["volume"], f, 0), 0.028 * h, paper, anchor="l")
+    f = fit_text(d, art["note"], "regular", 0.88 * w, 0.032 * h, spacing=0.1)
+    draw_text(d, art["note"], f, w / 2, 0.092 * h, paper, spacing=0.1)
+    n = len(art["brand"])
+    cell = min(0.40 * h / n, 0.62 * w)
+    fb = font("brand", cell * 0.92)
+    for i, ch in enumerate(art["brand"]):
+        draw_text(d, ch, fb, w / 2, 0.17 * h + i * cell, ink)
+    y = 0.17 * h + n * cell + 0.01 * h
+    f = fit_text(d, art["latin"], "bold", 0.80 * w, 0.03 * h, spacing=0.2)
+    draw_text(d, art["latin"], f, w / 2, y, ink, spacing=0.2)
+    pw, ph = int(0.84 * w), int(0.90 * h - y - 0.06 * h)
+    pic = picture(art["picture"], pw, ph, srgb(art["accent"]), paper, rng)
+    px, py = int((w - pw) / 2), int(y + 0.05 * h)
+    d.rectangle([px - 3, py - 3, px + pw + 3, py + ph + 3], fill=accent)
+    img.paste(pic, (px, py))
+    f = fit_text(d, art["tagline"], "regular", 0.84 * w, 0.032 * h, spacing=0.1)
+    draw_text(d, art["tagline"], f, w / 2, 0.935 * h, ink, spacing=0.1)
+    return img
+
+
+def back_panel(art, size, seed):
+    """Back label (w x h, portrait): claim band, nutrition table, fine print, brand mark and barcode."""
+    w, h = size
+    rng = np.random.default_rng(seed + 1000)
+    paper, ink, accent = srgb(art["paper"]), srgb(art["ink"]), srgb(art["accent"])
+    img = Image.new("RGB", size, (246, 246, 242))
+    d = ImageDraw.Draw(img)
+    m = 0.05 * w
+    f = fit_text(d, art["brand"] + art["product"], "bold", w - 2 * m, 0.035 * h)
+    draw_text(d, art["brand"] + art["product"], f, w / 2, 0.025 * h, ink)
+    d.rectangle([m, 0.075 * h, w - m, 0.13 * h], fill=accent)
+    f = fit_text(d, art["claim"], "bold", w - 3 * m, 0.04 * h)
+    draw_text(d, art["claim"], f, w / 2, 0.083 * h, paper)
+    title = "营养成分表"
+    f = fit_text(d, title, "bold", w - 2 * m, 0.028 * h)
+    draw_text(d, title, f, w / 2, 0.145 * h, ink)
+    rows = [("项目", "每100毫升")] + [(k, v.format(**art["facts"])) for k, v in TEA_TABLE]
+    rh, y0 = 0.032 * h, 0.185 * h
+    fr = font("regular", rh * 0.62)
+    for i, (k, v) in enumerate(rows):
+        y = y0 + i * rh
+        d.line([(m, y), (w - m, y)], fill=ink, width=1)
+        draw_text(d, k, fr, m + 4, y + rh * 0.2, ink, anchor="l")
+        draw_text(d, v, fr, w - m - text_width(d, v, fr, 0) - 4, y + rh * 0.2, ink, anchor="l")
+    y = y0 + len(rows) * rh
+    d.rectangle([m, y0, w - m, y], outline=ink, width=1)
+    lines = [line.format(**art["facts"]) for line in TEA_FINE_PRINT]
+    longest = max(lines, key=lambda s: text_width(d, s, font("regular", 100), 0))
+    fp = fit_text(d, longest, "regular", w - 2 * m, 0.024 * h)
+    for i, line in enumerate(lines):
+        draw_text(d, line, fp, m, y + 0.025 * h + i * 0.034 * h, ink, anchor="l")
+    y += 0.025 * h + len(lines) * 0.034 * h + 0.01 * h
+    f = fit_text(d, art["brand"], "brand", 0.4 * w, 0.035 * h)
+    bw = text_width(d, art["brand"], f, 0) + 0.06 * w
+    d.rectangle([(w - bw) / 2, y, (w + bw) / 2, y + 0.05 * h], fill=accent)
+    draw_text(d, art["brand"], f, w / 2, y + 0.008 * h, paper)
+    barcode(d, 0.16 * w, 0.83 * h, 0.68 * w, 0.14 * h, art["ean"], (15, 15, 15), rng)
+    return img
+
+
+def neck_band(art, size, seed):
+    """Neck label (w x h, landscape; its centre faces the front): brand, a line of small print, product and volume."""
+    w, h = size
+    paper, accent = srgb(art["paper"]), srgb(art["accent"])
+    img = Image.new("RGB", size, accent)
+    d = ImageDraw.Draw(img)
+    for y in (0.07 * h, 0.93 * h):  # dotted rules
+        for x in np.arange(0.005 * w, w, 0.012 * w):
+            d.ellipse([x - 0.012 * h, y - 0.012 * h, x + 0.012 * h, y + 0.012 * h], fill=paper)
+    f = fit_text(d, art["brand"], "brand", 0.34 * w, 0.40 * h, spacing=0.08)
+    draw_text(d, art["brand"], f, w / 2, 0.14 * h, paper, spacing=0.08)
+    f = fit_text(d, art["tagline"], "regular", 0.40 * w, 0.10 * h, spacing=0.15)
+    draw_text(d, art["tagline"], f, w / 2, 0.60 * h, paper, spacing=0.15)
+    line = f"{art['product']}  净含量{art['volume']}"
+    f = fit_text(d, line, "bold", 0.42 * w, 0.13 * h)
+    draw_text(d, line, f, w / 2, 0.75 * h, paper)
     return img

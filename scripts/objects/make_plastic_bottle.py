@@ -13,11 +13,13 @@
 - plastic_bottle/00006: Real2Sim platform registration real2sim/objects/Clutter/plastic_bottle/00006 (spec.json, by
   徐鹤鸣, 2026-10-28 11:08:58): 东方树叶 500 ml square tea bottle, transparent with a label, 33 g with its cap,
   瓶口外径 39.6 mm, 瓶身边长 62.2 mm (measured); 高度 205 mm with the cap (the registration says 20.5 mm, the user
-  confirmed 205 on 2026-10-28, and asked for the real cap, removable). Corner rounding, shoulder, 38 mm finish
-  details, label band and the white cap are estimated from the four photos.
+  confirmed 205 on 2026-10-28, and asked for the real cap, removable). Built by TeaBottle from the four photos
+  (estimated): chamfered-square body, short shoulder, long wide round neck, clear ribbed cap with a white top, round
+  recess in the base; three separate labels (front face, back face, front half of the neck; the side faces are clear)
+  whose textures are rectified from the registration photos in real2sim/objects/Clutter/plastic_bottle/00006/reference.
 - plastic_bottle/00007-00012: generalization variants of 00006 (not measured; label, colour, material, size and shape
-  differ; same finish, so the 00006 cap fits all of them).
-- Labels are textures drawn by bottle_label.py (needs a CJK font, see bottle_label.FONT_DIRS); variants carry
+  differ; same construction and finish, so the 00006 cap fits all of them).
+- Other labels are textures drawn by bottle_label.py (needs a CJK font, see bottle_label.FONT_DIRS); variants carry
   fictional brands.
 
 Usage:
@@ -32,6 +34,8 @@ USD (Clutter): /root (RigidBodyAPI) -> visual/model (bottle shell), visual/label
                                     -> collision/hull_NN (bottom slab + wall staves up to the mouth, cap cylinder last)
 USD (Articulation): /root (ArticulationRootAPI) -> body (shell, label, bottle colliders), nut, cap (cap and its
     collider), joints/cap_twist + joints/cap_lift (add_cap_joints); textures/label.png inside the usdz.
+TeaBottle (00006-00012): visual/label_front, label_back, label_neck (textures/<name>.png) instead of visual/label, and
+    visual/cap_top (the inset top disc) next to visual/cap.
 Each bottle is a loft of sections r * ring(b) along Z: b = 1 is the variant's section (circle or rounded square), b = 0
 a circle; the shoulder blends from b = 1 into the round neck.
 """
@@ -45,7 +49,7 @@ import traceback
 import uuid
 
 import numpy as np
-from PIL import ImageChops
+from PIL import Image, ImageChops
 from scipy.spatial import ConvexHull
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -53,6 +57,7 @@ import bottle_label  # noqa: E402
 import make_pitcher as mp  # noqa: E402  (shared USD helpers; starts Kit when pxr needs it)
 from make_pitcher import Gf, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt  # noqa: E402
 import make_plastic_cups as pc  # noqa: E402  (loft, unit_section, metadata)
+import measuring_cup_shape as msc  # noqa: E402
 from pxr import PhysxSchema  # noqa: E402
 
 TYPE_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/Real2Sim/Clutter"
@@ -206,173 +211,137 @@ VARIANTS = [  # generalization variants 00001-00005: overrides of NONGFU, all un
     ),
 ]  # fmt: skip
 
-# Bottle 00006 (东方树叶). Same conventions as NONGFU; the section is a rounded square, R is half the side.
+# Bottle 00006 (东方树叶), all from the four registration photos unless marked measured. Section: a square with large
+# chamfered corners (measuring_cup_shape.rounded_octagon), R is half the width across the flats; labels sit only on
+# the front (+X) and back (-X) flat faces and on the front half of the round neck, the side faces are clear.
 DONGFANG = dict(
     NONGFU,
+    TEA=True,
     H=0.2035,  # mouth height: 高度 205 mm (measured, with the cap) minus the cap top CAP_TOP above the mouth
     R=0.0311,  # 瓶身边长 / 2, measured 62.2 mm across the flats
-    SQ=4.5,  # rounded-square section: corner rounding estimated from the photos
-    FIL=0.006, FOOT=0.020, DOME=0.005,  # bottom: estimated
-    Z_SH=0.150, SH_P=1.0,  # square body below, short shoulder into the round neck: estimated
-    R_NECK=0.0192, NECK_H=0.004, RING_T=0.0015, R_RING=0.0215,  # 38 mm wide-mouth finish: estimated
-    FINISH_H=0.016,
+    CHAMFER=0.0084, ROUND=0.0012,  # corner cut leg and edge rounding: ~13 mm chamfer facets, ~43 mm flats (estimated)
+    FLUTES=(3, 0.0003, 0.0016, 0.0032),  # fine vertical grooves per chamfer facet: count, depth, width, pitch (est.)
+    FIL=0.005, FOOT=0.019, DOME=0.006,  # rounded bottom edge, circular recess radius and push-up height (estimated)
+    Z_SH=0.127, Z_NECK=0.141, SH_P=1.0,  # straight body top, short shoulder into the round neck (estimated)
+    R_NECK=0.0208, RING_T=0.0015, R_RING=0.0212,  # long wide neck (~41.6 mm), support ring under the cap (estimated)
+    FINISH_H=0.019,  # support ring top to mouth (38 mm wide-mouth finish), estimated
     R_THREAD=0.0198,  # 瓶口外径 / 2, measured 39.6 mm: outer diameter of the threaded finish (thread crests)
-    R_CORE=0.0188, R_BORE=0.0170, THREADS=(0.0070, 0.0035),  # estimated
+    R_CORE=0.0188, R_BORE=0.0170, THREADS=(0.0040, 0.0075, 0.0110),  # estimated
     GROOVES=(), WAIST=None,
-    LABEL=(0.050, 0.150, 0.65), RECESS=0.0006,  # label band and its light share: estimated
-    LABEL_RGB=((0.82, 0.83, 0.78), (0.02, 0.26, 0.12)),  # light main band, dark green top band and print
+    PANEL=(0.006, 0.106, 0.021, 0.0045),  # front / back labels: z0, z1, half-width, corner cut (estimated)
+    NECK_LABEL=(0.148, 0.176, 100.0),  # neck label z0, z1 and half-angle (deg) about the front (estimated)
     TINT=(0.97, 0.98, 0.98), FROST=0.0,
     MASS=0.033,  # measured, cap included
-    CAP_RGB=(0.85, 0.85, 0.83), CAP_T=0.0016, CAP_TOP=0.0015, CAP_RIBS=120, RIB_D=0.0003, BAND_H=0.005,
-    CAP_MASS=0.0035, PITCH=0.0045, OPEN_TURNS=1.25,  # 38 mm cap: part of MASS, thread pitch, turns to loosen
+    CAP_T=0.0012, CAP_TOP=0.0015, CAP_RIBS=120, RIB_D=0.0003, BAND_H=0.005,  # 38 mm cap (estimated)
+    CAP_CLEAR=True, CAP_RGB=(0.90, 0.92, 0.92), CAP_TOP_RGB=(0.86, 0.86, 0.85),  # clear ribbed skirt, white top
+    CAP_MASS=0.0035, PITCH=0.0045, OPEN_TURNS=1.25,  # part of MASS, thread pitch, turns to loosen
     BRIM=(520, 640),  # ml: a 500 ml bottle with its headspace
     MEASURE="square", FRICTION=None,  # no measured friction: runtime defaults apply
-    ART=dict(
-        brand="东方树叶", latin="ORIENTAL LEAF", tagline="原叶冷泡 · 茶香自然", product="茉莉花茶", volume="500ml",
-        note="0糖 0卡 0脂", picture="leaves", table="nutrition", trim=(0.02, 0.26, 0.12), ean="6 900000 905126",
-        facts=dict(ingredients="水、茉莉花茶、维生素C", shelf="12个月", standard="GB/T 21733"),
-    ),
+    ART="photo",  # label textures rectified from the registration photos (PHOTO_LABELS)
     WORDS=dict(
-        color=["transparent", "green and white label", "white cap"],
+        color=["transparent", "white cap top", "red horse label"],
         material=["plastic", "clear PET", "thin-walled plastic"],
         name=["tea bottle", "plastic bottle", "Oriental Leaf bottle"],
-        shape=["rounded square body", "wide neck", "white screw cap"],
+        shape=["chamfered square body", "long round neck", "screw cap"],
         function=["holding tea", "being picked up and placed", "being opened"],
-        look="clear square tea bottle with a green and white label and a white cap",
+        look="clear chamfered square tea bottle with front and back labels, a green neck label and a white-top cap",
     ),
 )  # fmt: skip
+REFERENCE = Path(__file__).resolve().parents[2] / "real2sim/objects/Clutter/plastic_bottle/00006/reference"
+PHOTO_LABELS = dict(  # registration photos (1702 x 1276) and where the labels are in them, px (estimated by eye)
+    front="64fcd19c8ba09a5e05c79f3d88b7eb80.jpg",  # square-on to the front face, from ~25 deg above
+    back="a9a371200214e151cf59f91afd537127.jpg",  # back face, bottle leaning
+    front_quad=[(660, 655), (910, 655), (906, 1229), (664, 1229)],  # front label: TL, TR, BR, BL
+    back_quad=[(668, 694), (1046, 670), (1066, 1218), (730, 1246)],
+    neck=dict(cx=790, rx=121, top=(367, 316), bottom=(512, 459), seen=66.0),  # in the front photo, see photo_band
+)
+TEA_PX = 10000  # label texture pixels per metre
 
 
-def tea(brand, latin, product, volume, picture, trim, ean, ingredients):
+def tea_art(brand, latin, product, volume, picture, paper, ink, accent, ean, ingredients, claim):
     return dict(
-        brand=brand, latin=latin, tagline="冷泡原叶 清爽回甘", product=product, volume=volume, note="无糖 · 0能量",
-        picture=picture, table="nutrition", trim=trim, ean=ean,
-        facts=dict(ingredients=ingredients, shelf="12个月", standard="GB/T 21733"),
+        brand=brand, latin=latin, product=product, volume=volume, picture=picture, paper=paper, ink=ink,
+        accent=accent, ean=ean, claim=claim, note="无糖 · 0能量 · 0脂肪", tagline="冷泡原叶 清爽回甘",
+        facts=dict(ingredients=ingredients, kind="原味茶饮料", shelf="12个月", standard="GB/T 21733", sodium="8 mg"),
+    )  # fmt: skip
+
+
+def tea_words(color, material, name, shape, look):
+    return dict(
+        color=color, material=material, name=name, shape=shape, look=look,
+        function=["holding tea", "being picked up and placed", "being opened"],
     )  # fmt: skip
 
 
 DONGFANG_VARIANTS = [  # generalization variants 00007-00012: overrides of DONGFANG, all unmeasured (estimated)
     dict(
-        H=0.225,
-        R=0.0320,
-        Z_SH=0.170,
-        LABEL=(0.055, 0.162, 0.60),
-        LABEL_RGB=((0.70, 0.82, 0.62), (0.03, 0.22, 0.05)),
-        CAP_RGB=(0.10, 0.40, 0.12),
-        ART=tea(
-            "茗泉", "MING QUAN", "茉莉清茶", "600ml", "leaves", (0.03, 0.22, 0.05), "6 900000 911423", "水、茉莉花茶"
-        ),
-        WORDS=dict(
-            color=["transparent", "light green label", "green cap"],
-            material=["plastic", "clear PET", "thin plastic"],
-            name=["tall tea bottle", "600 ml bottle", "green tea bottle"],
-            shape=["tall rounded square body", "wide neck", "green screw cap"],
-            function=["holding tea", "being picked up and placed", "being opened"],
-            look="tall clear square green tea bottle with a light green label",
-        ),
+        H=0.2255, R=0.0320, CHAMFER=0.0090, Z_SH=0.146, Z_NECK=0.160, PANEL=(0.007, 0.124, 0.0213, 0.0045),
+        NECK_LABEL=(0.167, 0.198, 100.0), CAP_CLEAR=False, CAP_RGB=(0.10, 0.40, 0.12), CAP_TOP_RGB=(0.16, 0.50, 0.18),
+        ART=tea_art("茗泉", "MING QUAN", "茉莉清茶", "600ml", "leaves", (0.80, 0.88, 0.74), (0.03, 0.20, 0.05),
+                    (0.04, 0.30, 0.08), "6 900000 911423", "水、茉莉花茶", "茶多酚含量≥200mg/kg"),
+        WORDS=tea_words(["transparent", "light green labels", "green cap"],
+                        ["plastic", "clear PET", "thin plastic"],
+                        ["tall tea bottle", "600 ml bottle", "green tea bottle"],
+                        ["tall chamfered square body", "long round neck", "green screw cap"],
+                        "tall clear chamfered square jasmine tea bottle with light green labels"),
     ),
     dict(
-        H=0.170,
-        R=0.0290,
-        Z_SH=0.122,
-        LABEL=(0.040, 0.115, 0.60),
-        TINT=(0.90, 0.75, 0.50),
-        LABEL_RGB=((0.85, 0.78, 0.62), (0.30, 0.12, 0.03)),
-        CAP_RGB=(0.30, 0.12, 0.03),
-        ART=tea("岩韵", "YAN YUN", "乌龙茶", "400ml", "stripes", (0.30, 0.12, 0.03), "6 900000 913502", "水、乌龙茶"),
-        WORDS=dict(
-            color=["amber tinted", "cream and brown label", "brown cap"],
-            material=["plastic", "amber PET", "thin plastic"],
-            name=["oolong tea bottle", "400 ml bottle", "short tea bottle"],
-            shape=["short rounded square body", "wide neck", "brown screw cap"],
-            function=["holding tea", "being picked up and placed", "being opened"],
-            look="short amber square oolong tea bottle with a cream and brown label",
-        ),
+        H=0.1725, R=0.0290, CHAMFER=0.0075, Z_SH=0.100, Z_NECK=0.113, PANEL=(0.006, 0.088, 0.0195, 0.004),
+        NECK_LABEL=(0.119, 0.146, 100.0), TINT=(0.90, 0.75, 0.50), CAP_CLEAR=False, CAP_RGB=(0.30, 0.12, 0.03),
+        CAP_TOP_RGB=(0.36, 0.16, 0.05),
+        ART=tea_art("岩韵", "YAN YUN", "乌龙茶", "400ml", "stripes", (0.85, 0.78, 0.62), (0.30, 0.12, 0.03),
+                    (0.45, 0.20, 0.05), "6 900000 913502", "水、乌龙茶", "茶多酚含量≥300mg/kg"),
+        WORDS=tea_words(["amber tinted", "cream and brown labels", "brown cap"],
+                        ["plastic", "amber PET", "thin plastic"],
+                        ["oolong tea bottle", "400 ml bottle", "short tea bottle"],
+                        ["short chamfered square body", "round neck", "brown screw cap"],
+                        "short amber chamfered square oolong tea bottle with cream and brown labels"),
     ),
     dict(
-        SQ=2.0,
-        R=0.0320,
-        LABEL_RGB=((0.88, 0.80, 0.78), (0.50, 0.03, 0.05)),
-        CAP_RGB=(0.50, 0.03, 0.05),
-        ART=tea(
-            "荔香", "LI XIANG", "荔枝红茶", "500ml", "fruit", (0.50, 0.03, 0.05), "6 900000 915277", "水、红茶、荔枝汁"
-        ),
-        WORDS=dict(
-            color=["transparent", "pink and red label", "red cap"],
-            material=["plastic", "clear PET", "thin plastic"],
-            name=["round tea bottle", "black tea bottle", "plastic bottle"],
-            shape=["round body", "wide neck", "red screw cap"],
-            function=["holding tea", "being picked up and placed", "being opened"],
-            look="clear round lychee black tea bottle with a red label",
-        ),
+        R=0.0315, CHAMFER=0.0030, ROUND=0.0060, FLUTES=(0, 0.0, 0.001, 0.001), CAP_TOP_RGB=(0.55, 0.04, 0.06),
+        ART=tea_art("荔香", "LI XIANG", "荔枝红茶", "500ml", "fruit", (0.92, 0.84, 0.82), (0.50, 0.03, 0.05),
+                    (0.60, 0.05, 0.08), "6 900000 915277", "水、红茶、荔枝汁", "茶多酚含量≥160mg/kg"),
+        WORDS=tea_words(["transparent", "pink and red labels", "red cap top"],
+                        ["plastic", "clear PET", "thin plastic"],
+                        ["lychee tea bottle", "black tea bottle", "plastic bottle"],
+                        ["rounded square body", "long round neck", "clear screw cap"],
+                        "clear rounded square lychee black tea bottle with red labels"),
     ),
     dict(
-        SQ=3.0,
-        FROST=0.3,
-        TINT=(0.95, 0.95, 0.95),
-        LABEL_RGB=((0.05, 0.05, 0.05), (0.80, 0.60, 0.15)),
-        CAP_RGB=(0.05, 0.05, 0.05),
-        ART=tea("红袍", "HONG PAO", "大红袍", "500ml", "stripes", (0.80, 0.60, 0.15), "6 900000 917046", "水、岩茶"),
-        WORDS=dict(
-            color=["frosted white", "black and gold label", "black cap"],
-            material=["plastic", "frosted PET", "matte plastic"],
-            name=["frosted tea bottle", "rock tea bottle", "plastic bottle"],
-            shape=["soft square body", "wide neck", "black screw cap"],
-            function=["holding tea", "being picked up and placed", "being opened"],
-            look="frosted soft-square tea bottle with a black and gold label",
-        ),
+        CHAMFER=0.0060, ROUND=0.0030, FROST=0.3, TINT=(0.95, 0.95, 0.95), CAP_CLEAR=False,
+        CAP_RGB=(0.05, 0.05, 0.05), CAP_TOP_RGB=(0.08, 0.08, 0.08),
+        ART=tea_art("红袍", "HONG PAO", "大红袍", "500ml", "stripes", (0.80, 0.70, 0.30), (0.05, 0.05, 0.05),
+                    (0.08, 0.08, 0.08), "6 900000 917046", "水、岩茶", "茶多酚含量≥250mg/kg"),
+        WORDS=tea_words(["frosted white", "black and gold labels", "black cap"],
+                        ["plastic", "frosted PET", "matte plastic"],
+                        ["frosted tea bottle", "rock tea bottle", "plastic bottle"],
+                        ["soft chamfered square body", "long round neck", "black screw cap"],
+                        "frosted soft-cornered square tea bottle with black and gold labels"),
     ),
     dict(
-        WAIST=(0.003, 0.050, 0.108),
-        LABEL=(0.112, 0.144, 0.50),
-        LABEL_RGB=((0.85, 0.85, 0.20), (0.03, 0.15, 0.45)),
-        CAP_RGB=(0.85, 0.75, 0.10),
-        ART=tea(
-            "柠檬时光",
-            "LEMON TIME",
-            "柠檬茶",
-            "500ml",
-            "fruit",
-            (0.03, 0.15, 0.45),
-            "6 900000 919318",
-            "水、红茶、柠檬汁",
-        ),
-        WORDS=dict(
-            color=["transparent", "yellow and blue label", "yellow cap"],
-            material=["plastic", "clear PET", "thin plastic"],
-            name=["lemon tea bottle", "grip tea bottle", "plastic bottle"],
-            shape=["waisted square body", "wide neck", "yellow screw cap"],
-            function=["holding tea", "being gripped at the waist", "being opened"],
-            look="clear waisted square lemon tea bottle with a yellow and blue label",
-        ),
+        H=0.2135, R=0.0305, CHAMFER=0.0115, Z_SH=0.130, Z_NECK=0.146, FLUTES=(2, 0.0003, 0.0016, 0.0045),
+        PANEL=(0.010, 0.104, 0.017, 0.003), NECK_LABEL=(0.152, 0.185, 100.0), CAP_CLEAR=False,
+        CAP_RGB=(0.85, 0.75, 0.10), CAP_TOP_RGB=(0.90, 0.80, 0.15),
+        ART=tea_art("柠檬时光", "LEMON TIME", "柠檬茶", "500ml", "fruit", (0.92, 0.90, 0.55), (0.03, 0.15, 0.45),
+                    (0.05, 0.25, 0.60), "6 900000 919318", "水、红茶、柠檬汁", "维生素C≥10mg/100mL"),
+        WORDS=tea_words(["transparent", "yellow and blue labels", "yellow cap"],
+                        ["plastic", "clear PET", "thin plastic"],
+                        ["lemon tea bottle", "octagonal bottle", "plastic bottle"],
+                        ["octagonal body", "long round neck", "yellow screw cap"],
+                        "clear octagonal lemon tea bottle with yellow and blue labels"),
     ),
     dict(
-        H=0.150,
-        R=0.0270,
-        Z_SH=0.098,
-        LABEL=(0.035, 0.090, 0.60),
-        LABEL_RGB=((0.95, 0.80, 0.80), (0.70, 0.20, 0.30)),
-        CAP_RGB=(0.95, 0.75, 0.78),
-        ART=tea(
-            "桃屿",
-            "TAO YU",
-            "白桃乌龙",
-            "300ml",
-            "bubbles",
-            (0.70, 0.20, 0.30),
-            "6 900000 921564",
-            "水、乌龙茶、白桃汁",
-        ),
-        WORDS=dict(
-            color=["transparent", "pink label", "pink cap"],
-            material=["plastic", "clear PET", "thin plastic"],
-            name=["mini tea bottle", "300 ml bottle", "peach tea bottle"],
-            shape=["small rounded square body", "wide neck", "pink screw cap"],
-            function=["holding tea", "carrying in a bag", "being opened"],
-            look="small clear square peach oolong tea bottle with a pink label",
-        ),
+        H=0.1505, R=0.0270, CHAMFER=0.0070, Z_SH=0.085, Z_NECK=0.097, PANEL=(0.006, 0.076, 0.018, 0.004),
+        NECK_LABEL=(0.102, 0.124, 100.0), CAP_TOP_RGB=(0.95, 0.62, 0.68),
+        ART=tea_art("桃屿", "TAO YU", "白桃乌龙", "300ml", "bubbles", (0.96, 0.84, 0.84), (0.70, 0.20, 0.30),
+                    (0.80, 0.30, 0.40), "6 900000 921564", "水、乌龙茶、白桃汁", "茶多酚含量≥180mg/kg"),
+        WORDS=tea_words(["transparent", "pink labels", "pink cap top"],
+                        ["plastic", "clear PET", "thin plastic"],
+                        ["mini tea bottle", "300 ml bottle", "peach tea bottle"],
+                        ["small chamfered square body", "round neck", "clear screw cap"],
+                        "small clear chamfered square peach oolong tea bottle with pink labels"),
     ),
-]
+]  # fmt: skip
 
 FAMILIES = [  # first index, base registration, variants
     (0, dict(NONGFU, BRIM=(550, 620), MEASURE="round", FRICTION=(STATIC_FRICTION, DYNAMIC_FRICTION)), VARIANTS),
@@ -600,6 +569,334 @@ def wall_staves(levels):
     return hulls
 
 
+def tea_section(g):
+    """Chamfered square of half-width 1 at the face centres (as measuring_cup_shape.rounded_octagon), N_THETA points
+    CCW from the +X face centre, three times denser off the flat faces so the chamfer facets and their flutes are
+    resolved. Also returns the flutes: per point, the inward displacement (m) at full depth."""
+    a = g["R"]
+    w, c, r = 1 - g["ROUND"] / a, g["CHAMFER"] / a, g["ROUND"] / a
+    corner = np.array([(w, w - c), (w - c, w)])
+    verts = np.concatenate([msc._rot(corner, k) for k in range(4)])
+    phi = np.linspace(0, np.pi / 4, 64)
+    curve = np.concatenate(
+        [v + r * np.c_[np.cos(phi + k * np.pi / 4), np.sin(phi + k * np.pi / 4)] for k, v in enumerate(verts)]
+    )
+    closed = np.vstack([curve, curve[:1]])
+    flat = np.max(np.abs(closed), axis=1) > 1 - 1e-9
+    weight = np.where(flat[1:] & flat[:-1], 1.0, 3.0) * np.linalg.norm(np.diff(closed, axis=0), axis=1)
+    s = np.r_[0, np.cumsum(weight)]
+    u = (s[-1] - (w - c) + np.linspace(0, s[-1], N_THETA, endpoint=False)) % s[-1]  # (1, 0) is w - c before curve[0]
+    sec = np.c_[np.interp(u, s, closed[:, 0]), np.interp(u, s, closed[:, 1])]
+    n, depth, width, pitch = g["FLUTES"]
+    normal = np.sign(sec) / np.sqrt(2)  # chamfer facet normals, per quadrant
+    along = (sec[:, 1] * normal[:, 0] - sec[:, 0] * normal[:, 1]) * a  # position along the facet from its centre, m
+    on_facet = np.all(np.abs(sec) < w - 1e-6, axis=1)  # straight chamfer part, not the rounded edges
+    d = np.zeros(N_THETA)
+    for k in range(n):
+        x = along - (k - (n - 1) / 2) * pitch
+        d += np.where(np.abs(x) < width / 2, depth * np.cos(np.pi * x / width) ** 2, 0.0)
+    return sec, (d * on_facet)[:, None] * normal
+
+
+def orient(pts, face, outward):
+    """face with its vertex order flipped if its normal points against `outward`."""
+    p = pts[face]
+    n = np.sum(np.cross(p - p.mean(0), np.roll(p, -1, axis=0) - p.mean(0)), axis=0)
+    return list(face) if np.dot(n, outward) > 0 else list(face)[::-1]
+
+
+class TeaBottle(Bottle):
+    """Square tea bottle (00006 family): chamfered-square body with fluted chamfer facets and a circular recess in
+    the base, short shoulder into a long round neck, flat label panels on the front (+X) and back (-X) faces, a neck
+    band over the front half of the neck, and a cap with a clear ribbed skirt and an inset top disc."""
+
+    def __init__(self, g):
+        g = dict(g, NECK_H=g["H"] - g["FINISH_H"] - g["RING_T"] - g["Z_NECK"])
+        super().__init__(g)
+        self.sec, self.flute = tea_section(g)
+        z0, z1, hw, _ = g["PANEL"]
+        assert hw <= g["R"] - g["ROUND"] - g["CHAMFER"] - 0.0003, "label panel wider than the flat face"
+        assert g["FIL"] < z0 and z1 < g["Z_SH"] - 0.002, "label panel off the straight body"
+        n0, n1, _ = g["NECK_LABEL"]
+        assert self.z_neck < n0 and n1 < self.z_ring0, "neck label off the neck"
+
+    def visual_body(self, z):
+        return self.body(z)
+
+    def body_samples(self):
+        g = self.g
+        z0, z1 = g["FIL"] + 0.002, g["Z_SH"] - 0.002
+        z = np.r_[np.linspace(z0, z0 + 0.006, 5), np.linspace(z1 - 0.006, z1, 5), g["FIL"] + 0.001, g["Z_SH"]]
+        return np.unique(np.round(z, 7))
+
+    def body_ring(self, z, inset=0.0):
+        """Visual body ring at z, flutes faded out towards the bottom edge and the shoulder."""
+        g = self.g
+        fade = np.clip((z - g["FIL"] - 0.002) / 0.006, 0, 1) * np.clip((g["Z_SH"] - 0.002 - z) / 0.006, 0, 1)
+        return self.ring(self.body(z) - inset, 1.0) - fade * self.flute
+
+    def loft(self, profile):
+        return pc.loft(
+            [
+                (r, z) if isinstance(r, np.ndarray) else (0.0, z) if r == 0 else (self.ring(r, b), z)
+                for r, z, b in profile
+            ]
+        )
+
+    def finish(self):
+        """Outer profile [(r, z)] from the neck top to the bore under the lip: support ring, tamper bead, threads."""
+        g = self.g
+        H = g["H"]
+        z0, z1, rn, rr, rc, rt = self.z_ring0, self.z_ring1, g["R_NECK"], g["R_RING"], g["R_CORE"], g["R_THREAD"]
+        finish = [(rn, z0)] * 2 + [(rr, z0)] * 2 + [(rr, z1)] * 2 + [(rc, z1)] * 2
+        finish += [(rc, z1 + 0.002), (rt, z1 + 0.003), (rt, z1 + 0.004), (rc, z1 + 0.005)]  # tamper-band bead
+        for d in g["THREADS"]:
+            zt = H - d
+            assert zt - 0.001 > z1 + 0.005, "thread overlaps the bead"
+            finish += [(rc, zt - 0.001), (rt, zt - 0.0003), (rt, zt + 0.0003), (rc, zt + 0.001)]
+        rb = g["R_BORE"]
+        finish += [(rc, H - 0.001), (rc - 0.0004, H - 0.0001), ((rc + rb) / 2, H), (rb + 0.0004, H - 0.0001)]
+        return finish + [(rb, H - 0.001)]
+
+    def profiles(self):
+        g = self.g
+        R, FIL, FOOT, DOME = g["R"], g["FIL"], g["FOOT"], g["DOME"]
+        dome = [(s * FOOT, DOME * (1 - s * s) ** 2) for s in (0.3, 0.55, 0.75, 0.9)]
+        t = np.linspace(0, 1, 25)[1:]
+        sh = [(*self.shoulder(v), g["Z_SH"] + v * (self.z_neck - g["Z_SH"])) for v in t]
+        zs = self.body_samples()
+        outer = [(0.0, DOME, 0.0)] + [(r, z, 0.0) for r, z in dome] + [(FOOT, 0.0, 0.0)]  # round recess
+        outer += [(r, z, 1.0) for r, z in pc.fillet(R, FIL)]
+        outer += [(self.body_ring(z), z, 1.0) for z in zs]
+        outer += [(r, z, b) for r, b, z in sh]
+        outer += [(r, z, 0.0) for r, z in self.finish()]
+        rn, rb = g["R_NECK"], g["R_BORE"]
+        inner = [(rb, self.z_ring0, 0.0)] * 2 + [(rn - T_WALL, self.z_ring0 - 0.002, 0.0)]  # thin neck wall
+        inner += [(r - T_WALL, z, b) for r, b, z in sh[::-1]]
+        inner += [(self.body_ring(z, T_WALL), z, 1.0) for z in zs[::-1]]
+        inner += [(r, z, 1.0) for r, z in mp.arc(R - FIL, FIL, FIL - T_WALL, 0, -np.pi / 2, 6)]
+        inner += [(FOOT, T_WALL, 0.0)] + [(r, z + T_WALL, 0.0) for r, z in dome[::-1]] + [(0.0, DOME + T_WALL, 0.0)]
+        return outer, inner
+
+    def labels(self):
+        """Front / back panels and the neck band as thin closed shells, with per-face-vertex UVs: u 0-0.5 the
+        printed side (image left to right as seen from outside, v up), u 0.5-1 the reverse (bottle_label.two_sided)."""
+        g = self.g
+        parts, uvs = {}, {}
+        z0, z1, hw, k = g["PANEL"]
+        poly = [(-hw + k, z0), (hw - k, z0), (hw, z0 + k), (hw, z1 - k), (hw - k, z1), (-hw + k, z1), (-hw, z1 - k),
+                (-hw, z0 + k)]  # fmt: skip
+        for name, sx in (("label_front", 1.0), ("label_back", -1.0)):  # seen from outside, image right is sx * +Y
+            pts = np.array([(sx * x, sx * s, z) for x in (g["R"] + 0.00025, g["R"] + 0.00005) for s, z in poly])
+            centre = pts.mean(0)
+            faces = [orient(pts, range(8), (sx, 0, 0)), orient(pts, range(8, 16), (-sx, 0, 0))]
+            for i in range(8):
+                f = [i, (i + 1) % 8, (i + 1) % 8 + 8, i + 8]
+                faces.append(orient(pts, f, pts[f].mean(0) - centre))
+            uv = []
+            for n, f in enumerate(faces):
+                for i in f:
+                    s, z = sx * pts[i, 1], pts[i, 2]
+                    uv.append(((s + hw) / (2 * hw) * 0.5 + 0.5 * (n == 1), (z - z0) / (z1 - z0)))
+            parts[name], uvs[name] = (pts, faces), np.array(uv)
+        n0, n1, half = g["NECK_LABEL"]
+        a = np.radians(np.linspace(-half, half, 97))
+        m = len(a)
+        rings = [(g["R_NECK"] + 0.00035, n0), (g["R_NECK"] + 0.00035, n1), (g["R_NECK"] + 0.0001, n0),
+                 (g["R_NECK"] + 0.0001, n1)]  # fmt: skip
+        pts = np.array([(r * np.cos(v), r * np.sin(v), z) for r, z in rings for v in a])
+        ob, ot, ib, it = (np.arange(m) + q * m for q in range(4))
+        faces, inside = [], []
+        for j in range(m - 1):
+            radial = np.array([np.cos((a[j] + a[j + 1]) / 2), np.sin((a[j] + a[j + 1]) / 2), 0.0])
+            for f, out, rev in (
+                ([ob[j], ob[j + 1], ot[j + 1], ot[j]], radial, False),
+                ([ib[j], ib[j + 1], it[j + 1], it[j]], -radial, True),
+                ([ot[j], ot[j + 1], it[j + 1], it[j]], (0, 0, 1), False),
+                ([ob[j], ob[j + 1], ib[j + 1], ib[j]], (0, 0, -1), False),
+            ):
+                faces.append(orient(pts, f, out))
+                inside.append(rev)
+        for j, sign in ((0, -1), (m - 1, 1)):
+            tangent = sign * np.array([-np.sin(a[j]), np.cos(a[j]), 0.0])
+            faces.append(orient(pts, [ob[j], ot[j], it[j], ib[j]], tangent))
+            inside.append(False)
+        uv = [
+            ((np.arctan2(pts[i, 1], pts[i, 0]) - a[0]) / (a[-1] - a[0]) * 0.5 + 0.5 * rev, (pts[i, 2] - n0) / (n1 - n0))
+            for f, rev in zip(faces, inside)
+            for i in f
+        ]
+        parts["label_neck"], uvs["label_neck"] = (pts, faces), np.array(uv)
+        return parts, uvs
+
+    def label_px(self):
+        """Texture size (w, h) of the printed side of each label."""
+        g = self.g
+        z0, z1, hw, _ = g["PANEL"]
+        n0, n1, half = g["NECK_LABEL"]
+        panel = (round(2 * hw * TEA_PX), round((z1 - z0) * TEA_PX))
+        neck = (round(np.radians(2 * half) * (g["R_NECK"] + 0.00035) * TEA_PX), round((n1 - n0) * TEA_PX))
+        return {"label_front": panel, "label_back": panel, "label_neck": neck}
+
+    def cap(self):
+        """Screw cap as Bottle.cap, its top recessed for an inset disc (the white liner seen through the clear cap).
+        Returns the cap shell, the disc and the cap collider."""
+        g = self.g
+        z0, z1, zb = self.z_ring1 + 0.0006, g["H"] + g["CAP_TOP"], self.z_ring1 + 0.0006 + g["BAND_H"]
+        rc, ri = g["R_THREAD"] + g["CAP_T"], g["R_THREAD"] + 0.0002
+        rw, zw = rc - 0.0013, z1 - 0.0006
+        knurl = g["RIB_D"] * (1 - np.abs(np.cos(np.pi * g["CAP_RIBS"] * np.arange(N_THETA) / N_THETA)))
+        circle = np.c_[
+            np.cos(np.arange(N_THETA) * 2 * np.pi / N_THETA), np.sin(np.arange(N_THETA) * 2 * np.pi / N_THETA)
+        ]
+
+        def rd(r):
+            return r * circle
+
+        ribbed = rd(rc) * ((rc - knurl) / rc)[:, None]
+        profile = [(0.0, g["H"])] + [(rd(ri), g["H"])] * 2 + [(rd(ri), z0)] * 2 + [(rd(rc - 0.0003), z0)] * 2
+        profile += [(rd(rc - 0.0003), zb - 0.0004), (rd(rc - 0.0008), zb - 0.0002), (rd(rc - 0.0008), zb + 0.0002)]
+        profile += [(rd(rc - 0.0003), zb + 0.0004), (ribbed, zb + 0.0008), (ribbed, z1 - 0.0012)]
+        profile += [(rd(rc - 0.0005), z1 - 0.0003)] + [(rd(rc - 0.0012), z1)] * 2 + [(rd(rw), z1)] * 2
+        profile += [(rd(rw), zw)] * 2 + [(0.0, zw)]
+        disc = [(0.0, zw)] + [(rd(rw - 0.00005), zw)] * 2 + [(rd(rw - 0.00005), z1 - 0.00005)] * 2
+        disc += [(0.0, z1 - 0.00005)]
+        step = N_THETA // BOTTOM_SIDES
+        hull = np.array([(*p, z) for z in (z0, z1) for p in rd(rc)[::step]])
+        return pc.loft(profile), pc.loft(disc), hull
+
+    def brim_ml(self):
+        """Visual inner volume from the bottom to the mouth (push-up ignored)."""
+        g = self.g
+        z = np.linspace(T_WALL, g["H"], 1200)
+        a = []
+        for v in z:
+            if v > self.z_ring0:
+                ring = self.ring(g["R_BORE"], 0.0)
+            elif v > g["Z_SH"]:
+                r, b = self.envelope(min(v, self.z_neck))
+                ring = self.ring(r - T_WALL, b)
+            else:
+                ring = self.ring(self.visual_body(max(v, g["FIL"])) - T_WALL, 1.0)
+            a.append(pc.section_area(ring))
+        a = np.array(a)
+        return float(np.sum((a[1:] + a[:-1]) / 2 * np.diff(z)) * 1e6)
+
+
+def check_hulls(g, b, hulls):
+    """Hull limits and the cavity check of build(); the cap collider closes the mouth on purpose and is not passed."""
+    probe = np.array(
+        [
+            (*(f * p), z)
+            for z in np.linspace(g["FIL"] + 0.001, g["H"] - 0.001, 60)
+            for f in np.linspace(0, 0.94, 6)
+            for p in b.cavity(z)[:: N_THETA // 48]
+        ]
+    )
+    for h in hulls:
+        assert len(h) <= 64, f"collision hull has {len(h)} points"
+        eq = ConvexHull(h).equations
+        assert not np.any(np.all(probe @ eq[:, :3].T + eq[:, 3] < -1e-6, axis=1)), "hull intrudes into cavity"
+    bottom = hulls[0][:, 2]
+    assert np.all((bottom == 0) | (bottom >= 0.0015)), "slab points within PhysX plane tolerance of the bottom"
+
+
+def build_tea(g):
+    b = TeaBottle(g)
+    outer, inner = b.profiles()
+    cap, top, cap_hull = b.cap()
+    labels, uvs = b.labels()
+    parts = {"model": b.loft(outer + inner), **labels, "cap": cap, "cap_top": top}
+    for name, part in parts.items():
+        assert mp.signed_volume(*part) > 0, f"{name} has inward-facing winding"
+    hulls = b.hulls()
+    check_hulls(g, b, hulls)
+    return dict(
+        parts=parts, hulls=hulls, cap_hull=cap_hull, uvs=uvs, label_px=b.label_px(), ml=b.brim_ml(),
+        contact_r=g["R"] - g["FIL"], bottle=b,
+    )  # fmt: skip
+
+
+def photo_labels(px):
+    """00006 labels rectified from the registration photos, lighting evened out: {name: PIL image}."""
+    front = Image.open(REFERENCE / PHOTO_LABELS["front"])
+    back = Image.open(REFERENCE / PHOTO_LABELS["back"])
+    out = {}
+    for name, photo, quad, paper in (
+        ("label_front", front, PHOTO_LABELS["front_quad"], (228, 228, 222)),  # light grey paper
+        ("label_back", back, PHOTO_LABELS["back_quad"], (242, 242, 238)),  # white paper
+    ):
+        rgb = bottle_label.photo_panel(photo, quad, px[name])
+        lum, chroma = rgb.mean(-1), np.ptp(rgb, axis=-1)
+        out[name] = bottle_label.even_light(rgb, (chroma < 25) & (lum > np.percentile(lum, 40)), paper)
+    n = PHOTO_LABELS["neck"]
+    half = np.radians(DONGFANG["NECK_LABEL"][2])
+    rgb = bottle_label.photo_band(
+        front, n["cx"], n["rx"], n["top"], n["bottom"], (-half, half), np.radians(n["seen"]), px["label_neck"]
+    )
+    green = (rgb[..., 1] - rgb[..., 0] > 25) & (rgb.mean(-1) < np.percentile(rgb.mean(-1), 70))
+    target = tuple(np.clip(np.median(rgb[green], axis=0) * 1.3, 0, 255))
+    out["label_neck"] = bottle_label.even_light(rgb, green, target)
+    return out
+
+
+def tea_textures(g, c, idx):
+    """{path inside the usdz: PNG file} of the three labels, printed side and reverse side by side."""
+    px = c["label_px"]
+    if g["ART"] == "photo":
+        art = photo_labels(px)
+    else:
+        art = {
+            "label_front": bottle_label.front_panel(g["ART"], px["label_front"], idx),
+            "label_back": bottle_label.back_panel(g["ART"], px["label_back"], idx),
+            "label_neck": bottle_label.neck_band(g["ART"], px["label_neck"], idx),
+        }
+    tmp = Path(tempfile.mkdtemp())
+    out = {}
+    for name, img in art.items():
+        path = tmp / f"{name}.png"
+        bottle_label.two_sided(img, (226, 228, 224), 0.15).save(path)
+        out[f"textures/{name}.png"] = path
+    return out
+
+
+def tea_looks(g):
+    """Materials of the TeaBottle parts that differ from the shared ones."""
+
+    def textured(name):
+        def material(st):
+            mat = mp.add_material(
+                st,
+                f"/root/_materials/{name}",
+                "OmniPBR",
+                {"reflection_roughness_constant": 0.35, "metallic_constant": 0.0},
+                (0.85, 0.85, 0.85),
+                1.0,
+                0.35,
+            )
+            sh = UsdShade.Shader.Get(st, f"/root/_materials/{name}/Shader")
+            sh.CreateInput("diffuse_texture", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath(f"textures/{name}.png"))
+            return mat
+
+        return material
+
+    def clear_cap(st):
+        return mp.add_material(
+            st,
+            "/root/_materials/CapPlastic",
+            "OmniGlass",
+            {"glass_color": g["CAP_RGB"], "glass_ior": 1.49, "frosting_roughness": 0.05, "thin_walled": False},
+            g["CAP_RGB"],
+            0.3,
+            0.1,
+        )
+
+    looks = {name: textured(name) for name in ("label_front", "label_back", "label_neck")}
+    looks["cap"] = clear_cap if g["CAP_CLEAR"] else paint("Cap", g["CAP_RGB"])
+    looks["cap_top"] = paint("CapTop", g["CAP_TOP_RGB"])
+    return looks
+
+
 def build(g):
     b = Bottle(g)
     outer, inner = b.profiles()
@@ -725,15 +1022,18 @@ def add_meshes(st, c, g, links):
     """Visual meshes: bottle shell and label on links['body'], cap on links['cap'] (model first: loaders read the
     first Mesh)."""
     looks = {"model": glass(g), "label": label_look(g), "cap": paint("Cap", g["CAP_RGB"])}
+    if g.get("TEA"):
+        looks.update(tea_looks(g))
     for name, (pts, faces) in c["parts"].items():
-        link = links["cap" if name == "cap" else "body"]
+        link = links["cap" if name.startswith("cap") else "body"]
         if not st.GetPrimAtPath(f"{link}/visual"):
             mp.add_xform(st, f"{link}/visual")
         mesh = mp.add_mesh(st, f"{link}/visual/{name}", pts, faces, mp.vertex_normals(pts, faces))
-        if name == "label":
+        if name.startswith("label"):
+            uv = c["uvs"][name] if "uvs" in c else c["label_uv"]
             UsdGeom.PrimvarsAPI(mesh).CreatePrimvar(
                 "st", Sdf.ValueTypeNames.TexCoord2fArray, UsdGeom.Tokens.faceVarying
-            ).Set(Vt.Vec2fArray.FromNumpy(c["label_uv"].astype(np.float32)))
+            ).Set(Vt.Vec2fArray.FromNumpy(uv.astype(np.float32)))
         UsdShade.MaterialBindingAPI.Apply(mesh.GetPrim()).Bind(looks[name](st))
 
 
@@ -810,7 +1110,8 @@ def write_usdz(out, c, g, label_png, articulated=False, mass=None):
     zip_writer = getattr(Sdf, "ZipFileWriter", None) or Usd.ZipFileWriter
     zw = zip_writer.CreateNew(str(out))
     zw.AddFile(str(tmp), "object.usdc")
-    zw.AddFile(str(label_png), LABEL_TEX)
+    for name, path in label_png.items() if isinstance(label_png, dict) else [(LABEL_TEX, label_png)]:
+        zw.AddFile(str(path), name)
     zw.Save()
 
 
@@ -865,16 +1166,19 @@ def save(type_dir, idx, c, g, mass, articulated=False, base_idx=0):
     d = Path(type_dir).parent / kind / CATEGORY / f"{idx:05d}"
     d.mkdir(parents=True, exist_ok=True)
     uid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"robodojo/{kind.lower()}/{CATEGORY}/{idx}"))
-    label_png = Path(tempfile.mkdtemp()) / "label.png"
-    art = bottle_label.draw_label(g["ART"], *g["LABEL_RGB"], g["LABEL"][2], c["label_px"], idx)
-    ImageChops.offset(art, int(LABEL_FRONT_U * art.width), 0).save(label_png)
+    if g.get("TEA"):
+        label_png = tea_textures(g, c, idx)
+    else:
+        label_png = Path(tempfile.mkdtemp()) / "label.png"
+        art = bottle_label.draw_label(g["ART"], *g["LABEL_RGB"], g["LABEL"][2], c["label_px"], idx)
+        ImageChops.offset(art, int(LABEL_FRONT_U * art.width), 0).save(label_png)
     write_usdz(d / "object.usdz", c, g, label_png, articulated, mass)
     faces = [f for _, fs in parts.values() for f in fs]
     meta = pc.metadata(uid, dict(pts=every + shift, faces=faces, contact_r=c["contact_r"]), mass, shift)
     meta["physics"].pop("friction", None)  # pc.metadata no longer writes it on every branch
     if g["FRICTION"]:
         meta["physics"].update(static_friction=g["FRICTION"][0], dynamic_friction=g["FRICTION"][1])
-    meta["visual"] = {"color_parts": ["cap"]}  # rt_color recolours the cap; the bottle stays clear, the label printed
+    meta["visual"] = {"color_parts": ["cap_top" if g.get("TEA") else "cap"]}  # rt_color: the bottle stays clear
     if articulated:  # joint positions as ArticulationObject reports them: radians, metres
         meta["articulation"] = {
             "cap_twist": {"closed": 0.0, "open": round(2 * np.pi * g["OPEN_TURNS"], 4), "unit": "rad"},
@@ -894,7 +1198,7 @@ def main(type_dir):
         base = None
         for k, over in enumerate([{}] + variants):
             g = {**registered, **over}
-            c = build(g)
+            c = (build_tea if g.get("TEA") else build)(g)
             if k == 0:
                 base = c["ml"]
                 lo, hi = g["BRIM"]
