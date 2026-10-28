@@ -43,10 +43,12 @@
 
 - **起因**（用户）：整个平台叫 BanzhiFlywheel（纯文字 logo），现有平台作为「仿真平台」，并列一个「数据集」板块；先出设计稿，不替换现在的平台。之后用户要求：不要大块黑色，顶栏更扁平。
 - **改动**（只动 `src/real2sim_platform/index.html`，服务端和接口不变）：
-  - 顶部新增白底产品栏 `.gbar`（52 px）：纯文字字标 `.wordmark`（粗体 Banzhi + 细体 Flywheel + 蓝色圆点，无图形）、文字标签「仿真平台 / 数据集」（当前项 2 px 下划线）、用户菜单。原来的横向导航降为仿真平台的二级导航 `.side`（56 px，浅灰底，粘在产品栏下面），数据集页隐藏它（`.app.no-sub`）。`--top` = 两栏高度之和，QA 面板的 sticky 偏移随之调整。登录卡片也换成字标。
-  - 数据集页 `#datasets`（`viewDatasets` / `drawerDataset`）：浅色页头 + 4 个统计块（已发布数、Episode、帧数、总时长，只计 released）、状态分段筛选、搜索、卡片（封面取平台里对应场景的渲染图或照片，标签、Episode / 帧数 / 时长、格式和发布位置），点开抽屉看采集设置、验收、位置和下载命令。**数据是 `scripts/datagen/registry.json` 5 条记录的手抄中文快照（常量 `DATASETS`）**，页面底部有「设计预览」提示。
+  - 顶部新增白底产品栏 `.gbar`（56 px）：纯文字字标 `.wordmark`（23 px，粗体 Banzhi + 细体 Flywheel + 蓝色圆点，无图形）、文字标签「仿真平台 / 数据集」（当前项 2 px 下划线）、用户菜单。原来的横向导航降为仿真平台的二级导航 `.side`（56 px，浅灰底，粘在产品栏下面），数据集页隐藏它（`.app.no-sub`）。`--top` = 两栏高度之和，QA 面板的 sticky 偏移随之调整。登录卡片也换成字标。
+  - 右上角用户区一行显示（头像 + 名字），用户名放在悬停提示里。
+  - 数据集页 `#datasets`（`viewDatasets` / `dsSidebar` / `dsCard` / `drawerDataset`）：浅色页头 + 4 个统计块（只计 released）；左侧分面筛选栏，右侧结果（数量、搜索、排序：最近更新 / Episode / 时长、已选条件可逐个移除或清除全部）。分面定义在 `DS_FACETS`：数据类型（真机 / 仿真 / Ego）、Episode 数量（对数刻度双滑块）、应用领域（只做商业零售、家居服务两类室内服务）、室内空间、机器人形态、机器人本体、操作类型（桌面 / Local / Mobile / Whole-body）、技能、传感模态、数据格式、发布状态。组内为「或」、组间为「且」，计数按其余条件动态算，0 条的选项灰显。后 4 组默认折叠（`UI.ds.closed`）。卡片封面取平台里对应场景的渲染图或照片；抽屉多了「分类」一节。
+  - **数据是 `scripts/datagen/registry.json` 5 条记录的手抄中文快照（常量 `DATASETS`，每条的分类在 `f` 里，是我拟的初稿，没和用户确认）**，页面底部有「设计预览」提示。现有 5 条都是仿真、G1-D、桌面操作，所以真机 / Ego、移动和全身操作等选项目前都是 0。
 - **验证**：本机临时库（`/tmp/bzf/`，账号 `preview`）起 `server.py --port 8799`，浏览器在 1440 和 390 px 下看了数据集页、场景页、总览和数据集抽屉，无横向溢出；`git diff --check` 通过。没跑 `check.sh` 和 `test_server.py`（没动服务端）。
-- **剩余**：要转正需 (1) 服务端加 `/api/datasets` 读 registry.json，删掉前端快照；(2) registry 没有体积和许可证字段，卡片暂不显示；(3) 先合并 `platform-ui-refresh`，再推送本分支、开 PR、合并后按 `.agent/ops.local.md` 重启 `5090-2` 的平台。
+- **剩余**：要转正需 (1) 服务端加 `/api/datasets` 读 registry.json，删掉前端快照，分类字段（`f` 里那些键）要写进 registry；(2) registry 没有体积和许可证字段，卡片暂不显示；手机宽度下筛选栏堆在列表上方、比较长，可改成抽屉；(3) 先合并 `platform-ui-refresh`，再推送本分支、开 PR、合并后按 `.agent/ops.local.md` 重启 `5090-2` 的平台。
 
 ### 数采平台界面改为 RoboFlywheel 风格（2026-10-28，`chongzheng/platform-ui-refresh`，未推送、未部署）
 

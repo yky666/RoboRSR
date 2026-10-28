@@ -66,8 +66,13 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .product[aria-current="page"]::after { content: ""; position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; border-radius: 2px; background: var(--text); }
 .login-brand { flex-direction: column; align-items: flex-start; gap: 8px; }
 .login-brand .wordmark { font-size: 30px; }
-.gbar .me { align-self: center; margin-left: auto; }
-.gbar .me .sp { display: none; }
+.gbar .me { align-self: center; gap: 2px; margin-left: auto; }
+.gbar .me .sp, .gbar .me-name small { display: none; }
+.gbar .avatar { width: 28px; height: 28px; margin-right: 6px; font-size: 13px; }
+.gbar .me-name { margin-right: 6px; }
+.gbar .me-name b { font-weight: 500; }
+.gbar .me .btn-icon { width: 32px; min-height: 32px; color: var(--muted); }
+.gbar .me .btn-icon:hover { color: var(--text); }
 .side { position: sticky; top: var(--gbar); z-index: 5; display: flex; align-items: center; gap: 24px; min-height: var(--sub); padding: 0 max(40px, calc((100% - 1440px) / 2)); background: rgba(250, 250, 251, .92); border-bottom: 1px solid var(--border); backdrop-filter: saturate(180%) blur(12px); }
 .app.no-sub .side { display: none; }
 .side .nav-item[aria-current="page"] { background: var(--surface); box-shadow: inset 0 0 0 1px var(--border); }
@@ -284,7 +289,57 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .ds-card .mcard-t b { flex: 1; min-width: 0; }
 .ds-desc { display: -webkit-box; min-height: 3.2em; margin: 0; overflow: hidden; color: var(--text-2); font-size: 13px; line-height: 1.6; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .ds-ph { display: grid; place-items: center; gap: 8px; width: 100%; height: 100%; background: repeating-linear-gradient(135deg, var(--surface-2) 0 10px, #F9F9FA 10px 20px); color: var(--muted); font-size: 13px; align-content: center; }
-.ds-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding-top: 10px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+.ds-foot > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ds-foot { display: flex; align-items: center; gap: 8px; white-space: nowrap; padding-top: 10px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+.ds-meta { margin-top: -4px; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.tag.ghost { background: transparent; box-shadow: inset 0 0 0 1px var(--border); color: var(--muted); font-family: var(--font); }
+.ds-card .chips .tag { font-family: var(--font); }
+.sdot { display: inline-block; width: 6px; height: 6px; margin-right: 2px; border-radius: 50%; }
+.src-sim { background: #7C3AED; } .src-real { background: var(--info); } .src-ego { background: var(--accent); }
+/* datasets: facet sidebar + results */
+.ds-layout { display: grid; grid-template-columns: 252px minmax(0, 1fr); align-items: start; gap: 32px; }
+.ds-side { position: sticky; top: calc(var(--gbar) + 16px); max-height: calc(100vh - var(--gbar) - 32px); margin: -4px 0 0 -8px; padding: 0 8px 24px; overflow-y: auto; scrollbar-width: thin; }
+.fgroup { padding: 4px 0 12px; border-bottom: 1px solid var(--border); }
+.fgroup + .fgroup { margin-top: 8px; }
+.fgroup > summary { display: flex; align-items: center; gap: 8px; min-height: 36px; font-size: 13px; font-weight: 650; list-style: none; cursor: pointer; }
+.fgroup > summary::-webkit-details-marker { display: none; }
+.fgroup > summary .chev { margin-left: auto; color: var(--faint); transition: transform .15s ease-out; }
+.fgroup[open] > summary .chev { transform: rotate(90deg); }
+.fcount { min-width: 18px; padding: 0 6px; border-radius: 999px; background: var(--text); color: #fff; font: 600 11px/18px var(--mono); text-align: center; }
+.flist { display: grid; gap: 2px; }
+.fopt { display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; color: var(--text-2); text-align: left; cursor: pointer; transition: background .15s, color .15s; }
+.fopt:hover { background: var(--surface-2); }
+.fopt .num { margin-left: auto; color: var(--faint); font: 500 12px var(--mono); }
+.fopt[aria-pressed="true"] { background: var(--surface-2); color: var(--text); font-weight: 600; }
+.fopt[aria-pressed="true"] .num { color: var(--text-2); }
+.fchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.fchip { min-height: 30px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text-2); font-size: 13px; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+.fchip:hover { border-color: var(--faint); }
+.fchip[aria-pressed="true"] { border-color: var(--text); background: var(--text); color: #fff; }
+.fopt.none, .fchip.none { color: var(--faint); }
+.fchip.none { border-style: dashed; }
+.range2 { position: relative; height: 24px; margin: 4px 6px 0; }
+.range2 .track, .range2 .fill { position: absolute; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; }
+.range2 .track { right: 0; left: 0; background: var(--surface-3); }
+.range2 .fill { background: var(--text); }
+.range2 input[type=range] { position: absolute; inset: 0; width: 100%; min-height: 0; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; pointer-events: none; -webkit-appearance: none; appearance: none; }
+.range2 input::-webkit-slider-thumb { width: 16px; height: 16px; border: 2px solid var(--text); border-radius: 50%; background: #fff; cursor: grab; pointer-events: auto; -webkit-appearance: none; }
+.range2 input::-moz-range-thumb { width: 12px; height: 12px; border: 2px solid var(--text); border-radius: 50%; background: #fff; cursor: grab; pointer-events: auto; }
+.range2 input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(17, 17, 19, .15); }
+.range2-l { display: flex; justify-content: space-between; margin: 6px 0 0; color: var(--muted); font: 12px var(--mono); }
+.ds-bar { margin-bottom: 12px; }
+.ds-bar select { padding: 0 14px; border-radius: 999px; }
+.ds-n { font-size: 15px; }
+.ds-active { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 14px; }
+.ds-x { gap: 4px; height: 26px; border: 0; font-family: var(--font); cursor: pointer; }
+.ds-x:hover { background: var(--surface-3); }
+.btn-sm { min-height: 28px; padding: 0 10px; font-size: 12px; }
+.ds-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+@media (max-width: 960px) {
+  .ds-layout { grid-template-columns: 1fr; gap: 16px; }
+  .ds-side { position: static; max-height: none; margin: 0; padding: 0; overflow: visible; }
+}
+@media (prefers-reduced-motion: reduce) { .fgroup > summary .chev { transition: none; } }
 @media (max-width: 1100px) { .ds-hero { grid-template-columns: 1fr; } }
 @media (max-width: 720px) { .ds-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ds-hero h1 { font-size: 28px; } }
 .cards { grid-template-columns: repeat(auto-fill, minmax(min(100%, 228px), 1fr)); }
@@ -647,7 +702,7 @@ const S = {scene: [], object: [], task: [], episode: [], embodiment: [], evaluat
 const UI = {
   tab: 'overview', drawer: null, ep: null, taskDim: 'custom', taskQ: '', sel: new Set(), loaded: false, syncing: false, syncedAt: '',
   osel: new Set(),  // objects ticked on the objects page, for bulk owner assignment
-  ds: {status: '', q: ''},
+  ds: {pick: {}, ep: [0, 100], q: '', sort: 'new', closed: ['robot', 'sensor', 'format', 'status']},  // datasets page filters
   vpick: {},  // object drawer id -> the variant whose render is previewed in it
   obj: {q: '', photo: false, status: '', owner: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
   qa: {task: '', config: '', policy: '', result: '', status: 'pending'},
@@ -926,6 +981,7 @@ function renderNav() {
   const source = `资产库${INFO.assets_ok ? '已连接' : '未找到'} · 回合目录 ${(INFO.eval_roots || []).length} 个${UI.syncedAt ? ` · 同步于 ${UI.syncedAt}` : ''}`;
   $('#source').title = source;
   $('#source').innerHTML = `<span class="dot ${INFO.assets_ok ? 'ok' : 'warn'}" aria-hidden="true"></span><span class="sr-only">${esc(source)}</span>`;
+  $('#me').title = ME ? `${ME.name}（${ME.username}）` : '';
   $('#me').innerHTML = ME ? `<span class="avatar" aria-hidden="true">${esc([...ME.name][0] || '?')}</span>
     <span class="me-name"><b>${esc(ME.name)}</b><small>${esc(ME.username)}</small></span><span class="sp"></span>
     <button class="btn btn-icon btn-ghost" type="button" data-open="account" aria-label="修改密码" title="修改密码">${ic('key')}</button>
@@ -1001,7 +1057,9 @@ const DATASETS = [
   {id: 'g1d_shenzhen_pour_beans_cup_or_mug_500', title: '深圳实验室 · 倒豆到量杯或马克杯', status: 'released', created: '2026-10-22',
     scene: 'real_scene5_shenzhen_lab', sceneName: '深圳实验室办公桌', task: 'g1d_pour_beans_cup_or_mug', episodes: 500, frames: 199697, fps: 30,
     desc: 'G1-D 双臂把高量杯里的红豆倒进矮量杯或白色马克杯，指令点名目标容器；随机持杯手和朝向，桌上 2–5 个干扰物。',
-    tags: ['双臂', '倾倒', '颗粒物', '语言条件', '干扰物'], format: 'LeRobot v3.0', published: 'ModelScope 私有',
+    f: {source: ['sim'], domain: ['commercial', 'home'], space: ['office'], form: ['wheeled_humanoid'], robot: ['g1d'], manip: ['tabletop'],
+      skill: ['pour', 'granular'], sensor: ['head_rgb', 'wrist_rgb', 'language'], format: ['lerobot3']},
+    tags: ['语言条件', '干扰物', '随机持杯手'], format: 'LeRobot v3.0', published: 'ModelScope 私有',
     repo: 'ChongZheng/g1d_shenzhen_pour_beans_cup_or_mug_500', env_cfg: 'g1d_shenzhen_lab_beans_collect（物理 1/600 s，动作 30 Hz）',
     acceptance: 'all_beans_retained_any_target_v2：整回合两杯不碰、目标杯倾角 ≤ 15°；最后 30 帧豆子全在目标杯。751 次尝试中 505 次通过，量杯 257 / 马克杯 243。',
     layouts: '1100 个候选布局，seed 500–521，split=train', validation: '导出回读 500 / 199697 帧；audit.py 独立复算 500/500；8 条开环回放，臂关节偏差 ≤ 2e-3 rad。',
@@ -1009,7 +1067,9 @@ const DATASETS = [
   {id: 'g1d_office_pour_beans_random_hand_yaw_100', title: '办公室 · 随机手与朝向倒豆', status: 'released', created: '2026-10-19',
     scene: 'real_scene1_office', sceneName: '办公室', task: 'g1d_pour_beans_measuring_cups', episodes: 100, frames: 39827, fps: 30,
     desc: '左右手各 50 条，量杯位置和偏航在大范围内拉丁超立方采样，672 颗红豆全部倒进矮量杯。',
-    tags: ['双臂', '倾倒', '颗粒物', '随机持杯手'], format: 'LeRobot v3.0（旧导出）', published: 'ModelScope 私有',
+    f: {source: ['sim'], domain: ['commercial', 'home'], space: ['office'], form: ['wheeled_humanoid'], robot: ['g1d'], manip: ['tabletop'],
+      skill: ['pour', 'granular'], sensor: ['head_rgb', 'wrist_rgb', 'language'], format: ['lerobot3']},
+    tags: ['随机持杯手', '随机朝向'], format: 'LeRobot v3.0（旧导出）', published: 'ModelScope 私有',
     repo: 'ChongZheng/g1d_office_pour_beans_random_hand_yaw_100', env_cfg: 'g1d_beans_collect（物理 1/600 s，动作 30 Hz）',
     acceptance: 'all_beans_retained_v2（672 颗）；176 次尝试中 104 次通过（左 53 / 右 51），每只手取最早的 50 条。',
     layouts: '400 个布局，左右手各 200，6 维拉丁超立方', validation: '导出回读 100 / 39827 帧；逐回合复数 67200 颗豆子，无遗留无洒出。',
@@ -1017,7 +1077,9 @@ const DATASETS = [
   {id: 'g1d_office_pour_all_red_beans_measuring_cups_100', title: '办公室 · 量杯对倒红豆', status: 'released', created: '2026-10-19',
     scene: 'real_scene1_office', sceneName: '办公室', task: 'g1d_pour_beans_measuring_cups', episodes: 100, frames: 40279, fps: 30,
     desc: '固定朝向的量杯对倒：实测尺寸和质量的量杯，5.6 mm 红豆 672 颗，全部倒进矮量杯且两杯保持直立。',
-    tags: ['双臂', '倾倒', '颗粒物', '实测资产'], format: 'LeRobot v3.0（旧导出）', published: 'ModelScope 私有',
+    f: {source: ['sim'], domain: ['commercial', 'home'], space: ['office'], form: ['wheeled_humanoid'], robot: ['g1d'], manip: ['tabletop'],
+      skill: ['pour', 'granular'], sensor: ['head_rgb', 'wrist_rgb', 'language'], format: ['lerobot3']},
+    tags: ['实测资产'], format: 'LeRobot v3.0（旧导出）', published: 'ModelScope 私有',
     repo: 'ChongZheng/g1d_office_pour_all_red_beans_measuring_cups_100', env_cfg: 'g1d_beans_collect（物理 1/600 s，动作 30 Hz）',
     acceptance: 'all_beans_retained_v2：672 颗全在矮杯，两杯 30 帧内偏离竖直 ≤ 30°；118 次尝试中 108 次通过。',
     layouts: '400 个候选（4 维拉丁超立方），seed 100–107', validation: '导出回读 100 / 40279 帧；LeRobot 0.4.4 解码每回合首尾帧。',
@@ -1025,14 +1087,18 @@ const DATASETS = [
   {id: 'g1d_aurora_v3_wide_45mm_delivery_sample', title: 'Aurora 触觉夹爪 · 双臂搬运样本', status: 'incomplete', created: '2026-10-24',
     scene: '', sceneName: '独立验证桌', task: 'dual_arm_pick_transport_place', episodes: 1, frames: 154, fps: 10,
     desc: '外部交付的验证样本：45 mm / 50 g 物体双臂抓取、搬运、放置，带四路 FEM 触觉视频；不是训练发布版本。',
-    tags: ['双臂', '触觉', '交付样本'], format: 'HDF5 + LeRobot v3（触觉）', published: '未上传',
+    f: {source: ['sim'], domain: ['commercial'], space: ['lab'], form: ['wheeled_humanoid'], robot: ['g1d'], manip: ['tabletop'],
+      skill: ['pick_place', 'transport', 'bimanual'], sensor: ['tactile'], format: ['hdf5', 'lerobot3']},
+    tags: ['交付样本'], format: 'HDF5 + LeRobot v3（触觉）', published: '未上传',
     repo: '', env_cfg: 'g1d_four_pad_episode.v1（物理 240 Hz，记录 10 Hz）',
     acceptance: '交付 case09：严格双臂抓放通过；没有验证过训练策略。', layouts: '固定的双臂验证布局，不是评测划分',
     validation: '保留交付方的 HDF5 / LeRobot 审计；6 条任务审计在验收时独立复算。', location: '本机 worktree .cache/aurora-v3-delivery/'},
   {id: 'g1d_office_pour_all_red_beans_old_cups', title: '办公室 · 量杯对倒（旧杯，已替代）', status: 'superseded', created: '2026-10-19',
     scene: 'real_scene1_office', sceneName: '办公室', task: 'g1d_pour_beans_measuring_cups', episodes: 106, frames: 0, fps: 30,
     desc: '量杯尺寸来自照片估计、4 mm 红豆的早期版本，已被实测量杯版本替代，LeRobot 导出停在 8 / 100。',
-    tags: ['双臂', '倾倒', '颗粒物'], format: '原始回合（npz + MP4）', published: '未发布',
+    f: {source: ['sim'], domain: ['commercial', 'home'], space: ['office'], form: ['wheeled_humanoid'], robot: ['g1d'], manip: ['tabletop'],
+      skill: ['pour', 'granular'], sensor: ['head_rgb', 'wrist_rgb', 'language'], format: ['raw']},
+    tags: [], format: '原始回合（npz + MP4）', published: '未发布',
     repo: '', env_cfg: 'g1d_beans_collect（物理 1/600 s，动作 30 Hz）',
     acceptance: 'all_beans_retained_v2（1840 颗 4 mm 豆子）；141 次尝试中 106 次通过。', layouts: 'g1d/9 候选，seed 100–107',
     validation: '—', location: '5090-2:/data/robodojo-runs/office-beans-100-20261019'},
@@ -1041,33 +1107,103 @@ const DS_STATUS = {released: ['ok', '已发布'], incomplete: ['warn', '样本']
 const dsHours = (d) => (d.frames ? d.frames / d.fps / 3600 : 0);
 const dsDur = (h) => (!h ? '—' : h >= 1 ? `${h.toFixed(1)} h` : h * 60 >= 1 ? `${Math.round(h * 60)} 分钟` : `${Math.round(h * 3600)} 秒`);
 const dsCover = (d) => { const s = d.scene && S.scene.find((x) => x.id === d.scene); return s && (s.auto.renders?.[0] || s.auto.photos?.[0]); };
-function viewDatasets() {
+// facets: [key, title, look, options]; a dataset matches a facet when any of its values is picked (OR within, AND across)
+const DS_FACETS = [
+  ['source', '数据类型', 'chips', [['real', '真机采集'], ['sim', '仿真生成'], ['ego', 'Ego 第一视角']]],
+  ['domain', '应用领域', 'list', [['commercial', '商业 / 零售'], ['home', '家居服务']]],
+  ['space', '室内空间', 'list', [['store', '门店 / 货架'], ['cafe', '餐饮 / 吧台'], ['office', '办公 / 前台'], ['kitchen', '厨房'], ['living', '客厅'], ['bedroom', '卧室'], ['lab', '实验台']]],
+  ['form', '机器人形态', 'list', [['wheeled_humanoid', '轮式人形'], ['legged_humanoid', '足式人形'], ['dual_arm', '固定双臂'], ['single_arm', '单臂']]],
+  ['robot', '机器人本体', 'list', [['g1d', 'Unitree G1-D'], ['x5', 'ARX X5 双臂']]],
+  ['manip', '操作类型', 'list', [['tabletop', '桌面操作'], ['local', '局部操作 · Local Manipulation'], ['mobile', '移动操作 · Mobile Manipulation'], ['whole_body', '全身操作 · Whole-body']]],
+  ['skill', '技能', 'chips', [['pick_place', '抓取放置'], ['pour', '倾倒'], ['transport', '搬运'], ['articulated', '开合铰接'], ['deformable', '柔性物体'], ['granular', '颗粒物'], ['bimanual', '双臂协同']]],
+  ['sensor', '传感模态', 'chips', [['head_rgb', '头部 RGB'], ['wrist_rgb', '腕部 RGB'], ['depth', '深度'], ['tactile', '触觉'], ['language', '语言指令']]],
+  ['format', '数据格式', 'list', [['lerobot3', 'LeRobot v3.0'], ['hdf5', 'HDF5'], ['raw', '原始回合']]],
+  ['status', '发布状态', 'list', [['released', '已发布'], ['incomplete', '样本'], ['superseded', '已替代']]],
+];
+const DS_LABEL = Object.fromEntries(DS_FACETS.map(([k, , , opts]) => [k, Object.fromEntries(opts)]));
+const DS_SRC = {real: 'src-real', sim: 'src-sim', ego: 'src-ego'};
+const DS_SORT = {new: '最近更新', episodes: 'Episode 最多', hours: '时长最长'};
+const dsVals = (d, k) => (k === 'status' ? [d.status] : d.f[k] || []);
+const dsLabels = (d, k) => dsVals(d, k).map((v) => DS_LABEL[k][v]);
+// Episode range on a log scale: slider positions 0..100
+const DS_EP_MAX = Math.max(...DATASETS.map((d) => d.episodes));
+const dsEp = (t) => Math.round(Math.exp((t / 100) * Math.log(DS_EP_MAX)));
+const dsPick = (k, v) => { const s = UI.ds.pick[k] ||= []; const i = s.indexOf(v); i < 0 ? s.push(v) : s.splice(i, 1); render(); };
+const dsClear = (k) => { if (k) UI.ds.pick[k] = []; else { UI.ds.pick = {}; UI.ds.ep = [0, 100]; UI.ds.q = ''; } render(); };
+function dsMatch(d, skip) {
   const f = UI.ds, q = f.q.trim().toLowerCase();
-  const shown = DATASETS.filter((d) => (!f.status || d.status === f.status) && (!q || `${d.id} ${d.title} ${d.task} ${d.sceneName} ${d.tags.join(' ')}`.toLowerCase().includes(q)));
+  if (d.episodes < dsEp(f.ep[0]) || d.episodes > dsEp(f.ep[1])) return false;
+  if (q && !`${d.id} ${d.title} ${d.task} ${d.sceneName} ${d.tags.join(' ')} ${DS_FACETS.flatMap(([k]) => dsLabels(d, k)).join(' ')}`.toLowerCase().includes(q)) return false;
+  return DS_FACETS.every(([k]) => k === skip || !f.pick[k]?.length || dsVals(d, k).some((v) => f.pick[k].includes(v)));
+}
+function dsEpInput() {  // live label while dragging; the list re-renders on change, so the thumb being dragged stays in place
+  const [a, b] = [...document.querySelectorAll('.range2 input')].map((x) => Number(x.value)), lo = Math.min(a, b), hi = Math.max(a, b);
+  $('.range2 .fill').style.cssText = `left:${lo}%;right:${100 - hi}%`;
+  $('#ds-ep-lo').textContent = dsEp(lo).toLocaleString();
+  $('#ds-ep-hi').textContent = dsEp(hi).toLocaleString();
+}
+function dsEpChange() {
+  const v = [...document.querySelectorAll('.range2 input')].map((x) => Number(x.value)).sort((x, y) => x - y);
+  UI.ds.ep = v;
+  render();
+}
+function dsSidebar() {
+  const f = UI.ds;
+  const group = ([k, title, look, opts]) => {
+    const picked = f.pick[k] || [], pool = DATASETS.filter((d) => dsMatch(d, k));
+    const count = (v) => pool.filter((d) => dsVals(d, k).includes(v)).length;
+    const all = `<button type="button" class="${look === 'chips' ? 'fchip' : 'fopt'}" aria-pressed="${!picked.length}" onclick="dsClear('${k}')"><span>全部</span>${look === 'list' ? `<span class="num">${pool.length}</span>` : ''}</button>`;
+    const items = opts.map(([v, label]) => {
+      const n = count(v);
+      return `<button type="button" class="${look === 'chips' ? 'fchip' : 'fopt'}${n ? '' : ' none'}" aria-pressed="${picked.includes(v)}" onclick="dsPick('${k}', '${v}')"><span>${esc(label)}</span>${look === 'list' ? `<span class="num">${n}</span>` : ''}</button>`;
+    }).join('');
+    return `<details class="fgroup" ${f.closed.includes(k) ? '' : 'open'} ontoggle="UI.ds.closed = this.open ? UI.ds.closed.filter((x) => x !== '${k}') : [...new Set([...UI.ds.closed, '${k}'])]">
+      <summary>${title}${picked.length ? `<span class="fcount">${picked.length}</span>` : ''}${ic('chev-r', 'chev')}</summary>
+      <div class="${look === 'chips' ? 'fchips' : 'flist'}">${all}${items}</div></details>`;
+  };
+  const ep = `<details class="fgroup" ${f.closed.includes('ep') ? '' : 'open'} ontoggle="UI.ds.closed = this.open ? UI.ds.closed.filter((x) => x !== 'ep') : [...new Set([...UI.ds.closed, 'ep'])]">
+    <summary>Episode 数量${ic('chev-r', 'chev')}</summary>
+    <div class="range2"><div class="track"></div><div class="fill" style="left:${f.ep[0]}%;right:${100 - f.ep[1]}%"></div>
+      <input id="ds-ep-a" type="range" min="0" max="100" value="${f.ep[0]}" aria-label="Episode 下限" oninput="dsEpInput()" onchange="dsEpChange()">
+      <input id="ds-ep-b" type="range" min="0" max="100" value="${f.ep[1]}" aria-label="Episode 上限" oninput="dsEpInput()" onchange="dsEpChange()"></div>
+    <div class="range2-l num"><span id="ds-ep-lo">${dsEp(f.ep[0]).toLocaleString()}</span><span id="ds-ep-hi">${dsEp(f.ep[1]).toLocaleString()}</span></div></details>`;
+  const [first, ...rest] = DS_FACETS;
+  return `<aside class="ds-side" aria-label="筛选数据集">${group(first)}${ep}${rest.map(group).join('')}</aside>`;
+}
+function dsCard(d) {
+  const cover = dsCover(d), [s, label] = DS_STATUS[d.status], src = d.f.source[0];
+  const meta = [...dsLabels(d, 'domain'), ...dsLabels(d, 'space'), ...dsLabels(d, 'form'), ...dsLabels(d, 'manip')].join(' · ');
+  return `<article class="card mcard ds-card" data-open="dataset" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开数据集 ${esc(d.title)}">
+    <div class="media r169">${cover ? `<img loading="lazy" decoding="async" src="${file(cover)}" alt="">` : `<div class="ds-ph">${ic('database', 'ic-lg')}<span>${esc(d.sceneName)}</span></div>`}
+      <div class="pills"><span class="pill"><i class="sdot ${DS_SRC[src]}"></i>${esc(DS_LABEL.source[src])}</span><span class="pill">${esc(dsLabels(d, 'robot').join(' / '))}</span></div></div>
+    <div class="mcard-b"><div class="mcard-t"><b>${esc(d.title)}</b>${st(s, label)}</div>
+      <div class="ds-meta">${esc(meta)}</div>
+      <p class="ds-desc">${esc(d.desc)}</p>
+      <div class="chips">${dsLabels(d, 'skill').map((t) => `<span class="tag">${esc(t)}</span>`).join('')}${d.tags.map((t) => `<span class="tag ghost">${esc(t)}</span>`).join('')}</div>
+      ${stats([['Episode', d.episodes.toLocaleString()], ['总时长', dsDur(dsHours(d))], ['帧数', d.frames ? d.frames.toLocaleString() : '—']])}
+      <div class="ds-foot"><span>${esc(d.format)} · ${esc(d.published)}</span><span>${esc(d.created)}</span></div></div></article>`;
+}
+function viewDatasets() {
+  const f = UI.ds, by = {new: (x, y) => y.created.localeCompare(x.created), episodes: (x, y) => y.episodes - x.episodes, hours: (x, y) => dsHours(y) - dsHours(x)}[f.sort];
+  const shown = DATASETS.filter((d) => dsMatch(d)).sort(by);
   const rel = DATASETS.filter((d) => d.status === 'released'), n = (xs, k) => xs.reduce((s, d) => s + (k === 'h' ? dsHours(d) : d[k]), 0);
-  const cards = shown.map((d) => {
-    const cover = dsCover(d), [s, label] = DS_STATUS[d.status];
-    return `<article class="card mcard ds-card" data-open="dataset" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开数据集 ${esc(d.title)}">
-      <div class="media r169">${cover ? `<img loading="lazy" decoding="async" src="${file(cover)}" alt="">` : `<div class="ds-ph">${ic('database', 'ic-lg')}<span>${esc(d.sceneName)}</span></div>`}
-        <div class="pills"><span class="pill">仿真生成</span><span class="pill">G1-D</span></div></div>
-      <div class="mcard-b"><div class="mcard-t"><b>${esc(d.title)}</b>${st(s, label)}</div>
-        <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>
-        <p class="ds-desc">${esc(d.desc)}</p>
-        <div class="chips">${d.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
-        ${stats([['Episode', d.episodes.toLocaleString()], ['帧数', d.frames ? d.frames.toLocaleString() : '—'], ['总时长', dsDur(dsHours(d))]])}
-        <div class="ds-foot"><span>${esc(d.format)}</span><span class="sp"></span><span>${esc(d.published)} · ${esc(d.created)}</span></div></div></article>`;
-  }).join('');
-  const segs = [['', '全部', DATASETS.length], ...Object.entries(DS_STATUS).map(([k, [, label]]) => [k, label, DATASETS.filter((d) => d.status === k).length])];
+  const active = [
+    ...DS_FACETS.flatMap(([k, title]) => (f.pick[k] || []).map((v) => [`${title}：${DS_LABEL[k][v]}`, `dsPick('${k}', '${v}')`])),
+    ...(f.ep[0] > 0 || f.ep[1] < 100 ? [[`Episode ${dsEp(f.ep[0])}–${dsEp(f.ep[1])}`, 'UI.ds.ep = [0, 100]; render()']] : []),
+  ];
   return `<div class="page">
-    <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>具身仿真数据集</h1>
-      <p>仿真平台按 Real2Sim 场景和实测物体生成、经独立审计复算验收的 G1-D 演示数据。state 与 action 语义、物理配置和真机映射统一按 <code>scripts/datagen/CONTRACT.md</code>。</p></div>
+    <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>室内服务具身数据集</h1>
+      <p>聚焦商业零售与家居服务两类室内场景。仿真数据由 Real2Sim 场景和实测物体生成，经独立审计复算验收；state 与 action 语义、物理配置和真机映射统一按 <code>scripts/datagen/CONTRACT.md</code>。</p></div>
       <div class="ds-kpis"><div><span>已发布数据集</span><b>${rel.length}<small>/ ${DATASETS.length}</small></b></div><div><span>Episode</span><b>${n(rel, 'episodes').toLocaleString()}</b></div>
         <div><span>帧数</span><b>${n(rel, 'frames').toLocaleString()}</b></div><div><span>总时长</span><b>${n(rel, 'h').toFixed(1)}<small>h</small></b></div></div></section>
-    <div class="toolbar filters"><div class="segctl" role="group" aria-label="按状态筛选">${segs.map(([k, label, c]) =>
-      `<button type="button" aria-pressed="${f.status === k}" onclick="UI.ds.status = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
-      <span class="sp"></span>${searchBox('ds-q', f.q, 'UI.ds.q', '搜索数据集、任务、场景')}</div>
-    ${shown.length ? `<div class="grid scene-grid">${cards}</div>` : `<div class="card">${empty('database', '没有匹配的数据集', '换个关键词或状态试试')}</div>`}
-    <p class="hint" style="margin-top:20px">设计预览：数据来自 scripts/datagen/registry.json 的快照，接入后由服务端读取。</p></div>`;
+    <div class="ds-layout">${dsSidebar()}
+      <section class="ds-main" aria-label="数据集列表">
+        <div class="toolbar ds-bar"><b class="ds-n">${shown.length} 个数据集</b><span class="sp"></span>${searchBox('ds-q', f.q, 'UI.ds.q', '搜索数据集、任务、场景')}
+          <select id="ds-sort" aria-label="排序" onchange="UI.ds.sort = this.value; render()">${Object.entries(DS_SORT).map(([k, label]) => `<option value="${k}" ${f.sort === k ? 'selected' : ''}>${label}</option>`).join('')}</select></div>
+        ${active.length || f.q ? `<div class="ds-active">${active.map(([label, undo]) => `<button type="button" class="tag ds-x" onclick="${undo}" aria-label="移除筛选 ${esc(label)}">${esc(label)}${ic('close', 'ic-sm')}</button>`).join('')}
+          <button type="button" class="btn btn-ghost btn-sm" onclick="dsClear()">清除全部</button></div>` : ''}
+        ${shown.length ? `<div class="grid ds-grid">${shown.map(dsCard).join('')}</div>` : `<div class="card">${empty('database', '没有匹配的数据集', '放宽筛选条件，或点「清除全部」')}</div>`}
+        <p class="hint" style="margin-top:20px">设计预览：数据来自 scripts/datagen/registry.json 的快照，分类标签为初稿；接入后由服务端读取。</p></section></div></div>`;
 }
 function drawerDataset(d) {
   const [s, label] = DS_STATUS[d.status];
@@ -1076,6 +1212,8 @@ function drawerDataset(d) {
     body: `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px">${st(s, label)}${d.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
       <p style="margin:0 0 14px;line-height:1.7">${esc(d.desc)}</p>
       ${stats([['Episode', d.episodes.toLocaleString()], ['帧数', d.frames ? d.frames.toLocaleString() : '—'], ['帧率', `${d.fps} Hz`], ['总时长', dsDur(dsHours(d))]])}
+      ${sec(`${ic('layers')}分类`, `<dl class="kv">${DS_FACETS.filter(([k]) => k !== 'status').map(([k, title]) =>
+        `<dt>${title}</dt><dd>${dsLabels(d, k).map((x) => esc(x)).join('、') || '—'}</dd>`).join('')}</dl>`)}
       ${sec(`${ic('list')}采集设置`, `<dl class="kv"><dt>场景</dt><dd>${d.scene ? link('scene', d.scene, d.sceneName) : esc(d.sceneName)}</dd><dt>任务</dt><dd class="mono">${esc(d.task)}</dd>
         <dt>env 配置</dt><dd class="mono small">${esc(d.env_cfg)}</dd><dt>布局</dt><dd class="small">${esc(d.layouts)}</dd></dl>`)}
       ${sec(`${ic('check')}验收`, `<dl class="kv"><dt>判据</dt><dd class="small">${esc(d.acceptance)}</dd><dt>复核</dt><dd class="small">${esc(d.validation)}</dd></dl>`)}
