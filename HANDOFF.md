@@ -39,6 +39,12 @@
 
 ## 最近任务
 
+### 量杯变体 00002–00005 装共享库；平台变体始终跟着本体卡片（2026-10-28 21:1x，`chongzheng/platform-variants-follow-base`）
+
+- **装库**（用户要求）：把隔离目录 `measuring-cup-variants-20261028-150013/ovl/Rigid/measuring_cup/0000{2..5}`（生成脚本与 `main` 逐字节一致、`check_object.py` 已通过）原样拷进 `5090-2:/data/robodojo-assets/Assets/Object/Real2Sim/Rigid/measuring_cup/`，`diff -r` 一致，属主 1008。目标目录原本不存在，没有覆盖；装库前清单 `backups/listing-before-measuring-cup-variants-20261028-211322.txt`。按 10-28 搬库之后的做法只放 Real2Sim，不在 RoboDojo 留软链接（`object_dir` 先找 Real2Sim）。本体 00000/00001 仍未装库。装后对共享库副本跑 `check_object.py`（GPU 2）：4 只 OK，倾角 0°，高度等于半高。平台镜像 `/root/RoboDojo_assets` 手动放了这 4 份 `metadata.json`/`description.json`（整体重刷镜像会删掉）。回滚：删掉这 4 个目录。
+- **界面**（用户纠正 #43）：#43 让本体不在筛选里的变体单独出卡，用户要变体始终跟着本体。现在 `cardDocs()` 取每件的本体去重：只要本体或任一变体落在当前筛选里就出本体卡，按审核状态筛选时卡片上写「N 个变体待审核」等。实时数据：待审核 57 张卡（48 个待审核本体 + 9 个本身完备/待重建但有变体待审核的本体，如量杯 00001「4 个变体待审核」），没有变体单独出卡，244/244 可见；完备 9 张、待重建 6 张。列表视图不变（变体一行一件）。
+- **验证**：`bash scripts/check.sh`（uv 临时环境）82 passed、1 skipped；页面脚本 `node --check`；上面的卡片计数用页面里的函数跑实时数据得到。没开浏览器看。
+
 ### 合并开着的 PR（#36、#38–#43）并部署数采平台（2026-10-28 晚，`chongzheng/merge-open-prs-1028b`）
 
 - **用户要求**：合并处理所有 PR，然后部署。

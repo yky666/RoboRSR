@@ -1684,18 +1684,19 @@ function objList() {
     && (!q || `${d.id} ${d.name || ''} ${d.auto.name || ''} ${(d.auto.tasks || []).join(' ')}`.toLowerCase().includes(q)))
     .sort((x, y) => Number(ownObj(y)) - Number(ownObj(x)) || x.id.localeCompare(y.id));
 }
-// a variant rides on its base's card only when the base is in the same list; otherwise (e.g. filtered by review state) it gets its own card
-const cardDocs = (docs) => docs.filter((d) => !docs.includes(baseOf(d)));
+// a variant never gets its own card: its base's card shows whenever the base or any of its variants is in the list
+const cardDocs = (docs) => [...new Set(docs.map((d) => baseOf(d) || d))];
 const tally = (docs) => {
   const v = docs.filter((d) => baseOf(d)).length;
   return v ? `${docs.length}（本体 ${docs.length - v} + 变体 ${v}）` : `${docs.length}`;
 };
-function objBody(docs) {
+function objBody(docs, status = '') {
   return UI.obj.view === 'cards' ? `<div class="grid cards">${cardDocs(docs).map((d) => {
-      const rs = evalStages(OBJ_STAGES, d);
+      const rs = evalStages(OBJ_STAGES, d), nv = status ? docs.filter((v) => baseOf(v) === d).length : 0;
       return `<article class="card mcard" data-open="object" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开物体 ${esc(d.id)}">${objMedia(d)}
         <div class="mcard-b"><div class="mcard-t">${objCheck(d)}<b>${esc(objName(d))}</b>${reviewChip(d)}</div>
-          <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div>
+          <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>
+          ${nv ? `<div class="small">${nv} 个变体${esc(status)}</div>` : ''}
           <div class="small muted">${measured(d) ? `实测 ${esc(dimText(d))}` : `模型 ${mm(d.auto.size)} mm${d.twin ? ' · 未实测' : ''}`}</div>
           ${ownerText(d) ? `<div class="small ${d.owner ? '' : 'muted'}">${ic('users', 'ic-sm')} ${esc(ownerText(d))}</div>` : ''}${progress(rs)}</div></article>`;
     }).join('')}</div>`
@@ -1728,7 +1729,7 @@ function libSection(lib, docs) {
     <summary>${ic('chev-r', 'chev')}${ic(lib.icon)}<span>${esc(lib.name)}</span><span class="count">${n}</span>
       ${r2s ? Object.entries(REVIEW).map(([k, [s, label]]) => (counts[k].length ? st(s, `${label} ${counts[k].length}`) : '')).join('') : ''}
       <span class="muted small lib-desc">${esc(lib.description || lib.source || '')}</span></summary>
-    ${statusBar}${shown.length ? objBody(shown) : `<div class="card">${none}</div>`}</details>`;
+    ${statusBar}${shown.length ? objBody(shown, r2s && f.status ? REVIEW[f.status][1] : '') : `<div class="card">${none}</div>`}</details>`;
 }
 const objCheck = (d) => `<input type="checkbox" class="osel" data-osel="${esc(d.id)}" ${UI.osel.has(d.id) ? 'checked' : ''} aria-label="选择 ${esc(objName(d))}">`;
 function selectObjs(ids, checked) {
