@@ -370,7 +370,13 @@ def test_http():
         reg |= {"light_sources": "吸顶面板灯 4 盏", "color_temp_k": 4000}
         assert request("PUT", "/api/items?kind=scene&id=Bad/../x", json.dumps({"registered": True}))[0] == 400
         assert request("PUT", scene, json.dumps({"registered": True, "reg": reg}))[0] == 200
-        written = json.loads((tmp / "scenes/real_scene9_kitchen/registration.json").read_text(encoding="utf-8"))
+        reg_file = tmp / "scenes/real_scene9_kitchen/registration.json"
+        before = reg_file.read_bytes()
+        renamed = json.loads(request("PUT", scene, json.dumps({"name": " 一楼厨房 "}))[1])  # display name only
+        assert renamed["name"] == "一楼厨房" and renamed["reg"]["name"] == "厨房台面"
+        assert reg_file.read_bytes() == before  # registration.json untouched
+        assert request("PUT", scene, json.dumps({"name": "x" * 61}))[0] == 400
+        written = json.loads(reg_file.read_text(encoding="utf-8"))
         tape = lambda m: {"value_m": m, "tool": "卷尺", "date": "2026-10-20"}  # noqa: E731
         assert written.pop("updated_at") and written == {  # cm -> scene_spec.json measurements; a 0 offset is kept
             "scene": "real_scene9_kitchen",

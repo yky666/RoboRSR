@@ -994,7 +994,10 @@ const sceneDims = (d) => {
   if (num(a.top_z)) return `桌面 ${a.size.map((v) => v ?? '?').join(' × ')} m · 高 ${a.top_z} m`;
   return num(r.top_z_cm) ? `实测桌面 ${r.length_cm ?? '?'} × ${r.width_cm ?? '?'} cm · 高 ${r.top_z_cm} cm · 还没建模` : '没有 build_params.json';
 };
-const sceneName = (d) => d.reg?.name || d.auto?.name || d.id;
+const sceneName = (d) => d.name || d.reg?.name || d.auto?.name || d.id;  // name: edited in the drawer, display only
+const sceneBaseName = (d) => d.reg?.name || d.auto?.name || d.id;
+const sceneNameSec = (d) => sec('名称', `<div class="form">${row('中文名', 'name', inp(d, 'name', 'text', `maxlength="60" placeholder="${esc(sceneBaseName(d))}"`),
+  `平台里显示的名字，留空就用${d.reg?.name ? '登记时' : isBench(d) ? '默认' : ' scene_spec.json 里'}的「${esc(sceneBaseName(d))}」；不改仓库文件`)}</div>`);
 const SCENE_WIZ = [
   ['名称与照片', `围着桌子拍至少 ${MIN_SCENE_PHOTOS} 张不同角度的照片，定好场景目录名。`],
   ['桌面与站位', '卷尺量到 0.5 cm。桌面三项必填，是建模的尺度依据；机器人站位在机器人停在工作位置时量。'],
@@ -1230,7 +1233,12 @@ function drawerImportedScene(d) {
   };
 }
 function drawerScene(d) {
+  const view = sceneDrawerView(d);
+  return {...view, body: sceneNameSec(d) + view.body};
+}
+function sceneDrawerView(d) {
   if (d.auto.source === 'imported_simulation') return drawerImportedScene(d);
+
   if (isBench(d)) return drawerBenchScene(d);
   const a = d.auto, dir = rel(a.path), rs = evalStages(SCENE_STAGES, d);
   // modeled scenes live in code and git (USD, build_asset.py SCENES, env configs): the server refuses to delete them
