@@ -23,6 +23,7 @@
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
   - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
+  - 金属杯 `Clutter/metal_cup/00000` 和 6 个泛化变体：按平台登记建，未做仿真验证，未装共享库（见「最近任务」）。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
   - 杯对杯倒豆、量杯对倒：部分 seed 成功。
@@ -38,6 +39,12 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 金属杯 `Clutter/metal_cup`（2026-10-23，分支 `z/objects-metal-cup`）
+
+- 平台建模任务 `real2sim/objects/Clutter/metal_cup/00000/spec.json`（徐鹤鸣 10-23 登记）：铝杯，外壁和杯底白色、内壁反光金属，65 g，开口外径 80.2、杯底外径 57.3、高 105.4 mm。新脚本 `scripts/objects/make_metal_cup.py` 生成本体和 6 个泛化变体 `00001–00006`（`variant_of` 本体；颜色、材质、尺寸、形状都变，宽度 ≤ 80 mm）。
+- 几何：上宽下窄直壁 + 外卷杯口（卷边算进开口外径）、杯底内凹、内底中心凸台；`visual/model` 是白色外壁和杯底，`visual/inside` 是卷边、内壁和内底（金属）；`visual.color_parts = ["model"]`。碰撞体是 24 边底板加杯壁分片（2 mm，从外表面向内），杯口不封。没有实测摩擦，不写摩擦键。
+- 验证：只做了生成脚本里的几何自检（绕序、凸包 ≤ 64 点且不侵入杯腔、底面平），`measurements_mm` 三项与实测误差 0（容积约 340 ml）。**用户要求这次不接入仿真验证**：没跑 `check_object.py` 和物理检验，平台上「物理检验」会显示未完成。渲染图用不做物理的 `scripts/objects/render_preview.py` 出（相机、灯光、输出路径同 `check_object.py --image-dir`，物体固定不动、不写 `check.json`），已同步到部署机 `real2sim/objects/Clutter/metal_cup/0000{0..6}/preview/sim.png`；`scripts/objects/render_lights.py` 出日光、暖色室内、逆光三种灯光的对比图（隔离目录 `checks/render/`），目测无穿透、黑面、反光错误。生成结果在 5090-2 `/data/robodojo-runs/metal_cup-20261023-164736/ovl/Clutter/metal_cup/`，未装共享库。
 
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 
