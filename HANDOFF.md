@@ -49,7 +49,8 @@
   - #34 吧台岛台（本会话上一节）。
 - **冲突**：只有 `HANDOFF.md`。各 PR 的「最近任务」节都保留，「最近历史」两条都留，开头的会话行改写成这一行。#31、#32 都改了 `index.html`、`server.py`、`test_server.py`，自动合并无冲突。
 - **验证**：本机合并结果 `bash scripts/check.sh` 通过（82 passed、1 skipped），页面内联脚本 `node --check` 通过。
-- **部署**：见下一条（部署后补）。
+- **部署**（11:13）：部署机 `/root/RoboDojo` 从 `a21b1ac` 快进到 `65d7d5b`，别的会话的 148 处未提交改动全部保留（前后清单核对过）。平台文件在部署前就已和 `main` 一致（#32 的会话 11:03 部署过）。唯一冲突是 `plastic_mug/00000/spec.json`：平台上的登记字段和 `main` 的 `generalization` 按字段合并。吧台场景的新 LFS 文件、预览（含新 `scene.glb`、RTX 渲染）和马克杯 6 件的预览图从本机同步。重启后 `test_server.py` 13 passed，公网未登录 401、首页 200，平台上吧台场景 11 张照片、马克杯 6 件都有渲染。细节和回滚方法在本机 `.agent/ops.local.md`。
+- **没做**：共享资产库没动（吧台岛台版、马克杯变体都没装）；`g1d_counter_mobile` 布局没重新生成。
 
 ### 数采平台：物体按资产库分组，Real2Sim 物体管理员审核（2026-10-28，`chongzheng/platform-object-libraries`，已部署）
 
