@@ -1,7 +1,7 @@
 # Project Handoff
 
-更新时间：2026-10-27
-本会话分支：`chongzheng/merge-open-prs`（worktree `../RoboDojo-merge-prs`）：深圳实验室装共享库，6 个开着的 PR 合进 `main`，见「最近任务」第一节。上一会话 `chongzheng/scene-shenzhen-lab-room` 把深圳实验室补成整层房间（第二节）。下行保留主线历史。
+更新时间：2026-10-28
+本会话分支：`chongzheng/scene-counter-island`（worktree `../RoboDojo-counter-island`，从 `origin/main` `06524c4` 开）：吧台场景按 6 张新照片加过道岛台、改天花板灯槽、重排右侧木柜墙、细化垃圾桶，见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs` 把深圳实验室装共享库、6 个 PR 合进 `main`（第二节）。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -15,7 +15,7 @@
   - 头部用双目的左眼 `cam_head`（棋盘格标定 fx≈279.5，宇树合同外参），两个腕部相机 fx≈314；投影到真机画面核对过（误差 0.4–3.6 px）。
   - 关节驱动参数（刚度 4400、阻尼 40）和夹爪力是拍定的，没做系统辨识。夹爪从 10-21 起改为每指刚度 3.6e4 N/m、上限 55 N，是按真机 kp 估算的（见「剩余事项」），之前是 1e4 和 20 N；官方规格（零售商转载）是 5–120 N 可调。开合速度从 10-23 起限到每指 0.064 m/s（真机遥操作数据的合爪速度；之前是 URDF 的 0.2 m/s，即 Dex1-1 最快档）。两项在 10-27 一起合进 `main`（PR #24、#26）。仿真里能读到夹持力：`obs["gripper_force"]`（指垫 ContactSensor，单位 N，不进数据集）。同事把"相机+动作标定工具包"作为 `g1d_calib_toolkit_20261019.zip` 传到了仓库根目录，还没接入。
   - 构建：`python scripts/g1d/build_asset.py`（读 `real2sim/robot/g1d_v4`）。下载官方资产后先跑一次 `utils/update_embodiment_config_path.py`。
-- **场景**（`real2sim/scenes/`）：env 配置 `g1d` 是办公室，`g1d_counter` 是吧台（移动版 `g1d_counter_mobile` 加了左侧客区，见「最近任务」第一节），`g1d_lab` 是公司实验室，`g1d_school` 是学校实验室绿幕桌，`g1d_shenzhen_lab` 是深圳实验室办公桌。前三个从照片拟合，尺度靠先验；学校的来自同事用真机相机画面拟合的 MuJoCo 孪生；深圳实验室是第一个按平台登记、用卷尺定尺度的场景（卷尺三项通过，站位和叠图待做），10-27 起按房间全景补成整层房间。其余都没有卷尺实测，都没有叠图验收。状态汇总：`python scripts/scenes/acceptance.py`（目前全部 pending）。新场景先在数采平台登记（≥ 5 张照片 + 卷尺实测，写 `registration.json`），再按 `real2sim/scenes/SKILL.md` 交给 coding agent 建模。新场景先在数采平台「登记场景」（至少 5 张照片 + 卷尺实测，写 `real2sim/scenes/<场景>/registration.json`），再按 `real2sim/scenes/SKILL.md` 建模。
+- **场景**（`real2sim/scenes/`）：env 配置 `g1d` 是办公室，`g1d_counter` 是吧台（移动版 `g1d_counter_mobile` 加了左侧客区；10-28 起过道里有高吧台和绿色岛台，见「最近任务」第一节），`g1d_lab` 是公司实验室，`g1d_school` 是学校实验室绿幕桌，`g1d_shenzhen_lab` 是深圳实验室办公桌。前三个从照片拟合，尺度靠先验；学校的来自同事用真机相机画面拟合的 MuJoCo 孪生；深圳实验室是第一个按平台登记、用卷尺定尺度的场景（卷尺三项通过，站位和叠图待做），10-27 起按房间全景补成整层房间。其余都没有卷尺实测，都没有叠图验收。状态汇总：`python scripts/scenes/acceptance.py`（目前全部 pending）。新场景先在数采平台登记（≥ 5 张照片 + 卷尺实测，写 `registration.json`），再按 `real2sim/scenes/SKILL.md` 交给 coding agent 建模。新场景先在数采平台「登记场景」（至少 5 张照片 + 卷尺实测，写 `real2sim/scenes/<场景>/registration.json`），再按 `real2sim/scenes/SKILL.md` 建模。
 - **物体**：每件资产的来源和匹配程度看 `real2sim/ASSETS.md`。按数采平台的登记（`real2sim/objects/<id>/spec.json` + 照片）给实物建模，交给 coding agent 时按 `scripts/objects/SKILL.md`；平台物体页生成的「建模任务」文本第一行就指向它。
   - 量杯、塑料马克杯、红豆有实测尺寸和质量。
   - 共享资产库缺 `measuring_cup`、`plastic_mug`，以及量杯任务的布局。
@@ -27,8 +27,8 @@
   - 拾取、叠块：三个场景 seed 0 都成功。
   - 杯对杯倒豆、量杯对倒：部分 seed 成功。
   - 壶倒杯：5.6 mm 的豆子会堵住 13 mm 的壶嘴。
-  - 移动送杯 `g1d_deliver_cup_to_lounge`（`g1d_counter_mobile`）：seed 0 前 4 个布局 4/4。
-  - 冷水壶倒水再送杯 `g1d_pour_water_deliver_to_lounge`（`g1d_counter_mobile`）：seed 0 布局 0（见「最近任务」第一节）。
+  - 移动送杯 `g1d_deliver_cup_to_lounge`（`g1d_counter_mobile`）：10-24 seed 0 前 4 个布局 4/4；10-28 现在的 `main` 上只剩 2/4，布局 0、3 抓杯时杯子没被抬起，旧场景下也一样（见「最近任务」第一节）。
+  - 冷水壶倒水再送杯 `g1d_pour_water_deliver_to_lounge`（`g1d_counter_mobile`）：seed 0 布局 0，10-28 带岛台的场景下重跑仍成功。
 - **数据**：所有数据集登记在 `scripts/datagen/registry.json`。目前有 2 份办公室量杯全量倒豆数据，各 100 条，LeRobot v3.0，都是按旧的 legacy 格式导出的：
   - 固定朝向的一份，已上传 ModelScope 私有仓库；
   - 随机左右手、随机朝向、大范围位置的一份，也已上传 ModelScope 私有仓库（单独的仓库）。
@@ -38,6 +38,39 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 吧台场景：过道岛台、天花板、右侧木柜墙、垃圾桶（2026-10-28，`chongzheng/scene-counter-island`）
+
+- **用户要求**：给了 6 张茶水间照片（天花板、垃圾桶细节，以及吧台前多出来的岛台），按照片优化吧台场景 `real_scene2_counter`。照片入库为 `reference/island_{front,right,left,end}.jpg`、`ceiling.jpg`、`bins.jpg`。
+- **拟合**：新增 `fit_island.py` → `fit_island.json`。四张岛台照片联合拟合相机、共享焦距和岛台尺寸，相机锚在已拟合的吧台上（海报、架子、台面前沿、凹龛木柱），尺度基准仍是「微波炉宽 0.485 m」。118 个像素约束，中位 3.3 px，最大 25 px。岛台轮廓标注要指定落在跑道形的哪一段，否则会被吸到看不见的一侧（第一次就这样拟歪了）。
+- **结果**（细节和置信度表见该目录 `PLAN.md`「岛台」）：
+  - 高吧台：顶高 1.091 m，长 4.49 m、宽 0.84 m，左端立在铜色跑道形立柱上，右端由铜鼓座架在绿色岛台上。
+  - 绿色岛台：顶高 0.867 m，长 4.83 m、宽 1.15 m，绿色竖向半圆波纹板、铜踢脚。
+  - 6 把吧凳：过道侧、靠墙侧各 3 把，座高按 0.75 m 假设。
+  - 2 盏线形吊灯：黑杆、3 个铜灯盒，灯盒底面自发光。
+  - 吧台靠墙边到吧台台面前沿 1.60 m；靠墙侧吧凳把过道收窄到 1.22 m。
+- **顺带改的**：
+  - 天花板灯槽原来建成平行于墙，实际是垂直于墙、每 2.6 m 一条（lounge1 反投影 x = −4.97，新照片 0.2 / 2.8），每条配双头筒灯；白色石膏带延伸到整面墙；x > 6.8 改为白色石膏顶。
+  - 右侧木柜墙按 island_right 正面照片重排：板缝、消防栓门、饮水机凹槽（原来两槽只隔 5 cm，实际约 17 cm）；木墙在 x = 5.4 结束，之后是刷漆墙。
+  - 房间扩到 x = 9.0、y = −7.0（拍照位置在原来的墙外）。
+  - 垃圾桶改成圆角不锈钢桶、不锈钢盖、黑底边和脚踏，「可回收物 / 其他垃圾」印刷从照片校正成镂空贴花。
+  - `preview.py` 加 `compare_island.jpg`；`plan.jpg` 原来整张都是天花板，现在去掉了 2.5 m 以上的东西。
+  - `check_scene.py` 加了岛台碰撞体顶点数、两座台面高度、过道宽 ≥ 1.0 m 三项（25/26，唯一 FAIL 仍是原有的站位提醒）。
+- **脚本专家** `scripted_demo.BACK_OFF` 从 0.7 改为 0.5 m。按 `AGV_link` 底盘矩形（0.54 × 0.525 m）扫过 `carry_to_lounge` 的路线，0.7 m 会压到靠墙侧的吧凳，0.6 m 擦边，0.5 m 最小间隙约 9 cm；杯子倒退后仍离台面前沿 0.33 m。
+- **照片里没有微波炉**：能看到台面右半边的三张新照片里只有一张绿色提示卡。模型保留了微波炉，因为它是尺度基准、布局按它留出空台面。**要不要去掉要问用户。**
+- **验证**：
+  - 本机：`fit_island.py`、`build_scene.py`、`check_scene.py`（25/26）、`preview.py`；`scene_parts.py` 重新生成的 `parts.json` 和原来一致；`bash scripts/check.sh` 通过（78 passed、1 skipped）。
+  - `5090-2` 隔离目录 `/data/robodojo-runs/counter-island-20261028`（GPU 4/5；资产硬链接自 `pour-deliver-jug-c`，只换 `Room/real_scene2`，共享库没动）：
+    - `render_scenes.py` 的 RTX 画面正常，岛台、吧凳、吊灯、灯槽都在，本机 `preview/render/sim.jpg`；
+    - `g1d_pour_water_deliver_to_lounge` seed 0 布局 0：success_rate 1.0、eval_time 1；
+    - `g1d_deliver_cup_to_lounge` seed 0 前 4 个布局：2/4（eval_time 4）。成功的两个底盘都穿过过道到了圆桌。失败的布局 0、3 都是侧抓时杯子没被抬起（布局 0 被推到 y = −0.16），还没开到岛台。
+  - 对照 `/data/robodojo-runs/counter-island-ctrl-20261028`（GPU 6）：同一份代码配旧场景，逐布局结果一样，布局 0 的杯子位置都一样。所以抓杯失败不是岛台造成的，最可能是 10-27 合进 `main` 的夹爪 55 N / 限速 0.064 m/s（这个任务在那之后没人重跑过）。
+- **没做**：
+  - 抓杯失败没修；
+  - 共享库没装：共享库里的 `real_scene2` 还是只有吧台的旧版，客区版也没装；
+  - `cam_third`（移动版，房间右前角）现在前景里多了吧台，台面和客区圆桌仍在画面里，没调；
+  - 吧凳是静态的（客区扶手椅是可推动的刚体）；
+  - 天花板高度 3.20 m 没改：灯槽反投影更像 3.0 m，但木柜墙顶和灯带顶指向 3.0–3.1 m，互相矛盾，留待卷尺。
 
 ### 深圳实验室装共享库 + 合并全部开着的 PR（2026-10-27，`chongzheng/merge-open-prs`）
 
@@ -654,8 +687,9 @@
   - 共享资产库还没有 `g1d_mobile_dex1.urdf` 和 `Eval_Layout/RoboDojo/g1d_mobile/`，要在隔离目录跑完整的 `build_asset.py` 验证后，经用户同意再装；
   - 录制（`collect.py` 的 `state_keys`）、LeRobot 导出和 XPolicyLab 的 `_robot_info.json` 都只认 16 维，要采带身体自由度的数据，先定契约再改录制器和转换器；
   - 第一个用到底盘的任务是 `g1d_deliver_cup_to_lounge`（见「最近任务」第一节）；底盘撞桌、撞椅只靠领先量限幅，没有专门测；轮子只是外观，不转；
-  - 客区尺度只来自「圆桌高 0.75 m」，吧台左木柱宽 1.0 m 是下限估计，椅子尺寸和 7 kg 都是估计；下次去现场按 `real_scene2_counter/PLAN.md`「需要实测的尺寸」第 5 项量；
-  - 脚本专家的绕行只挑椅子空档，不做路径规划：路线上有别的障碍时会撞上；
+  - 客区尺度只来自「圆桌高 0.75 m」，吧台左木柱宽 1.0 m 是下限估计，椅子尺寸和 7 kg 都是估计；下次去现场按 `real_scene2_counter/PLAN.md`「需要实测的尺寸」第 5、6 项量；
+  - 脚本专家的绕行只挑椅子空档，不做路径规划：路线上有别的障碍时会撞上。10-28 加了岛台后，靠的是 `BACK_OFF` 0.5 m 让出靠墙侧吧凳（间隙约 9 cm）；吧凳位置是估计的（座高假设 0.75 m），实测后要按 `build_params.json` 的 `islands` 重算间隙；
+  - 送杯任务 seed 0 布局 0、3 抓杯失败（10-28，新旧场景一样），疑似 10-27 的夹爪改动造成，要先修 `lift_cup` 的侧抓，再重跑送杯和倒水送杯；
   - 真机升降是速度接口，部署端要按官方 PD 示例把 `lift_joint_state` 换成 `HeightAdjust`；真机 `rt/hispeed_state` 高度的零点和仿真 0（最低）是否一致没核对；底盘加减速、腰和升降的动力学都没做辨识。
 
 - **主工作区里未提交的改动**（10-20 晚核对）：`CLAUDE.md`、`HANDOFF.md`、`README.md`、`real2sim/scenes/SKILL.md`、`scripts/g1d/export_office_beans.py`，主要是「服务器切到 5090-2」那次的文档改动；主工作区的本地 `main` 还停在 `a694da5`，落后 `origin/main`。物体 SKILL 已随 PR #5 合并。
@@ -703,10 +737,11 @@
 3. 去现场按 `real2sim/scenes/SKILL.md` 采集（ChArUco 标定板照片、卷尺、灯光、机器人相机画面），在平台「登记场景」录入，回来跑 `overlay.py` 和 `acceptance.py`。
 4. 给 XPolicyLab 提 PR，注册 `g1d*` 的动作维度；然后用一个 LeRobot 策略在 `--env-cfg g1d_beans_collect` 下走通"外部训练 → 本仓库评估"的整条链。
 5. 学校场景：用户重建 sys01 连接后拷真机画面做叠图（`overlay.py --env-cfg g1d_school`）；要用学校场景做任务时，再写杯盘布局和任务。
-6. G1-D 移动版：在隔离目录跑完整 `build_asset.py` 和 `body_probe.py`（两个版本），征得同意再装共享库（连同 `lounge_chair`、带客区的 `real_scene2`、`g1d_counter_mobile` 布局）；送杯任务再跑 seed 1、2；要采身体自由度数据时，先改 CONTRACT 和录制器（`base_velocity`、`lift_joint_state` 还不进 16 维录制）。
+6. G1-D 移动版：先修送杯任务布局 0、3 的抓杯（10-28 发现，见「最近任务」第一节）；在隔离目录跑完整 `build_asset.py` 和 `body_probe.py`（两个版本），征得同意再装共享库（连同 `lounge_chair`、带客区和岛台的 `real_scene2`、`g1d_counter_mobile` 布局）；送杯任务再跑 seed 1、2；要采身体自由度数据时，先改 CONTRACT 和录制器（`base_velocity`、`lift_joint_state` 还不进 16 维录制）。
 
 ## 最近历史
 
+- 2026-10-28：吧台场景按 6 张新照片加过道里的高吧台和绿色岛台（含吧凳、线形吊灯），天花板灯槽改为垂直于墙，右侧木柜墙和饮水机按正面照片重排，垃圾桶加照片贴花；脚本专家送杯后退改为 0.5 m 让出吧凳。`5090-2` 上 RTX 渲染、倒水送杯 1/1、送杯 2/4（另 2 个是抓杯失败，旧场景下一样）。
 - 2026-10-27：深圳实验室（整层房间版、574 个评测布局）装进 `5090-2` 共享库；本仓库 6 个开着的 PR（#24、#25、#26、#28、#29、#30）合进 `main`，G1-D 夹爪默认改为 55 N / 3.6e4 并限速 0.064 m/s。
 - 2026-10-27：深圳实验室场景按 8 张全景照片补成整层房间（角柱、吊顶 + 穿孔铝板天花和灯条、工位、升降桌、货架、椅子、电梯厅栏杆闸机），`5090-2` 上 RTX 渲染和量杯脚本演示通过。
 - 2026-10-24：RSI 导入 ManiTwin 干扰物 390 个（尺寸去重、地面和桌面两道稳定性筛查）、Poly Haven 室内 HDR 40 张；T0 改为统计三套官方评测集（seed 0/1/2），材质成为新缺口（504 种里 494 种被评测用掉）。
