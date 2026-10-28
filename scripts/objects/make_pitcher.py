@@ -482,6 +482,8 @@ def main(out_dir):
         uid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"robodojo/rigid/pitcher/{idx}"))
         write_usdz(d / "object.usdz", visual, hulls, glass_rgb, lid_rgb)
         meta = metadata(uid, all_pts, n_faces, grip + shift, shift[:2])
+        if idx:
+            meta["variant_of"] = "Rigid/pitcher/00000"  # colour variants: the platform shows them on 00000's card
         (d / "metadata.json").write_text(json.dumps(meta, indent=4))
         (d / "description.json").write_text(json.dumps(description(uid, color, litres), indent=4))
 

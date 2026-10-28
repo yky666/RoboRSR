@@ -46,6 +46,13 @@
 - 检查：`5090-2:/data/robodojo-runs/measuring-cup-check-20261028`（GPU 4），模型取自 `office-beans-random-20261019` 的 10-19 版本（数据集用的同一份；00000 的副本补了 `variant_of`），`check_object.py` 两只 OK：z=0.070/0.085 m（等于期望）、倾角 0°。在同一目录用新生成器重跑到 `gen/`：00000 带 `variant_of`，质量、尺寸和 10-19 版一致（旧版多一个不生效的 `friction` 键）。本机 `check.sh` 的 ruff 通过；pytest 在隔离目录因没拷 LFS 网格大量失败，与本改动无关，没在完整仓库补跑。
 - 平台（部署机，没改平台代码）：`check.json` 和新 `sim.png` 放进 `real2sim/objects/Rigid/measuring_cup/0000{0,1}/preview/`，旧文件和数据库在线备份在 `.cache/mcup-20261028/`。用种政临时会话经 API：扫描；两只都写负责人 `chongzheng`、名称、材质颜色、实测尺寸和质量（尺寸、质量依据都选「实测」）；审核通过。结果两只 `built`、`review_state=done`，00000 的 `variant_of` 指向 00001。没有点「确认建模 prompt」。
 
+### 数采平台：三个 water pitcher 合成一张「冷水壶」卡片（2026-10-28，`chongzheng/platform-pitcher-variants`）
+
+- `Rigid/pitcher/00000–00002` 是 `make_pitcher.py` 同一把壶的烟灰/琥珀/透明三色，之前在物体页是三张都叫 "water pitcher" 的卡片。现在 00001、00002 的 `metadata.json` 写 `"variant_of": "Rigid/pitcher/00000"`，收进 00000 的卡片。
+- 改动：`make_pitcher.py` 给非 0 号写 `variant_of`；5090-2 共享库 `/data/robodojo-assets/Assets` 和平台镜像 `/root/RoboDojo_assets/Assets` 里这两份 `metadata.json` 直接补了这个键（仿真运行时不读它）。备份在 `5090-2:/data/robodojo-runs/pitcher-variants-20261028-113722/`（两边原文件 + 平台数据库）。
+- 平台录入的中文名（数据库 `name` 字段，记在「种政」名下）：00000「冷水壶」，00001「冷水壶（琥珀色）」，00002「冷水壶（透明）」。另一组 `water_pitcher/00000–00005`（已被驳回、待补实物照片重建）没动。
+- 验证：平台重扫后三条的 `auto.variant_of` 符合预期；部署机页面的卡片视图会过滤掉变体。没重启服务，也没在浏览器里看。
+
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 
 - **起因**（用户）：建模时把 Real2Sim 实物孪生错存进了官方 RoboDojo 物体库，应该单独放 Real2Sim 库。范围（用户选）：全部自建孪生。
