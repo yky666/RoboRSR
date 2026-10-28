@@ -694,6 +694,12 @@ def test_object_review_and_libraries(tmp_path, monkeypatch):
         assert call("bob", "PUT", obj, {"review_action": "reopen"})[0] == 403
         call("boss", "PUT", obj, {"review_action": "approve"})
 
+        var = "Rigid/cup/00001"  # a variant is not reviewed on its own: it shows its base's state
+        store.sync("object", {oid: store.get("object", oid)["auto"], var: {"built": False, "variant_of": oid}})
+        assert call("boss", "PUT", f"/api/items?kind=object&id={var}", {"review_action": "approve"})[0] == 409
+        listed = {d["id"]: d["review_state"] for d in call("bob", "GET", "/api/items?kind=object")[1]}
+        assert listed == {oid: "done", var: "done"}
+
         auto = {**store.get("object", oid)["auto"], "photos": ["/r/a.jpg", "/r/b.jpg", "/r/c.jpg"]}
         store.sync("object", {oid: auto})
         assert call("bob", "PUT", obj, {"photo_order": "c.jpg"})[0] == 400

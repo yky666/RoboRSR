@@ -39,6 +39,14 @@
 
 ## 最近任务
 
+### 数采平台：变体不审核、跟随本体，物体统计只数本体（2026-10-28 22:xx，`chongzheng/platform-variants-no-review`）
+
+- **用户要求**：变体不需要审核，跟随本体；物体资产的统计只统计本体。取代 #43 的「本体 N + 变体 M」写法。
+- **服务端**：`public_object(doc, base)` 的 `review_state` 对变体取本体的（`variant_base()` 按 `auto.variant_of` 找本体；本体不存在时仍按自己算）；列表和保存后的返回都这样。对变体提交 `review_action` 返回 409「变体跟随本体 … 审核」。
+- **前端**：`isBase`、`stateOf`（变体取本体的状态，审核完本体后页面上变体立即跟着变）。只数本体：侧栏「物体资产」、总览 KPI 和流程卡、分区标题计数和状态标签、状态分段按钮、工具栏「N 件」及照片/渲染数、待审核角标、资产库抽屉的物体数。按状态筛选只出状态相符的本体卡片。变体详情的审核区只写「泛化变体不单独审核，跟随本体 …」，没有表单。列表视图仍一件一行（变体行显示本体的状态）。
+- **实时数据**：侧栏物体 118（记录 315）；Real2Sim 本体 63 = 待重建 6 + 待审核 48 + 完备 9，各筛选下没有状态不符或变体单独出的卡；待审核角标 48；量杯 00000、00002–00005 跟随 00001 显示完备。
+- **验证**：`bash scripts/check.sh`（uv 临时环境）82 passed、1 skipped，`test_object_review_and_libraries` 新增变体断言（对变体审核 409、列表里变体取本体状态）；页面脚本 `node --check`。没开浏览器看。
+
 ### 量杯变体 00002–00005 装共享库；平台变体始终跟着本体卡片（2026-10-28 21:1x，`chongzheng/platform-variants-follow-base`）
 
 - **装库**（用户要求）：把隔离目录 `measuring-cup-variants-20261028-150013/ovl/Rigid/measuring_cup/0000{2..5}`（生成脚本与 `main` 逐字节一致、`check_object.py` 已通过）原样拷进 `5090-2:/data/robodojo-assets/Assets/Object/Real2Sim/Rigid/measuring_cup/`，`diff -r` 一致，属主 1008。目标目录原本不存在，没有覆盖；装库前清单 `backups/listing-before-measuring-cup-variants-20261028-211322.txt`。按 10-28 搬库之后的做法只放 Real2Sim，不在 RoboDojo 留软链接（`object_dir` 先找 Real2Sim）。本体 00000/00001 仍未装库。装后对共享库副本跑 `check_object.py`（GPU 2）：4 只 OK，倾角 0°，高度等于半高。平台镜像 `/root/RoboDojo_assets` 手动放了这 4 份 `metadata.json`/`description.json`（整体重刷镜像会删掉）。回滚：删掉这 4 个目录。

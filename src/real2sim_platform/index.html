@@ -839,7 +839,7 @@ function renderNav() {
   const items = [
     ['overview', '总览', 'grid', ''],
     ['scenes', '场景重建', 'scan', S.scene.length],
-    ['objects', '物体资产', 'box', live(S.object).length],
+    ['objects', '物体资产', 'box', live(S.object).filter(isBase).length],
     ['robots', '本体管理', 'bot', live(S.embodiment).length],
     ['prototypes', '研究资产', 'layers', live(S.prototype).length],
     ['tasks', '任务采集', 'list', live(S.task).filter((t) => t.auto.dimension === 'custom').length],
@@ -939,7 +939,7 @@ function moduleCard(step, title, href, stages, docs) {
     <span class="sp"></span><a class="small" href="${href}">查看 ${ic('arrow-r', 'ic-sm')}</a></div><div class="card-b">${rows}</div></section>`;
 }
 function viewOverview() {
-  const scenes = twinScenes(), objs = live(S.object), eps = live(S.episode);
+  const scenes = twinScenes(), objs = live(S.object).filter(isBase), eps = live(S.episode);
   const tasks = live(S.task).filter((t) => t.auto.dimension === 'custom');
   const qa = group(eps, (e) => e.qa || 'pending'), sr = simReal(eps), done = scenes.filter((d) => allOk(SCENE_STAGES, d)).length;
   const kpi = (icon, label, value, meta, href, ratio) => `<a class="card kpi" href="${href}"><div class="k-label">${ic(icon)}${label}</div><div class="k-value num">${value}</div>
@@ -1650,6 +1650,9 @@ const objName = (d) => d.name || d.auto.name || d.auto.category;
 // generalization variants (metadata.json "variant_of") sit on their base object's card
 const baseOf = (d) => (d.auto.variant_of && d.auto.variant_of !== d.id ? S.object.find((x) => x.id === d.auto.variant_of) : null);
 const variantsOf = (id) => S.object.filter((x) => x.auto.variant_of === id && x.id !== id);
+// object counts are of base objects only; a variant is not reviewed on its own and shows its base's review state
+const isBase = (d) => !baseOf(d);
+const stateOf = (d) => (baseOf(d) || d).review_state;
 // registered here (d.twin), built into the Real2Sim object library (Object/Real2Sim/, not the benchmark's RoboDojo/),
 // or a generalization variant (metadata/check.json "variant_of", even one built but not installed yet) or its base
 const twinObj = (d) => Boolean(d.twin || d.auto.library === 'Real2Sim' || d.auto.variant_of || variantsOf(d.id).length);
@@ -1675,8 +1678,8 @@ const libOf = (d) => (d.library && libraries().some((l) => l.id === d.library) ?
 const libName = (id) => libraries().find((l) => l.id === id)?.name || id;
 // review of a Real2Sim object, decided on the server (review_state): no model yet or sent back -> built -> approved
 const REVIEW = {rebuild: ['todo', '待重建'], review: ['warn', '待审核'], done: ['ok', '完备']};
-const reviewChip = (d) => (libOf(d) === 'real2sim' && REVIEW[d.review_state] ? st(...REVIEW[d.review_state]) : '');
-const toReview = () => live(S.object).filter((d) => libOf(d) === 'real2sim' && d.review_state === 'review').length;
+const reviewChip = (d) => (libOf(d) === 'real2sim' && REVIEW[stateOf(d)] ? st(...REVIEW[stateOf(d)]) : '');
+const toReview = () => live(S.object).filter((d) => isBase(d) && libOf(d) === 'real2sim' && d.review_state === 'review').length;
 const ownerText = (d) => (d.owner ? memberName(d.owner) : libOf(d) === 'real2sim' ? '未指派负责人' : '');
 function objList() {
   const f = UI.obj, q = f.q.toLowerCase();
@@ -1686,17 +1689,12 @@ function objList() {
 }
 // a variant never gets its own card: its base's card shows whenever the base or any of its variants is in the list
 const cardDocs = (docs) => [...new Set(docs.map((d) => baseOf(d) || d))];
-const tally = (docs) => {
-  const v = docs.filter((d) => baseOf(d)).length;
-  return v ? `${docs.length}（本体 ${docs.length - v} + 变体 ${v}）` : `${docs.length}`;
-};
-function objBody(docs, status = '') {
+function objBody(docs) {
   return UI.obj.view === 'cards' ? `<div class="grid cards">${cardDocs(docs).map((d) => {
-      const rs = evalStages(OBJ_STAGES, d), nv = status ? docs.filter((v) => baseOf(v) === d).length : 0;
+      const rs = evalStages(OBJ_STAGES, d);
       return `<article class="card mcard" data-open="object" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开物体 ${esc(d.id)}">${objMedia(d)}
         <div class="mcard-b"><div class="mcard-t">${objCheck(d)}<b>${esc(objName(d))}</b>${reviewChip(d)}</div>
           <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>
-          ${nv ? `<div class="small">${nv} 个变体${esc(status)}</div>` : ''}
           <div class="small muted">${measured(d) ? `实测 ${esc(dimText(d))}` : `模型 ${mm(d.auto.size)} mm${d.twin ? ' · 未实测' : ''}`}</div>
           ${ownerText(d) ? `<div class="small ${d.owner ? '' : 'muted'}">${ic('users', 'ic-sm')} ${esc(ownerText(d))}</div>` : ''}${progress(rs)}</div></article>`;
     }).join('')}</div>`
@@ -1710,26 +1708,26 @@ function objBody(docs, status = '') {
         <td>${progress(evalStages(OBJ_STAGES, d))}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function libSection(lib, docs) {
-  const f = UI.obj, r2s = lib.id === 'real2sim', n = docs.length;  // variants included, as in the list view
-  const counts = Object.fromEntries(Object.keys(REVIEW).map((k) => [k, docs.filter((d) => d.review_state === k)]));
+  const f = UI.obj, r2s = lib.id === 'real2sim', bases = docs.filter(isBase), n = bases.length;
+  const counts = Object.fromEntries(Object.keys(REVIEW).map((k) => [k, bases.filter((d) => d.review_state === k).length]));
 
-  const shown = r2s && f.status ? counts[f.status] : docs;
+  const shown = r2s && f.status ? docs.filter((d) => stateOf(d) === f.status) : docs;
   const picked = f.view === 'cards' ? cardDocs(shown) : shown, all = picked.length && picked.every((d) => UI.osel.has(d.id));
   const pickAll = picked.length ? `<label class="check"><input type="checkbox" ${all ? 'checked' : ''} data-ids="${esc(picked.map((d) => d.id).join('\n'))}"
     onchange="selectObjs(this.dataset.ids.split('\\n'), this.checked)">全选本组 ${picked.length} 件</label>` : '';
   const statusBar = r2s ? `<div class="toolbar lib-status"><div class="segctl" role="group" aria-label="按审核状态查看">
-      ${[['', '全部', docs], ...Object.entries(REVIEW).map(([k, [, label]]) => [k, label, counts[k]])].map(([k, label, c]) => `<button type="button"
-        aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${tally(c)}</span></button>`).join('')}</div>
-      <span class="muted small">${ME?.admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核</span><span class="sp"></span>${pickAll}</div>`
+      ${[['', '全部', n], ...Object.entries(REVIEW).map(([k, [, label]]) => [k, label, counts[k]])].map(([k, label, c]) => `<button type="button"
+        aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
+      <span class="muted small">${ME?.admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核；只数本体，变体跟随本体审核</span><span class="sp"></span>${pickAll}</div>`
     : pickAll ? `<div class="toolbar lib-status"><span class="sp"></span>${pickAll}</div>` : '';
   const none = f.q || f.photo || f.status || f.owner ?
  empty('search', '没有符合条件的物体', '调整筛选条件')
     : lib.custom ? empty('box', '库里还没有物体', '登记物体后，在物体详情的「资产库」里选这个库') : empty('box', '还没有物体', '点「登记物体」新建');
   return `<details class="lib" data-lib="${esc(lib.id)}" ${f.closed.has(lib.id) ? '' : 'open'} ontoggle="toggleLib(this)">
     <summary>${ic('chev-r', 'chev')}${ic(lib.icon)}<span>${esc(lib.name)}</span><span class="count">${n}</span>
-      ${r2s ? Object.entries(REVIEW).map(([k, [s, label]]) => (counts[k].length ? st(s, `${label} ${counts[k].length}`) : '')).join('') : ''}
+      ${r2s ? Object.entries(REVIEW).map(([k, [s, label]]) => (counts[k] ? st(s, `${label} ${counts[k]}`) : '')).join('') : ''}
       <span class="muted small lib-desc">${esc(lib.description || lib.source || '')}</span></summary>
-    ${statusBar}${shown.length ? objBody(shown, r2s && f.status ? REVIEW[f.status][1] : '') : `<div class="card">${none}</div>`}</details>`;
+    ${statusBar}${shown.length ? objBody(shown) : `<div class="card">${none}</div>`}</details>`;
 }
 const objCheck = (d) => `<input type="checkbox" class="osel" data-osel="${esc(d.id)}" ${UI.osel.has(d.id) ? 'checked' : ''} aria-label="选择 ${esc(objName(d))}">`;
 function selectObjs(ids, checked) {
@@ -1759,7 +1757,7 @@ function toggleLib(el) {
   try { localStorage.objLibClosed = JSON.stringify([...UI.obj.closed]); } catch {}
 }
 function viewObjects() {
-  const f = UI.obj, docs = objList(), objs = live(S.object);
+  const f = UI.obj, docs = objList(), objs = live(S.object).filter(isBase);
   return `<div class="page">${pageHead('物体资产', `按资产库分组，点库名收起或展开。G1-D 任务配置里用到的物体自动列出，新的实物孪生先登记。实测值定稿后写回生成脚本和
     <a target="_blank" rel="noopener" href="${file(`${INFO.root}/real2sim/ASSETS.md`)}">real2sim/ASSETS.md</a>`,
     `${ME?.admin ? `<button class="btn" type="button" data-open="libraries" data-id="all">${ic('layers')}管理资产库</button>` : ''}
@@ -1768,13 +1766,16 @@ function viewObjects() {
     <div class="toolbar filters">${searchBox('obj-q', f.q, 'UI.obj.q', '搜索 id / 名称 / 任务')}
       <select aria-label="重建负责人" onchange="UI.obj.owner = this.value; render()">${opts({'': '全部负责人', ...(ME ? {[ME.username]: '我负责的'} : {}), '-': '未指派', ...Object.fromEntries(MEMBERS.filter((m) => m.username !== ME?.username).map((m) => [m.username, m.name]))}, f.owner)}</select>
       <label class="check"><input type="checkbox" ${f.photo ? 'checked' : ''} onchange="UI.obj.photo = this.checked; render()">只看有照片参考</label>
-      <span class="muted small">${docs.length} 件 · 照片参考 ${objs.filter(hasPhotoReference).length}（已归档 ${objs.filter((o) => o.auto.photos?.length).length}） · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span><span class="sp"></span>
+      <span class="muted small">${docs.filter(isBase).length} 件 · 照片参考 ${objs.filter(hasPhotoReference).length}（已归档 ${objs.filter((o) => o.auto.photos?.length).length}） · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span><span class="sp"></span>
       <div class="segctl" role="group" aria-label="显示方式">
         <button type="button" aria-pressed="${f.view === 'cards'}" onclick="setObjView('cards')">${ic('grid', 'ic-sm')} 卡片</button>
         <button type="button" aria-pressed="${f.view === 'table'}" onclick="setObjView('table')">${ic('table', 'ic-sm')} 列表</button></div></div>
     ${objBulkBar()}${libraries().map((lib) => libSection(lib, docs.filter((d) => libOf(d) === lib.id))).join('')}</div>`;
 }
 function reviewPanel(d) {
+  const base = baseOf(d);
+  if (base) return sec(`${ic('eye')}审核`, `<div class="review-head">${reviewChip(d)}<span class="small">泛化变体不单独审核，跟随本体
+    ${link('object', base.id, objName(base))}</span></div>`);
   const r = d.review || {}, [s, label] = REVIEW[d.review_state] || REVIEW.rebuild, built = d.auto.built;
   const why = d.review_state === 'done' ? `${r.by} 于 ${fmtTime(r.at)} 审核通过`
     : d.review_state === 'review' ? (r.state === 'reopened' ? `${r.by} 于 ${fmtTime(r.at)} 撤回了上次结论，等重新审核`
@@ -1813,7 +1814,7 @@ async function reviewObject(id, action) {
 
 }
 function drawerLibraries() {
-  const objs = live(S.object);
+  const objs = live(S.object).filter(isBase);
   return {
     title: '资产库', sub: '物体按资产库分组；两个内置库按来源自动归类，其他公开资产库在这里添加，再到物体详情里把物体移进去',
     body: `${sec('已有资产库', `<div class="table-wrap"><table class="plain"><thead><tr><th>名称</th><th>编号</th><th>来源</th><th class="num">物体</th><th></th></tr></thead><tbody>

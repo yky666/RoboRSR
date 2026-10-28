@@ -629,10 +629,17 @@ def ordered_photos(doc):
     return sorted(photos, key=lambda p: rank.get(Path(p).name, len(rank)))
 
 
-def public_object(doc):
+def variant_base(doc, find):
+    """The base object a generalization variant belongs to (`find(id)` looks it up), or None."""
+    base_id = (doc.get("auto") or {}).get("variant_of")
+    return find(base_id) if base_id and base_id != doc.get("id") else None
+
+
+def public_object(doc, base=None):
+    """A variant is not reviewed on its own: it carries its base's review state."""
     public = object_registration.public_object(doc)
     public["auto"] = {**public.get("auto", {}), "photos": ordered_photos(doc)}
-    return {**public, "review_state": review_state(doc)}
+    return {**public, "review_state": review_state(base or doc)}
 
 
 def delete_blocker(kind, doc, user):
@@ -1174,7 +1181,8 @@ class Handler(BaseHTTPRequestHandler):
             kind = query["kind"]
             docs = catalog_policy.visible(kind, self.store.list(kind))
             if kind == "object":
-                docs = [public_object(d) for d in docs]
+                by_id = {d["id"]: d for d in self.store.list(kind)}
+                docs = [public_object(d, variant_base(d, by_id.get)) for d in docs]
             self.send_json(docs)
         elif url.path == "/file" and servable(query.get("path", ""), self.roots):
             self.send_file(Path(query["path"]).resolve())
@@ -1293,6 +1301,9 @@ class Handler(BaseHTTPRequestHandler):
                     return self.send_json({"error": "只有管理员可以审核物体"}, 403)
                 if action not in ("approve", "reject", "reopen"):
                     return self.send_json({"error": "审核结论只能是通过、退回或撤回"}, 400)
+                base = variant_base(current, lambda i: self.store.get("object", i))
+                if base:
+                    return self.send_json({"error": f"变体跟随本体 {base['id']} 审核，请审核本体"}, 409)
                 if action == "reopen" and review_state(current) == "review":
                     return self.send_json({"error": "已经是待审核"}, 409)
                 if action == "reject" and not note:
@@ -1327,7 +1338,9 @@ class Handler(BaseHTTPRequestHandler):
             write_embodiment_registration(doc, {u["username"]: u["name"] for u in self.store.users()})
         elif kind == "evaluation":
             write_eval_request(doc, {u["username"]: u["name"] for u in self.store.users()})
-        self.send_json(public_object(doc) if kind == "object" else doc)
+        if kind == "object":
+            doc = public_object(doc, variant_base(doc, lambda i: self.store.get("object", i)))
+        self.send_json(doc)
 
     def do_DELETE(self):
         url = urlparse(self.path)
