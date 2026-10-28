@@ -1,7 +1,7 @@
 # Project Handoff
 
-更新时间：2026-10-27
-本会话分支：`chongzheng/merge-open-prs`（worktree `../RoboDojo-merge-prs`）：深圳实验室装共享库，6 个开着的 PR 合进 `main`，见「最近任务」第一节。上一会话 `chongzheng/scene-shenzhen-lab-room` 把深圳实验室补成整层房间（第二节）。下行保留主线历史。
+更新时间：2026-10-28
+本会话分支：`chongzheng/platform-object-libraries`（worktree `../RoboDojo-objlib`）：数采平台物体页按资产库分组 + Real2Sim 物体审核，已部署，见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs` 把深圳实验室装进共享库、合并 6 个 PR（第二节）。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,19 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 数采平台：物体按资产库分组，Real2Sim 物体管理员审核（2026-10-28，`chongzheng/platform-object-libraries`，已部署）
+
+- **用户要求**：物体资产分类：Real2Sim 单独一组（像场景页的 RoboDojo 基准那样分区，但能收起），RoboDojo 资产库一组，以后的其他公开资产库也能加进来；Real2Sim 物体加管理员审核，按待重建 / 待审核 / 完备查看。按 UI UX Pro Max 做。
+- **分组**：物体页每个库是一个可折叠分区（原生 `<details>`，收起状态存浏览器 `localStorage.objLibClosed`）。内置两个库按来源自动归：有生成脚本或实物来源（`ownObj`）→ Real2Sim，其余 → RoboDojo。其他公开库是新的 kind `library`（`id`/`name`/`source`/`description`），只有管理员能在「管理资产库」抽屉里加、删（库里还有物体时不能删）。物体详情「基本信息」里的「资产库」下拉把物体移到某个库（字段 `library`，服务端校验库存在，空 = 按来源自动）。原来的「来源」筛选去掉了（分组已经覆盖）。
+- **审核**：状态由服务端 `review_state()` 算，随物体返回：没有建好的模型 → 待重建；建好了、没有对这一版模型的结论 → 待审核；管理员通过 → 完备；退回 → 待重建（必须写原因）。结论记在 `review`（`state/by/at/note/model` + 最近 20 条 `history`），`model` 是 `preview/check.json` 的 `checked_at`（入库无检查记录时为 `library`），模型重建后自动回到待审核。只有管理员能写结论（服务端 403，前端传的 `review` 一律丢弃）。Real2Sim 分区里有按状态的分段筛选，卡片 / 列表带状态标签，管理员侧栏「物体资产」显示待审核角标。
+- **重建负责人**（同日追加，用户问每个物体是谁重建的）：物体加 `owner` 字段（平台账号，和任务、本体的负责人同一套），登记向导默认填登记人，抽屉「基本信息」可改；卡片、列表、审核区显示，Real2Sim 物体没填时显示「未指派负责人」；物体页加负责人筛选（我负责的 / 未指派 / 各人）。已有物体都没填，需要补：物体页卡片 / 列表每件左边有勾选框，每组有「全选本组」，勾选后底部浮出批量栏，选人后「批量指派」逐件保存（同一个 PUT，谁都能指派，和单件一致）。批量栏是悬浮的，不占页面流，勾第一件时卡片不会下移。
+- **审核区只在待审核时给表单**（同日，用户反馈通过后不该还有意见框）：已通过 / 已退回的物体只显示一个「撤回通过（退回），改回待审核」，服务端动作 `reopen`（管理员、模型已建好、当前不是待审核，记一条 `reopened` 历史）。
+- **抽屉里切换变体预览**（同日）：「仿真渲染」下方一排小缩略图（和左侧实拍缩略图同尺寸，角标「本体」或变体编号，悬停看全名），点一下就地换成那件的渲染图，可再点「打开详情」（按钮始终占位，标题高度不变）；原来抽屉底部的「泛化变体」区去掉了。
+- **实物照片拖动排序**（同日）：抽屉里实拍缩略图可拖动（或聚焦后 Alt + ← / →），第一张是卡片封面。顺序存物体字段 `photo_order`（文件名列表），服务端 `ordered_photos()` 在返回物体时按它排 `auto.photos`，没列进去的新照片排在后面；文件本身不动，`spec.json` 和建模确认不受影响。
+- **部署前提**：部署机上有另一会话（10-27 20:48）未提交的平台改动（`catalog_policy.py`、`object_registration.py`、`ASSET_WORKFLOW.md` 和 `server.py`/`index.html`/`test_server.py` 的修改）。本分支以部署机当时的这几个文件为基础改，所以这些改动单独放在分支第一个提交里（原样取自部署机）；部署只替换了 `server.py`、`index.html`、`test_server.py` 三个文件。
+- **验证**：本机 `test_server.py` 13 passed（新增 `test_object_review_and_libraries`：没模型不能通过、成员 403、退回必须写原因、重建后回到待审核、库的增删与校验）；`ruff 0.11.7` 检查 `server.py`、`node --check` 页面脚本。浏览器（本机，生产库副本 + 临时管理员）：分区折叠和记忆、加 YCB 库、空原因被拦、退回、通过、移入 YCB、手机宽度无横向滚动。`5090-2` 上同样 13 passed，重启后未登录 401，管理员会话下 Real2Sim 48 件：待审核 41、待重建 7，自定义库 0。
+- **剩余**：已有 41 件建好的 Real2Sim 物体全部是待审核，要管理员逐个过。公开库的物体目前只能先登记、再手动移进库；按库目录自动扫描（如 `Assets/Object/<库>/`）没做，等真有第二个库的文件再加。第一个提交顺手按 ruff 格式化了 `test_server.py`（原有一处 E501）。
 
 ### 深圳实验室装共享库 + 合并全部开着的 PR（2026-10-27，`chongzheng/merge-open-prs`）
 

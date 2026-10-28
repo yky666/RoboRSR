@@ -104,6 +104,28 @@ main { min-width: 0; padding: 26px 30px 56px; }
 .card-h h2 { margin: 0; font-size: 15px; font-weight: 600; }
 .card-b { padding: 12px 16px 16px; }
 .section-title { display: flex; align-items: center; gap: 8px; margin: 30px 0 12px; font-size: 15px; font-weight: 600; }
+.lib { margin-top: 18px; }
+.lib > summary { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-height: 44px; margin: 0 -10px 10px; padding: 8px 10px; border-radius: 8px; font-size: 15px; font-weight: 600; list-style: none; cursor: pointer; }
+.lib > summary::-webkit-details-marker { display: none; }
+.lib > summary:hover { background: var(--surface-2); }
+.lib > summary .chev { transition: transform .15s ease-out; }
+.lib[open] > summary .chev { transform: rotate(90deg); }
+.lib > summary .count { padding: 0 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); font: 500 12px/20px var(--mono); }
+.lib > summary .lib-desc { flex-basis: 100%; padding-left: 26px; font-weight: 400; }
+.lib-status { margin-bottom: 12px; flex-wrap: wrap; }
+/* floats over the page so ticking the first object does not push the cards under the pointer */
+.obj-bulk { position: fixed; bottom: 16px; left: 50%; z-index: 15; width: min(720px, calc(100vw - 32px)); transform: translateX(-50%); border-radius: 10px; box-shadow: var(--shadow-2); }
+.page:has(.obj-bulk) { padding-bottom: 140px; }
+
+.obj-bulk select { min-height: 30px; }
+.osel { flex: none; width: 18px; height: 18px; margin: 0; cursor: pointer; }
+
+.review-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.review-note { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid var(--border-strong); background: var(--surface-2); white-space: pre-wrap; }
+.review-log { margin: 14px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--border); }
+.review-log li { padding: 8px 0; border-bottom: 1px solid var(--border); }
+@media (prefers-reduced-motion: reduce) { .lib > summary .chev { transition: none; } }
+
 .grid { display: grid; gap: 14px; }
 .kpis { grid-template-columns: repeat(auto-fill, minmax(206px, 1fr)); }
 .kpi { display: block; padding: 14px 16px 16px; color: inherit; transition: border-color .15s, box-shadow .15s; }
@@ -226,6 +248,12 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .m3d-hint { position: absolute; left: 8px; bottom: 8px; padding: 2px 7px; border-radius: 6px; background: rgba(15, 23, 42, .6); color: #fff; font-size: 11px; pointer-events: none; }
 .vcard { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-align: left; cursor: pointer; }
 .vcard:hover { border-color: var(--primary-line); }
+/* variant picker under the render: same thumbnails as the photo strip; the picked one is outlined */
+.vpick .gthumb { display: grid; place-items: center; color: var(--faint); cursor: pointer; }
+.vpick .gthumb[aria-pressed="true"] { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-line); }
+.vpick .vtag { position: absolute; left: 3px; bottom: 3px; padding: 0 4px; border-radius: 4px; background: rgba(15, 23, 42, .72); color: #fff; font: 500 10px/16px var(--mono); }
+
+
 .vcard > span:last-child { display: grid; min-width: 0; }
 .vcard b { overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
 .mcard-b { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px 12px; }
@@ -275,6 +303,11 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .strip { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; }
 .strip .item { position: relative; flex: none; }
 .strip .gthumb { width: 64px; }
+.strip .item[draggable="true"] { cursor: grab; }
+.strip .item.dragging { opacity: .4; }
+.strip .item.drop-before .gthumb { box-shadow: -3px 0 0 var(--primary); }
+.strip .item.drop-after .gthumb { box-shadow: 3px 0 0 var(--primary); }
+
 .del { position: absolute; top: 3px; right: 3px; display: grid; place-items: center; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 6px; background: rgba(15, 23, 42, .75); color: #fff; cursor: pointer; opacity: 0; transition: opacity .15s; }
 .item:hover .del, .del:focus-visible { opacity: 1; }
 .upload { position: relative; overflow: hidden; }
@@ -545,17 +578,19 @@ const ic = (name, cls = '') => `<svg class="ic ${cls}" aria-hidden="true"><use h
 const KINDS = ['scene', 'object', 'task', 'episode', 'embodiment', 'evaluation', 'prototype'];
 const TAB_OF = {scene: 'scenes', object: 'objects', task: 'tasks', episode: 'qa', embodiment: 'robots', evaluation: 'evals', prototype: 'prototypes'};
 const KIND_LABEL = {scene: '场景', object: '物体', task: '任务', episode: '回合', embodiment: '本体', evaluation: '评测', prototype: '研究资产'};
-const S = {scene: [], object: [], task: [], episode: [], embodiment: [], evaluation: [], prototype: []};
+const S = {scene: [], object: [], task: [], episode: [], embodiment: [], evaluation: [], prototype: [], library: []};
 const UI = {
   tab: 'overview', drawer: null, ep: null, taskDim: 'custom', taskQ: '', sel: new Set(), loaded: false, syncing: false, syncedAt: '',
-  obj: {q: '', src: '', photo: false, view: localStorage.objView || 'cards'},
+  osel: new Set(),  // objects ticked on the objects page, for bulk owner assignment
+  vpick: {},  // object drawer id -> the variant whose render is previewed in it
+  obj: {q: '', photo: false, status: '', owner: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
   qa: {task: '', config: '', policy: '', result: '', status: 'pending'},
 };
 let INFO = {};
 let ME = null;
 let USERS = [];
 let MEMBERS = [];  // [{username, name}] of every account, to pick owners from
-const memberName = (u) => MEMBERS.find((m) => m.username === u)?.name || u || '';
+const memberName = (u) => typeof u === 'object' && u ? (u.name || u.username || '') : (MEMBERS.find((m) => m.username === u)?.name || u || '');
 const memberOpts = (value) => ({'': '未指定', ...Object.fromEntries(MEMBERS.map((m) => [m.username, `${m.name}（${m.username}）`])),
   ...(value && !MEMBERS.some((m) => m.username === value) ? {[value]: `${value}（不是平台账号）`} : {})});
 let IDX = {};  // indices in use per <type>/<category>, for registering objects
@@ -569,7 +604,7 @@ const todo = (t = '') => ({s: 'todo', t});
 const na = (t = '') => ({s: 'na', t});
 const flag = (v, hint) => (v ? ok('已完成') : todo(hint));
 const STATE = {ok: '通过', bad: '不通过', todo: '待办', na: '不适用'};
-const STATE_IC = {ok: 'check', bad: 'x', todo: 'circle', na: 'minus'};
+const STATE_IC = {ok: 'check', bad: 'x', todo: 'circle', na: 'minus', warn: 'eye'};
 const evalStages = (stages, d) => stages.map(([k, label, fn]) => ({k, label, ...fn(d)}));
 const allOk = (stages, d) => evalStages(stages, d).every((r) => r.s === 'ok' || r.s === 'na');
 
@@ -629,6 +664,7 @@ const parseDims = (text) => [...expandDims(text).matchAll(/([^\d\s，,；;、:�
   .map((m) => ({name: m[1].replace(/^(mm|毫米)/i, ''), real: Number(m[2])})).filter((r) => r.name);
 const dimText = (d) => parseDims(d.dimensions).map((r) => `${r.name} ${r.real}`).join(' · ');
 const measured = (d) => num(d.real_mass) && parseDims(d.dimensions).length > 0;
+const hasPhotoReference = (d) => Boolean(d.auto.photos?.length || d.photo_reference?.received || d.auto.photo_reference?.received);
 function dimCheck(d) {  // each measured dimension against the built model's metadata.json measurements_mm, by name
   return parseDims(d.dimensions).map(({name, real}) => {
     const meta = d.auto.measurements?.[name], sim = num(meta) ? Number(meta) : null, err = sim == null ? null : Math.abs(sim - real);
@@ -639,13 +675,13 @@ function dimCheck(d) {  // each measured dimension against the built model's met
 const autoPhys = (d, k) => d.auto.check?.checks?.[k] || (k === 'settle' ? d.auto.check?.settle : '') || '';
 const physState = (d, k) => d.checks?.[k] || (['pass', 'fail', 'na'].includes(autoPhys(d, k)) ? autoPhys(d, k) : '');
 const OBJ_STAGES = [
-  ['measure', '实物测量', (d) => (!d.twin ? na('非实物孪生') : measured(d) ? ok(`${dimText(d)} mm，${d.real_mass} g`)
-    : todo('量关键尺寸 ±1 mm（如开口直径、底部直径、高）、称重、拍多角度照片'))],
+  ['measure', '实物测量', (d) => (!d.twin ? na('无实物来源登记') : measured(d) ? ok(`${dimText(d)} mm，${d.real_mass} g`)
+    : todo('实物来源已登记；尺寸/质量待测，现有估计参数可继续使用'))],
   ['model', '建模', (d) => (d.auto.in_library ? ok(d.method ? METHODS[d.method] : '资产库中已有')
     : d.auto.check?.checked_at ? ok(`已建好，${d.auto.check.checked_at} 落地检查${d.auto.check.settle === 'pass' ? '通过' : '不通过'}`)
     : todo(d.auto.generator ? `有生成脚本 ${d.auto.generator}，还没有建好的资产` : '交给 coding agent 按建模任务建模'))],
   ['dims', '尺寸 / 质量核对', (d) => {
-    if (!d.twin) return na('非实物孪生');
+    if (!d.twin) return na('无实物来源登记');
     if (!measured(d)) return todo('先填实测尺寸和质量');
     const c = dimCheck(d), done = c.filter((x) => x.sim != null), over = done.filter((x) => !x.ok);
     if (!done.length || !num(d.auto.mass)) return todo('建好后在 metadata.json 按实测尺寸的名称写 measurements_mm');
@@ -772,7 +808,7 @@ const stageList = (rs) => `<ul class="stage-list">${rs.map((r) => `<li>${st(r.s,
 const pageHead = (title, sub, actions = '') => `<header class="ph"><div><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ''}</div>${actions ? `<div class="toolbar">${actions}</div>` : ''}</header>`;
 const empty = (icon, title, text) => `<div class="empty">${ic(icon)}<b>${title}</b><span class="small">${text}</span></div>`;
 const sec = (title, body, extra = '') => `<section class="sec"><h3>${title}${extra}</h3>${body}</section>`;
-const code = (text) => `<div class="code"><pre>${esc(text)}</pre><button class="btn btn-icon copy" type="button" aria-label="复制命令" onclick="copyCode(this)">${ic('copy')}</button></div>`;
+const code = (text, label = '复制命令') => `<div class="code"><pre>${esc(text)}</pre><button class="btn btn-icon copy" type="button" aria-label="${esc(label)}" onclick="copyCode(this)">${ic('copy')}</button></div>`;
 const missingBadge = (d) => (d.auto?.missing ? `<span class="st bad">${ic('alert')}文件已不存在</span>` : '');
 const val = (d, f) => f.split('.').reduce((o, k) => o?.[k], d);
 const fid = (f) => `f-${f.replace(/\./g, '-')}`;
@@ -810,7 +846,9 @@ function renderNav() {
     ...(ME?.admin ? [['users', '成员管理', 'users', USERS.length]] : []),
   ];
   $('#nav').innerHTML = items.map(([tab, label, icon, n]) => `<a class="nav-item" href="#${tab}" ${UI.tab === tab ? 'aria-current="page"' : ''}>${ic(icon, 'ic-lg')}<span>${label}</span>${
-    tab === 'qa' ? (n ? `<span class="badge" title="待审回合">${n}</span>` : '') : (n !== '' ? `<span class="count">${n}</span>` : '')}</a>`).join('');
+    tab === 'qa' ? (n ? `<span class="badge" title="待审回合">${n}</span>` : '')
+    : tab === 'objects' && ME?.admin && toReview() ? `<span class="badge" title="${n} 件物体，${toReview()} 件待审核">${toReview()}</span>`
+    : (n !== '' ? `<span class="count">${n}</span>` : '')}</a>`).join('');
   $('#sync-btn').innerHTML = UI.syncing ? `${ic('refresh', 'spin')}同步中…` : `${ic('refresh')}同步项目数据`;
   $('#sync-btn').disabled = UI.syncing;
   $('#source').innerHTML = `<div><span class="dot ${INFO.assets_ok ? 'ok' : 'warn'}"></span>资产库${INFO.assets_ok ? '已连接' : '未找到'}</div>
@@ -824,6 +862,7 @@ function renderNav() {
 // ---------- research assets: never offered as task objects ----------
 // groups follow platform.json "kind"; a check whose finding says not done / pending / candidate counts as open
 const RA_GROUPS = [
+  ['component', '机器人部件与装配研究', /机器人部件|装配研究/, 'cube', '保留模型和独立验证；完整场景复用接入后再进入本体管理。'],
   ['ref', '官方外形参考', /外形参考/, 'cube', '厂商 CAD 的静态外形，用来核对尺寸和安装位置；不含运动、接触和触觉。'],
   ['proto', '柔性数值原型', /数值原型/, 'layers', '在 MuJoCo / Isaac 里单独跑过数值测试的柔性体；材料参数还没用实物标定。'],
   ['real', '待建模实物', /实物参考/, 'camera', '只记录了照片里能看到的结构和要测的量，还没有几何或物理模型。'],
@@ -858,7 +897,7 @@ function viewPrototypes() {
     return docs.length ? `<section class="ra-group" aria-labelledby="ra-${key}"><div class="ra-group-h"><h2 id="ra-${key}">${label}</h2>
       <span class="muted small">${docs.length} 项${note ? ` · ${note}` : ''}</span></div><div class="ra-grid">${docs.map(raCard).join('')}</div></section>` : '';
   }).join('');
-  return `<div class="page">${pageHead('研究资产', '官方外形参考、柔性数值原型和待建模实物。都还没接入机器人任务，也不会出现在任务登记的物体候选里；每项分别列出已核对和没做的部分。')}
+  return `<div class="page">${pageHead('研究资产', '官方外形参考、柔性数值原型和待建模实物。含尚未完成完整场景复用的部件和装配；每项分别列出已核对范围与待完成项。')}
     <div class="toolbar filters" style="margin-bottom:18px">${searchBox('ra-q', f.q, 'UI.ra.q', '搜索名称、状态或说明')}
       <div class="segctl" role="group" aria-label="按类别筛选">
         <button type="button" aria-pressed="${!f.group}" onclick="UI.ra.group = ''; render()">全部 ${all.length}</button>
@@ -881,7 +920,7 @@ function drawerPrototype(d) {
       ${a.limits?.length ? sec(`${ic('list')}接下来要做`, `<ol style="margin:0;padding-left:20px;line-height:1.75">${a.limits.map((t) => `<li>${esc(t)}</li>`).join('')}</ol>`) : ''}
       ${links.length ? sec(`${ic('external')}来源`, `<ul style="margin:0;padding-left:18px;line-height:1.9">${links.map((x) => `<li><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.title)}</a></li>`).join('')}</ul>`) : ''}
       ${a.evidence?.length ? sec(`${ic('file')}检查记录`, `<div class="toolbar">${a.evidence.map((p) => `<a class="btn" target="_blank" rel="noopener noreferrer" href="${file(p)}">${ic('file')}${esc(base(p))}</a>`).join('')}</div>`) : ''}
-      <p class="hint">研究资产没有装进共享资产库，也不会作为任务登记的物体候选。</p>`};
+      <p class="hint">研究资产保留已有模型与验证记录；当前不作为完整本体或任务登记的新候选。</p>`};
 }
 
 // ---------- overview ----------
@@ -906,7 +945,7 @@ function viewOverview() {
   const rejected = eps.filter((e) => e.qa === 'reject');
   const tagCount = TAGS.map((t) => [t, rejected.filter((e) => (e.tags || []).includes(t)).length]).filter(([, n]) => n).sort((a, b) => b[1] - a[1]);
   const recent = KINDS.flatMap((k) => S[k].filter((d) => d._at).map((d) => ({k, d}))).sort((x, y) => y.d._at - x.d._at).slice(0, 8);
-  const withPhoto = objs.filter((o) => o.auto.photos?.length).length, withRender = objs.filter((o) => o.auto.renders?.length).length;
+  const withPhoto = objs.filter(hasPhotoReference).length, withRender = objs.filter((o) => o.auto.renders?.length).length;
   const srBody = !sr ? empty('compare', '还没有真机对照', '在「数据质检」给回合选择真机结果后，这里计算 AA、κ 和 P(真机成功 | 仿真成功)')
     : `<dl class="kv"><dt>结果一致率 AA</dt><dd><b class="mono">${pct(sr.A)}</b> <span class="muted small">仿真与真机结论相同的比例</span></dd>
       <dt>Cohen's κ</dt><dd><b class="mono">${sr.kappa == null ? '—' : sr.kappa.toFixed(2)}</b> <span class="muted small">扣除“两边都大量失败”的虚高</span></dd>
@@ -915,7 +954,7 @@ function viewOverview() {
   return `<div class="page">${pageHead('总览', '场景重建 → 物体资产 → 任务采集 → 数据质检，阈值取自 Notion「Real2Sim2Real」月度目标')}
   <div class="grid kpis">
     ${kpi('scan', '场景验收完成', `${done}/${scenes.length}`, '目标 7 个：3 孪生 + 4 泛化', '#scenes', done / 7)}
-    ${kpi('box', '物体资产', objs.length, `实拍 ${withPhoto} · 渲染 ${withRender} · 已实测 ${objs.filter(measured).length}`, '#objects')}
+    ${kpi('box', '物体资产', objs.length, `照片参考 ${withPhoto} · 渲染 ${withRender} · 已实测 ${objs.filter(measured).length}`, '#objects')}
     ${kpi('list', 'G1-D 任务', tasks.length, `评测布局 ${sum(tasks.map((t) => sum(Object.values(t.auto.layouts || {}))))} 个`, '#tasks')}
     ${kpi('video', '采集回合', eps.length, `仿真成功率 ${pct(rate(eps))}`, '#qa')}
     ${kpi('clipboard', '质检通过', (qa.pass || []).length, `拒绝 ${(qa.reject || []).length} · 待审 ${(qa.pending || []).length}`, '#qa', eps.length ? (qa.pass || []).length / eps.length : null)}
@@ -1266,7 +1305,7 @@ function viewRobots() {
         <div class="small muted">${esc([robotDims(d), `站位配置 ${a.setups?.length || 0}`, `env 配置 ${robotEnvCfgs(d).length}`].filter(Boolean).join(' · '))}${d.owner ? ` · ${esc(memberName(d.owner))}` : ''}</div>
         ${progress(rs)}${stageChips(rs)}</div></article>`;
   }).join('');
-  return `<div class="page">${pageHead('本体管理', `机器人本体来自 env/robot_manager/robot_config/（与 env_cfg/robot/ 的站位配置）和平台登记；同一本体在不同场景的站位配置算作一个本体`,
+  return `<div class="page">${pageHead('本体管理', `可复用机器人本体来自 env/robot_manager/robot_config/（与 env_cfg/robot/ 的站位配置）和平台登记；同一本体的不同站位算作一个本体；独立夹爪、裸臂与未接入站位的装配放在研究资产`,
     `<button class="btn btn-primary" type="button" onclick="openNewRobot(this)">${ic('plus')}登记本体</button>`)}
     ${docs.length ? `<div class="grid scene-grid">${cards}</div>` : `<div class="card">${empty('bot', '还没有本体', '点「登记本体」新建')}</div>`}</div>`;
 }
@@ -1608,51 +1647,241 @@ function objMedia(d, thumb = false) {
   const nv = variantsOf(d.id).length, runtime = runtimeText(d.gen);
   return `<div class="media r43">${main ? `<img loading="lazy" decoding="async" src="${file(main)}" alt="">` : ic('cube', 'ic-lg')}
     ${render && photo ? `<img class="inset" loading="lazy" decoding="async" src="${file(photo)}" alt="实拍">` : ''}
-    <div class="pills">${a.photos?.length ? `<span class="pill" title="实拍照片">${ic('camera', 'ic-sm')}${a.photos.length}</span>` : ''}${render ? `<span class="pill" title="仿真渲染">${ic('cube', 'ic-sm')}渲染</span>` : ''}
+    <div class="pills">${a.photos?.length ? `<span class="pill" title="已归档实物照片">${ic('camera', 'ic-sm')}${a.photos.length}</span>` : hasPhotoReference(d) ? `<span class="pill" title="对话中已提供实物照片，原图待关联">${ic('camera', 'ic-sm')}照片参考</span>` : ''}${render ? `<span class="pill" title="仿真渲染">${ic('cube', 'ic-sm')}渲染</span>` : ''}
       ${nv ? `<span class="pill" title="泛化变体资产">+${nv} 变体</span>` : ''}${runtime ? `<span class="pill" title="仿真里按布局随机，不建新资产">随机 ${esc(runtime)}</span>` : ''}</div></div>`;
 }
+// object libraries: the two built-ins sort objects by origin; other public libraries are added by admins (kind library)
+const BUILTIN_LIBS = [
+  {id: 'real2sim', name: 'Real2Sim 实物孪生', icon: 'camera', description: '实物登记、自建建模的物体，管理员审核后为完备'},
+  {id: 'robodojo', name: 'RoboDojo 资产库', icon: 'layers', description: '共享资产库 Assets/Object/RoboDojo 的官方物体'},
+];
+const libraries = () => [...BUILTIN_LIBS, ...S.library.map((l) => ({icon: 'box', ...l, custom: true}))];
+const autoLib = (d) => (ownObj(d) ? 'real2sim' : 'robodojo');
+const libOf = (d) => (d.library && libraries().some((l) => l.id === d.library) ? d.library : autoLib(d));
+const libName = (id) => libraries().find((l) => l.id === id)?.name || id;
+// review of a Real2Sim object, decided on the server (review_state): no model yet or sent back -> built -> approved
+const REVIEW = {rebuild: ['todo', '待重建'], review: ['warn', '待审核'], done: ['ok', '完备']};
+const reviewChip = (d) => (libOf(d) === 'real2sim' && REVIEW[d.review_state] ? st(...REVIEW[d.review_state]) : '');
+const toReview = () => live(S.object).filter((d) => libOf(d) === 'real2sim' && d.review_state === 'review').length;
+const ownerText = (d) => (d.owner ? memberName(d.owner) : libOf(d) === 'real2sim' ? '未指派负责人' : '');
 function objList() {
   const f = UI.obj, q = f.q.toLowerCase();
-  return S.object.filter((d) => (!f.src || (f.src === 'own' ? ownObj(d) : f.src === 'official' ? !ownObj(d) : Boolean(d.twin)))
-    && (!f.photo || d.auto.photos?.length)
+  return S.object.filter((d) => (!f.photo || hasPhotoReference(d)) && (!f.owner || (f.owner === '-' ? !d.owner : d.owner === f.owner))
     && (!q || `${d.id} ${d.name || ''} ${d.auto.name || ''} ${(d.auto.tasks || []).join(' ')}`.toLowerCase().includes(q)))
     .sort((x, y) => Number(ownObj(y)) - Number(ownObj(x)) || x.id.localeCompare(y.id));
 }
-function viewObjects() {
-  const f = UI.obj, docs = objList(), objs = live(S.object);
-  const body = !docs.length ? `<div class="card">${empty('box', '没有符合条件的物体', '调整筛选条件，或点「登记物体」新建')}</div>`
-    : f.view === 'cards' ? `<div class="grid cards">${docs.filter((d) => !baseOf(d)).map((d) => {
+function objBody(docs) {
+  return UI.obj.view === 'cards' ? `<div class="grid cards">${docs.filter((d) => !baseOf(d)).map((d) => {
       const rs = evalStages(OBJ_STAGES, d);
       return `<article class="card mcard" data-open="object" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开物体 ${esc(d.id)}">${objMedia(d)}
-        <div class="mcard-b"><div class="mcard-t"><b>${esc(objName(d))}</b>${d.twin ? '<span class="tag">孪生</span>' : ''}</div>
+        <div class="mcard-b"><div class="mcard-t">${objCheck(d)}<b>${esc(objName(d))}</b>${reviewChip(d)}</div>
           <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>
-          <div class="small muted">${measured(d) ? `实测 ${esc(dimText(d))}` : `仿真 ${mm(d.auto.size)} mm`}</div>${progress(rs)}</div></article>`;
+          <div class="small muted">${measured(d) ? `实测 ${esc(dimText(d))}` : `模型 ${mm(d.auto.size)} mm${d.twin ? ' · 未实测' : ''}`}</div>
+          ${ownerText(d) ? `<div class="small ${d.owner ? '' : 'muted'}">${ic('users', 'ic-sm')} ${esc(ownerText(d))}</div>` : ''}${progress(rs)}</div></article>`;
     }).join('')}</div>`
-    : `<div class="table-wrap"><table><thead><tr><th></th><th>物体</th><th>任务配置（标签）</th><th class="num">仿真尺寸 mm</th><th class="num">质量 g</th><th>实测</th><th style="min-width:170px">流程</th></tr></thead><tbody>
+    : `<div class="table-wrap"><table><thead><tr><th style="width:36px"></th><th></th><th>物体</th><th>任务配置（标签）</th><th class="num">模型尺寸 mm</th><th class="num">质量 g</th><th>实测</th><th style="min-width:170px">流程</th></tr></thead><tbody>
       ${docs.map((d) => `<tr data-open="object" data-id="${esc(d.id)}" tabindex="0" class="${UI.drawer?.id === d.id ? 'sel' : ''}">
-        <td>${objMedia(d, true)}</td>
-        <td><div class="t-main">${esc(objName(d))} ${missingBadge(d)}</div><div class="t-sub mono">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div></td>
+        <td>${objCheck(d)}</td><td>${objMedia(d, true)}</td>
+        <td><div class="t-main">${esc(objName(d))} ${reviewChip(d)} ${missingBadge(d)}</div><div class="t-sub mono">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div>${ownerText(d) ? `<div class="t-sub">${esc(ownerText(d))}</div>` : ''}</td>
         <td class="small">${(d.auto.tasks || []).map(esc).join('<br>') || '<span class="muted">—</span>'}<div class="t-sub mono">${esc((d.auto.labels || []).join(', '))}</div></td>
         <td class="num small">${mm(d.auto.size)}</td><td class="num small">${num(d.auto.mass) ? (d.auto.mass * 1000).toFixed(0) : '—'}</td>
         <td class="small">${measured(d) ? `${esc(dimText(d))}<div class="t-sub">${d.real_mass} g</div>` : '<span class="muted">—</span>'}</td>
         <td>${progress(evalStages(OBJ_STAGES, d))}</td></tr>`).join('')}</tbody></table></div>`;
-  return `<div class="page">${pageHead('物体资产', `G1-D 任务配置里用到的物体自动列出，新的实物孪生先登记。实测值定稿后写回生成脚本和
+}
+function libSection(lib, docs) {
+  const f = UI.obj, r2s = lib.id === 'real2sim', n = docs.length;  // variants included, as in the list view
+  const counts = Object.fromEntries(Object.keys(REVIEW).map((k) => [k, docs.filter((d) => d.review_state === k).length]));
+
+  const shown = r2s && f.status ? docs.filter((d) => d.review_state === f.status) : docs;
+  const picked = f.view === 'cards' ? shown.filter((d) => !baseOf(d)) : shown, all = picked.length && picked.every((d) => UI.osel.has(d.id));
+  const pickAll = picked.length ? `<label class="check"><input type="checkbox" ${all ? 'checked' : ''} data-ids="${esc(picked.map((d) => d.id).join('\n'))}"
+    onchange="selectObjs(this.dataset.ids.split('\\n'), this.checked)">全选本组 ${picked.length} 件</label>` : '';
+  const statusBar = r2s ? `<div class="toolbar lib-status"><div class="segctl" role="group" aria-label="按审核状态查看">
+      ${[['', '全部', docs.length], ...Object.entries(REVIEW).map(([k, [, label]]) => [k, label, counts[k]])].map(([k, label, c]) => `<button type="button"
+        aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
+      <span class="muted small">${ME?.admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核</span><span class="sp"></span>${pickAll}</div>`
+    : pickAll ? `<div class="toolbar lib-status"><span class="sp"></span>${pickAll}</div>` : '';
+  const none = f.q || f.photo || f.status || f.owner ?
+ empty('search', '没有符合条件的物体', '调整筛选条件')
+    : lib.custom ? empty('box', '库里还没有物体', '登记物体后，在物体详情的「资产库」里选这个库') : empty('box', '还没有物体', '点「登记物体」新建');
+  return `<details class="lib" data-lib="${esc(lib.id)}" ${f.closed.has(lib.id) ? '' : 'open'} ontoggle="toggleLib(this)">
+    <summary>${ic('chev-r', 'chev')}${ic(lib.icon)}<span>${esc(lib.name)}</span><span class="count">${n}</span>
+      ${r2s ? Object.entries(REVIEW).map(([k, [s, label]]) => (counts[k] ? st(s, `${label} ${counts[k]}`) : '')).join('') : ''}
+      <span class="muted small lib-desc">${esc(lib.description || lib.source || '')}</span></summary>
+    ${statusBar}${shown.length ? objBody(shown) : `<div class="card">${none}</div>`}</details>`;
+}
+const objCheck = (d) => `<input type="checkbox" class="osel" data-osel="${esc(d.id)}" ${UI.osel.has(d.id) ? 'checked' : ''} aria-label="选择 ${esc(objName(d))}">`;
+function selectObjs(ids, checked) {
+  ids.forEach((id) => (checked ? UI.osel.add(id) : UI.osel.delete(id)));
+  render();
+}
+function objBulkBar() {
+  const n = UI.osel.size;
+  if (!n) return '';
+  return `<div class="bulkbar obj-bulk" role="region" aria-label="批量操作"><b>已选 ${n} 件</b><span class="sp"></span>
+    <label for="bulk-owner">重建负责人</label><select id="bulk-owner" style="color:var(--text)">${opts(memberOpts(), '')}</select>
+    <button class="btn" type="button" onclick="bulkOwner()">${ic('users')}批量指派</button>
+    <button class="btn" type="button" onclick="UI.osel.clear(); render()">取消选择</button></div>`;
+}
+async function bulkOwner() {
+  const ids = [...UI.osel], owner = $('#bulk-owner').value, who = owner ? memberName(owner) : '未指派';
+  if (!ids.length || !confirm(`把 ${ids.length} 件物体的重建负责人设为「${who}」？`)) return;
+  let n = 0;
+  for (const id of ids) n += await save('object', id, {owner}, true) ? 1 : 0;
+  UI.osel.clear();
+  render();
+  toast(n === ids.length ? `已把 ${n} 件物体指派给「${who}」` : `${n}/${ids.length} 件已指派，其余保存失败`, n !== ids.length);
+}
+function toggleLib(el) {
+  const id = el.dataset.lib;
+  if (el.open) UI.obj.closed.delete(id); else UI.obj.closed.add(id);
+  try { localStorage.objLibClosed = JSON.stringify([...UI.obj.closed]); } catch {}
+}
+function viewObjects() {
+  const f = UI.obj, docs = objList(), objs = live(S.object);
+  return `<div class="page">${pageHead('物体资产', `按资产库分组，点库名收起或展开。G1-D 任务配置里用到的物体自动列出，新的实物孪生先登记。实测值定稿后写回生成脚本和
     <a target="_blank" rel="noopener" href="${file(`${INFO.root}/real2sim/ASSETS.md`)}">real2sim/ASSETS.md</a>`,
-    `<button class="btn btn-primary" type="button" onclick="openNewObject(this)">${ic('plus')}登记物体</button>`)}
+    `${ME?.admin ? `<button class="btn" type="button" data-open="libraries" data-id="all">${ic('layers')}管理资产库</button>` : ''}
+    <button class="btn btn-primary" type="button" onclick="openNewObject(this)">${ic('plus')}登记物体</button>`)}
     ${assetsWarning()}
     <div class="toolbar filters">${searchBox('obj-q', f.q, 'UI.obj.q', '搜索 id / 名称 / 任务')}
-      <select aria-label="来源" onchange="UI.obj.src = this.value; render()">${opts({'': '全部来源', own: '自建', official: '官方库', twin: '实物孪生'}, f.src)}</select>
-      <label class="check"><input type="checkbox" ${f.photo ? 'checked' : ''} onchange="UI.obj.photo = this.checked; render()">只看有实拍</label>
-      <span class="muted small">${docs.length} 件 · 实拍 ${objs.filter((o) => o.auto.photos?.length).length} · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span><span class="sp"></span>
+      <select aria-label="重建负责人" onchange="UI.obj.owner = this.value; render()">${opts({'': '全部负责人', ...(ME ? {[ME.username]: '我负责的'} : {}), '-': '未指派', ...Object.fromEntries(MEMBERS.filter((m) => m.username !== ME?.username).map((m) => [m.username, m.name]))}, f.owner)}</select>
+      <label class="check"><input type="checkbox" ${f.photo ? 'checked' : ''} onchange="UI.obj.photo = this.checked; render()">只看有照片参考</label>
+      <span class="muted small">${docs.length} 件 · 照片参考 ${objs.filter(hasPhotoReference).length}（已归档 ${objs.filter((o) => o.auto.photos?.length).length}） · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span><span class="sp"></span>
       <div class="segctl" role="group" aria-label="显示方式">
         <button type="button" aria-pressed="${f.view === 'cards'}" onclick="setObjView('cards')">${ic('grid', 'ic-sm')} 卡片</button>
         <button type="button" aria-pressed="${f.view === 'table'}" onclick="setObjView('table')">${ic('table', 'ic-sm')} 列表</button></div></div>
-    ${body}</div>`;
+    ${objBulkBar()}${libraries().map((lib) => libSection(lib, docs.filter((d) => libOf(d) === lib.id))).join('')}</div>`;
 }
+function reviewPanel(d) {
+  const r = d.review || {}, [s, label] = REVIEW[d.review_state] || REVIEW.rebuild, built = d.auto.built;
+  const why = d.review_state === 'done' ? `${r.by} 于 ${fmtTime(r.at)} 审核通过`
+    : d.review_state === 'review' ? (r.state === 'reopened' ? `${r.by} 于 ${fmtTime(r.at)} 撤回了上次结论，等重新审核`
+      : r.state ? '模型在上次审核后重建过，需要重新审核' : '模型已建好，等管理员对照实物照片和渲染审核')
+    : !built ? '还没有建好的模型：按建模 prompt 建模并跑 check_object.py 后进入待审核'
+    : `${r.by} 于 ${fmtTime(r.at)} 退回：按意见改好模型、重跑 check_object.py 后回到待审核`;
+  const history = [...(r.history || [])].reverse();
+  return sec(`${ic('eye')}审核`, `<div class="review-head">${st(s, label)}<span class="small">${esc(why)}</span><span class="sp"></span>
+      <span class="small muted">重建负责人 ${esc(memberName(d.owner) || '未指派')}</span></div>
+    ${r.note && d.review_state !== 'review' ? `<blockquote class="review-note">${esc(r.note)}</blockquote>` : ''}
+    ${!ME?.admin ? '<p class="hint">审核由管理员完成。</p>'
+    : !built ? ''
+    : d.review_state !== 'review' ? `<div style="margin-top:12px"><button class="btn" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'reopen')">
+        ${ic('rewind')}${d.review_state === 'done' ? '撤回通过，改回待审核' : '撤回退回，改回待审核'}</button></div>`
+    : `<div class="form" style="margin-top:12px">
+      <label for="rv-note">审核意见</label><div class="ctl"><textarea id="rv-note" aria-describedby="rv-err" placeholder="退回时必填：哪里和实物不符、要怎么改"></textarea></div>
+      <span></span><div class="ctl"><p id="rv-err" class="field-error" role="alert"></p></div>
+      <span></span><div class="ctl">
+        <button class="btn btn-ok" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'approve')">${ic('check')}通过，标为完备</button>
+        <button class="btn" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'reject')">${ic('x')}退回重建</button></div></div>`}
+    ${history.length ? `<ol class="review-log">${history.map((h) => `<li>${st(...(REVIEW_LOG[h.state] || REVIEW_LOG.rejected))}
+      <span class="small">${esc(h.by)} · ${fmtTime(h.at)}${h.model ? ` · 模型 ${esc(h.model)}` : ''}</span>${h.note ? `<div class="small muted">${esc(h.note)}</div>` : ''}</li>`).join('')}</ol>` : ''}`);
+}
+function pickVariant(drawerId, id) { UI.vpick[drawerId] = id; render(); }
+const REVIEW_LOG = {
+approved: ['ok', '通过'], rejected: ['bad', '退回'], reopened: ['warn', '撤回']};
+async function reviewObject(id, action) {
+  if (action === 'reopen' && !confirm('撤回这次审核结论，物体改回待审核？')) return;
+  const note = $('#rv-note')?.value.trim() || '';
+  if (action === 'reject' && !note) {
+    $('#rv-err').textContent = '退回要写明原因';
+    $('#rv-note').setAttribute('aria-invalid', 'true');
+    return $('#rv-note').focus();
+  }
+  if (await save('object', id, {review_action: action, review_note: note})) toast({approve: '已通过审核，物体标为完备', reject: '已退回重建', reopen: '已撤回，物体改回待审核'}[action]);
+
+}
+function drawerLibraries() {
+  const objs = live(S.object);
+  return {
+    title: '资产库', sub: '物体按资产库分组；两个内置库按来源自动归类，其他公开资产库在这里添加，再到物体详情里把物体移进去',
+    body: `${sec('已有资产库', `<div class="table-wrap"><table class="plain"><thead><tr><th>名称</th><th>编号</th><th>来源</th><th class="num">物体</th><th></th></tr></thead><tbody>
+      ${libraries().map((l) => {
+        const n = objs.filter((d) => libOf(d) === l.id).length;
+        return `<tr><td><b>${esc(l.name)}</b>${l.description ? `<div class="t-sub">${esc(l.description)}</div>` : ''}</td><td class="mono small">${esc(l.id)}</td>
+        <td class="small">${l.custom ? (/^https?:\/\//.test(l.source || '') ? `<a href="${esc(l.source)}" target="_blank" rel="noopener">${esc(l.source)}</a>` : esc(l.source || '—')) : '内置'}</td><td class="num">${n}</td>
+        <td>${l.custom ? `<button class="btn btn-icon" type="button" data-id="${esc(l.id)}" onclick="removeLibrary(this.dataset.id)" aria-label="删除 ${esc(l.name)}"
+          ${n ? 'disabled title="库里还有物体，先移走"' : ''}>${ic('trash')}</button>` : ''}</td></tr>`;
+      }).join('')}</tbody></table></div>`)}
+    ${sec('添加公开资产库', `<form class="form" onsubmit="event.preventDefault(); addLibrary()">
+      <label for="lib-name">名称<em aria-hidden="true">*</em></label><div class="ctl"><input id="lib-name" required placeholder="如 Objaverse、YCB、GSO"></div>
+      <label for="lib-id">编号<em aria-hidden="true">*</em></label><div class="ctl"><input id="lib-id" required pattern="[a-z0-9][a-z0-9_\\-]{0,31}" placeholder="如 ycb" style="flex:0 0 200px"><span class="hint">小写字母、数字、- 或 _，建好后不能改</span></div>
+      <label for="lib-source">来源</label><div class="ctl"><input id="lib-source" placeholder="官网链接，或服务器上的目录"></div>
+      <label for="lib-desc">说明</label><div class="ctl"><input id="lib-desc" placeholder="许可、物体类型、用途"></div>
+      <span></span><div class="ctl"><p id="lib-err" class="field-error" role="alert"></p></div>
+      <span></span><div class="ctl"><button class="btn btn-primary" type="submit">${ic('plus')}添加资产库</button></div></form>`)}`,
+  };
+}
+async function addLibrary() {
+  const v = (id) => $(id).value.trim(), id = v('#lib-id');
+  if (S.library.some((l) => l.id === id) || BUILTIN_LIBS.some((l) => l.id === id)) return void ($('#lib-err').textContent = `编号 ${id} 已被占用`);
+  try {
+    const doc = await api(`/api/items?kind=library&id=${encodeURIComponent(id)}`, {method: 'PUT', body: JSON.stringify({name: v('#lib-name'), source: v('#lib-source'), description: v('#lib-desc')})});
+    S.library.push(doc);
+  } catch (err) { return void ($('#lib-err').textContent = `添加失败：${err.message}`); }
+  $('#drawer').dataset.k = '';  // redraw the list, clear the form
+  render();
+  toast(`已添加资产库 ${id}`);
+}
+async function removeLibrary(id) {
+  if (!confirm(`删除资产库 ${id}？只删分组，不动任何物体。`)) return;
+  try { await api(`/api/items?kind=library&id=${encodeURIComponent(id)}`, {method: 'DELETE'}); } catch (err) { return toast(`删除失败：${err.message}`, true); }
+  S.library = S.library.filter((l) => l.id !== id);
+  $('#drawer').dataset.k = '';
+  render();
+  toast(`已删除资产库 ${id}`);
+}
+// real-object photos are reordered by dragging their thumbnails (or Alt + arrow keys); the first one is the cover
+function movePhoto(oid, from, to) {
+  const d = S.object.find((x) => x.id === oid), photos = [...(d?.auto.photos || [])];
+  if (!d || from === to || to < 0 || to >= photos.length) return;
+  photos.splice(to, 0, ...photos.splice(from, 1));
+  d.auto.photos = photos;  // shown at once; the server returns the same order
+  render();
+  save('object', oid, {photo_order: photos.map(base)}, true).then((saved) => saved || load());  // no redraw: keeps focus
+
+}
+let PHOTO_DRAG = null;  // {oid, from}
+document.addEventListener('dragstart', (ev) => {
+  const item = ev.target.closest?.('.item[data-pi]');
+  if (!item) return;
+  PHOTO_DRAG = {oid: item.dataset.oid, from: Number(item.dataset.pi)};
+  ev.dataTransfer.effectAllowed = 'move';
+  ev.dataTransfer.setData('text/plain', item.dataset.pi);
+  item.classList.add('dragging');
+});
+document.addEventListener('dragover', (ev) => {
+  const item = PHOTO_DRAG && ev.target.closest?.('.item[data-pi]');
+  $$('.item.drop-before, .item.drop-after').forEach((x) => x.classList.remove('drop-before', 'drop-after'));
+  if (!item || item.dataset.oid !== PHOTO_DRAG.oid) return;
+  ev.preventDefault();
+  const r = item.getBoundingClientRect();
+  item.classList.add(ev.clientX < r.left + r.width / 2 ? 'drop-before' : 'drop-after');
+});
+document.addEventListener('drop', (ev) => {
+  const item = PHOTO_DRAG && ev.target.closest?.('.item[data-pi]');
+  if (!item || item.dataset.oid !== PHOTO_DRAG.oid) return;
+  ev.preventDefault();
+  const to = Number(item.dataset.pi) + (item.classList.contains('drop-after') ? 1 : 0), {oid, from} = PHOTO_DRAG;
+  movePhoto(oid, from, to > from ? to - 1 : to);
+});
+document.addEventListener('dragend', () => {
+  PHOTO_DRAG = null;
+  $$('.item.dragging, .item.drop-before, .item.drop-after').forEach((x) => x.classList.remove('dragging', 'drop-before', 'drop-after'));
+});
+document.addEventListener('keydown', (ev) => {
+  const item = ev.altKey && (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') && ev.target.closest?.('.item[data-pi]');
+  if (!item) return;
+  ev.preventDefault();
+  const from = Number(item.dataset.pi), to = from + (ev.key === 'ArrowLeft' ? -1 : 1);
+  movePhoto(item.dataset.oid, from, to);
+  setTimeout(() => $(`#drawer .item[data-pi="${to}"] .gthumb`)?.focus(), 0);
+});
 function photoStrip(d) {
   const photos = d.auto.photos || [];
   GAL[`obj-photos-${d.id}`] = photos;
-  return photos.map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="obj-photos-${esc(d.id)}" data-i="${i}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${file(p)}" alt=""></button>
+  return photos.map((p, i) => `<div class="item" draggable="true" data-oid="${esc(d.id)}" data-pi="${i}" title="拖动调整顺序，第一张是封面；聚焦后 Alt + ← / → 也能移动">
+    <button class="gthumb" type="button" data-lb="obj-photos-${esc(d.id)}" data-i="${i}" aria-label="查看 ${esc(base(p))}（第 ${i + 1} 张${i ? '' : '，封面'}）"><img loading="lazy" draggable="false" src="${file(p)}" alt=""></button>
     <button class="del" type="button" data-path="${esc(p)}" onclick="deletePhoto(this.dataset.path)" aria-label="删除 ${esc(base(p))}">${ic('trash', 'ic-sm')}</button></div>`).join('');
 }
 const DIM_HINT = '每项写「名称 数值」，单位 mm，按物体形状自己定名称，如：开口直径 82，底部直径 64，高 135';
@@ -1680,28 +1909,7 @@ function genBrief(d) {  // brief lines for the generalization asked in step 3 of
     '',
   ];
 }
-function modelingBrief(d) {  // the task for a coding agent that builds this twin; skipped fields are null
-  const a = d.auto, dir = `real2sim/objects/${d.id}`, photos = (a.photos || []).map(base);
-  const fact = (k, v) => (v === undefined || v === null || v === '' ? null : `- ${k}：${v}`);
-  return [
-    `为 RoboDojo 建一个实物孪生仿真资产 ${d.id}（${objName(d)}），按仓库里 scripts/objects/SKILL.md 的流程做（各层放什么、生成脚本约定、服务器验证、登记）。先 git fetch，从最新的 origin/main 开独立 worktree 和短分支再读它：本地 main 可能落后，旧检出里没有这个文件。`,
-    '',
-    `输入：${dir}/spec.json（平台登记信息）和 ${dir}/reference/ 下的 ${photos.length} 张实拍照片${photos.length ? `（${photos.join('、')}）` : ''}。这些文件在平台所在机器的 ${INFO.root}/${dir}/，本机没有就先把这个目录同步过来。`,
-    '',
-    '登记信息：',
-    fact('名称', objName(d)), fact('英文名', d.name_en), fact('任务配置里用到', (a.tasks || []).join('、')), fact('材质', d.material), fact('颜色', d.color),
-    fact('质量', num(d.real_mass) ? `${d.real_mass} g` : ''), fact('静摩擦系数', d.real_friction),
-    d.dimensions ? `- 实测尺寸（mm）：${d.dimensions}` : '- 实测尺寸：未填，按照片估计，并在交付说明里标出是估计值',
-    fact('外观与结构', d.features), fact('建模要求', d.requirements), fact('备注', d.notes),
-    '',
-    ...genBrief(d),
-    '验收：',
-    `1. ${a.generator ? `在现有生成脚本 ${a.generator} 上修改` : `新建生成脚本 scripts/objects/make_${d.id.split('/')[1]}.py`}，资产生成到 Assets/Object/RoboDojo/${d.id}/（object.usdz、metadata.json、description.json），生成结果不入库。`,
-    '2. metadata.json 顶层 measurements_mm 的键和上面实测尺寸的名称一字不差，值从生成的网格量；每项误差 < max(2 mm, 2%)，质量用实测值。平台按名称自动核对。',
-    `3. check_object.py --image-dir real2sim/objects 落地检查通过：渲染图和检查结果写到 ${dir}/preview/（sim.png、check.json），和实拍照片对比过外观。其余物理检验（collision 碰撞体、grasp 抓取、liquid 盛液、render 光照渲染）做了哪项，就在 check.json 里加 "checks": {项: "pass" | "fail" | "na"} 和 "notes": {项: 依据}，没做的不写。把 preview/ 同步到部署机的同一路径，平台据此自动推进「建模」和「物理检验」。`,
-    `4. 提交生成脚本、${dir}/ 下的 spec.json 和照片、real2sim/ASSETS.md；装进服务器共享资产库前先征得同意。`,
-  ].filter((line) => line !== null).join('\n');
-}
+function modelingBrief(d) { return d.modeling?.prompt || ''; }
 function objDeleteBlocker(d) {
   const a = d.auto, variants = variantsOf(d.id).map((v) => v.id);
   if ((a.tasks || []).length) return `任务 ${a.tasks.join('、')} 在用这个物体`;
@@ -1714,13 +1922,37 @@ function objDeleteButton(d) {
   const why = objDeleteBlocker(d);
   return `<button class="btn" type="button" data-id="${esc(d.id)}" ${why ? `disabled title="${esc(why)}"` : 'onclick="removeObject(this.dataset.id)"'}>${ic('trash')}删除物体</button>`;
 }
+async function confirmObjectModeling(id) {
+  try {
+    if (!await save('object', id, {confirm_modeling: true}, true)) return;
+    await load();
+    openDrawer('object', id);
+    toast('登记字段已确认，统一建模 prompt 已生成');
+  } catch (e) { toast(e.message, true); }
+}
+const INPUT_POLICIES = {'': '请选择依据', measured: '实测', existing: '保留现有值，未实测', estimate: '允许估计并注明依据', unknown: '待测，保留未知'};
+function modelingPanel(d) {
+  const r = d.modeling || {}, missing = r.missing || [];
+  return sec(`${ic('terminal')}登记确认与统一建模 prompt`, `
+    <p class="hint">每次新增先登记；核对字段后点击确认。尺寸和质量可选择保留现有值、估计或待测。修改登记或参考照片后，旧 prompt 自动失效。</p>
+    <div class="form">
+      ${row('照片 / 实物来源', 'reference_source', area(d, 'reference_source', 'placeholder="实物照片、官方CAD路径/链接；缺照片时说明依据"'))}
+      ${row('尺寸依据', 'dimension_policy', sel(d, 'dimension_policy', INPUT_POLICIES))}
+      ${row('质量依据', 'mass_policy', sel(d, 'mass_policy', INPUT_POLICIES))}
+      ${row('物理类型与测试', 'physics_requirements', area(d, 'physics_requirements', 'placeholder="刚体/关节/布料/软体；碰撞、压缩、悬垂、夹持等要求"'))}
+    </div>
+    <p class="small">${r.confirmed ? `已确认 · ${esc(r.confirmed_by || '')} · ${esc(r.version || '')}` : `待确认${missing.length ? `：${esc(missing.join('、'))}` : ''}`}</p>
+    <button type="button" class="btn btn-primary" data-id="${esc(d.id)}" onclick="confirmObjectModeling(this.dataset.id)" ${missing.length ? 'disabled' : ''}>确认登记并生成统一 prompt</button>
+    ${r.confirmed ? code(modelingBrief(d), '复制建模 prompt') : ''}`);
+}
+
 function drawerObject(d) {
-  const a = d.auto, c = dimCheck(d), rs = evalStages(OBJ_STAGES, d), photos = a.photos || [], renders = a.renders || [];
-  const variants = variantsOf(d.id), parent = baseOf(d);
-  const brief = d.twin ? sec(`${ic('terminal')}建模任务（给 coding agent）`, `<p class="hint" style="margin:0 0 8px">登记信息已写入
-    <a target="_blank" rel="noopener" href="${file(`${INFO.root}/real2sim/objects/${d.id}/spec.json`)}">real2sim/objects/${esc(d.id)}/spec.json</a>，和实拍照片在同一目录。把下面这段交给 coding agent；建好后同步，平台按 metadata.json 的 measurements_mm 自动核对尺寸。</p>
-    ${code(modelingBrief(d))}`) : '';
-  GAL[`obj-renders-${d.id}`] = renders;
+  const a = d.auto, c = dimCheck(d), rs = evalStages(OBJ_STAGES, d), photos = a.photos || [];
+  const parent = baseOf(d), root = parent || d, family = [root, ...variantsOf(root.id)];
+  // the render shown under 仿真渲染: this object, or a sibling variant picked below it (previewed in place)
+  const shown = family.find((v) => v.id === UI.vpick[d.id]) || d, renders = shown.auto.renders || [];
+  const brief = modelingPanel(d);
+  GAL[`obj-renders-${shown.id}`] = renders;
   const hero = (key, list, emptyText) => (list.length
     ? `<button class="hero" type="button" data-lb="${esc(key)}" data-i="0" aria-label="放大查看"><img src="${file(list[0])}" alt=""></button>`
     : `<div class="hero empty-hero">${ic('image', 'ic-lg')}${emptyText}</div>`);
@@ -1728,20 +1960,30 @@ function drawerObject(d) {
     title: objName(d), sub: `${d.id} · ${a.in_library ? '资产库已有' : a.built ? '已建好，未装共享库' : '还没建模'}${a.generator ? ` · ${a.generator}` : ''}`,
     actions: objDeleteButton(d),
     body: `${materialList()}${parent ? `<div class="callout">${ic('grid')}<div>这是 ${link('object', parent.id)}（${esc(objName(parent))}）的泛化变体，在物体页收在它的卡片里。</div></div>` : ''}
-    ${a.built ? '' : brief}${sec('实物 vs 仿真', `<div class="compare">
+    ${libOf(d) === 'real2sim' ? reviewPanel(d) : ''}${a.built ? '' : brief}${sec('实物参考与模型', `<div class="compare">
       <figure><figcaption>${ic('camera')}实物照片 <span class="muted small">${photos.length} 张</span><span class="sp"></span>
         <label class="btn upload" title="jpg / png / webp，单张 ≤ 25 MB">${ic('upload')}上传<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-id="${esc(d.id)}" onchange="uploadPhotos(this)" aria-label="上传实物照片"></label></figcaption>
-        ${hero(`obj-photos-${d.id}`, photos, '还没有实拍照片：上传多角度照片，保存到 real2sim/objects/&lt;id&gt;/reference/（随仓库，走 LFS）')}
+        ${hero(`obj-photos-${d.id}`, photos, hasPhotoReference(d) ? '实物照片已在对话提供，原图尚未关联到此登记。' : '尚未关联实物照片，可上传或填写参考来源。')}
         <div class="strip">${photoStrip(d)}</div></figure>
-      <figure><figcaption>${ic('cube')}仿真渲染 <span class="muted small">${renders.length} 张</span></figcaption>
-        ${hero(`obj-renders-${d.id}`, renders, '还没有渲染图：在 GPU 服务器运行下方「渲染」命令，生成到 real2sim/objects/&lt;id&gt;/preview/')}
-        <div class="strip">${renders.slice(1).map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="obj-renders-${esc(d.id)}" data-i="${i + 1}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${file(p)}" alt=""></button></div>`).join('')}</div></figure></div>`)}
+      <figure><figcaption>${ic('cube')}仿真渲染 <span class="muted small">${shown === d ? '' : `${esc(objName(shown))} · `}${renders.length} 张</span><span class="sp"></span>
+        <button class="btn btn-ghost" type="button" data-open="object" data-id="${esc(shown.id)}" ${shown === d ? 'style="visibility:hidden" tabindex="-1" aria-hidden="true"' : ''}>${ic('external', 'ic-sm')}打开详情</button></figcaption>
+
+        ${hero(`obj-renders-${shown.id}`, renders, '还没有渲染图：在 GPU 服务器运行下方「渲染」命令，生成到 real2sim/objects/&lt;id&gt;/preview/')}
+        <div class="strip">${renders.slice(1).map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="obj-renders-${esc(shown.id)}" data-i="${i + 1}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${file(p)}" alt=""></button></div>`).join('')}</div>
+        ${family.length > 1 ? `<div class="strip vpick" role="group" aria-label="切换预览的变体（${family.length - 1} 个变体）">${family.map((v) => {
+          const tag = v === root ? '本体' : `变体 ${Number(v.id.split('/').pop())}`, img = v.auto.renders?.[0] || v.auto.photos?.[0];
+          return `<div class="item"><button class="gthumb" type="button" aria-pressed="${v.id === shown.id}" data-d="${esc(d.id)}" data-v="${esc(v.id)}"
+            onclick="pickVariant(this.dataset.d, this.dataset.v)" title="${esc(`${tag} · ${objName(v)} · ${v.id}`)}" aria-label="预览${esc(tag)} ${esc(objName(v))}">
+            ${img ? `<img loading="lazy" src="${file(img)}" alt="">` : ic('cube')}<span class="vtag">${v === root ? '本体' : Number(v.id.split('/').pop())}</span></button></div>`;
+        }).join('')}</div>` : ''}</figure></div>`)}
     ${sec('流程', `${progress(rs)}<div style="height:10px"></div>${stageList(rs)}`)}
     ${sec('基本信息', `<div class="form">
       ${row('名称', 'name', inp(d, 'name', 'text', `placeholder="${esc(a.name || '')}"`))}
       ${row('英文名', 'name_en', inp(d, 'name_en'))}
-      ${row('实物孪生', 'twin', inp(d, 'twin', 'checkbox'), '有对应的实物，需要测量并核对尺寸；勾上后登记信息写入 spec.json')}
-      ${row('建模方式', 'method', sel(d, 'method', METHODS))}</div>`)}
+      ${row('实物来源', 'twin', inp(d, 'twin', 'checkbox'), '有对应实物即可登记；尺寸/质量未实测时单独记录，不影响来源分类')}
+      ${row('建模方式', 'method', sel(d, 'method', METHODS))}
+      ${row('重建负责人', 'owner', sel(d, 'owner', memberOpts(d.owner)), '负责建模的人；退回重建后由他修改')}
+      ${row('资产库', 'library', sel(d, 'library', {'': `按来源自动（${libName(autoLib(d))}）`, ...Object.fromEntries(libraries().map((l) => [l.id, l.name]))}), '决定物体页里放在哪一组；Real2Sim 组的物体要经管理员审核')}</div>`)}
     ${sec('实物测量', `<div class="form">
       ${row('材质', 'material', inp(d, 'material', 'text', 'list="dl-materials" placeholder="如 PP 塑料、玻璃"'))}
       ${row('颜色', 'color', inp(d, 'color'))}
@@ -1754,8 +1996,7 @@ function drawerObject(d) {
         ${c.map((x) => `<tr><td>${esc(x.name)}</td><td class="num">${x.real}</td><td class="num">${x.sim == null ? '—' : x.sim.toFixed(1)}</td>
           <td class="num">${x.err == null ? '—' : x.err.toFixed(1)}</td><td>${x.sim == null ? st('todo', '待核对') : st(x.ok ? 'ok' : 'bad', x.ok ? '合格' : '超差')}</td></tr>`).join('')}</tbody></table>` : ''}
       <p class="hint">尺寸文本里的每个「名称 数值」会和建好的模型 metadata.json 里同名的 measurements_mm 自动比对；仿真包围盒 ${mm(a.size, 1)} mm 可作参考。判据：每个尺寸误差 &lt; 2 mm 或 2%；质量差 ≤ 5 g。</p>`)}
-    ${variants.length ? sec(`${ic('grid')}泛化变体`, `<div class="gallery" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))">${variants.map((v) => `<button class="vcard" type="button" data-open="object" data-id="${esc(v.id)}" aria-label="打开变体 ${esc(v.id)}">
-      ${objMedia(v, true)}<span><b>${esc(objName(v))}</b><span class="mono small muted">${esc(v.id)}</span></span></button>`).join('')}</div>`, ` <span class="muted small">${variants.length} 个 · metadata.json variant_of</span>`) : ''}
+
     ${d.twin ? sec('泛化', `<div class="form">
       ${row('运行时换色', 'gen.rt_color', inp(d, 'gen.rt_color', 'checkbox'), '仿真按布局随机换色，不建新资产')}
       ${row('运行时缩放 ±%', 'gen.rt_scale', inp(d, 'gen.rt_scale', 'number', 'min="0" max="50" step="1" style="flex:0 0 110px"'), '整体等比缩放的范围，0 表示不缩放')}
@@ -1775,7 +2016,7 @@ function drawerObject(d) {
       <dt>用于任务</dt><dd>${(a.tasks || []).map((t) => link('task', t)).join('、') || '—'}</dd>
       <dt>任务标签</dt><dd class="mono small">${esc((a.labels || []).join(', ') || '—')}</dd></dl>`)}
     ${sec('备注', area(d, 'notes'))}
-    ${sec(`${ic('terminal')}命令`, code(`${a.generator ? `python ${a.generator}   # 生成\n` : ''}PYTHONPATH=. python scripts/objects/check_object.py Assets/Object/RoboDojo/${d.id} --image-dir real2sim/objects   # 落地检查 + 渲染`))}`,
+    ${sec(`${ic('terminal')}命令`, code(`${a.check?.generation_command ? a.check.generation_command + '\n' : (a.generator ? `python ${a.generator}   # 生成\n` : '')}${a.check?.validation_command || `PYTHONPATH=. python scripts/objects/check_object.py Assets/Object/RoboDojo/${d.id} --image-dir real2sim/objects   # 落地检查 + 渲染`}`))}`,
   };
 }
 const WIZ = [
@@ -1805,7 +2046,7 @@ function drawerNewObject() {
   const types = [...new Set(['Rigid', ...Object.keys(IDX).map((g) => g.split('/')[0])])];
   const fld = wzFld, unit = wzUnit, group = wzGroup, pane = (n, body) => wzPane(WIZ, n, body);
   return {
-    title: '登记物体', sub: '登记后生成给 coding agent 的建模任务，建好的资产同步时自动关联',
+    title: '登记物体', sub: '先登记并保存；核对所有字段后生成统一建模 prompt',
     body: `${materialList()}<datalist id="dl-cats"></datalist>
     ${wzNav(WIZ)}
     ${pane(0, `${group('物体', `<div class="wz-grid">
@@ -1814,6 +2055,7 @@ function drawerNewObject() {
       ${fld('no-type', '类型', `<select id="no-type" onchange="suggestIndex()">${types.map((t) => `<option value="${esc(t)}">${esc(OBJECT_TYPES[t] || t)}</option>`).join('')}</select>`)}
       ${fld('no-cat', '类别', '<input id="no-cat" class="mono" list="dl-cats" placeholder="measuring_cup" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="this.dataset.edited = 1; suggestIndex()">', {hint: '由英文名生成，可改成已有类别'})}
       ${fld('no-idx', '编号', '<input id="no-idx" class="mono" type="number" min="0" value="0" oninput="suggestIndex(false)">', {hint: '自动取下一个空号'})}
+      ${fld('no-owner', '重建负责人', `<select id="no-owner">${opts(memberOpts(), ME?.username || '')}</select>`, {hint: '负责建模的人，从平台账号里选'})}
       <div class="fld"><label>资产 ID</label><code id="no-id" class="wz-id">填写英文名称后生成</code></div></div>`)}
     ${group('多角度照片 <span class="opt">可选</span>', photoDrop('正面、侧面、俯视、开口、底部各一张 · jpg / png / webp · 单张 ≤ 25 MB'))}`)}
     ${pane(1, `${group('物理量', `<div class="wz-grid">
@@ -2681,7 +2923,7 @@ async function deleteUser(username) {
   } catch (err) { toast(`删除失败：${err.message}`, true); }
 }
 async function load() {
-  await Promise.all([...KINDS.map(async (k) => { S[k] = await api(`/api/items?kind=${k}`); }), api('/api/members').then((m) => { MEMBERS = m; }),
+  await Promise.all([...KINDS.map(async (k) => { S[k] = await api(`/api/items?kind=${k}`); }), api('/api/items?kind=library').then((l) => { S.library = l; }), api('/api/members').then((m) => { MEMBERS = m; }),
     api('/api/materials').then((m) => { MATS = m; }), ...['train', 'exam'].map((p) => api(`/api/rsi-options?pool=${p}`).then((o) => { RSI_OPTS[p] = o; }).catch(() => {}))]);
   UI.loaded = true;
   UI.syncedAt = new Date().toLocaleTimeString('zh-CN', {hour12: false});
@@ -2849,7 +3091,7 @@ async function createScene(btn) {
     await sync(true);
     openDrawer('scene', id);
     delete DRAFTS['new-scene'];
-    toast(`已登记 ${id}，上传 ${n} 张照片；建模任务在抽屉顶部`);
+    toast(`已登记 ${id}，上传 ${n} 张照片；请在抽屉核对字段后确认生成 prompt`);
   } catch (e) {
     err.textContent = `登记失败：${e.message}`;
     btn.disabled = false;
@@ -2901,7 +3143,7 @@ async function createObject(btn) {
   const gen = {count: number('#no-gen-count') || 0, requirements: value('#no-gen-req'), rt_color: $('#no-rt-color').checked, rt_scale: number('#no-rt-scale') || 0};
   $$('[data-gen]').forEach((c) => { gen[c.dataset.gen] = c.checked; });
   const doc = {
-    twin: true, name: value('#no-name'), name_en: value('#no-name-en'), material: value('#no-material'), color: value('#no-color'),
+    twin: true, owner: value('#no-owner'), name: value('#no-name'), name_en: value('#no-name-en'), material: value('#no-material'), color: value('#no-color'),
     real_mass: number('#no-mass'), real_friction: number('#no-friction'), dimensions: value('#no-dims'), features: value('#no-features'), requirements: value('#no-req'), gen,
   };
   btn.disabled = true;
@@ -2912,7 +3154,7 @@ async function createObject(btn) {
     await sync(true);
     openDrawer('object', id);
     delete DRAFTS['new-object'];
-    toast(`已登记 ${id}${n ? `，上传 ${n} 张照片` : ''}；建模任务在抽屉顶部`);
+    toast(`已登记 ${id}${n ? `，上传 ${n} 张照片` : ''}；请在抽屉核对字段后确认生成 prompt`);
   } catch (e) {
     err.textContent = `登记失败：${e.message}`;
     btn.disabled = false;
@@ -2950,6 +3192,7 @@ async function deletePhoto(path) {
 function onFieldChange(ev) {
   const el = ev.target;
   if (el.dataset.sel !== undefined) { if (el.checked) UI.sel.add(el.dataset.sel); else UI.sel.delete(el.dataset.sel); render(); return; }
+  if (el.dataset.osel !== undefined) { if (el.checked) UI.osel.add(el.dataset.osel); else UI.osel.delete(el.dataset.osel); render(); return; }
   const f = el.dataset.f, box = el.closest('[data-kind]');
   if (!f || !box) return;
   const {kind, id} = box.dataset, doc = S[kind].find((x) => x.id === id) || {};
@@ -3121,6 +3364,8 @@ function discardDraft(kind) {
 function openDrawer(kind, id, trigger) {
   if (UI.drawer && (UI.drawer.kind !== kind || UI.drawer.id !== id)) stashDraft();
   const wasOpen = Boolean(UI.drawer);
+  if (UI.drawer?.id !== id) delete UI.vpick[id];  // a freshly opened object shows its own render
+
   UI.drawer = {kind, id};
   if (!wasOpen) UI.drawerRet = trigger || document.activeElement;
   UI.drawerFocus = true;
@@ -3139,9 +3384,9 @@ function renderDrawer() {
   if (!x) { dr.classList.remove('on'); dr.dataset.k = ''; return; }
   const key = `${x.kind}|${x.id}`;
   const wizard = x.kind.startsWith('new-');
-  if ((wizard || x.kind === 'account') && dr.dataset.k === key) return;  // keep typed input
+  if ((wizard || x.kind === 'account' || x.kind === 'libraries') && dr.dataset.k === key) return;  // keep typed input
   const d = S[x.kind]?.find((y) => y.id === x.id);
-  const view = x.kind === 'new-object' ? drawerNewObject() : x.kind === 'new-scene' ? drawerNewScene() : x.kind === 'new-task' ? drawerNewTask() : x.kind === 'new-robot' ? drawerNewRobot() : x.kind === 'new-eval' ? drawerNewEval() : x.kind === 'account' ? drawerAccount()
+  const view = x.kind === 'new-object' ? drawerNewObject() : x.kind === 'new-scene' ? drawerNewScene() : x.kind === 'new-task' ? drawerNewTask() : x.kind === 'new-robot' ? drawerNewRobot() : x.kind === 'new-eval' ? drawerNewEval() : x.kind === 'account' ? drawerAccount() : x.kind === 'libraries' ? drawerLibraries()
     : d ? {scene: drawerScene, object: drawerObject, task: drawerTask, embodiment: drawerRobot, evaluation: drawerEval, prototype: drawerPrototype}[x.kind](d) : {title: '记录不存在', body: ''};
   const scroll = dr.dataset.k === key ? $('#drawer .dr-b')?.scrollTop : 0;
   dr.innerHTML = `<div class="dr-h"><div style="min-width:0;flex:1"><h2 id="drawer-title">${esc(view.title)}</h2>${view.sub ? `<p>${esc(view.sub)}</p>` : ''}</div>
