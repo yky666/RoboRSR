@@ -25,6 +25,7 @@
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
   - 金属杯 `Clutter/metal_cup/00000` 和 6 个泛化变体：按平台登记建，未做仿真验证，未装共享库（见「最近任务」）。
   - 陶瓷杯 `Rigid/ceramic_cup/00000` 和 6 个泛化变体：按平台登记建，`check_object.py` 落地 + 渲染，未装共享库（见「最近任务」）。
+  - iPhone 17 Pro Max `Rigid/iphone_17_pro_max/0000{0,1,2}`：按苹果官网参数建（未登记实物），三种配色，未装共享库（见「最近任务」）。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
   - 杯对杯倒豆、量杯对倒：部分 seed 成功。
@@ -40,6 +41,13 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### iPhone 17 Pro Max `Rigid/iphone_17_pro_max`（2026-10-27，分支 `z/objects-iphone-17-pro-max`）
+
+- 用户要求：不给照片和参数，靠互联网资料建 iPhone 17 Pro Max，只做颜色泛化，国行重量，黑屏。没有平台登记，按用户同意的方式由 agent 写 `real2sim/objects/Rigid/iphone_17_pro_max/00000/spec.json`（`notes` 写明来源），不放参考照片（苹果图片有版权）。
+- 资料：苹果官网技术规格（163.4 × 78.0 × 8.75 mm、国行 231 g、银色 / 宇宙橙 / 深蓝色）；苹果开发者网站公开的 iPhone 17 Pro Max 尺寸图（`developer.apple.com/accessories/dimensional-drawings/`，2025-09-09，给配件厂商的工程图，带专有声明，PDF 和截图只放在 5090-2 `/data/robodojo-runs/iphone_ref/`，不入库）：平面圆角（7 个点，拟合成指数 3.17 的超椭圆）、凸台 2.55 mm、镜头玻璃再高 1.88 mm、三颗 Ø16.20 镜头与闪光灯 / 传感器 / 麦克风位置、按键位置和长度、灵动岛宽度；Apple Newsroom 产品图取色和看结构（凸台是铝，背面下部是哑光玻璃）。
+- 模型：Z 朝屏幕，屏幕朝上放时压在镜头上倾斜约 1.95°（和真机一样）；铝框 + 黑色盖板玻璃 + 凸台 + 镜头 + 背板 + 侧键 + USB-C，5 个凸包（机身、凸台、三颗镜头，最大偏差 1.47 mm）；`visual.color_parts` 只含铝件。三种配色几何相同，00001、00002 写 `variant_of`。
+- 验证：`measurements_mm` 高 163.4、宽 78.0、厚 8.75 与官方一致；`check_object.py --image-dir` 三件 OK，`sim.png`、`check.json` 已同步到部署机。生成结果在 5090-2 `/data/robodojo-runs/iphone_17_pro_max-20261027-114110/ovl/Rigid/iphone_17_pro_max/`，未装共享库。
 
 ### 陶瓷杯 `Rigid/ceramic_cup`（2026-10-23，分支 `z/objects-ceramic-cup`）
 

@@ -1,0 +1,18 @@
+{
+  "id": "Rigid/iphone_17_pro_max/00000",
+  "name": "iPhone 17 Pro Max（宇宙橙）",
+  "name_en": "iphone 17 pro max",
+  "material": "铝合金一体机身，前后超瓷晶面板",
+  "color": "宇宙橙",
+  "mass_g": 231,
+  "dimensions_mm": "高163.4mm，宽78.0mm，厚8.75mm",
+  "features": "熄屏黑屏；横跨机身宽度的铝制摄像头凸台（高出背板 2.55 mm，镜头玻璃再高 1.88 mm），三颗 48MP 镜头、闪光灯、LiDAR；背面哑光玻璃面板；左侧操作按钮和音量键，右侧电源键和相机控制键，底部 USB-C",
+  "notes": "未登记实物：尺寸、重量（国行 231 g）、配色来自苹果官网技术规格 support.apple.com/125091，几何细节来自苹果开发者网站公开的 iPhone 17 Pro Max 尺寸图（2025-09-09），颜色对照 Apple Newsroom 产品图；用户 2026-10-27 同意按官网参数建模",
+  "generalization": {
+    "count": 2,
+    "requirements": "只做颜色泛化：深蓝色、银色",
+    "color": true
+  },
+  "updated_by": "coding agent（官网参数）",
+  "updated_at": "2026-10-27 11:41:14"
+}
