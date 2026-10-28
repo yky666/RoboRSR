@@ -113,6 +113,13 @@ main { min-width: 0; padding: 26px 30px 56px; }
 .lib > summary .count { padding: 0 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); font: 500 12px/20px var(--mono); }
 .lib > summary .lib-desc { flex-basis: 100%; padding-left: 26px; font-weight: 400; }
 .lib-status { margin-bottom: 12px; flex-wrap: wrap; }
+/* floats over the page so ticking the first object does not push the cards under the pointer */
+.obj-bulk { position: fixed; bottom: 16px; left: 50%; z-index: 15; width: min(720px, calc(100vw - 32px)); transform: translateX(-50%); border-radius: 10px; box-shadow: var(--shadow-2); }
+.page:has(.obj-bulk) { padding-bottom: 140px; }
+
+.obj-bulk select { min-height: 30px; }
+.osel { flex: none; width: 18px; height: 18px; margin: 0; cursor: pointer; }
+
 .review-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .review-note { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid var(--border-strong); background: var(--surface-2); white-space: pre-wrap; }
 .review-log { margin: 14px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--border); }
@@ -563,6 +570,7 @@ const KIND_LABEL = {scene: '场景', object: '物体', task: '任务', episode: 
 const S = {scene: [], object: [], task: [], episode: [], embodiment: [], evaluation: [], prototype: [], library: []};
 const UI = {
   tab: 'overview', drawer: null, ep: null, taskDim: 'custom', taskQ: '', sel: new Set(), loaded: false, syncing: false, syncedAt: '',
+  osel: new Set(),  // objects ticked on the objects page, for bulk owner assignment
   obj: {q: '', photo: false, status: '', owner: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
   qa: {task: '', config: '', policy: '', result: '', status: 'pending'},
 };
@@ -1654,14 +1662,14 @@ function objBody(docs) {
   return UI.obj.view === 'cards' ? `<div class="grid cards">${docs.filter((d) => !baseOf(d)).map((d) => {
       const rs = evalStages(OBJ_STAGES, d);
       return `<article class="card mcard" data-open="object" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开物体 ${esc(d.id)}">${objMedia(d)}
-        <div class="mcard-b"><div class="mcard-t"><b>${esc(objName(d))}</b>${reviewChip(d)}</div>
+        <div class="mcard-b"><div class="mcard-t">${objCheck(d)}<b>${esc(objName(d))}</b>${reviewChip(d)}</div>
           <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>
           <div class="small muted">${measured(d) ? `实测 ${esc(dimText(d))}` : `模型 ${mm(d.auto.size)} mm${d.twin ? ' · 未实测' : ''}`}</div>
           ${ownerText(d) ? `<div class="small ${d.owner ? '' : 'muted'}">${ic('users', 'ic-sm')} ${esc(ownerText(d))}</div>` : ''}${progress(rs)}</div></article>`;
     }).join('')}</div>`
-    : `<div class="table-wrap"><table><thead><tr><th></th><th>物体</th><th>任务配置（标签）</th><th class="num">模型尺寸 mm</th><th class="num">质量 g</th><th>实测</th><th style="min-width:170px">流程</th></tr></thead><tbody>
+    : `<div class="table-wrap"><table><thead><tr><th style="width:36px"></th><th></th><th>物体</th><th>任务配置（标签）</th><th class="num">模型尺寸 mm</th><th class="num">质量 g</th><th>实测</th><th style="min-width:170px">流程</th></tr></thead><tbody>
       ${docs.map((d) => `<tr data-open="object" data-id="${esc(d.id)}" tabindex="0" class="${UI.drawer?.id === d.id ? 'sel' : ''}">
-        <td>${objMedia(d, true)}</td>
+        <td>${objCheck(d)}</td><td>${objMedia(d, true)}</td>
         <td><div class="t-main">${esc(objName(d))} ${reviewChip(d)} ${missingBadge(d)}</div><div class="t-sub mono">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div>${ownerText(d) ? `<div class="t-sub">${esc(ownerText(d))}</div>` : ''}</td>
         <td class="small">${(d.auto.tasks || []).map(esc).join('<br>') || '<span class="muted">—</span>'}<div class="t-sub mono">${esc((d.auto.labels || []).join(', '))}</div></td>
         <td class="num small">${mm(d.auto.size)}</td><td class="num small">${num(d.auto.mass) ? (d.auto.mass * 1000).toFixed(0) : '—'}</td>
@@ -1673,10 +1681,14 @@ function libSection(lib, docs) {
   const counts = Object.fromEntries(Object.keys(REVIEW).map((k) => [k, docs.filter((d) => d.review_state === k).length]));
 
   const shown = r2s && f.status ? docs.filter((d) => d.review_state === f.status) : docs;
+  const picked = f.view === 'cards' ? shown.filter((d) => !baseOf(d)) : shown, all = picked.length && picked.every((d) => UI.osel.has(d.id));
+  const pickAll = picked.length ? `<label class="check"><input type="checkbox" ${all ? 'checked' : ''} data-ids="${esc(picked.map((d) => d.id).join('\n'))}"
+    onchange="selectObjs(this.dataset.ids.split('\\n'), this.checked)">全选本组 ${picked.length} 件</label>` : '';
   const statusBar = r2s ? `<div class="toolbar lib-status"><div class="segctl" role="group" aria-label="按审核状态查看">
       ${[['', '全部', docs.length], ...Object.entries(REVIEW).map(([k, [, label]]) => [k, label, counts[k]])].map(([k, label, c]) => `<button type="button"
         aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
-      <span class="muted small">${ME?.admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核</span></div>` : '';
+      <span class="muted small">${ME?.admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核</span><span class="sp"></span>${pickAll}</div>`
+    : pickAll ? `<div class="toolbar lib-status"><span class="sp"></span>${pickAll}</div>` : '';
   const none = f.q || f.photo || f.status || f.owner ?
  empty('search', '没有符合条件的物体', '调整筛选条件')
     : lib.custom ? empty('box', '库里还没有物体', '登记物体后，在物体详情的「资产库」里选这个库') : empty('box', '还没有物体', '点「登记物体」新建');
@@ -1685,6 +1697,28 @@ function libSection(lib, docs) {
       ${r2s ? Object.entries(REVIEW).map(([k, [s, label]]) => (counts[k] ? st(s, `${label} ${counts[k]}`) : '')).join('') : ''}
       <span class="muted small lib-desc">${esc(lib.description || lib.source || '')}</span></summary>
     ${statusBar}${shown.length ? objBody(shown) : `<div class="card">${none}</div>`}</details>`;
+}
+const objCheck = (d) => `<input type="checkbox" class="osel" data-osel="${esc(d.id)}" ${UI.osel.has(d.id) ? 'checked' : ''} aria-label="选择 ${esc(objName(d))}">`;
+function selectObjs(ids, checked) {
+  ids.forEach((id) => (checked ? UI.osel.add(id) : UI.osel.delete(id)));
+  render();
+}
+function objBulkBar() {
+  const n = UI.osel.size;
+  if (!n) return '';
+  return `<div class="bulkbar obj-bulk" role="region" aria-label="批量操作"><b>已选 ${n} 件</b><span class="sp"></span>
+    <label for="bulk-owner">重建负责人</label><select id="bulk-owner" style="color:var(--text)">${opts(memberOpts(), '')}</select>
+    <button class="btn" type="button" onclick="bulkOwner()">${ic('users')}批量指派</button>
+    <button class="btn" type="button" onclick="UI.osel.clear(); render()">取消选择</button></div>`;
+}
+async function bulkOwner() {
+  const ids = [...UI.osel], owner = $('#bulk-owner').value, who = owner ? memberName(owner) : '未指派';
+  if (!ids.length || !confirm(`把 ${ids.length} 件物体的重建负责人设为「${who}」？`)) return;
+  let n = 0;
+  for (const id of ids) n += await save('object', id, {owner}, true) ? 1 : 0;
+  UI.osel.clear();
+  render();
+  toast(n === ids.length ? `已把 ${n} 件物体指派给「${who}」` : `${n}/${ids.length} 件已指派，其余保存失败`, n !== ids.length);
 }
 function toggleLib(el) {
   const id = el.dataset.lib;
@@ -1705,7 +1739,7 @@ function viewObjects() {
       <div class="segctl" role="group" aria-label="显示方式">
         <button type="button" aria-pressed="${f.view === 'cards'}" onclick="setObjView('cards')">${ic('grid', 'ic-sm')} 卡片</button>
         <button type="button" aria-pressed="${f.view === 'table'}" onclick="setObjView('table')">${ic('table', 'ic-sm')} 列表</button></div></div>
-    ${libraries().map((lib) => libSection(lib, docs.filter((d) => libOf(d) === lib.id))).join('')}</div>`;
+    ${objBulkBar()}${libraries().map((lib) => libSection(lib, docs.filter((d) => libOf(d) === lib.id))).join('')}</div>`;
 }
 function reviewPanel(d) {
   const r = d.review || {}, [s, label] = REVIEW[d.review_state] || REVIEW.rebuild, built = d.auto.built;
@@ -3081,6 +3115,7 @@ async function deletePhoto(path) {
 function onFieldChange(ev) {
   const el = ev.target;
   if (el.dataset.sel !== undefined) { if (el.checked) UI.sel.add(el.dataset.sel); else UI.sel.delete(el.dataset.sel); render(); return; }
+  if (el.dataset.osel !== undefined) { if (el.checked) UI.osel.add(el.dataset.osel); else UI.osel.delete(el.dataset.osel); render(); return; }
   const f = el.dataset.f, box = el.closest('[data-kind]');
   if (!f || !box) return;
   const {kind, id} = box.dataset, doc = S[kind].find((x) => x.id === id) || {};
