@@ -119,7 +119,9 @@ PLACE_GAP = 0.004  # held object's bottom above the surface it is released on
 DRIVE_V, DRIVE_W, DRIVE_ACC = 0.35, 0.5, 0.5 / 30  # m/s, rad/s; m/s per action (a held cup slips at hard starts)
 DRIVE_TOL, HEADING_TOL, TURN_FIRST = 0.03, 0.03, 0.25  # m, rad; turn on the spot first when off course by more
 SETTLE = 15  # actions standing still after a drive
-BACK_OFF = 0.7  # m straight back from the counter before turning: the held cup clears its front edge
+# m straight back from the counter before turning: the held cup clears its front edge, and the chassis stays clear of
+# the bar stools on the far side of the aisle (real_scene2; 0.6 m already touches them)
+BACK_OFF = 0.5
 # Lounge table: root this far outside its rim; the cup set down this far ahead of the root; approach from this far out
 TABLE_STAND, PLACE_AHEAD, APPROACH = 0.20, 0.38, 0.5
 CHAIR_GAP = np.deg2rad(70)  # narrowest gap between the chairs round the table to stand in

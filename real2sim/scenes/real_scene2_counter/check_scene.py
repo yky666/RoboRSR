@@ -105,8 +105,8 @@ def main():
         dict(first_hit=first, bowl_bottom=round(top_z - params["table"]["slab"] - s["depth"] + 0.003, 4)),
     )
 
-    mw = cb["microwave"]
-    add("microwave stands on the countertop", abs(mw[0][2] - top_z) < 1e-4, dict(bottom=round(float(mw[0][2]), 4)))
+    bottom = float(cb["card"][0][2])
+    add("notice card stands on the countertop", abs(bottom - top_z) < 1e-4, dict(bottom=round(bottom, 4)))
     floating = []
     for level, z in zip(("lower", "upper"), params["shelf_top_z"]):
         for n, b in cb.items():
@@ -144,11 +144,21 @@ def main():
     )
     big = {}
     for p in colliders:
-        if str(p.GetPath()).startswith("/World/Lounge"):
+        if str(p.GetPath()).startswith(("/World/Lounge", "/World/Island")):
             n = len({tuple(v) for v in np.round(np.array(UsdGeom.Mesh(p).GetPointsAttr().Get()), 6)})
             if n > 64:
                 big[str(p.GetPath())] = n
-    add("lounge colliders within the PhysX GPU convex limit (<= 64 vertices)", not big, dict(over=big))
+    add("lounge and island colliders within the PhysX GPU convex limit (<= 64 vertices)", not big, dict(over=big))
+
+    isl = params["islands"]
+    for name in ("bar", "green"):
+        top = cb[f"{name}_top"][1][2]
+        add(f"{name} island top at its top_z", abs(top - isl[name]["top_z"]) < 1e-4, dict(top=round(float(top), 4)))
+    # aisle in front of the counter (the mobile G1-D drives along it to the lounge): counter edge to the nearest stool
+    # or island edge on the far side
+    near = max([isl["bar"]["y"][1]] + [s["xy"][1] + s["r"] for s in isl["stools"]])
+    aisle = params["table"]["front_y"] - near
+    add("aisle between the counter and the islands >= 1.0 m", aisle >= 1.0, dict(aisle=round(aisle, 3)))
 
     lights = [p for p in st.Traverse() if p.HasAPI(UsdLux.LightAPI)]
     add("lights present", len(lights) >= 2, dict(lights=[str(p.GetPath()) for p in lights]))

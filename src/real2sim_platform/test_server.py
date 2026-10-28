@@ -136,7 +136,15 @@ def test_prototypes():
     found = server.scan_prototypes()  # real2sim/prototypes/<id>/platform.json; previews are not in git
     assert {"aurora_lite", "cloth_patch", "cable"} <= set(found)
     assert not any(p["runtime_ready"] for p in found.values())  # never offered as task objects
-    assert all(Path(e).is_relative_to(server.PROTOTYPES_DIR) for p in found.values() for e in p["evidence"])
+    assert all(
+        Path(e).resolve().is_relative_to(server.PROTOTYPES_DIR.resolve())
+        or (
+            Path(e).parent.name == "validation"
+            and Path(e).parent.parent.parent.resolve() == server.EMBODIMENTS_DIR.resolve()
+        )
+        for p in found.values()
+        for e in p["evidence"]
+    )
     tmp = Path(tempfile.mkdtemp())
     (tmp / "Bad-Name").mkdir()
     (tmp / "Bad-Name/platform.json").write_text("{}")
@@ -325,6 +333,8 @@ def test_http():
         spec = json.loads((tmp / "objects/Rigid/cup/00000/spec.json").read_text(encoding="utf-8"))
         assert spec.pop("updated_at") and spec == {  # empty fields left out
             "id": "Rigid/cup/00000",
+            "twin": True,
+            "asset_origin": "physical_object",
             "name": "量杯",
             "name_en": "Measuring Cup",
             "material": "PP 塑料",
@@ -479,11 +489,10 @@ def test_http():
         ]
         reg = {"name": "擦桌子", "definition": "用海绵把桌上的污渍擦掉", "success": "污渍清除", "roles": roles}
         reg["instructions"] = {"count": 5, "languages": ["zh", "en"]}
-        reg["randomize"] = ["position"]
-        reg["robot_pose"] = ["distance", "yaw"]
-        reg["appearance"] = ["light"]
+        generalization = {"spatial": {"max": 2, "ranges": {"L1": "±5 cm", "L2": "可达范围"}}, "camera": {"max": 0}}
+        reg |= {"generalization": generalization, "grades": {"G0": 25, "G1": 50, "G2": 50}, "diagnostic": 10}
         reg |= {"scenes": {"real_scene3_lab": "train", "real_scene1_office": "holdout", "real_scene2_counter": ""}}
-        reg |= {"levels": {"L0": {"target": 25, "range": "孪生"}}, "distractors": {"count": None, "candidates": []}}
+        reg |= {"distractors": {"count": None, "candidates": []}}
         assert request("PUT", "/api/items?kind=task&id=../x", json.dumps({"registered": True}))[0] == 400
         assert request("PUT", task, json.dumps({"registered": True, "reg": reg, "owner": "alice"}))[0] == 200
         written = json.loads((tmp / "tasks/g1d_wipe_table/registration.json").read_text(encoding="utf-8"))
@@ -494,10 +503,9 @@ def test_http():
             "train": [{"scene": "real_scene3_lab", "env_cfg": ["g1d_lab"]}],
             "holdout": [{"scene": "real_scene1_office", "env_cfg": ["g1d", "g1d_aurora_lite_ws", "g1d_mobile"]}],
         }
-        assert "distractors" not in written and written["levels"] == {"L0": {"target": 25, "range": "孪生"}}
+        assert "distractors" not in written and written["generalization"] == generalization  # max 0 kept
+        assert written["grades"] == {"G0": 25, "G1": 50, "G2": 50} and written["diagnostic"] == 10
         assert written["instructions"] == {"count": 5, "languages": ["zh", "en"]} and "instruction" not in written
-        assert written["randomize"] == ["position"] and written["appearance"] == ["light"]
-        assert written["robot_pose"] == ["distance", "yaw"]
         assert server.scan_tasks(tmp)["g1d_wipe_table"]["instructions"] is None  # not written by the agent yet
         transcribed = {"zh": ["把桌子擦干净"], "en": ["Wipe the table clean."]}
         (tmp / "tasks/g1d_wipe_table/instructions.json").write_text(json.dumps(transcribed, ensure_ascii=False))
@@ -557,3 +565,138 @@ if __name__ == "__main__":
         if name.startswith("test_"):
             fn()
             print(f"ok {name}")
+
+
+def test_catalog_research_migration_and_hidden_scenes():
+    import catalog_policy as policy
+
+    docs = [{"id": name, "auto": {}} for name in ("g1d_green_table", "g1d_green_table_isaac", "real_scene4_school")]
+    assert [d["id"] for d in policy.visible("scene", docs)] == ["real_scene4_school"]
+    bodies = {
+        "aurora_lite": {"in_code": True, "setups": []},
+        "ur5_official": {"in_code": True, "setups": []},
+        "g1d_aurora_upper": {"in_code": True, "setups": []},
+        "g1d": {"in_code": True, "setups": [{"robot_cfg": "g1d"}]},
+    }
+    assert set(policy.research_bodies(bodies)) == {"aurora_lite", "ur5_official", "g1d_aurora_upper"}
+    assert [d["id"] for d in policy.visible("embodiment", [{"id": k, "auto": v} for k, v in bodies.items()])] == ["g1d"]
+    assert bodies["aurora_lite"]["in_code"]  # classification never deletes runtime assets
+
+
+def test_registration_confirmation_and_stale_prompt(tmp_path):
+    import object_registration as registration
+
+    photo = tmp_path / "front.png"
+    photo.write_bytes(b"reference")
+    doc = {
+        "id": "Rigid/cup/00000",
+        "twin": True,
+        "name": "杯子",
+        "name_en": "Cup",
+        "material": "待核实",
+        "color": "白色",
+        "features": "中空",
+        "requirements": "保留杯口",
+        "reference_source": "实验室实物照片",
+        "physics_requirements": "刚体，落地与碰撞测试",
+        "dimension_policy": "existing",
+        "mass_policy": "unknown",
+        "auto": {"photos": [str(photo)], "size": [0.08, 0.08, 0.1], "mass": 0.1},
+    }
+    assert not registration.state(doc)["confirmed"]
+    doc["modeling_confirmation"] = registration.confirm(doc, "杨开元")
+    result = registration.state(doc)
+    assert result["confirmed"] and "real-object-v1" in result["prompt"] and "保留未知" in result["prompt"]
+    assert "0.1" in result["prompt"] and doc.get("real_mass") is None
+    assert not registration.state({**doc, "color": "红色"})["confirmed"]
+    photo.write_bytes(b"new reference, changed")
+    assert not registration.state(doc)["confirmed"]
+    measured = {**doc, "mass_policy": "measured"}
+    assert "实测质量" in registration.missing(measured)
+
+
+def test_physical_source_does_not_require_measurements(tmp_path, monkeypatch):
+    import object_registration as registration
+
+    folder = tmp_path / "registrations/Rigid/hammer/00009"
+    folder.mkdir(parents=True)
+    data = {
+        "asset_origin": "physical_object",
+        "photo_reference": {"received": True, "channel": "conversation"},
+        "estimated_dimensions_mm": {"X": 356},
+        "estimated_mass_g": 450,
+    }
+    (folder / "spec.json").write_text(json.dumps(data))
+    monkeypatch.setattr(server, "OBJECTS_DIR", tmp_path / "registrations")
+    scanned = server.scan_objects(tmp_path, {}, ["Rigid/hammer/00009"])["Rigid/hammer/00009"]
+    assert scanned["physical_source"] and scanned["photo_reference"]["received"]
+    doc = {"id": "Rigid/hammer/00009", "auto": scanned, "_by": "杨开元", "_at": 1}
+    public = registration.public_object(doc)
+    assert public["twin"] and public.get("real_mass") is None and public.get("dimensions") is None
+    assert not public["modeling"]["confirmed"]
+    server.write_spec(doc)
+    saved = json.loads((folder / "spec.json").read_text())
+    assert saved["twin"] and saved["asset_origin"] == "physical_object"
+    assert saved["estimated_dimensions_mm"] == {"X": 356} and saved["estimated_mass_g"] == 450
+    assert "mass_g" not in saved and "dimensions_mm" not in saved
+    assert not registration.physical_origin({**doc, "twin": False})
+
+
+def test_object_review_and_libraries(tmp_path, monkeypatch):
+    monkeypatch.setattr(server, "OBJECTS_DIR", tmp_path / "objects")
+    store = server.Store(tmp_path / "db.sqlite3")
+    store.add_user("boss", "password1", "管理员", admin=True)
+    store.add_user("bob", "password1", "成员")
+    oid = "Rigid/cup/00000"
+    store.sync("object", {oid: {"built": False}})
+    server.Handler.store, server.Handler.scan_args, server.Handler.roots = store, (tmp_path, [tmp_path]), [tmp_path]
+    server.Handler.failures, server.FAIL_DELAY = {}, 0
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+
+    def call(user, method, path, body=None):
+        cookie = {"Cookie": f"{server.COOKIE}={store.open_session(user)}"}
+        conn = http.client.HTTPConnection("127.0.0.1", httpd.server_port)
+        conn.request(method, path, json.dumps(body) if body is not None else None, cookie)
+        resp = conn.getresponse()
+        return resp.status, json.loads(resp.read() or "null")
+
+    obj = f"/api/items?kind=object&id={oid}"
+    try:
+        assert call("boss", "PUT", obj, {"review_action": "approve"})[0] == 409  # nothing built yet
+        store.sync("object", {oid: {"built": True, "check": {"checked_at": "t1"}}})
+        assert call("bob", "PUT", obj, {"review_action": "approve"})[0] == 403  # admins only
+        assert call("bob", "PUT", obj, {"review": {"state": "approved"}})[1]["review_state"] == "review"  # ignored
+        assert call("boss", "PUT", obj, {"review_action": "reject"})[0] == 400  # a reason is required
+        status, doc = call("boss", "PUT", obj, {"review_action": "reject", "review_note": "把手太粗"})
+        assert status == 200 and doc["review_state"] == "rebuild" and doc["review"]["by"] == "管理员"
+        assert call("boss", "PUT", obj, {"review_action": "reopen"})[1]["review_state"] == "review"  # undo reject
+        assert call("boss", "PUT", obj, {"review_action": "reopen"})[0] == 409  # already awaiting review
+        status, doc = call("boss", "PUT", obj, {"review_action": "approve"})
+        assert doc["review_state"] == "done" and len(doc["review"]["history"]) == 3
+        assert call("boss", "PUT", obj, {"review_action": "reopen"})[1]["review_state"] == "review"  # undo the approval
+        assert call("bob", "PUT", obj, {"review_action": "reopen"})[0] == 403
+        call("boss", "PUT", obj, {"review_action": "approve"})
+
+        auto = {**store.get("object", oid)["auto"], "photos": ["/r/a.jpg", "/r/b.jpg", "/r/c.jpg"]}
+        store.sync("object", {oid: auto})
+        assert call("bob", "PUT", obj, {"photo_order": "c.jpg"})[0] == 400
+        doc = call("bob", "PUT", obj, {"photo_order": ["c.jpg", "a.jpg"]})[1]
+        assert doc["auto"]["photos"] == ["/r/c.jpg", "/r/a.jpg", "/r/b.jpg"]  # unlisted ones stay at the end
+
+        store.sync("object", {oid: {"built": True, "check": {"checked_at": "t2"}}})  # rebuilt: review again
+        assert server.review_state(store.get("object", oid)) == "review"
+
+        lib = "/api/items?kind=library&id="
+        assert call("bob", "PUT", lib + "ycb", {"name": "YCB"})[0] == 403
+        assert call("boss", "PUT", lib + "robodojo", {"name": "x"})[0] == 400  # a built-in
+        assert call("boss", "PUT", lib + "ycb", {"name": ""})[0] == 400
+        assert call("boss", "PUT", lib + "ycb", {"name": "YCB", "source": "https://ycb.example"})[0] == 200
+        assert call("bob", "PUT", obj, {"library": "nope"})[0] == 400
+        assert call("bob", "PUT", obj, {"library": "ycb"})[1]["library"] == "ycb"
+        assert call("boss", "DELETE", lib + "ycb")[0] == 409  # still holds an object
+        call("bob", "PUT", obj, {"library": ""})
+        assert call("bob", "DELETE", lib + "ycb")[0] == 403
+        assert call("boss", "DELETE", lib + "ycb")[0] == 200
+    finally:
+        httpd.shutdown()

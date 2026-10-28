@@ -31,6 +31,12 @@ def Xform "World"
     {
     }
 
+    def "Island" (
+        prepend references = @./island.usda@
+    )
+    {
+    }
+
     def "Lights" (
         prepend references = @./lights.usda@
     )

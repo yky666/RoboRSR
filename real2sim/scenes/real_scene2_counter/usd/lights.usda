@@ -63,6 +63,17 @@ def Xform "Lights"
         uniform token[] xformOpOrder = ["xformOp:translate"]
     }
 
+    def RectLight "CeilingPanel_5"
+    {
+        float inputs:colorTemperature = 5000
+        bool inputs:enableColorTemperature = 1
+        float inputs:height = 0.6
+        float inputs:intensity = 6000
+        float inputs:width = 1.2
+        double3 xformOp:translate = (2.8, -2.3105, 3.18)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
     def DomeLight "AmbientDome"
     {
         color3f inputs:color = (0.95, 0.95, 1)

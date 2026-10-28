@@ -47,16 +47,20 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-sys.path[:0] = [str(ROOT / "scripts" / s) for s in ("internal", "g1d", "scenes", "datagen")]
+sys.path[:0] = [str(HERE)] + [str(ROOT / "scripts" / s) for s in ("internal", "g1d", "scenes", "datagen")]
 sys.path.append(str(ROOT))
 import appearance  # a scene's surface materials and desk height -> layouts
 import build_asset  # SCENES: env config -> real2sim scene
+import catalog_policy
+import object_registration
 import rsi_profile  # an upstream task's randomization profile -> scripts/datagen/x5_layouts.py
 import task_inventory
 
 from env.global_configs import OBJECT_LIBRARIES, object_dir
 
-KINDS = ("scene", "object", "task", "episode", "embodiment", "evaluation", "prototype")
+KINDS = ("scene", "object", "task", "episode", "embodiment", "evaluation", "prototype", "library")
+LIBRARY_ID = re.compile(r"[a-z0-9][a-z0-9_-]{0,31}")  # an admin-added public object library, e.g. objaverse
+BUILTIN_LIBRARIES = ("real2sim", "robodojo")  # objects default to these by origin; not docs, cannot be removed
 PROTOTYPES_DIR = ROOT / "real2sim" / "prototypes"
 OBJECT_ID = re.compile(r"\w+/\w[\w-]*/\d+")  # <type>/<category>/<index>, e.g. Rigid/measuring_cup/00001
 EXPECTED_CAMERAS = {"head", "left_wrist", "right_wrist"}  # same acceptance as scripts/internal/summarize_result.py
@@ -440,7 +444,7 @@ def scan_benchmark_scenes(tasks):
     return found
 
 
-def config_objects(path, sections=("Rigid", "Fluid")):
+def config_objects(path, sections=("Rigid", "Fluid", "Garment", "Articulation")):
     """{asset id: labels} of a task yml's object groups, e.g. {"Rigid/plastic_cup/00000": ["source_cup"]}."""
     # ponytail: line reader for the flat task-config layout (PyYAML only exists in the sim env); yaml.safe_load if
     # configs ever use nested flow lists or anchors
@@ -562,12 +566,16 @@ def scan_objects(assets, tasks, keep):
         d = Path(object_dir(oid, assets))
         meta = load_json(d / "metadata.json")
         physics = (meta or {}).get("physics", {})
+        registration = load_json(OBJECTS_DIR / oid / "spec.json") or {}
         # check_object.py --image-dir result, synced with the renders: a built asset, maybe not installed yet
         check = load_json(OBJECTS_DIR / oid / "preview" / "check.json") or {}
         names = ((load_json(d / "description.json") or {}).get("caption") or {}).get("name") or [None]
         pattern = re.compile(rf"Rigid/{category}\b|\"{category}\"")
         generator = next((p for p, text in generators.items() if pattern.search(text)), None)
         found[oid] = {
+            "physical_source": registration.get("twin") is True
+            or registration.get("asset_origin") == "physical_object",
+            "photo_reference": registration.get("photo_reference"),
             "type": kind,
             "category": category,
             "index": index,
@@ -595,6 +603,35 @@ def scan_objects(assets, tasks, keep):
     return found
 
 
+def model_signature(auto):
+    """Which built model a review verdict is about: a rebuild (new check.json time) asks for a new review."""
+    return (auto.get("check") or {}).get("checked_at") or ("library" if auto.get("in_library") else "")
+
+
+def review_state(doc):
+    """rebuild (no model yet, or an admin sent it back) -> review (built, awaiting an admin) -> done (approved)."""
+    auto, review = doc.get("auto") or {}, doc.get("review") or {}
+    if not auto.get("built"):
+        return "rebuild"
+    if review.get("model") != model_signature(auto):
+        return "review"
+    return {"approved": "done", "rejected": "rebuild"}.get(review.get("state"), "review")
+
+
+def ordered_photos(doc):
+    """auto.photos in the order dragged on the page (photo_order: file names); the first is the cover, photos not in
+    the list (new uploads) keep their place at the end."""
+    rank = {name: i for i, name in enumerate(doc.get("photo_order") or [])}
+    photos = (doc.get("auto") or {}).get("photos") or []
+    return sorted(photos, key=lambda p: rank.get(Path(p).name, len(rank)))
+
+
+def public_object(doc):
+    public = object_registration.public_object(doc)
+    public["auto"] = {**public.get("auto", {}), "photos": ordered_photos(doc)}
+    return {**public, "review_state": review_state(doc)}
+
+
 def delete_blocker(kind, doc, user):
     """(status, why) when `user` may not delete `doc` of this kind from the platform, else None.
     Registrations of things that already live in code stay out of reach; what has no delete button is admins only."""
@@ -605,7 +642,7 @@ def delete_blocker(kind, doc, user):
         return 409, "任务已在代码里实现，在仓库里删除；平台里只能撤销登记"
     if kind == "evaluation" and not (user["admin"] or (doc or {}).get("submitter") == user["username"]):
         return 403, "只有管理员或提交人可以删除评测"
-    if kind in ("episode", "prototype") and not user["admin"]:
+    if kind in ("episode", "prototype", "library") and not user["admin"]:
         return 403, "只有管理员可以删除这类记录"
     return None
 
@@ -647,10 +684,13 @@ def object_indices(assets, store):
 def write_spec(doc):
     """A twin's registration as real2sim/objects/<id>/spec.json, next to its photos: the input for modeling it."""
     path = OBJECTS_DIR / doc["id"] / "spec.json"
-    if not doc.get("twin"):
+    if not object_registration.physical_origin(doc):
         return path.unlink(missing_ok=True)
     spec = {
         "id": doc["id"],
+        "twin": True,
+        "asset_origin": doc.get("asset_origin") or "physical_object",
+        "photo_reference": doc.get("photo_reference") or doc.get("auto", {}).get("photo_reference"),
         "name": doc.get("name") or doc["auto"].get("name"),
         "name_en": doc.get("name_en"),
         "tasks": doc["auto"].get("tasks"),  # from the task configs
@@ -669,6 +709,15 @@ def write_spec(doc):
         "updated_at": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(doc["_at"])),
     }
     path.parent.mkdir(parents=True, exist_ok=True)
+    spec = {**(load_json(path) or {}), **spec}
+    for key in ("reference_source", "dimension_policy", "mass_policy", "physics_requirements", "modeling_confirmation"):
+        spec[key] = doc.get(key)
+    review = object_registration.state(doc)
+    prompt_path = path.with_name("modeling_prompt.md")
+    if review["confirmed"]:
+        prompt_path.write_text(review["prompt"] + "\n", encoding="utf-8")
+    else:
+        prompt_path.unlink(missing_ok=True)
     text = json.dumps({k: v for k, v in spec.items() if v not in (None, "", [], {})}, ensure_ascii=False, indent=2)
     path.write_text(text + "\n", encoding="utf-8")
 
@@ -709,7 +758,7 @@ def write_registration(doc):
         "name_en": r.get("name_en"),
         "scene_type": r.get("scene_type"),
         "location": r.get("location"),
-        "purpose": r.get("purpose"),  # twin | train | holdout: real-robot twin, training variant, L5 held out
+        "purpose": r.get("purpose"),  # twin | train | holdout: real-robot twin, training variant, scene-axis L3
         "measurements": tape,
         "table": {
             "thickness_cm": r.get("thickness_cm"),
@@ -775,15 +824,15 @@ def write_task_registration(doc, names=None):
         "horizon_s": r.get("horizon_s"),
         "target_episodes": r.get("target"),
         "owner": doc.get("owner") and {"username": doc["owner"], "name": (names or {}).get(doc["owner"], doc["owner"])},
-        "objects": r.get("roles"),  # [{label, candidates, holdout, count}]; holdout = only in L4 eval layouts
-        "randomize": r.get("randomize"),  # ["position", "yaw"]: varied in training and L1 layouts; agent sets ranges
-        # ["lateral", "distance", "height", "yaw"] of the robot base: varied in training and L2 layouts
-        "robot_pose": r.get("robot_pose"),
-        "appearance": r.get("appearance"),  # ["light", "texture", "camera"]: varied in training and L3 layouts
+        "objects": r.get("roles"),  # [{label, candidates, holdout, count}]; holdout = only in object-axis L3 layouts
         # {count, candidates, holdout, clutter_library, clutter_categories: [] = the whole Clutter library}
         "distractors": r.get("distractors"),
         "scenes": scenes,
-        "levels": r.get("levels"),  # {"L1": {"target": 50, "range": "..."}}, only the chosen levels
+        # {axis: {"max": 0-3, "ranges": {"L1": "...", ...}}} for spatial, scene, object, camera, language; training
+        # layouts go up to min(max, L2), L3 is held out for evaluation
+        "generalization": r.get("generalization"),
+        "grades": r.get("grades"),  # {"G0": 25, ...}: eval layouts per grade, Gk = every axis at min(k, its max)
+        "diagnostic": r.get("diagnostic"),  # eval layouts per axis and level, the other axes at L0
         "extra_generalization": r.get("extra"),
         "expert": r.get("expert"),
         "requirements": r.get("requirements"),
@@ -957,6 +1006,23 @@ def scan_prototypes(root=None):
             "model": str(d / "preview/model.glb") if (d / "preview/model.glb").is_file() else None,
             "evidence": evidence,
         }
+    for name, item in (
+        catalog_policy.research_bodies(
+            scan_embodiments(), {p.parent.name: load_json(p) or {} for p in EMBODIMENTS_DIR.glob("*/registration.json")}
+        )
+        if root == PROTOTYPES_DIR
+        else {}
+    ).items():
+        if name in found:
+            found[name]["kind"] = "机器人部件与装配研究"
+            found[name]["renders"] = found[name]["renders"] + [
+                p for p in item["renders"] if p not in found[name]["renders"]
+            ]
+        else:
+            found[name] = item
+        for evidence in sorted((EMBODIMENTS_DIR / name / "validation").glob("*.json")):
+            if str(evidence) not in found[name]["evidence"]:
+                found[name]["evidence"].append(str(evidence))
     return found
 
 
@@ -978,7 +1044,10 @@ def scan(store, assets, eval_roots):
     }
     for kind, items in found.items():
         store.sync(kind, items)
-    return {kind: len(items) for kind, items in found.items()}
+    return {
+        kind: len(catalog_policy.visible(kind, [{"id": key, "auto": value} for key, value in items.items()]))
+        for kind, items in found.items()
+    }
 
 
 def servable(path, roots):
@@ -1099,7 +1168,11 @@ class Handler(BaseHTTPRequestHandler):
         elif url.path == "/api/object-indices":
             self.send_json(object_indices(self.scan_args[0], self.store))
         elif url.path == "/api/items" and query.get("kind") in KINDS:
-            self.send_json(self.store.list(query["kind"]))
+            kind = query["kind"]
+            docs = catalog_policy.visible(kind, self.store.list(kind))
+            if kind == "object":
+                docs = [public_object(d) for d in docs]
+            self.send_json(docs)
         elif url.path == "/file" and servable(query.get("path", ""), self.roots):
             self.send_file(Path(query["path"]).resolve())
         else:
@@ -1143,6 +1216,13 @@ class Handler(BaseHTTPRequestHandler):
         while path.exists():
             path, n = folder / f"{stem}-{n}{suffix}", n + 1
         path.write_bytes(self.rfile.read(size))
+        if query.get("kind", "object") == "object":
+            with self.store.lock, self.store.db:
+                doc = self.store._get("object", oid)
+                if doc:
+                    doc.setdefault("auto", {})["photos"] = images(folder)
+                    self.store._put("object", doc)
+                    write_spec(doc)
         self.send_json({"path": str(path)})
 
     def do_PUT(self):
@@ -1175,6 +1255,11 @@ class Handler(BaseHTTPRequestHandler):
             self.store.update(kind, id_, fields, by=self.user["name"])
             profile = load_json(rsi_profile.PROFILES_DIR / id_ / "randomization.json")
             return self.send_json(self.store.set_auto(kind, id_, "randomization", profile))
+        if kind == "library":
+            if not self.user["admin"]:
+                return self.send_json({"error": "只有管理员可以管理资产库"}, 403)
+            if not LIBRARY_ID.fullmatch(id_) or id_ in BUILTIN_LIBRARIES or not str(fields.get("name", "")).strip():
+                return self.send_json({"error": "编号用小写字母、数字、- 或 _，不能和内置库重名；名称必填"}, 400)
         if kind == "evaluation":
             if not EVAL_ID.fullmatch(id_):
                 return self.send_error(400)
@@ -1182,6 +1267,48 @@ class Handler(BaseHTTPRequestHandler):
             if fields.get("registered") and not any(d["id"] == id_ for d in self.store.list(kind)):
                 # a new request: stamped with who submitted it, starting as submitted
                 fields = {**fields, "submitter": self.user["username"], "status": fields.get("status") or "submitted"}
+        if kind == "object":
+            confirming = fields.pop("confirm_modeling", False)
+            fields.pop("modeling_confirmation", None)
+            fields.pop("modeling", None)
+            fields.pop("review", None)  # written below, by admins only
+            order = fields.get("photo_order")
+            if order is not None and not (isinstance(order, list) and all(isinstance(n, str) for n in order)):
+                return self.send_json({"error": "照片顺序要是文件名列表"}, 400)
+
+            current = self.store.get(kind, id_) or {"id": id_, "auto": {}}
+            library = fields.get("library")
+            if library and library not in BUILTIN_LIBRARIES and not self.store.get("library", library):
+                return self.send_json({"error": f"没有资产库 {library}"}, 400)
+            action, note = fields.pop("review_action", None), str(fields.pop("review_note", "") or "").strip()
+            if action:
+                if not self.user["admin"]:
+                    return self.send_json({"error": "只有管理员可以审核物体"}, 403)
+                if action not in ("approve", "reject", "reopen"):
+                    return self.send_json({"error": "审核结论只能是通过、退回或撤回"}, 400)
+                if action == "reopen" and review_state(current) == "review":
+                    return self.send_json({"error": "已经是待审核"}, 409)
+                if action == "reject" and not note:
+                    return self.send_json({"error": "退回重建要写明原因"}, 400)
+                if action != "reject" and not current["auto"].get("built"):
+                    return self.send_json({"error": "还没有建好的模型，不能审核"}, 409)
+
+                entry = {
+                    "state": {"approve": "approved", "reject": "rejected", "reopen": "reopened"}[action],
+                    "by": self.user["name"],
+                    "at": time.time(),
+                    "note": note,
+                    "model": model_signature(current["auto"]),
+                }
+                history = (current.get("review") or {}).get("history", []) + [entry]
+                fields["review"] = {**entry, "history": history[-20:]}
+            if confirming:
+                try:
+                    fields["modeling_confirmation"] = object_registration.confirm(
+                        {**current, **fields}, self.user["name"]
+                    )
+                except ValueError as exc:
+                    return self.send_json({"error": str(exc)}, 400)
         doc = self.store.update(kind, id_, fields, by=self.user["name"])
         if kind == "object":
             write_spec(doc)
@@ -1193,7 +1320,7 @@ class Handler(BaseHTTPRequestHandler):
             write_embodiment_registration(doc, {u["username"]: u["name"] for u in self.store.users()})
         elif kind == "evaluation":
             write_eval_request(doc, {u["username"]: u["name"] for u in self.store.users()})
-        self.send_json(doc)
+        self.send_json(public_object(doc) if kind == "object" else doc)
 
     def do_DELETE(self):
         url = urlparse(self.path)
@@ -1231,6 +1358,9 @@ class Handler(BaseHTTPRequestHandler):
         blocked = delete_blocker(kind, self.store.get(kind, id_), self.user)
         if blocked:
             return self.send_json({"error": blocked[1]}, blocked[0])
+        if kind == "library" and any(d.get("library") == id_ for d in self.store.list("object")):
+            return self.send_json({"error": "库里还有物体，先把它们移到别的库"}, 409)
+
         self.store.delete(kind, id_)
         if kind == "object" and OBJECT_ID.fullmatch(id_):
             # spec, photos, renders: left behind they re-list the object
