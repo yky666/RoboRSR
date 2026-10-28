@@ -1237,6 +1237,10 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_error(400)
         if kind == "scene" and fields.get("registered") and not SCENE_ID.fullmatch(id_):
             return self.send_error(400)
+        if kind == "scene" and set(fields) == {"name"}:  # display name only: stored here, no repo files rewritten
+            if not isinstance(fields["name"], str) or len(fields["name"].strip()) > 60:
+                return self.send_json({"error": "名称最多 60 个字"}, 400)
+            return self.send_json(self.store.update(kind, id_, {"name": fields["name"].strip()}, by=self.user["name"]))
         if kind == "scene" and "appearance" in fields:
             if not SCENE_ID.fullmatch(id_) or not isinstance(fields["appearance"], dict):
                 return self.send_error(400)
