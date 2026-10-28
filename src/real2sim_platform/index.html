@@ -248,10 +248,11 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .m3d-hint { position: absolute; left: 8px; bottom: 8px; padding: 2px 7px; border-radius: 6px; background: rgba(15, 23, 42, .6); color: #fff; font-size: 11px; pointer-events: none; }
 .vcard { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-align: left; cursor: pointer; }
 .vcard:hover { border-color: var(--primary-line); }
-.vpick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.vpick .vcard { flex: 0 1 150px; min-height: 44px; }
-.vpick .vcard[aria-pressed="true"] { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-line); }
-.vpick .thumb { width: 40px; height: 30px; }
+/* variant picker under the render: same thumbnails as the photo strip; the picked one is outlined */
+.vpick .gthumb { display: grid; place-items: center; color: var(--faint); cursor: pointer; }
+.vpick .gthumb[aria-pressed="true"] { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-line); }
+.vpick .vtag { position: absolute; left: 3px; bottom: 3px; padding: 0 4px; border-radius: 4px; background: rgba(15, 23, 42, .72); color: #fff; font: 500 10px/16px var(--mono); }
+
 
 .vcard > span:last-child { display: grid; min-width: 0; }
 .vcard b { overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
@@ -1917,10 +1918,12 @@ function drawerObject(d) {
 
         ${hero(`obj-renders-${shown.id}`, renders, '还没有渲染图：在 GPU 服务器运行下方「渲染」命令，生成到 real2sim/objects/&lt;id&gt;/preview/')}
         <div class="strip">${renders.slice(1).map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="obj-renders-${esc(shown.id)}" data-i="${i + 1}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${file(p)}" alt=""></button></div>`).join('')}</div>
-        ${family.length > 1 ? `<div class="vpick" role="group" aria-label="切换预览的变体（${family.length - 1} 个变体）">${family.map((v) => `<button class="vcard" type="button"
-          aria-pressed="${v.id === shown.id}" data-d="${esc(d.id)}" data-v="${esc(v.id)}" onclick="pickVariant(this.dataset.d, this.dataset.v)" title="${esc(v.id)}">
-          ${objMedia(v, true)}<span><b>${v === root ? '本体' : `变体 ${Number(v.id.split('/').pop())}`}</b><span class="small muted">${esc(objName(v))}</span></span>
-</button>`).join('')}</div>` : ''}</figure></div>`)}
+        ${family.length > 1 ? `<div class="strip vpick" role="group" aria-label="切换预览的变体（${family.length - 1} 个变体）">${family.map((v) => {
+          const tag = v === root ? '本体' : `变体 ${Number(v.id.split('/').pop())}`, img = v.auto.renders?.[0] || v.auto.photos?.[0];
+          return `<div class="item"><button class="gthumb" type="button" aria-pressed="${v.id === shown.id}" data-d="${esc(d.id)}" data-v="${esc(v.id)}"
+            onclick="pickVariant(this.dataset.d, this.dataset.v)" title="${esc(`${tag} · ${objName(v)} · ${v.id}`)}" aria-label="预览${esc(tag)} ${esc(objName(v))}">
+            ${img ? `<img loading="lazy" src="${file(img)}" alt="">` : ic('cube')}<span class="vtag">${v === root ? '本体' : Number(v.id.split('/').pop())}</span></button></div>`;
+        }).join('')}</div>` : ''}</figure></div>`)}
     ${sec('流程', `${progress(rs)}<div style="height:10px"></div>${stageList(rs)}`)}
     ${sec('基本信息', `<div class="form">
       ${row('名称', 'name', inp(d, 'name', 'text', `placeholder="${esc(a.name || '')}"`))}
