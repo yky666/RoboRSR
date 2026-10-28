@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-28
-本会话分支：`chongzheng/objects-measuring-cup-variants`（worktree `../RoboDojo-mcup-variants`，基于未合并的 `chongzheng/objects-measuring-cup-variant`）：量杯加 4 个泛化变体 `00002–00005` 并放上平台，见「最近任务」第一节。上一会话 `chongzheng/objects-measuring-cup-variant`（worktree `../RoboDojo-mcup`）：两只量杯在平台上合成本体 + 变体并标为完备，见第二节。上一会话 `chongzheng/platform-variant-twins`：自建孪生搬到独立的 `Object/Real2Sim` 物体库。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
+本会话分支：`chongzheng/merge-open-prs-1028b`（worktree `../RoboDojo-merge-1028b`）：把开着的 #36、#38–#43 合进 `main` 并部署数采平台，见「最近任务」第一节，之后七节是这些 PR 各自的记录（量杯变体、冷水壶变体、建模 prompt v2、审核计数等）。再之前：`chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库；`chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,13 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 合并开着的 PR（#36、#38–#43）并部署数采平台（2026-10-28 晚，`chongzheng/merge-open-prs-1028b`）
+
+- **用户要求**：合并处理所有 PR，然后部署。
+- **合并顺序**（合进 `chongzheng/merge-open-prs-1028b`，再快进推 `main`）：#36 大预览居中裁剪；#38 量杯 00000 作 00001 的变体；#39 三个冷水壶合成变体；#40 场景可编辑中文名（带了一份和 #36 相同的裁剪改动，自动合并后无重复）；#41 建模 prompt v2（照片贴图标签）；#42 量杯变体 00002–00005（包含 #38）；#43 审核计数注明含变体。
+- **冲突**：只有 `HANDOFF.md`（开头的会话行和「最近任务」第一节），各 PR 的节都保留，会话行改写成上面这行。
+- **验证**：合并结果 `bash scripts/check.sh` 通过（uv 临时环境：ruff 0.11.7，82 passed、1 skipped），页面内联脚本 `node --check` 通过。
 
 ### 量杯 4 个泛化变体 `measuring_cup/00002–00005`（2026-10-28 15:2x，`chongzheng/objects-measuring-cup-variants`）
 
