@@ -81,4 +81,6 @@ def load_desc_info(modeldir, index, key="Rigid"):
     else:
         output["description"] = []
     output["caption"] = data.get("caption", "")
+    # instruction names {"en": [...], "zh": [...]}, brief to detailed (scripts/objects/object_names.py)
+    output["names"] = data.get("names") or {}
     return output

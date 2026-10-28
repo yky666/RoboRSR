@@ -3157,7 +3157,7 @@ function taskBrief(d) {  // the task for a coding agent that implements this reg
     r.existing
       ? `1. 配置和任务代码沿用 task/RoboDojo/config/${d.id}.yml、task/RoboDojo/tasks/${d.id}.py；物体角色和登记不一致时，先对齐 YAML 的 label 和代码，再改候选物体。`
       : `1. 新建 task/RoboDojo/config/${d.id}.yml 和 task/RoboDojo/tasks/${d.id}.py（导出类名与模块名一致，继承 TaskEnv）。Rigid 每个角色一组：category 列候选物体，select_mode.label 用角色名，和代码里的 label 一字不差；干扰物用 Clutter。run_reward 用 self.reward_manager.check 按上面的成功判据实现，不能恒为真；step_lim 按预计时长 × 30 Hz 留余量。`,
-    `2. 语言指令：从任务定义总结出${langText(r.instructions)}指令，每种语言 ${r.instructions?.count ?? 'N'} 条转写。意思和任务定义一致，换说法和句式，不加定义里没有的信息（物体颜色、位置等只有定义里写了才能用）；英文自然口语、祈使句。第一条是最直接的规范说法。写进 ${dir}/instructions.json，格式 {"zh": [...], "en": [...]}（只放选了的语言），任务的 gen_instruction 返回这些句子（desc_manager 每回合随机选一句）。用户审过 instructions.json 再批量采集。`,
+    `2. 语言指令：从任务定义总结出${langText(r.instructions)}指令，每种语言 ${r.instructions?.count ?? 'N'} 条转写。意思和任务定义一致，换说法和句式，不加定义里没有的信息（物体颜色、位置等只有定义里写了才能用）；提到候选物体时写成它的角色标签占位符（如 <source_cup>），desc_manager 按句子语言从该物体 description.json 的 names 里取一个名称填入；英文自然口语、祈使句。第一条是最直接的规范说法。写进 ${dir}/instructions.json，格式 {"zh": [...], "en": [...]}（只放选了的语言），任务的 gen_instruction 返回这些句子（desc_manager 每回合随机选一句）。用户审过 instructions.json 再批量采集。`,
     '3. 候选物体、干扰物和保留实例必须已在共享资产库；缺的先按 scripts/objects/SKILL.md 建（平台登记的在 real2sim/objects/）。保留实例不进训练布局。',
     `4. 在 scripts/g1d/scripted_demo.py 加（或沿用）这个任务的脚本专家，在 scripts/g1d/build_asset.py 里为每个训练场景的 env 配置生成训练布局；按上面的方案为每个综合等级和单维度诊断各生成一套固定评测布局，先用 scripted_demo 过滤，G0–G2 专家成功率 ≥ 80%。场景视觉 L3 的布局只放在保留场景里；还没建模的场景等它建好再生成。`,
     '5. 在 5090-2 的隔离目录（/data/robodojo-runs/）每个训练场景跑一次 scripted_demo seed 0：_result.json 的 eval_time ≥ 1、三路相机视频齐全；通过后再按 scripts/datagen/SKILL.md 批量采集。',
