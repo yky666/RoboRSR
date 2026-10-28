@@ -633,3 +633,51 @@ def test_physical_source_does_not_require_measurements(tmp_path, monkeypatch):
     assert saved["estimated_dimensions_mm"] == {"X": 356} and saved["estimated_mass_g"] == 450
     assert "mass_g" not in saved and "dimensions_mm" not in saved
     assert not registration.physical_origin({**doc, "twin": False})
+
+
+def test_object_review_and_libraries(tmp_path, monkeypatch):
+    monkeypatch.setattr(server, "OBJECTS_DIR", tmp_path / "objects")
+    store = server.Store(tmp_path / "db.sqlite3")
+    store.add_user("boss", "password1", "管理员", admin=True)
+    store.add_user("bob", "password1", "成员")
+    oid = "Rigid/cup/00000"
+    store.sync("object", {oid: {"built": False}})
+    server.Handler.store, server.Handler.scan_args, server.Handler.roots = store, (tmp_path, [tmp_path]), [tmp_path]
+    server.Handler.failures, server.FAIL_DELAY = {}, 0
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+
+    def call(user, method, path, body=None):
+        cookie = {"Cookie": f"{server.COOKIE}={store.open_session(user)}"}
+        conn = http.client.HTTPConnection("127.0.0.1", httpd.server_port)
+        conn.request(method, path, json.dumps(body) if body is not None else None, cookie)
+        resp = conn.getresponse()
+        return resp.status, json.loads(resp.read() or "null")
+
+    obj = f"/api/items?kind=object&id={oid}"
+    try:
+        assert call("boss", "PUT", obj, {"review_action": "approve"})[0] == 409  # nothing built yet
+        store.sync("object", {oid: {"built": True, "check": {"checked_at": "t1"}}})
+        assert call("bob", "PUT", obj, {"review_action": "approve"})[0] == 403  # admins only
+        assert call("bob", "PUT", obj, {"review": {"state": "approved"}})[1]["review_state"] == "review"  # ignored
+        assert call("boss", "PUT", obj, {"review_action": "reject"})[0] == 400  # a reason is required
+        status, doc = call("boss", "PUT", obj, {"review_action": "reject", "review_note": "把手太粗"})
+        assert status == 200 and doc["review_state"] == "rebuild" and doc["review"]["by"] == "管理员"
+        status, doc = call("boss", "PUT", obj, {"review_action": "approve"})
+        assert doc["review_state"] == "done" and len(doc["review"]["history"]) == 2
+        store.sync("object", {oid: {"built": True, "check": {"checked_at": "t2"}}})  # rebuilt: review again
+        assert server.review_state(store.get("object", oid)) == "review"
+
+        lib = "/api/items?kind=library&id="
+        assert call("bob", "PUT", lib + "ycb", {"name": "YCB"})[0] == 403
+        assert call("boss", "PUT", lib + "robodojo", {"name": "x"})[0] == 400  # a built-in
+        assert call("boss", "PUT", lib + "ycb", {"name": ""})[0] == 400
+        assert call("boss", "PUT", lib + "ycb", {"name": "YCB", "source": "https://ycb.example"})[0] == 200
+        assert call("bob", "PUT", obj, {"library": "nope"})[0] == 400
+        assert call("bob", "PUT", obj, {"library": "ycb"})[1]["library"] == "ycb"
+        assert call("boss", "DELETE", lib + "ycb")[0] == 409  # still holds an object
+        call("bob", "PUT", obj, {"library": ""})
+        assert call("bob", "DELETE", lib + "ycb")[0] == 403
+        assert call("boss", "DELETE", lib + "ycb")[0] == 200
+    finally:
+        httpd.shutdown()

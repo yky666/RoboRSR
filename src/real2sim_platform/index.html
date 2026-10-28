@@ -104,6 +104,21 @@ main { min-width: 0; padding: 26px 30px 56px; }
 .card-h h2 { margin: 0; font-size: 15px; font-weight: 600; }
 .card-b { padding: 12px 16px 16px; }
 .section-title { display: flex; align-items: center; gap: 8px; margin: 30px 0 12px; font-size: 15px; font-weight: 600; }
+.lib { margin-top: 18px; }
+.lib > summary { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-height: 44px; margin: 0 -10px 10px; padding: 8px 10px; border-radius: 8px; font-size: 15px; font-weight: 600; list-style: none; cursor: pointer; }
+.lib > summary::-webkit-details-marker { display: none; }
+.lib > summary:hover { background: var(--surface-2); }
+.lib > summary .chev { transition: transform .15s ease-out; }
+.lib[open] > summary .chev { transform: rotate(90deg); }
+.lib > summary .count { padding: 0 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); font: 500 12px/20px var(--mono); }
+.lib > summary .lib-desc { flex-basis: 100%; padding-left: 26px; font-weight: 400; }
+.lib-status { margin-bottom: 12px; flex-wrap: wrap; }
+.review-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.review-note { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid var(--border-strong); background: var(--surface-2); white-space: pre-wrap; }
+.review-log { margin: 14px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--border); }
+.review-log li { padding: 8px 0; border-bottom: 1px solid var(--border); }
+@media (prefers-reduced-motion: reduce) { .lib > summary .chev { transition: none; } }
+
 .grid { display: grid; gap: 14px; }
 .kpis { grid-template-columns: repeat(auto-fill, minmax(206px, 1fr)); }
 .kpi { display: block; padding: 14px 16px 16px; color: inherit; transition: border-color .15s, box-shadow .15s; }
@@ -545,10 +560,10 @@ const ic = (name, cls = '') => `<svg class="ic ${cls}" aria-hidden="true"><use h
 const KINDS = ['scene', 'object', 'task', 'episode', 'embodiment', 'evaluation', 'prototype'];
 const TAB_OF = {scene: 'scenes', object: 'objects', task: 'tasks', episode: 'qa', embodiment: 'robots', evaluation: 'evals', prototype: 'prototypes'};
 const KIND_LABEL = {scene: '场景', object: '物体', task: '任务', episode: '回合', embodiment: '本体', evaluation: '评测', prototype: '研究资产'};
-const S = {scene: [], object: [], task: [], episode: [], embodiment: [], evaluation: [], prototype: []};
+const S = {scene: [], object: [], task: [], episode: [], embodiment: [], evaluation: [], prototype: [], library: []};
 const UI = {
   tab: 'overview', drawer: null, ep: null, taskDim: 'custom', taskQ: '', sel: new Set(), loaded: false, syncing: false, syncedAt: '',
-  obj: {q: '', src: '', photo: false, view: localStorage.objView || 'cards'},
+  obj: {q: '', photo: false, status: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
   qa: {task: '', config: '', policy: '', result: '', status: 'pending'},
 };
 let INFO = {};
@@ -569,7 +584,7 @@ const todo = (t = '') => ({s: 'todo', t});
 const na = (t = '') => ({s: 'na', t});
 const flag = (v, hint) => (v ? ok('已完成') : todo(hint));
 const STATE = {ok: '通过', bad: '不通过', todo: '待办', na: '不适用'};
-const STATE_IC = {ok: 'check', bad: 'x', todo: 'circle', na: 'minus'};
+const STATE_IC = {ok: 'check', bad: 'x', todo: 'circle', na: 'minus', warn: 'eye'};
 const evalStages = (stages, d) => stages.map(([k, label, fn]) => ({k, label, ...fn(d)}));
 const allOk = (stages, d) => evalStages(stages, d).every((r) => r.s === 'ok' || r.s === 'na');
 
@@ -811,7 +826,9 @@ function renderNav() {
     ...(ME?.admin ? [['users', '成员管理', 'users', USERS.length]] : []),
   ];
   $('#nav').innerHTML = items.map(([tab, label, icon, n]) => `<a class="nav-item" href="#${tab}" ${UI.tab === tab ? 'aria-current="page"' : ''}>${ic(icon, 'ic-lg')}<span>${label}</span>${
-    tab === 'qa' ? (n ? `<span class="badge" title="待审回合">${n}</span>` : '') : (n !== '' ? `<span class="count">${n}</span>` : '')}</a>`).join('');
+    tab === 'qa' ? (n ? `<span class="badge" title="待审回合">${n}</span>` : '')
+    : tab === 'objects' && ME?.admin && toReview() ? `<span class="badge" title="${n} 件物体，${toReview()} 件待审核">${toReview()}</span>`
+    : (n !== '' ? `<span class="count">${n}</span>` : '')}</a>`).join('');
   $('#sync-btn').innerHTML = UI.syncing ? `${ic('refresh', 'spin')}同步中…` : `${ic('refresh')}同步项目数据`;
   $('#sync-btn').disabled = UI.syncing;
   $('#source').innerHTML = `<div><span class="dot ${INFO.assets_ok ? 'ok' : 'warn'}"></span>资产库${INFO.assets_ok ? '已连接' : '未找到'}</div>
@@ -1613,43 +1630,146 @@ function objMedia(d, thumb = false) {
     <div class="pills">${a.photos?.length ? `<span class="pill" title="已归档实物照片">${ic('camera', 'ic-sm')}${a.photos.length}</span>` : hasPhotoReference(d) ? `<span class="pill" title="对话中已提供实物照片，原图待关联">${ic('camera', 'ic-sm')}照片参考</span>` : ''}${render ? `<span class="pill" title="仿真渲染">${ic('cube', 'ic-sm')}渲染</span>` : ''}
       ${nv ? `<span class="pill" title="泛化变体资产">+${nv} 变体</span>` : ''}${runtime ? `<span class="pill" title="仿真里按布局随机，不建新资产">随机 ${esc(runtime)}</span>` : ''}</div></div>`;
 }
+// object libraries: the two built-ins sort objects by origin; other public libraries are added by admins (kind library)
+const BUILTIN_LIBS = [
+  {id: 'real2sim', name: 'Real2Sim 实物孪生', icon: 'camera', description: '实物登记、自建建模的物体，管理员审核后为完备'},
+  {id: 'robodojo', name: 'RoboDojo 资产库', icon: 'layers', description: '共享资产库 Assets/Object/RoboDojo 的官方物体'},
+];
+const libraries = () => [...BUILTIN_LIBS, ...S.library.map((l) => ({icon: 'box', ...l, custom: true}))];
+const autoLib = (d) => (ownObj(d) ? 'real2sim' : 'robodojo');
+const libOf = (d) => (d.library && libraries().some((l) => l.id === d.library) ? d.library : autoLib(d));
+const libName = (id) => libraries().find((l) => l.id === id)?.name || id;
+// review of a Real2Sim object, decided on the server (review_state): no model yet or sent back -> built -> approved
+const REVIEW = {rebuild: ['todo', '待重建'], review: ['warn', '待审核'], done: ['ok', '完备']};
+const reviewChip = (d) => (libOf(d) === 'real2sim' && REVIEW[d.review_state] ? st(...REVIEW[d.review_state]) : '');
+const toReview = () => live(S.object).filter((d) => libOf(d) === 'real2sim' && d.review_state === 'review').length;
 function objList() {
   const f = UI.obj, q = f.q.toLowerCase();
-  return S.object.filter((d) => (!f.src || (f.src === 'own' ? ownObj(d) : f.src === 'official' ? !ownObj(d) : Boolean(d.twin)))
-    && (!f.photo || hasPhotoReference(d))
+  return S.object.filter((d) => (!f.photo || hasPhotoReference(d))
     && (!q || `${d.id} ${d.name || ''} ${d.auto.name || ''} ${(d.auto.tasks || []).join(' ')}`.toLowerCase().includes(q)))
     .sort((x, y) => Number(ownObj(y)) - Number(ownObj(x)) || x.id.localeCompare(y.id));
 }
-function viewObjects() {
-  const f = UI.obj, docs = objList(), objs = live(S.object);
-  const body = !docs.length ? `<div class="card">${empty('box', '没有符合条件的物体', '调整筛选条件，或点「登记物体」新建')}</div>`
-    : f.view === 'cards' ? `<div class="grid cards">${docs.filter((d) => !baseOf(d)).map((d) => {
+function objBody(docs) {
+  return UI.obj.view === 'cards' ? `<div class="grid cards">${docs.filter((d) => !baseOf(d)).map((d) => {
       const rs = evalStages(OBJ_STAGES, d);
       return `<article class="card mcard" data-open="object" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开物体 ${esc(d.id)}">${objMedia(d)}
-        <div class="mcard-b"><div class="mcard-t"><b>${esc(objName(d))}</b>${d.twin ? '<span class="tag">实物</span>' : ''}</div>
+        <div class="mcard-b"><div class="mcard-t"><b>${esc(objName(d))}</b>${reviewChip(d)}</div>
           <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>
           <div class="small muted">${measured(d) ? `实测 ${esc(dimText(d))}` : `模型 ${mm(d.auto.size)} mm${d.twin ? ' · 未实测' : ''}`}</div>${progress(rs)}</div></article>`;
     }).join('')}</div>`
     : `<div class="table-wrap"><table><thead><tr><th></th><th>物体</th><th>任务配置（标签）</th><th class="num">模型尺寸 mm</th><th class="num">质量 g</th><th>实测</th><th style="min-width:170px">流程</th></tr></thead><tbody>
       ${docs.map((d) => `<tr data-open="object" data-id="${esc(d.id)}" tabindex="0" class="${UI.drawer?.id === d.id ? 'sel' : ''}">
         <td>${objMedia(d, true)}</td>
-        <td><div class="t-main">${esc(objName(d))} ${missingBadge(d)}</div><div class="t-sub mono">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div></td>
+        <td><div class="t-main">${esc(objName(d))} ${reviewChip(d)} ${missingBadge(d)}</div><div class="t-sub mono">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div></td>
         <td class="small">${(d.auto.tasks || []).map(esc).join('<br>') || '<span class="muted">—</span>'}<div class="t-sub mono">${esc((d.auto.labels || []).join(', '))}</div></td>
         <td class="num small">${mm(d.auto.size)}</td><td class="num small">${num(d.auto.mass) ? (d.auto.mass * 1000).toFixed(0) : '—'}</td>
         <td class="small">${measured(d) ? `${esc(dimText(d))}<div class="t-sub">${d.real_mass} g</div>` : '<span class="muted">—</span>'}</td>
         <td>${progress(evalStages(OBJ_STAGES, d))}</td></tr>`).join('')}</tbody></table></div>`;
-  return `<div class="page">${pageHead('物体资产', `G1-D 任务配置里用到的物体自动列出，新的实物孪生先登记。实测值定稿后写回生成脚本和
+}
+function libSection(lib, docs) {
+  const f = UI.obj, r2s = lib.id === 'real2sim', n = docs.length;  // variants included, as in the list view
+  const counts = Object.fromEntries(Object.keys(REVIEW).map((k) => [k, docs.filter((d) => d.review_state === k).length]));
+
+  const shown = r2s && f.status ? docs.filter((d) => d.review_state === f.status) : docs;
+  const statusBar = r2s ? `<div class="toolbar lib-status"><div class="segctl" role="group" aria-label="按审核状态查看">
+      ${[['', '全部', docs.length], ...Object.entries(REVIEW).map(([k, [, label]]) => [k, label, counts[k]])].map(([k, label, c]) => `<button type="button"
+        aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
+      <span class="muted small">${ME?.admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核</span></div>` : '';
+  const none = f.q || f.photo || f.status ? empty('search', '没有符合条件的物体', '调整筛选条件')
+    : lib.custom ? empty('box', '库里还没有物体', '登记物体后，在物体详情的「资产库」里选这个库') : empty('box', '还没有物体', '点「登记物体」新建');
+  return `<details class="lib" data-lib="${esc(lib.id)}" ${f.closed.has(lib.id) ? '' : 'open'} ontoggle="toggleLib(this)">
+    <summary>${ic('chev-r', 'chev')}${ic(lib.icon)}<span>${esc(lib.name)}</span><span class="count">${n}</span>
+      ${r2s ? Object.entries(REVIEW).map(([k, [s, label]]) => (counts[k] ? st(s, `${label} ${counts[k]}`) : '')).join('') : ''}
+      <span class="muted small lib-desc">${esc(lib.description || lib.source || '')}</span></summary>
+    ${statusBar}${shown.length ? objBody(shown) : `<div class="card">${none}</div>`}</details>`;
+}
+function toggleLib(el) {
+  const id = el.dataset.lib;
+  if (el.open) UI.obj.closed.delete(id); else UI.obj.closed.add(id);
+  try { localStorage.objLibClosed = JSON.stringify([...UI.obj.closed]); } catch {}
+}
+function viewObjects() {
+  const f = UI.obj, docs = objList(), objs = live(S.object);
+  return `<div class="page">${pageHead('物体资产', `按资产库分组，点库名收起或展开。G1-D 任务配置里用到的物体自动列出，新的实物孪生先登记。实测值定稿后写回生成脚本和
     <a target="_blank" rel="noopener" href="${file(`${INFO.root}/real2sim/ASSETS.md`)}">real2sim/ASSETS.md</a>`,
-    `<button class="btn btn-primary" type="button" onclick="openNewObject(this)">${ic('plus')}登记物体</button>`)}
+    `${ME?.admin ? `<button class="btn" type="button" data-open="libraries" data-id="all">${ic('layers')}管理资产库</button>` : ''}
+    <button class="btn btn-primary" type="button" onclick="openNewObject(this)">${ic('plus')}登记物体</button>`)}
     ${assetsWarning()}
     <div class="toolbar filters">${searchBox('obj-q', f.q, 'UI.obj.q', '搜索 id / 名称 / 任务')}
-      <select aria-label="来源" onchange="UI.obj.src = this.value; render()">${opts({'': '全部来源', own: '自建', official: '官方库', twin: '实物资产'}, f.src)}</select>
       <label class="check"><input type="checkbox" ${f.photo ? 'checked' : ''} onchange="UI.obj.photo = this.checked; render()">只看有照片参考</label>
       <span class="muted small">${docs.length} 件 · 照片参考 ${objs.filter(hasPhotoReference).length}（已归档 ${objs.filter((o) => o.auto.photos?.length).length}） · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span><span class="sp"></span>
       <div class="segctl" role="group" aria-label="显示方式">
         <button type="button" aria-pressed="${f.view === 'cards'}" onclick="setObjView('cards')">${ic('grid', 'ic-sm')} 卡片</button>
         <button type="button" aria-pressed="${f.view === 'table'}" onclick="setObjView('table')">${ic('table', 'ic-sm')} 列表</button></div></div>
-    ${body}</div>`;
+    ${libraries().map((lib) => libSection(lib, docs.filter((d) => libOf(d) === lib.id))).join('')}</div>`;
+}
+function reviewPanel(d) {
+  const r = d.review || {}, [s, label] = REVIEW[d.review_state] || REVIEW.rebuild, built = d.auto.built;
+  const why = d.review_state === 'done' ? `${r.by} 于 ${fmtTime(r.at)} 审核通过`
+    : d.review_state === 'review' ? (r.state ? '模型在上次审核后重建过，需要重新审核' : '模型已建好，等管理员对照实物照片和渲染审核')
+    : !built ? '还没有建好的模型：按建模 prompt 建模并跑 check_object.py 后进入待审核'
+    : `${r.by} 于 ${fmtTime(r.at)} 退回：按意见改好模型、重跑 check_object.py 后回到待审核`;
+  const history = [...(r.history || [])].reverse();
+  return sec(`${ic('eye')}审核`, `<div class="review-head">${st(s, label)}<span class="small">${esc(why)}</span></div>
+    ${r.note && d.review_state !== 'review' ? `<blockquote class="review-note">${esc(r.note)}</blockquote>` : ''}
+    ${ME?.admin ? `<div class="form" style="margin-top:12px">
+      <label for="rv-note">审核意见</label><div class="ctl"><textarea id="rv-note" aria-describedby="rv-err" placeholder="退回时必填：哪里和实物不符、要怎么改"></textarea></div>
+      <span></span><div class="ctl"><p id="rv-err" class="field-error" role="alert"></p></div>
+      <span></span><div class="ctl">
+        <button class="btn btn-ok" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'approve')" ${built ? '' : 'disabled title="还没有建好的模型"'}>${ic('check')}通过，标为完备</button>
+        <button class="btn" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'reject')" ${built ? '' : 'disabled title="还没有建好的模型"'}>${ic('x')}退回重建</button></div></div>`
+    : '<p class="hint">审核由管理员完成。</p>'}
+    ${history.length ? `<ol class="review-log">${history.map((h) => `<li>${st(h.state === 'approved' ? 'ok' : 'bad', h.state === 'approved' ? '通过' : '退回')}
+      <span class="small">${esc(h.by)} · ${fmtTime(h.at)}${h.model ? ` · 模型 ${esc(h.model)}` : ''}</span>${h.note ? `<div class="small muted">${esc(h.note)}</div>` : ''}</li>`).join('')}</ol>` : ''}`);
+}
+async function reviewObject(id, action) {
+  const note = $('#rv-note').value.trim();
+  if (action === 'reject' && !note) {
+    $('#rv-err').textContent = '退回要写明原因';
+    $('#rv-note').setAttribute('aria-invalid', 'true');
+    return $('#rv-note').focus();
+  }
+  if (await save('object', id, {review_action: action, review_note: note})) toast(action === 'approve' ? '已通过审核，物体标为完备' : '已退回重建');
+}
+function drawerLibraries() {
+  const objs = live(S.object);
+  return {
+    title: '资产库', sub: '物体按资产库分组；两个内置库按来源自动归类，其他公开资产库在这里添加，再到物体详情里把物体移进去',
+    body: `${sec('已有资产库', `<div class="table-wrap"><table class="plain"><thead><tr><th>名称</th><th>编号</th><th>来源</th><th class="num">物体</th><th></th></tr></thead><tbody>
+      ${libraries().map((l) => {
+        const n = objs.filter((d) => libOf(d) === l.id).length;
+        return `<tr><td><b>${esc(l.name)}</b>${l.description ? `<div class="t-sub">${esc(l.description)}</div>` : ''}</td><td class="mono small">${esc(l.id)}</td>
+        <td class="small">${l.custom ? (/^https?:\/\//.test(l.source || '') ? `<a href="${esc(l.source)}" target="_blank" rel="noopener">${esc(l.source)}</a>` : esc(l.source || '—')) : '内置'}</td><td class="num">${n}</td>
+        <td>${l.custom ? `<button class="btn btn-icon" type="button" data-id="${esc(l.id)}" onclick="removeLibrary(this.dataset.id)" aria-label="删除 ${esc(l.name)}"
+          ${n ? 'disabled title="库里还有物体，先移走"' : ''}>${ic('trash')}</button>` : ''}</td></tr>`;
+      }).join('')}</tbody></table></div>`)}
+    ${sec('添加公开资产库', `<form class="form" onsubmit="event.preventDefault(); addLibrary()">
+      <label for="lib-name">名称<em aria-hidden="true">*</em></label><div class="ctl"><input id="lib-name" required placeholder="如 Objaverse、YCB、GSO"></div>
+      <label for="lib-id">编号<em aria-hidden="true">*</em></label><div class="ctl"><input id="lib-id" required pattern="[a-z0-9][a-z0-9_\\-]{0,31}" placeholder="如 ycb" style="flex:0 0 200px"><span class="hint">小写字母、数字、- 或 _，建好后不能改</span></div>
+      <label for="lib-source">来源</label><div class="ctl"><input id="lib-source" placeholder="官网链接，或服务器上的目录"></div>
+      <label for="lib-desc">说明</label><div class="ctl"><input id="lib-desc" placeholder="许可、物体类型、用途"></div>
+      <span></span><div class="ctl"><p id="lib-err" class="field-error" role="alert"></p></div>
+      <span></span><div class="ctl"><button class="btn btn-primary" type="submit">${ic('plus')}添加资产库</button></div></form>`)}`,
+  };
+}
+async function addLibrary() {
+  const v = (id) => $(id).value.trim(), id = v('#lib-id');
+  if (S.library.some((l) => l.id === id) || BUILTIN_LIBS.some((l) => l.id === id)) return void ($('#lib-err').textContent = `编号 ${id} 已被占用`);
+  try {
+    const doc = await api(`/api/items?kind=library&id=${encodeURIComponent(id)}`, {method: 'PUT', body: JSON.stringify({name: v('#lib-name'), source: v('#lib-source'), description: v('#lib-desc')})});
+    S.library.push(doc);
+  } catch (err) { return void ($('#lib-err').textContent = `添加失败：${err.message}`); }
+  $('#drawer').dataset.k = '';  // redraw the list, clear the form
+  render();
+  toast(`已添加资产库 ${id}`);
+}
+async function removeLibrary(id) {
+  if (!confirm(`删除资产库 ${id}？只删分组，不动任何物体。`)) return;
+  try { await api(`/api/items?kind=library&id=${encodeURIComponent(id)}`, {method: 'DELETE'}); } catch (err) { return toast(`删除失败：${err.message}`, true); }
+  S.library = S.library.filter((l) => l.id !== id);
+  $('#drawer').dataset.k = '';
+  render();
+  toast(`已删除资产库 ${id}`);
 }
 function photoStrip(d) {
   const photos = d.auto.photos || [];
@@ -1731,7 +1851,7 @@ function drawerObject(d) {
     title: objName(d), sub: `${d.id} · ${a.in_library ? '资产库已有' : a.built ? '已建好，未装共享库' : '还没建模'}${a.generator ? ` · ${a.generator}` : ''}`,
     actions: objDeleteButton(d),
     body: `${materialList()}${parent ? `<div class="callout">${ic('grid')}<div>这是 ${link('object', parent.id)}（${esc(objName(parent))}）的泛化变体，在物体页收在它的卡片里。</div></div>` : ''}
-    ${a.built ? '' : brief}${sec('实物参考与模型', `<div class="compare">
+    ${libOf(d) === 'real2sim' ? reviewPanel(d) : ''}${a.built ? '' : brief}${sec('实物参考与模型', `<div class="compare">
       <figure><figcaption>${ic('camera')}实物照片 <span class="muted small">${photos.length} 张</span><span class="sp"></span>
         <label class="btn upload" title="jpg / png / webp，单张 ≤ 25 MB">${ic('upload')}上传<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-id="${esc(d.id)}" onchange="uploadPhotos(this)" aria-label="上传实物照片"></label></figcaption>
         ${hero(`obj-photos-${d.id}`, photos, hasPhotoReference(d) ? '实物照片已在对话提供，原图尚未关联到此登记。' : '尚未关联实物照片，可上传或填写参考来源。')}
@@ -1744,7 +1864,8 @@ function drawerObject(d) {
       ${row('名称', 'name', inp(d, 'name', 'text', `placeholder="${esc(a.name || '')}"`))}
       ${row('英文名', 'name_en', inp(d, 'name_en'))}
       ${row('实物来源', 'twin', inp(d, 'twin', 'checkbox'), '有对应实物即可登记；尺寸/质量未实测时单独记录，不影响来源分类')}
-      ${row('建模方式', 'method', sel(d, 'method', METHODS))}</div>`)}
+      ${row('建模方式', 'method', sel(d, 'method', METHODS))}
+      ${row('资产库', 'library', sel(d, 'library', {'': `按来源自动（${libName(autoLib(d))}）`, ...Object.fromEntries(libraries().map((l) => [l.id, l.name]))}), '决定物体页里放在哪一组；Real2Sim 组的物体要经管理员审核')}</div>`)}
     ${sec('实物测量', `<div class="form">
       ${row('材质', 'material', inp(d, 'material', 'text', 'list="dl-materials" placeholder="如 PP 塑料、玻璃"'))}
       ${row('颜色', 'color', inp(d, 'color'))}
@@ -2684,7 +2805,7 @@ async function deleteUser(username) {
   } catch (err) { toast(`删除失败：${err.message}`, true); }
 }
 async function load() {
-  await Promise.all([...KINDS.map(async (k) => { S[k] = await api(`/api/items?kind=${k}`); }), api('/api/members').then((m) => { MEMBERS = m; }),
+  await Promise.all([...KINDS.map(async (k) => { S[k] = await api(`/api/items?kind=${k}`); }), api('/api/items?kind=library').then((l) => { S.library = l; }), api('/api/members').then((m) => { MEMBERS = m; }),
     api('/api/materials').then((m) => { MATS = m; }), ...['train', 'exam'].map((p) => api(`/api/rsi-options?pool=${p}`).then((o) => { RSI_OPTS[p] = o; }).catch(() => {}))]);
   UI.loaded = true;
   UI.syncedAt = new Date().toLocaleTimeString('zh-CN', {hour12: false});
@@ -3142,9 +3263,9 @@ function renderDrawer() {
   if (!x) { dr.classList.remove('on'); dr.dataset.k = ''; return; }
   const key = `${x.kind}|${x.id}`;
   const wizard = x.kind.startsWith('new-');
-  if ((wizard || x.kind === 'account') && dr.dataset.k === key) return;  // keep typed input
+  if ((wizard || x.kind === 'account' || x.kind === 'libraries') && dr.dataset.k === key) return;  // keep typed input
   const d = S[x.kind]?.find((y) => y.id === x.id);
-  const view = x.kind === 'new-object' ? drawerNewObject() : x.kind === 'new-scene' ? drawerNewScene() : x.kind === 'new-task' ? drawerNewTask() : x.kind === 'new-robot' ? drawerNewRobot() : x.kind === 'new-eval' ? drawerNewEval() : x.kind === 'account' ? drawerAccount()
+  const view = x.kind === 'new-object' ? drawerNewObject() : x.kind === 'new-scene' ? drawerNewScene() : x.kind === 'new-task' ? drawerNewTask() : x.kind === 'new-robot' ? drawerNewRobot() : x.kind === 'new-eval' ? drawerNewEval() : x.kind === 'account' ? drawerAccount() : x.kind === 'libraries' ? drawerLibraries()
     : d ? {scene: drawerScene, object: drawerObject, task: drawerTask, embodiment: drawerRobot, evaluation: drawerEval, prototype: drawerPrototype}[x.kind](d) : {title: '记录不存在', body: ''};
   const scroll = dr.dataset.k === key ? $('#drawer .dr-b')?.scrollTop : 0;
   dr.innerHTML = `<div class="dr-h"><div style="min-width:0;flex:1"><h2 id="drawer-title">${esc(view.title)}</h2>${view.sub ? `<p>${esc(view.sub)}</p>` : ''}</div>
