@@ -56,7 +56,9 @@ CATEGORY = "plastic_bottle"
 LABEL_TEX = "textures/label.png"  # inside the usdz, next to object.usdc
 LABEL_PX, LABEL_MAX_PX = 1024, 4096  # label texture height; width follows the label's perimeter, capped
 LABEL_FRONT_U = 0.57  # artwork roll: its front panel (u 0.38) ends up facing check_object's preview camera (-17 deg)
-NUT_MASS, NUT_INERTIA = 1e-4, 1e-8  # kg, kg m^2: the carrier link between cap_twist and cap_lift
+# kg, kg m^2: the carrier link between cap_twist and cap_lift, as heavy as the cap (part of MASS). At 0.1 g / 1e-8 the
+# bottle blew up with one Dex1-1 clamping its body and the other its cap (g1d_twist_bottle_cap)
+NUT_MASS, NUT_INERTIA = 0.002, 3e-7
 CAP_DAMPING = 3e-4  # cap_twist drive damping, N m s / deg: a 0.05 N m twist turns the cap ~half a turn per second
 CAP_ARMATURE = 1e-6  # kg m^2 on cap_twist: keeps the light cap and nut stable at the 1/250 s physics step
 N_THETA = pc.N_THETA
@@ -95,7 +97,9 @@ NONGFU = dict(
     TINT=(0.97, 0.98, 0.98), FROST=0.0,  # FROST: milky share of a frosted wall, 0 = clear
     MASS=0.018,  # measured empty (2026-10-23, from the user; the registered 328 g was the bottle with water)
     # screw cap, all estimated from the photos: red, knurled, tamper band on the bead; sits from the support ring up
-    CAP_RGB=(0.50, 0.012, 0.015), CAP_T=0.0016, CAP_TOP=0.0015,  # wall beyond the thread crests, top above the mouth
+    # wall beyond the thread crests (cap 33.8 mm across, 0.8 mm wider than the support ring: as wide, a Dex1-1 closing
+    # on the cap pinched the ring too and twisted the whole bottle against the hand holding it), top above the mouth
+    CAP_RGB=(0.50, 0.012, 0.015), CAP_T=0.002, CAP_TOP=0.0015,
     CAP_RIBS=64, RIB_D=0.0003, BAND_H=0.0045,  # knurl count and depth, tamper band height
     CAP_MASS=0.002, PITCH=0.0027, OPEN_TURNS=2.0,  # part of MASS; thread pitch (28 mm PCO 1881 class); turns to loosen
     ART=dict(
@@ -114,7 +118,7 @@ NONGFU = dict(
     ),
 )  # fmt: skip
 
-TWIN_ONLY = dict(SH_A=None, ARCHES=None, R_NECK=0.013)  # 00000 features the variants do not inherit
+TWIN_ONLY = dict(SH_A=None, ARCHES=None, R_NECK=0.013, CAP_T=0.0016)  # 00000 features the variants do not inherit
 VARIANTS = [  # generalization variants 00001-00005: overrides of NONGFU, all unmeasured (estimated)
     dict(
         H=0.168, R=0.0290, Z_SH=0.110, GROOVES=(0.007, 0.012), LABEL=(0.030, 0.092, 0.55),

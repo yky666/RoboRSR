@@ -127,20 +127,40 @@ LOUNGE_LIFT = 0.07  # lift column at the 0.75 m table: 0.07 m above the office d
 CARRY_UP = 0.08  # m the side-grasped cup is lifted off the counter for the drive (clears the chair backs, 0.8 m)
 # Bottle cap (g1d_twist_bottle_cap, Articulation/plastic_bottle/00000). The twisting hand grips the cap with TOP_ROT
 # (fingers straight down are out of reach 0.9 m up: the IK met the grip point with the hand near horizontal); the
-# vertical pads sit on the cap's upper part, the tips then ~2 mm clear of the shoulder, which is wider than the cap
-# 15 mm below it. The holding hand grips the body with fingers horizontal: pitched down like the cup grasp, the wrist
-# camera housing (4-8 cm above the pads, up to 7.6 cm forward of the hand base) reached past the bottle axis and
-# pushed the 23 cm bottle over
-CAP_D, CAP_GRIP_DOWN, CAP_PITCH = 0.033, 0.004, 0.0027  # cap diameter, grip point below its top, thread pitch (m)
+# grip point 2 mm above the cap top, the 47 mm vertical pads still span the cap and the tips end at the support ring
+# (as wide as the cap), ~8 mm above the shoulder that widens below it: 4 mm down, the tips jammed into the shoulder at
+# any offset and PhysX flung the bottle. The holding hand grips the body with fingers horizontal: pitched down like
+# the cup grasp, the wrist camera housing (4-8 cm above the pads, up to 7.6 cm forward of the hand base) reached past
+# the bottle axis and pushed the 23 cm bottle over
+# m, grip point below the cap top: above it, the pads (+-2 cm high at this pitch) still span the cap. At -2 mm the
+# hand overshot ~6 mm on the way down, the tips jammed into the support ring and shoved the bottle up in the pinch
+CAP_GRIP_DOWN = -0.006
 CAP_APPROACH = 0.15  # m above the grip: from the raised start pose the turning fingers knocked the bottle over
 # out in front and to the right of the cap, where the hand turns from its start pose: turning on the way, it swung
 # into the torso (PhysX blew up on the fingertips and the logo link)
 CAP_CLEAR = np.array([0.15, 0.05, 0.25])
-BOTTLE_HOLD_UP = 0.11  # m: the holding hand's pads this far above the bottle bottom, on the label
-TWIST_STROKE, TWIST_ACTIONS, TWIST_STROKES = np.deg2rad(60), 30, 16  # per stroke; actions per turn; most strokes
+CAP_DIRECT = False  # approach straight from the start pose instead (experiment)
+# m: the holding hand's pads this far above the bottle bottom, on the label (approached 6-8 cm up, 14 cm up from the
+# left or on the neck, the hand knocked the bottle over or lifted it off the table)
+BOTTLE_HOLD_UP = 0.11
+# per stroke, actions per turn, most strokes. At 60 deg the IK could not turn the hand about the pads without moving
+# them: it dragged the clamped cap sideways, pushed a finger open and PhysX blew up
+TWIST_STROKE, TWIST_ACTIONS, TWIST_STROKES = np.deg2rad(30), 20, 30
 # twisting hand yaw at mid-stroke (deg, CCW from fingers forward): turned toward the bottle on the midline; fingers
-# straight forward left the stretched right arm 6 cm short of the cap
+# straight forward left the stretched right arm 6 cm short of the cap, and swinging to -45 at the stroke start it hit
+# itself on the way (PhysX blew up)
 CAP_YAW = 20
+# rotation weight in the IK at the cap (Arm.ik, default 0.3): position first, so the pads straddle the cap; at 0.3
+# this pose at the edge of the right arm's reach left the grip point 4 cm off with the rotation 4 deg off
+CAP_ROT_W = 0.2
+CAP_SERVO_UP = 0.05  # m above the grip where the IK offset is measured and cancelled: fingertips clear of the cap
+CAP_OPEN = 1.0  # twisting hand open: ~29 mm clear of the cap each side (at the cap + 25 mm the fingers caught it)
+# finger joints (m) closed on the 33 mm cap: further shut, they closed beside it; still open, they stopped on
+# something wider (hovering 2 cm high, the pads met the shoulder at 73 mm)
+CAP_ON = (0.002, 0.02)
+CAP_DRAG = 0.008  # m between the finger joints during a stroke: the hand is dragging the cap, the stroke stops
+SNUG = 0.0005  # m past contact each finger is driven to: ~18 N at the fingers' 3.6e4 N/m
+CAP_ASYM_TOL = 0.003  # m between the two finger joints closed on the cap: more, and the hand recentres and regrips
 
 
 def pad_open(width):
@@ -185,12 +205,14 @@ class Arm:
         pos, rot = self.pose()
         return pos + rot.apply([PAD_REACH, 0, 0])
 
-    def ik(self, point, rot_t):
+    def ik(self, point, rot_t, rot_w=0.3):
+        """Joint targets toward grip point `point` and hand rotation `rot_t`; rot_w weighs rotation (rad) against
+        position (m)."""
         pos, rot = self.pose()
         r = rot.apply([PAD_REACH, 0, 0])
-        err = np.r_[point - (pos + r), 0.3 * (rot_t * rot.inv()).as_rotvec()]
+        err = np.r_[point - (pos + r), rot_w * (rot_t * rot.inv()).as_rotvec()]
         jac = as_np(self.key.root_physx_view.get_jacobians()[0, self.body - 1][:, self.cols]).reshape(6, -1)
-        jac = np.r_[jac[:3] - np.cross(r, jac[3:].T).T, 0.3 * jac[3:]]
+        jac = np.r_[jac[:3] - np.cross(r, jac[3:].T).T, rot_w * jac[3:]]
         q = self.q()
         lim = as_np(self.key.data.soft_joint_pos_limits[0, self.cols]).reshape(-1, 2) + [0.025, -0.025]
         dq = jac.T @ np.linalg.solve(jac @ jac.T + 0.02**2 * np.eye(6), err)
@@ -568,10 +590,10 @@ class Robot:
     def arm_for(self, x):
         return min(self.arms, key=lambda a: abs(self.home[a.arm_key][0][0] - x))
 
-    def move(self, arm, keys):
+    def move(self, arm, keys, rot_w=0.3):
         """Follow `keys` [(grip point, hand rotation, gripper, actions)] with `arm`."""
         for point, rot, grip in waypoints(arm.grasp_point(), arm.pose()[1], keys):
-            self.hold[arm.arm_key] = arm.ik(point, rot)
+            self.hold[arm.arm_key] = arm.ik(point, rot, rot_w)
             self.grip[arm.grip_key] = [float(grip)]
             if self.step % 20 == 0:
                 err = np.linalg.norm(arm.grasp_point() - point)
@@ -805,6 +827,15 @@ def pickup_actions(env):
     yield from robot.move(arm, [(point, rot, close_cmd, 36)])  # hold it up
 
 
+def snug(arm):
+    """Gripper command just past where the closed fingers stopped (SNUG), for the twisting hand: with both hands at
+    full force the 18 g bottle was clamped between two stiff arms, and any motion of the twisting hand other than about
+    the cap blew it up; a snug grip on the cap slips instead, and still turns it (~0.02 N m) many times over. The
+    holding hand stays at full force: snug, the bottle slid up out of it with the twisting hand"""
+    fingers = as_np(arm.key.data.joint_pos[0, list(arm.robot.gripper_joint_indices)])
+    return float(np.clip((0.0245 - SNUG - fingers.mean()) / 0.0445, 0.0, 1.0))
+
+
 def twist_cap_actions(env):
     """The left arm holds the bottle's body (side grasp from the left, fingers horizontal); the right arm grips the
     cap from above (TOP_ROT), across its upper part, and unscrews it in TWIST_STROKE strokes: close, turn the hand
@@ -821,7 +852,7 @@ def twist_cap_actions(env):
     arm = next(a for a in robot.arms if a.arm_key.startswith("right"))
     holder = next(a for a in robot.arms if a is not arm)
     centre, out = robot.object("bottle")[0], -1.0
-    open_cmd = pad_open(CAP_D)
+    open_cmd = CAP_OPEN
     ready = Rotation.from_euler("z", np.deg2rad(CAP_YAW) - TWIST_STROKE / 2) * TOP_ROT  # stroke start
     turned = Rotation.from_euler("z", TWIST_STROKE) * ready
     clear = centre + [0, 0, robot.object("bottle")[2][2] / 2] + CAP_CLEAR
@@ -837,9 +868,6 @@ def twist_cap_actions(env):
             (body, hand, 0, 15),  # close
         ],
     )
-    # then a light hold, as Robot.pick: squeezed at full force the bottle jumped and tipped ~30 deg in the grip ~3 s on
-    fingers = as_np(holder.key.data.joint_pos[0, list(holder.robot.gripper_joint_indices)])
-    yield from robot.move(holder, [(body, hand, float(np.clip((0.023 - fingers.mean()) / 0.0445, 0.0, 1.0)), 10)])
 
     def holding(actions):
         """`actions` with the holding hand kept where it closed, in the world: on fixed joint targets it drifted as
@@ -851,39 +879,84 @@ def twist_cap_actions(env):
     centre, rot, ext, _, _ = robot.object("bottle")  # where the hold left it
     grip = centre + rot.apply([0, 0, ext[2] / 2 - CAP_GRIP_DOWN])
     print(f"[scripted_demo] cap at {grip.round(3)} with {arm.arm_key}, open {open_cmd:.2f}")
-    yield from holding(
-        robot.move(
-            arm,
-            [
-                (clear, arm.pose()[1], open_cmd, 45),
-                # slowly: whipped round in 1.5 s, it jerked the holding hand and the bottle tipped 32 deg in its grip
-                (clear, ready, open_cmd, 120),
-                (grip + [0, 0, CAP_APPROACH], ready, open_cmd, 60),
-                (grip + [0, 0, HOVER], ready, open_cmd, 30),
-                (grip, ready, open_cmd, 30),
-            ],
-        )
+    if CAP_DIRECT:  # straight to above the cap, turning on the way, as Robot.pick does
+        approach_keys = [(grip + [0, 0, CAP_APPROACH], ready, open_cmd, 120)]
+    else:
+        approach_keys = [
+            (clear, arm.pose()[1], open_cmd, 45),
+            # slowly: whipped round in 1.5 s, it jerked the holding hand and the bottle tipped 32 deg in its grip
+            (clear, ready, open_cmd, 120),
+            (grip + [0, 0, CAP_APPROACH], ready, open_cmd, 60),
+        ]
+    yield from holding(robot.move(arm, approach_keys))
+
+    def cap_grip():
+        """Grip point on the cap where it is now (the bottle gives a little in the holding pinch)."""
+        c, r, e, _, _ = robot.object("bottle")
+        return c + r.apply([0, 0, e[2] / 2 - CAP_GRIP_DOWN + cap()["cap_lift"]])
+
+    def fingers():
+        return as_np(arm.key.data.joint_pos[0, list(arm.robot.gripper_joint_indices)])
+
+    # The IK settles with an offset at this pose: servoed out above the cap with the fingertips clear of it (servoed
+    # around it, the hand pushed the cap and the bottle pivoted 37 deg in the holding pinch), then again at the cap,
+    # the height upward only (landing low, the tips jammed into the shoulder and PhysX flung the bottle)
+    above, corr = grip + [0, 0, CAP_SERVO_UP], np.zeros(3)
+    yield from holding(robot.move(arm, [(above, ready, open_cmd, 40)], CAP_ROT_W))
+    for _ in range(4):
+        corr -= arm.grasp_point() - above
+        yield from holding(robot.move(arm, [(above + corr, ready, open_cmd, 15)], CAP_ROT_W))
+    yield from holding(robot.move(arm, [(grip + corr, ready, open_cmd, 40)], CAP_ROT_W))
+
+    def centre(n):
+        """Grip point onto the cap where it is now: the Dex1-1 fingers centre what they grip, and closing 5 mm off
+        centre pushed the cap aside, tipping the bottle ~30 deg about the holding pads"""
+        nonlocal corr
+        for _ in range(n):
+            off = arm.grasp_point() - cap_grip()
+            corr -= off
+            yield from holding(robot.move(arm, [(cap_grip() + corr, ready, open_cmd, 10)], CAP_ROT_W))
+
+    yield from centre(3)
+    print(
+        f"[scripted_demo] at the cap: grip off by {(arm.grasp_point() - cap_grip()).round(3)} m (target shifted"
+        f" {corr.round(3)})",
+        flush=True,
     )
-    print(f"[scripted_demo] at the cap: grip off by {(arm.grasp_point() - grip).round(3)} m", flush=True)
-    z0 = grip[2]
     for k in range(TWIST_STROKES):
-        start, rot0 = cap(), arm.pose()[1]
-        point = np.r_[grip[:2], z0 + start["cap_lift"]]
-        yield from holding(robot.move(arm, [(point, ready, 0, 15)]))
-        rise = CAP_PITCH * TWIST_STROKE / (2 * np.pi)
-        yield from holding(robot.move(arm, [(point + [0, 0, rise], turned, 0, TWIST_ACTIONS)]))
-        turn = (arm.pose()[1] * rot0.inv()).as_rotvec()[2]
+        start = cap()
+        for _ in range(3):
+            yield from holding(robot.move(arm, [(cap_grip() + corr, ready, 0, 20)], CAP_ROT_W))
+            # the fingers tell where the cap is across the closing axis: the one on the cap's side stops first
+            # (finger 1 sits on the dex1 model's +x side, the base link's -y axis). The grip point read on target
+            # while the pads closed 7 mm off centre, shoved the cap out sideways and PhysX flung the bottle
+            f = fingers()
+            if abs(f[0] - f[1]) < CAP_ASYM_TOL and CAP_ON[0] < f.min() and f.max() < CAP_ON[1]:
+                break
+            corr += (f[0] - f[1]) / 2 * arm.pose()[1].apply([0.0, 1.0, 0.0])
+            yield from holding(robot.move(arm, [(cap_grip() + corr, ready, open_cmd, 15)], CAP_ROT_W))
+            yield from centre(1)
+        squeeze = snug(arm)
+        yield from holding(robot.move(arm, [(cap_grip() + corr, ready, squeeze, 8)], CAP_ROT_W))
+        for action in holding(robot.move(arm, [(cap_grip() + corr, turned, squeeze, TWIST_ACTIONS)], CAP_ROT_W)):
+            yield action
+            if abs(np.subtract(*fingers())) > CAP_DRAG:
+                break
         end = cap()
-        err = np.linalg.norm(arm.grasp_point() - point - [0, 0, rise])
         print(
-            f"[scripted_demo] stroke {k}: hand {np.degrees(turn):.0f} deg, cap"
-            f" {np.degrees(end['cap_twist'] - start['cap_twist']):.0f} deg (total {np.degrees(end['cap_twist']):.0f},"
-            f" lift {end['cap_lift'] * 1000:.2f} mm), grip err {err:.3f} m"
-            f" / {np.degrees((arm.pose()[1] * turned.inv()).magnitude()):.0f} deg",
+            f"[scripted_demo] stroke {k}: cap {np.degrees(end['cap_twist'] - start['cap_twist']):.0f} deg (total"
+            f" {np.degrees(end['cap_twist']):.0f}, lift {end['cap_lift'] * 1000:.2f} mm), grip off"
+            f" {np.linalg.norm(arm.grasp_point() - cap_grip()):.3f} m /"
+            f" {np.degrees((arm.pose()[1] * turned.inv()).magnitude()):.0f} deg, fingers {fingers().round(4)}",
             flush=True,
         )
-        point = np.r_[grip[:2], z0 + end["cap_lift"]]
-        yield from holding(robot.move(arm, [(point, turned, open_cmd, 12), (point, ready, open_cmd, TWIST_ACTIONS)]))
+        # turned back clear above the cap: turning round it, an open finger swept into the cap and PhysX blew up
+        up = [0, 0, CAP_SERVO_UP]
+        yield from holding(robot.move(arm, [(cap_grip() + corr, turned, open_cmd, 15)], CAP_ROT_W))
+        yield from holding(robot.move(arm, [(cap_grip() + corr + up, turned, open_cmd, 20)], CAP_ROT_W))
+        yield from holding(robot.move(arm, [(cap_grip() + corr + up, ready, open_cmd, TWIST_ACTIONS)], CAP_ROT_W))
+        yield from holding(robot.move(arm, [(cap_grip() + corr, ready, open_cmd, 25)], CAP_ROT_W))
+        yield from centre(1)
 
 
 def stack_actions(env):
