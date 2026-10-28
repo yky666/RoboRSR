@@ -563,7 +563,7 @@ const KIND_LABEL = {scene: '场景', object: '物体', task: '任务', episode: 
 const S = {scene: [], object: [], task: [], episode: [], embodiment: [], evaluation: [], prototype: [], library: []};
 const UI = {
   tab: 'overview', drawer: null, ep: null, taskDim: 'custom', taskQ: '', sel: new Set(), loaded: false, syncing: false, syncedAt: '',
-  obj: {q: '', photo: false, status: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
+  obj: {q: '', photo: false, status: '', owner: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
   qa: {task: '', config: '', policy: '', result: '', status: 'pending'},
 };
 let INFO = {};
@@ -1643,9 +1643,10 @@ const libName = (id) => libraries().find((l) => l.id === id)?.name || id;
 const REVIEW = {rebuild: ['todo', '待重建'], review: ['warn', '待审核'], done: ['ok', '完备']};
 const reviewChip = (d) => (libOf(d) === 'real2sim' && REVIEW[d.review_state] ? st(...REVIEW[d.review_state]) : '');
 const toReview = () => live(S.object).filter((d) => libOf(d) === 'real2sim' && d.review_state === 'review').length;
+const ownerText = (d) => (d.owner ? memberName(d.owner) : libOf(d) === 'real2sim' ? '未指派负责人' : '');
 function objList() {
   const f = UI.obj, q = f.q.toLowerCase();
-  return S.object.filter((d) => (!f.photo || hasPhotoReference(d))
+  return S.object.filter((d) => (!f.photo || hasPhotoReference(d)) && (!f.owner || (f.owner === '-' ? !d.owner : d.owner === f.owner))
     && (!q || `${d.id} ${d.name || ''} ${d.auto.name || ''} ${(d.auto.tasks || []).join(' ')}`.toLowerCase().includes(q)))
     .sort((x, y) => Number(ownObj(y)) - Number(ownObj(x)) || x.id.localeCompare(y.id));
 }
@@ -1655,12 +1656,13 @@ function objBody(docs) {
       return `<article class="card mcard" data-open="object" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开物体 ${esc(d.id)}">${objMedia(d)}
         <div class="mcard-b"><div class="mcard-t"><b>${esc(objName(d))}</b>${reviewChip(d)}</div>
           <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>
-          <div class="small muted">${measured(d) ? `实测 ${esc(dimText(d))}` : `模型 ${mm(d.auto.size)} mm${d.twin ? ' · 未实测' : ''}`}</div>${progress(rs)}</div></article>`;
+          <div class="small muted">${measured(d) ? `实测 ${esc(dimText(d))}` : `模型 ${mm(d.auto.size)} mm${d.twin ? ' · 未实测' : ''}`}</div>
+          ${ownerText(d) ? `<div class="small ${d.owner ? '' : 'muted'}">${ic('users', 'ic-sm')} ${esc(ownerText(d))}</div>` : ''}${progress(rs)}</div></article>`;
     }).join('')}</div>`
     : `<div class="table-wrap"><table><thead><tr><th></th><th>物体</th><th>任务配置（标签）</th><th class="num">模型尺寸 mm</th><th class="num">质量 g</th><th>实测</th><th style="min-width:170px">流程</th></tr></thead><tbody>
       ${docs.map((d) => `<tr data-open="object" data-id="${esc(d.id)}" tabindex="0" class="${UI.drawer?.id === d.id ? 'sel' : ''}">
         <td>${objMedia(d, true)}</td>
-        <td><div class="t-main">${esc(objName(d))} ${reviewChip(d)} ${missingBadge(d)}</div><div class="t-sub mono">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div></td>
+        <td><div class="t-main">${esc(objName(d))} ${reviewChip(d)} ${missingBadge(d)}</div><div class="t-sub mono">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div>${ownerText(d) ? `<div class="t-sub">${esc(ownerText(d))}</div>` : ''}</td>
         <td class="small">${(d.auto.tasks || []).map(esc).join('<br>') || '<span class="muted">—</span>'}<div class="t-sub mono">${esc((d.auto.labels || []).join(', '))}</div></td>
         <td class="num small">${mm(d.auto.size)}</td><td class="num small">${num(d.auto.mass) ? (d.auto.mass * 1000).toFixed(0) : '—'}</td>
         <td class="small">${measured(d) ? `${esc(dimText(d))}<div class="t-sub">${d.real_mass} g</div>` : '<span class="muted">—</span>'}</td>
@@ -1675,7 +1677,8 @@ function libSection(lib, docs) {
       ${[['', '全部', docs.length], ...Object.entries(REVIEW).map(([k, [, label]]) => [k, label, counts[k]])].map(([k, label, c]) => `<button type="button"
         aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
       <span class="muted small">${ME?.admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核</span></div>` : '';
-  const none = f.q || f.photo || f.status ? empty('search', '没有符合条件的物体', '调整筛选条件')
+  const none = f.q || f.photo || f.status || f.owner ?
+ empty('search', '没有符合条件的物体', '调整筛选条件')
     : lib.custom ? empty('box', '库里还没有物体', '登记物体后，在物体详情的「资产库」里选这个库') : empty('box', '还没有物体', '点「登记物体」新建');
   return `<details class="lib" data-lib="${esc(lib.id)}" ${f.closed.has(lib.id) ? '' : 'open'} ontoggle="toggleLib(this)">
     <summary>${ic('chev-r', 'chev')}${ic(lib.icon)}<span>${esc(lib.name)}</span><span class="count">${n}</span>
@@ -1696,6 +1699,7 @@ function viewObjects() {
     <button class="btn btn-primary" type="button" onclick="openNewObject(this)">${ic('plus')}登记物体</button>`)}
     ${assetsWarning()}
     <div class="toolbar filters">${searchBox('obj-q', f.q, 'UI.obj.q', '搜索 id / 名称 / 任务')}
+      <select aria-label="重建负责人" onchange="UI.obj.owner = this.value; render()">${opts({'': '全部负责人', ...(ME ? {[ME.username]: '我负责的'} : {}), '-': '未指派', ...Object.fromEntries(MEMBERS.filter((m) => m.username !== ME?.username).map((m) => [m.username, m.name]))}, f.owner)}</select>
       <label class="check"><input type="checkbox" ${f.photo ? 'checked' : ''} onchange="UI.obj.photo = this.checked; render()">只看有照片参考</label>
       <span class="muted small">${docs.length} 件 · 照片参考 ${objs.filter(hasPhotoReference).length}（已归档 ${objs.filter((o) => o.auto.photos?.length).length}） · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span><span class="sp"></span>
       <div class="segctl" role="group" aria-label="显示方式">
@@ -1710,7 +1714,8 @@ function reviewPanel(d) {
     : !built ? '还没有建好的模型：按建模 prompt 建模并跑 check_object.py 后进入待审核'
     : `${r.by} 于 ${fmtTime(r.at)} 退回：按意见改好模型、重跑 check_object.py 后回到待审核`;
   const history = [...(r.history || [])].reverse();
-  return sec(`${ic('eye')}审核`, `<div class="review-head">${st(s, label)}<span class="small">${esc(why)}</span></div>
+  return sec(`${ic('eye')}审核`, `<div class="review-head">${st(s, label)}<span class="small">${esc(why)}</span><span class="sp"></span>
+      <span class="small muted">重建负责人 ${esc(memberName(d.owner) || '未指派')}</span></div>
     ${r.note && d.review_state !== 'review' ? `<blockquote class="review-note">${esc(r.note)}</blockquote>` : ''}
     ${ME?.admin ? `<div class="form" style="margin-top:12px">
       <label for="rv-note">审核意见</label><div class="ctl"><textarea id="rv-note" aria-describedby="rv-err" placeholder="退回时必填：哪里和实物不符、要怎么改"></textarea></div>
@@ -1865,6 +1870,7 @@ function drawerObject(d) {
       ${row('英文名', 'name_en', inp(d, 'name_en'))}
       ${row('实物来源', 'twin', inp(d, 'twin', 'checkbox'), '有对应实物即可登记；尺寸/质量未实测时单独记录，不影响来源分类')}
       ${row('建模方式', 'method', sel(d, 'method', METHODS))}
+      ${row('重建负责人', 'owner', sel(d, 'owner', memberOpts(d.owner)), '负责建模的人；退回重建后由他修改')}
       ${row('资产库', 'library', sel(d, 'library', {'': `按来源自动（${libName(autoLib(d))}）`, ...Object.fromEntries(libraries().map((l) => [l.id, l.name]))}), '决定物体页里放在哪一组；Real2Sim 组的物体要经管理员审核')}</div>`)}
     ${sec('实物测量', `<div class="form">
       ${row('材质', 'material', inp(d, 'material', 'text', 'list="dl-materials" placeholder="如 PP 塑料、玻璃"'))}
@@ -1938,6 +1944,7 @@ function drawerNewObject() {
       ${fld('no-type', '类型', `<select id="no-type" onchange="suggestIndex()">${types.map((t) => `<option value="${esc(t)}">${esc(OBJECT_TYPES[t] || t)}</option>`).join('')}</select>`)}
       ${fld('no-cat', '类别', '<input id="no-cat" class="mono" list="dl-cats" placeholder="measuring_cup" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="this.dataset.edited = 1; suggestIndex()">', {hint: '由英文名生成，可改成已有类别'})}
       ${fld('no-idx', '编号', '<input id="no-idx" class="mono" type="number" min="0" value="0" oninput="suggestIndex(false)">', {hint: '自动取下一个空号'})}
+      ${fld('no-owner', '重建负责人', `<select id="no-owner">${opts(memberOpts(), ME?.username || '')}</select>`, {hint: '负责建模的人，从平台账号里选'})}
       <div class="fld"><label>资产 ID</label><code id="no-id" class="wz-id">填写英文名称后生成</code></div></div>`)}
     ${group('多角度照片 <span class="opt">可选</span>', photoDrop('正面、侧面、俯视、开口、底部各一张 · jpg / png / webp · 单张 ≤ 25 MB'))}`)}
     ${pane(1, `${group('物理量', `<div class="wz-grid">
@@ -3025,7 +3032,7 @@ async function createObject(btn) {
   const gen = {count: number('#no-gen-count') || 0, requirements: value('#no-gen-req'), rt_color: $('#no-rt-color').checked, rt_scale: number('#no-rt-scale') || 0};
   $$('[data-gen]').forEach((c) => { gen[c.dataset.gen] = c.checked; });
   const doc = {
-    twin: true, name: value('#no-name'), name_en: value('#no-name-en'), material: value('#no-material'), color: value('#no-color'),
+    twin: true, owner: value('#no-owner'), name: value('#no-name'), name_en: value('#no-name-en'), material: value('#no-material'), color: value('#no-color'),
     real_mass: number('#no-mass'), real_friction: number('#no-friction'), dimensions: value('#no-dims'), features: value('#no-features'), requirements: value('#no-req'), gen,
   };
   btn.disabled = true;
