@@ -28,6 +28,7 @@ Usage:
 import argparse
 from collections import Counter
 import getpass
+import gzip
 import hashlib
 import hmac
 from http.cookies import CookieError, SimpleCookie
@@ -40,6 +41,7 @@ import re
 import secrets
 import shutil
 import sqlite3
+import subprocess
 import sys
 import threading
 import time
@@ -86,6 +88,11 @@ FILE_CACHE = "private, max-age=60, stale-while-revalidate=604800"
 # renders and 3D models that get rebuilt in place (preview/, .glb): rechecked on every view (a 304 when unchanged), so a
 # rebuilt scene shows at once instead of after one stale visit
 PREVIEW_CACHE = "private, no-cache"
+# the public entry is a tunnel of well under 1 Mbps: text goes out gzipped, cards load small WebP copies of images
+GZIP_SUFFIXES = {".html", ".json", ".md"}
+THUMB_WIDTHS = (320, 640, 1280)
+THUMBS_DIR = ROOT / ".cache" / "thumbs"
+_gzipped = {}  # path -> (etag, gzip bytes) of the last version served
 USERNAME = re.compile(r"[\w.-]{1,32}")
 PBKDF2_ROUNDS = 200_000
 COOKIE, SESSION_DAYS = "r2s_session", 14
@@ -1065,6 +1072,30 @@ def servable(path, roots):
     return p.suffix.lower() in SERVED_SUFFIXES and p.is_file() and any(p.is_relative_to(r.resolve()) for r in roots)
 
 
+def thumbnail(path, width):
+    """A WebP copy at most `width` px wide, made once per image version with ffmpeg; the original if that fails."""
+    st = path.stat()
+    key = hashlib.sha1(f"{path}|{st.st_mtime_ns}|{st.st_size}|{width}".encode()).hexdigest()
+    out = THUMBS_DIR / f"{key}.webp"
+    if out.is_file():
+        return out
+    if not shutil.which("ffmpeg"):
+        return path
+    THUMBS_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_name(f"{key}.{threading.get_ident()}.tmp.webp")
+    scale = f"scale='min({width},iw)':-2"
+    cmd = ["ffmpeg", "-v", "error", "-y", "-i", str(path), "-vf", scale, "-frames:v", "1", "-quality", "80", str(tmp)]
+    try:
+        ok = subprocess.run(cmd, capture_output=True, timeout=30).returncode == 0 and tmp.is_file()
+    except (OSError, subprocess.TimeoutExpired):
+        ok = False
+    if not ok:
+        tmp.unlink(missing_ok=True)
+        return path
+    tmp.replace(out)
+    return out
+
+
 class Handler(BaseHTTPRequestHandler):
     store, scan_args, roots, info = None, (), [], {}
     failures = {}  # username -> recent failed login times
@@ -1185,7 +1216,13 @@ class Handler(BaseHTTPRequestHandler):
                 docs = [public_object(d, variant_base(d, by_id.get)) for d in docs]
             self.send_json(docs)
         elif url.path == "/file" and servable(query.get("path", ""), self.roots):
-            self.send_file(Path(query["path"]).resolve())
+            path = Path(query["path"]).resolve()
+            width = int(query["w"]) if query.get("w", "").isdigit() else 0
+            if width in THUMB_WIDTHS and path.suffix.lower() in IMAGE_SUFFIXES:
+                cache = PREVIEW_CACHE if path.suffix == ".glb" or "preview" in path.parts else FILE_CACHE
+                self.send_file(thumbnail(path, width), cache=cache)
+            else:
+                self.send_file(path)
         else:
             self.send_error(404)
 
@@ -1400,12 +1437,37 @@ class Handler(BaseHTTPRequestHandler):
             return query["kind"], query["id"]
         return None, None
 
+    def accepts_gzip(self):
+        return "gzip" in self.headers.get("Accept-Encoding", "")
+
+    def not_modified(self, etag, cache):
+        if etag not in [tag.strip() for tag in self.headers.get("If-None-Match", "").split(",")]:
+            return False
+        self.send_response(304)
+        self.send_header("ETag", etag)
+        self.send_header("Cache-Control", cache)
+        self.end_headers()
+        return True
+
     def send_json(self, obj, status=200, cookie=None, close=False):
         body = json.dumps(obj, ensure_ascii=False).encode()
+        # a GET answer the browser may keep and revalidate: unchanged data comes back as a 304 instead of the whole list
+        cacheable = self.command == "GET" and status == 200 and not cookie
+        etag = f'W/"{hashlib.sha1(body).hexdigest()[:20]}"' if cacheable else None
+        if etag and self.not_modified(etag, "private, no-cache"):
+            return
+        gz = len(body) > 1024 and self.accepts_gzip()
+        if gz:
+            body = gzip.compress(body, 6)
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
+        self.send_header("Vary", "Accept-Encoding")
+        if gz:
+            self.send_header("Content-Encoding", "gzip")
+        if etag:
+            self.send_header("ETag", etag)
+        self.send_header("Cache-Control", "private, no-cache" if etag else "no-store")
         if cookie:  # no Secure flag: the platform is served over plain HTTP
             self.send_header("Set-Cookie", f"{cookie}; Path=/; HttpOnly; SameSite=Lax")
         if close:
@@ -1419,11 +1481,23 @@ class Handler(BaseHTTPRequestHandler):
             cache = PREVIEW_CACHE
         st = path.stat()
         size, etag = st.st_size, f'"{st.st_mtime_ns:x}-{st.st_size:x}"'
-        if etag in [tag.strip() for tag in self.headers.get("If-None-Match", "").split(",")]:
-            self.send_response(304)
+        if self.not_modified(etag, cache):
+            return
+        kind = "text/plain; charset=utf-8" if path.suffix == ".md" else mimetypes.guess_type(path.name)[0]
+        if path.suffix in GZIP_SUFFIXES and not self.headers.get("Range") and self.accepts_gzip():
+            if _gzipped.get(path, ("",))[0] != etag:
+                _gzipped[path] = (etag, gzip.compress(path.read_bytes(), 6))
+            body = _gzipped[path][1]
+            self.send_response(200)
+            self.send_header("Content-Type", kind or "application/octet-stream")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Content-Encoding", "gzip")
+            self.send_header("Vary", "Accept-Encoding")
             self.send_header("ETag", etag)
+            self.send_header("Last-Modified", self.date_time_string(st.st_mtime))
             self.send_header("Cache-Control", cache)
             self.end_headers()
+            self.wfile.write(body)
             return
         start, end = 0, size - 1
         m = re.fullmatch(r"bytes=(\d*)-(\d*)", self.headers.get("Range", ""))
@@ -1440,7 +1514,6 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Range", f"bytes {start}-{end}/{size}")
         else:
             self.send_response(200)
-        kind = "text/plain; charset=utf-8" if path.suffix == ".md" else mimetypes.guess_type(path.name)[0]
         self.send_header("Content-Type", kind or "application/octet-stream")
         self.send_header("Content-Length", str(end - start + 1))
         self.send_header("Accept-Ranges", "bytes")

@@ -327,6 +327,11 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .dd-menu button { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 34px; padding: 0 10px 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--text-2); text-align: left; white-space: nowrap; cursor: pointer; }
 .dd-menu button:hover { background: var(--surface-2); color: var(--text); }
 .dd-menu button[aria-selected="true"] { background: var(--surface-2); color: var(--text); font-weight: 600; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text-2); font-weight: 500; cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
+.toggle:hover { border-color: var(--faint); color: var(--text); }
+.toggle .ic { color: var(--muted); }
+.toggle[aria-pressed="true"] { border-color: var(--text); background: var(--surface-2); color: var(--text); }
+.toggle[aria-pressed="true"] .ic { color: var(--text); }
 @keyframes dd-in { from { opacity: 0; transform: translateY(-4px); } }
 @media (prefers-reduced-motion: reduce) { .dd-menu { animation: none; } .dd-btn .ic { transition: none; } }
 .ds-desc { display: -webkit-box; min-height: 3.2em; margin: 0; overflow: hidden; color: var(--text-2); font-size: 13px; line-height: 1.6; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
@@ -727,6 +732,7 @@ const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]);
 const file = (p) => `/file?path=${encodeURIComponent(p)}`;
+const small = (p, w) => `${file(p)}&w=${w}`;  // server-side WebP copy, w in THUMB_WIDTHS
 const num = (v) => v !== null && v !== undefined && v !== '' && !Number.isNaN(Number(v));
 const pct = (x) => (num(x) ? `${Math.round(x * 100)}%` : '—');
 const sum = (xs) => xs.reduce((a, b) => a + b, 0);
@@ -986,11 +992,22 @@ const area = (d, f, attrs = '') => `<textarea id="${fid(f)}" data-f="${f}" ${att
 const row = (label, f, control, hint = '') => `<label for="${fid(f)}">${label}</label><div class="ctl">${control}${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
 const searchBox = (id, value, setter, hint) => `<div class="search">${ic('search')}<input id="${id}" type="text" placeholder="${hint}" aria-label="${hint}" value="${esc(value)}"
   oninput="if (!event.isComposing) { ${setter} = this.value; render(); }" oncompositionend="${setter} = this.value; render()"></div>`;
-// pill button with a floating option menu; pick is JS run with $v replaced by the chosen value
-const dropdown = (id, label, opts, cur, pick) => `<div class="dd"><button id="${id}" type="button" class="dd-btn" aria-haspopup="listbox" aria-expanded="${UI.dd === id}" aria-label="${label}"
-  onclick="UI.dd = UI.dd === '${id}' ? '' : '${id}'; render()">${esc(Object.fromEntries(opts)[cur])}${ic('chev-d', 'ic-sm')}</button>
-  ${UI.dd === id ? `<div class="dd-menu" role="listbox" aria-labelledby="${id}">${opts.map(([v, text]) => `<button type="button" role="option" aria-selected="${v === cur}"
-    onclick="UI.dd = ''; ${pick.replaceAll('$v', v)}; render(); $('#${id}').focus()">${esc(text)}${v === cur ? ic('check', 'ic-sm') : ''}</button>`).join('')}</div>` : ''}</div>`;
+// pill button with a floating option menu; opts are [value, label] pairs, pick(value) applies the choice
+const DD = {};
+function dropdown(id, label, opts, cur, pick) {
+  DD[id] = {opts, pick};
+  const now = opts.find(([v]) => String(v) === String(cur));
+  return `<div class="dd"><button id="${id}" type="button" class="dd-btn" aria-haspopup="listbox" aria-expanded="${UI.dd === id}" aria-label="${esc(label)}"
+    onclick="UI.dd = UI.dd === '${id}' ? '' : '${id}'; render()">${esc(now ? now[1] : label)}${ic('chev-d', 'ic-sm')}</button>
+    ${UI.dd === id ? `<div class="dd-menu" role="listbox" aria-labelledby="${id}">${opts.map(([v, text], i) => `<button type="button" role="option" aria-selected="${now?.[0] === v}"
+      onclick="ddPick('${id}', ${i})">${esc(text)}${now?.[0] === v ? ic('check', 'ic-sm') : ''}</button>`).join('')}</div>` : ''}</div>`;
+}
+function ddPick(id, i) {
+  UI.dd = '';
+  DD[id].pick(DD[id].opts[i][0]);
+  render();
+  $(`#${id}`)?.focus();
+}
 const link = (kind, id, text = id) => `<a href="#${TAB_OF[kind]}" data-go="${kind}" data-id="${esc(id)}">${esc(text)}</a>`;
 const assetsWarning = () => (INFO.assets_ok ? '' : `<div class="callout">${ic('alert')}<div>资产库 <span class="mono">${esc(INFO.assets)}</span> 下没有 Object/：物体元数据和评测布局数不可用。
   本机先运行 <span class="mono">scripts/init_assets.sh</span>，或在服务器上用 <span class="mono">--assets</span> 指向共享资产库。</div></div>`);
@@ -999,7 +1016,7 @@ function gallery(key, paths = [], limit = 24) {
   if (!paths.length) return '<div class="small muted">无</div>';
   const more = paths.length > limit ? `<div class="small muted" style="margin-top:6px">共 ${paths.length} 张，显示前 ${limit} 张，点开后可翻看全部</div>` : '';
   return `<div class="gallery">${paths.slice(0, limit).map((p, i) => `<button class="gthumb" type="button" data-lb="${esc(key)}" data-i="${i}" aria-label="查看 ${esc(base(p))}">
-    <img loading="lazy" decoding="async" src="${file(p)}" alt=""></button>`).join('')}</div>${more}`;
+    <img loading="lazy" decoding="async" src="${small(p, 320)}" alt=""></button>`).join('')}</div>${more}`;
 }
 
 // ---------- navigation ----------
@@ -1053,7 +1070,7 @@ function raCard(d) {
   const a = d.auto, g = raGroup(d), checks = raChecks(d), cover = a.renders?.[0];
   const done = checks.filter((c) => !c.open).length;
   return `<button type="button" class="card mcard ra-card" data-open="prototype" data-id="${esc(d.id)}" aria-label="打开研究资产 ${esc(a.name || d.id)}">
-    <div class="ra-cover${cover ? '' : ' is-empty'}">${cover ? `<img loading="lazy" decoding="async" src="${file(cover)}" alt="">`
+    <div class="ra-cover${cover ? '' : ' is-empty'}">${cover ? `<img loading="lazy" decoding="async" src="${small(cover, 640)}" alt="">`
       : `<div class="ra-empty">${ic(g[3], 'ic-lg')}<span>还没有模型或图片</span></div>`}
       <div class="pills">${a.model ? `<span class="pill">${ic('cube', 'ic-sm')}3D</span>` : ''}${a.videos?.length ? `<span class="pill">${ic('video', 'ic-sm')}${a.videos.length}</span>` : ''}</div></div>
     <div class="ra-body"><h3>${esc(a.name || d.id)}</h3>
@@ -1359,7 +1376,7 @@ function viewDatasets() {
         <div class="ds-bar"><h2 class="ds-n">数据集 <span class="num">${shown.length}</span></h2>
           <button type="button" class="btn btn-sm" onclick="dsClear()" ${active.length || f.q ? '' : 'disabled'}>${ic('rotate', 'ic-sm')}重置</button>
           <span class="ds-note">统一按 LeRobot 数据语义整理，训练接入见 <code>scripts/datagen/CONTRACT.md</code></span><span class="sp"></span>
-          ${searchBox('ds-q', f.q, 'UI.ds.q', '搜索数据集')}${dropdown('ds-sort', '排序', DS_SORT, f.sort, "UI.ds.sort = '$v'")}<div class="views" role="group" aria-label="视图">${views}</div></div>
+          ${searchBox('ds-q', f.q, 'UI.ds.q', '搜索数据集')}${dropdown('ds-sort', '排序', DS_SORT, f.sort, (v) => { UI.ds.sort = v; })}<div class="views" role="group" aria-label="视图">${views}</div></div>
         ${active.length ? `<div class="ds-active">${active.map(([label, undo]) => `<button type="button" class="tag ds-x" onclick="${undo}" aria-label="移除筛选 ${esc(label)}">${esc(label)}${ic('close', 'ic-sm')}</button>`).join('')}</div>` : ''}
         ${!shown.length ? `<div class="card">${empty('database', '没有匹配的数据集', '放宽筛选条件，或点「重置」')}</div>`
           : f.view === 'list' ? dsTable(shown) : `<div class="grid ds-grid">${shown.map(dsCard).join('')}</div>`}
@@ -1469,7 +1486,7 @@ function viewScenes() {
   const benchHtml = bench.map((d) => {
     const a = d.auto, cover = sceneImage(d);
     return `<article class="card mcard" data-open="scene" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开场景 ${esc(d.id)}">
-      <div class="media r169">${cover ? `<img loading="lazy" decoding="async" src="${file(cover)}" alt="">` : ic('image', 'ic-lg')}
+      <div class="media r169">${cover ? `<img loading="lazy" decoding="async" src="${small(cover, 640)}" alt="">` : ic('image', 'ic-lg')}
         <div class="pills"><span class="pill">RoboDojo</span><span class="pill">${esc(rel(a.path))}</span></div></div>
       <div class="mcard-b"><div class="mcard-t"><b>${esc(sceneName(d))}</b></div>
         <div class="small muted">${esc(sceneDims(d))} · 房间 ${esc(a.room || '—')}</div>
@@ -1478,7 +1495,7 @@ function viewScenes() {
   const cardsHtml = twins.map((d) => {
     const a = d.auto, rs = a.source === 'imported_simulation' ? importedSceneStages(d) : evalStages(SCENE_STAGES, d), cover = sceneImage(d);
     return `<article class="card mcard" data-open="scene" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开场景 ${esc(d.id)}">
-      <div class="media r169">${cover ? `<img loading="lazy" decoding="async" src="${file(cover)}" alt="">` : ic('image', 'ic-lg')}
+      <div class="media r169">${cover ? `<img loading="lazy" decoding="async" src="${small(cover, 640)}" alt="">` : ic('image', 'ic-lg')}
         <div class="pills">${a.engine ? `<span class="pill">${esc(a.engine)}</span>` : ''}${(a.configs || []).map((c) => `<span class="pill">${esc(c)}</span>`).join('')}${a.model ? `<span class="pill" title="可在详情里 3D 预览">${ic('cube', 'ic-sm')}3D</span>` : ''}</div></div>
       <div class="mcard-b"><div class="mcard-t"><b>${esc(sceneName(d))}</b>${d.registered ? '<span class="tag info">已登记</span>' : ''}${missingBadge(d)}</div>
         ${sceneName(d) !== d.id ? `<div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>` : ''}
@@ -1551,7 +1568,7 @@ function scenePhotos(d, kind = 'scene', min = MIN_SCENE_PHOTOS) {
   GAL[key] = photos;
   return `<div class="toolbar" style="margin-bottom:8px"><span class="small ${photos.length < min ? 'txt-bad' : 'muted'}">${photos.length} 张${min ? ` / 至少 ${min} 张` : ''}</span><span class="sp"></span>
     <label class="btn upload" title="jpg / png / webp，单张 ≤ 25 MB">${ic('upload')}上传<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-kind="${kind}" data-id="${esc(d.id)}" onchange="uploadPhotos(this)" aria-label="上传照片"></label></div>
-    <div class="strip">${photos.map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="${esc(key)}" data-i="${i}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${file(p)}" alt=""></button>
+    <div class="strip">${photos.map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="${esc(key)}" data-i="${i}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${small(p, 320)}" alt=""></button>
     <button class="del" type="button" data-path="${esc(p)}" onclick="deletePhoto(this.dataset.path)" aria-label="删除 ${esc(base(p))}">${ic('trash', 'ic-sm')}</button></div>`).join('')}</div>`;
 }
 let MATS = [];  // real2sim/materials/library.json entries, each with its thumbnail (scripts/scenes/scene_parts.py)
@@ -1763,7 +1780,7 @@ function viewRobots() {
   const cards = docs.map((d) => {
     const a = d.auto, rs = evalStages(ROBOT_STAGES, d), cover = a.renders?.[0] || a.photos?.[0];
     return `<article class="card mcard" data-open="embodiment" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开本体 ${esc(d.id)}">
-      <div class="media r169">${cover ? `<img loading="lazy" decoding="async" src="${file(cover)}" alt="">` : ic('bot', 'ic-lg')}
+      <div class="media r169">${cover ? `<img loading="lazy" decoding="async" src="${small(cover, 640)}" alt="">` : ic('bot', 'ic-lg')}
         <div class="pills">${a.in_code ? '<span class="pill">已接入仿真</span>' : '<span class="pill">待接入</span>'}${d.reg?.variant ? `<span class="pill">${esc(d.reg.variant)}</span>` : ''}</div></div>
       <div class="mcard-b"><div class="mcard-t"><b>${esc(robotName(d))}</b>${missingBadge(d)}</div>
         <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>
@@ -1932,7 +1949,7 @@ function viewEvals() {
     .sort((x, y) => (y._at || 0) - (x._at || 0));
   return `<div class="page">${pageHead('模型评测', '提交外部训练的模型，由评测负责人交给 coding agent 部署到 5090-2 并在仿真里评测；结果回到这里',
     `<button class="btn btn-primary" type="button" onclick="openNewEval(this)">${ic('plus')}提交评测</button>`)}
-  <div class="toolbar filters"><select aria-label="状态" onchange="UI.evalStatus = this.value; render()">${opts({open: '未完成', all: '全部', ...EVAL_STATUS}, f)}</select><span class="muted small">${docs.length} 个</span></div>
+  <div class="toolbar filters">${dropdown('eval-status', '状态', Object.entries({open: '未完成', all: '全部', ...EVAL_STATUS}), f, (v) => { UI.evalStatus = v; })}<span class="muted small">${docs.length} 个</span></div>
   ${docs.length ? `<div class="table-wrap"><table><thead><tr><th>评测</th><th>任务</th><th>状态</th><th>提交人</th><th>评测负责人</th><th class="num">成功率</th><th>更新</th></tr></thead><tbody>
   ${docs.map((d) => {
     const [sr, how] = evalOverall(d), tasks = d.reg?.tasks || [];
@@ -2116,10 +2133,10 @@ const objPath = (d) => `Assets/Object/${d.auto?.library || 'Real2Sim'}/${d.id}`;
 const ownObj = (d) => Boolean(d.auto.generator || twinObj(d));
 function objMedia(d, thumb = false) {
   const a = d.auto, render = a.renders?.[0], photo = a.photos?.[0], main = render || photo;
-  if (thumb) return `<span class="thumb">${main ? `<img loading="lazy" decoding="async" src="${file(main)}" alt="">` : ic('cube')}</span>`;
+  if (thumb) return `<span class="thumb">${main ? `<img loading="lazy" decoding="async" src="${small(main, 320)}" alt="">` : ic('cube')}</span>`;
   const nv = variantsOf(d.id).length, runtime = runtimeText(d.gen);
-  return `<div class="media r43">${main ? `<img loading="lazy" decoding="async" src="${file(main)}" alt="">` : ic('cube', 'ic-lg')}
-    ${render && photo ? `<img class="inset" loading="lazy" decoding="async" src="${file(photo)}" alt="实拍">` : ''}
+  return `<div class="media r43">${main ? `<img loading="lazy" decoding="async" src="${small(main, 640)}" alt="">` : ic('cube', 'ic-lg')}
+    ${render && photo ? `<img class="inset" loading="lazy" decoding="async" src="${small(photo, 320)}" alt="实拍">` : ''}
     <div class="pills">${a.photos?.length ? `<span class="pill" title="已归档实物照片">${ic('camera', 'ic-sm')}${a.photos.length}</span>` : hasPhotoReference(d) ? `<span class="pill" title="对话中已提供实物照片，原图待关联">${ic('camera', 'ic-sm')}照片参考</span>` : ''}${render ? `<span class="pill" title="仿真渲染">${ic('cube', 'ic-sm')}渲染</span>` : ''}
       ${nv ? `<span class="pill" title="泛化变体资产">+${nv} 变体</span>` : ''}${runtime ? `<span class="pill" title="仿真里按布局随机，不建新资产">随机 ${esc(runtime)}</span>` : ''}</div></div>`;
 }
@@ -2220,9 +2237,9 @@ function viewObjects() {
     <button class="btn btn-primary" type="button" onclick="openNewObject(this)">${ic('plus')}登记物体</button>`)}
     ${assetsWarning()}
     <div class="toolbar filters">${searchBox('obj-q', f.q, 'UI.obj.q', '搜索 id / 名称 / 任务')}
-      <select aria-label="重建负责人" onchange="UI.obj.owner = this.value; render()">${opts({'': '全部负责人', ...(ME ? {[ME.username]: '我负责的'} : {}), '-': '未指派', ...Object.fromEntries(MEMBERS.filter((m) => m.username !== ME?.username).map((m) => [m.username, m.name]))}, f.owner)}</select>
-      <label class="check"><input type="checkbox" ${f.photo ? 'checked' : ''} onchange="UI.obj.photo = this.checked; render()">只看有照片参考</label>
-      <span class="muted small">${docs.filter(isBase).length} 件 · 照片参考 ${objs.filter(hasPhotoReference).length}（已归档 ${objs.filter((o) => o.auto.photos?.length).length}） · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span><span class="sp"></span>
+      ${dropdown('obj-owner', '重建负责人', [['', '全部负责人'], ...(ME ? [[ME.username, '我负责的']] : []), ['-', '未指派'], ...MEMBERS.filter((m) => m.username !== ME?.username).map((m) => [m.username, m.name])], f.owner || '', (v) => { UI.obj.owner = v; })}
+      <button type="button" class="toggle" aria-pressed="${Boolean(f.photo)}" onclick="UI.obj.photo = !UI.obj.photo; render()">${ic(f.photo ? 'check' : 'image', 'ic-sm')}只看有照片参考</button>
+      <span class="sp"></span><span class="muted small">${docs.filter(isBase).length} 件 · 照片参考 ${objs.filter(hasPhotoReference).length}（已归档 ${objs.filter((o) => o.auto.photos?.length).length}） · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span>
       <div class="segctl" role="group" aria-label="显示方式">
         <button type="button" aria-pressed="${f.view === 'cards'}" onclick="setObjView('cards')">${ic('grid', 'ic-sm')} 卡片</button>
         <button type="button" aria-pressed="${f.view === 'table'}" onclick="setObjView('table')">${ic('table', 'ic-sm')} 列表</button></div></div>
@@ -2359,7 +2376,7 @@ function photoStrip(d) {
   const photos = d.auto.photos || [];
   GAL[`obj-photos-${d.id}`] = photos;
   return photos.map((p, i) => `<div class="item" draggable="true" data-oid="${esc(d.id)}" data-pi="${i}" title="拖动调整顺序，第一张是封面；聚焦后 Alt + ← / → 也能移动">
-    <button class="gthumb" type="button" data-lb="obj-photos-${esc(d.id)}" data-i="${i}" aria-label="查看 ${esc(base(p))}（第 ${i + 1} 张${i ? '' : '，封面'}）"><img loading="lazy" draggable="false" src="${file(p)}" alt=""></button>
+    <button class="gthumb" type="button" data-lb="obj-photos-${esc(d.id)}" data-i="${i}" aria-label="查看 ${esc(base(p))}（第 ${i + 1} 张${i ? '' : '，封面'}）"><img loading="lazy" draggable="false" src="${small(p, 320)}" alt=""></button>
     <button class="del" type="button" data-path="${esc(p)}" onclick="deletePhoto(this.dataset.path)" aria-label="删除 ${esc(base(p))}">${ic('trash', 'ic-sm')}</button></div>`).join('');
 }
 const DIM_HINT = '每项写「名称 数值」，单位 mm，按物体形状自己定名称，如：开口直径 82，底部直径 64，高 135';
@@ -2432,7 +2449,7 @@ function drawerObject(d) {
   const brief = modelingPanel(d);
   GAL[`obj-renders-${shown.id}`] = renders;
   const hero = (key, list, emptyText) => (list.length
-    ? `<button class="hero" type="button" data-lb="${esc(key)}" data-i="0" aria-label="放大查看"><img src="${file(list[0])}" alt=""></button>`
+    ? `<button class="hero" type="button" data-lb="${esc(key)}" data-i="0" aria-label="放大查看"><img src="${small(list[0], 1280)}" alt=""></button>`
     : `<div class="hero empty-hero">${ic('image', 'ic-lg')}${emptyText}</div>`);
   return {
     title: objName(d), sub: `${d.id} · ${a.in_library ? '资产库已有' : a.built ? '已建好，未装共享库' : '还没建模'}${a.generator ? ` · ${a.generator}` : ''}`,
@@ -2447,12 +2464,12 @@ function drawerObject(d) {
         <button class="btn btn-ghost" type="button" data-open="object" data-id="${esc(shown.id)}" ${shown === d ? 'style="visibility:hidden" tabindex="-1" aria-hidden="true"' : ''}>${ic('external', 'ic-sm')}打开详情</button></figcaption>
 
         ${hero(`obj-renders-${shown.id}`, renders, '还没有渲染图：在 GPU 服务器运行下方「渲染」命令，生成到 real2sim/objects/&lt;id&gt;/preview/')}
-        <div class="strip">${renders.slice(1).map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="obj-renders-${esc(shown.id)}" data-i="${i + 1}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${file(p)}" alt=""></button></div>`).join('')}</div>
+        <div class="strip">${renders.slice(1).map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="obj-renders-${esc(shown.id)}" data-i="${i + 1}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${small(p, 320)}" alt=""></button></div>`).join('')}</div>
         ${family.length > 1 ? `<div class="strip vpick" role="group" aria-label="切换预览的变体（${family.length - 1} 个变体）">${family.map((v) => {
           const tag = v === root ? '本体' : `变体 ${Number(v.id.split('/').pop())}`, img = v.auto.renders?.[0] || v.auto.photos?.[0];
           return `<div class="item"><button class="gthumb" type="button" aria-pressed="${v.id === shown.id}" data-d="${esc(d.id)}" data-v="${esc(v.id)}"
             onclick="pickVariant(this.dataset.d, this.dataset.v)" title="${esc(`${tag} · ${objName(v)} · ${v.id}`)}" aria-label="预览${esc(tag)} ${esc(objName(v))}">
-            ${img ? `<img loading="lazy" src="${file(img)}" alt="">` : ic('cube')}<span class="vtag">${v === root ? '本体' : Number(v.id.split('/').pop())}</span></button></div>`;
+            ${img ? `<img loading="lazy" src="${small(img, 320)}" alt="">` : ic('cube')}<span class="vtag">${v === root ? '本体' : Number(v.id.split('/').pop())}</span></button></div>`;
         }).join('')}</div>` : ''}</figure></div>`)}
     ${sec('流程', `${progress(rs)}<div style="height:10px"></div>${stageList(rs)}`)}
     ${sec('基本信息', `<div class="form">
@@ -2625,7 +2642,7 @@ function viewTasks() {
   return `<div class="page">${pageHead('任务采集', '任务来自 task/RoboDojo（与 robodojo.sh tasks 一致）和平台登记；合格回合 = 质检通过且仿真成功',
     `<button class="btn btn-primary" type="button" onclick="openNewTask(this)">${ic('plus')}登记任务</button>`)}${assetsWarning()}
   <div class="toolbar filters">${searchBox('task-q', UI.taskQ, 'UI.taskQ', '搜索任务')}
-    <select aria-label="能力维度" onchange="UI.taskDim = this.value; render()">${opts({...DIMS, all: '全部维度'}, UI.taskDim)}</select><span class="muted small">${docs.length} 个任务</span></div>
+    ${dropdown('task-dim', '能力维度', Object.entries({...DIMS, all: '全部维度'}), UI.taskDim, (v) => { UI.taskDim = v; })}<span class="muted small">${docs.length} 个任务</span></div>
   ${docs.length ? `<div class="table-wrap"><table><thead><tr><th>任务</th><th>评测布局</th><th class="num">回合</th><th class="num">仿真成功率</th><th class="num">专家成功率</th><th style="min-width:150px">合格回合</th><th style="min-width:170px">流程</th></tr></thead><tbody>
   ${docs.map((d) => {
     const eps = EP_BY_TASK[d.id] || [], e = experts(eps), q2 = qualified(eps).length, target = d.target || d.reg?.target || 500, layouts = Object.entries(d.auto.layouts || {});
@@ -2861,7 +2878,7 @@ const picker = (key, ph = '搜索物体名称、类别或 id') => `<div class="c
 const objPicker = picker;
 const ntChips = (key) => ntList(key).map((id, i) => {
   const img = pickSrc(key).img(pickSrc(key).get(id));
-  return `<span class="tag obj-chip" onmouseenter="pickPreview(this, '${key}', '${esc(id)}')" onmouseleave="pickPreview()">${img ? `<img src="${file(img)}" alt="">` : ''}${esc(pickLabel(key, id))}
+  return `<span class="tag obj-chip" onmouseenter="pickPreview(this, '${key}', '${esc(id)}')" onmouseleave="pickPreview()">${img ? `<img src="${small(img, 320)}" alt="">` : ''}${esc(pickLabel(key, id))}
     <button type="button" class="tag-x" aria-label="移除 ${esc(id)}" onclick="pickPreview(); unpickObj('${key}', ${i})">${ic('close', 'ic-sm')}</button></span>`;
 }).join('');
 function opickOpen(key, el) {
@@ -2869,7 +2886,7 @@ function opickOpen(key, el) {
   const rows = s.all(key).filter((x) => !q || s.text(x).toLowerCase().includes(q)).slice(0, 40);
   list.innerHTML = rows.length ? rows.map((x, i) => `<div class="opick-item${i ? '' : ' on'}" role="option" data-oid="${esc(x.id)}" aria-selected="${picked.includes(x.id)}"
       onmousedown="event.preventDefault(); pickObjId('${key}', this.dataset.oid)" onmouseenter="opickHover(this, '${key}')">
-      <span class="thumb">${s.img(x) ? `<img loading="lazy" src="${file(s.img(x))}" alt="">` : ic(s.icon)}</span>
+      <span class="thumb">${s.img(x) ? `<img loading="lazy" src="${small(s.img(x), 320)}" alt="">` : ic(s.icon)}</span>
       <span class="opick-t"><b>${esc(s.name(x))}</b><small class="mono">${esc(x.id)}</small></span>${picked.includes(x.id) ? `<span class="st ok">${ic('check')}已选</span>` : ''}</div>`).join('')
     : `<div class="opick-empty small muted">${s.empty}</div>`;
   list.hidden = false;
@@ -2927,7 +2944,7 @@ function pickPreview(anchor, key, id) {  // a card beside `anchor`, or hidden wi
   const card = $('#obj-preview'), s = key && pickSrc(key), x = id && s.get(id);
   if (!anchor || !x) { card.hidden = true; return; }
   const img = s.img(x);
-  card.innerHTML = `<div class="op-img">${img ? `<img src="${file(img)}" alt="">` : `${ic(s.icon, 'ic-lg')}<span class="small muted">没有图片</span>`}</div>
+  card.innerHTML = `<div class="op-img">${img ? `<img src="${small(img, 640)}" alt="">` : `${ic(s.icon, 'ic-lg')}<span class="small muted">没有图片</span>`}</div>
     <div class="op-b"><b>${esc(s.name(x))}</b><div class="mono small muted">${esc(x.id)}</div>${s.card(x)}</div>`;
   card.hidden = false;
   const r = anchor.getBoundingClientRect(), w = card.offsetWidth, h = card.offsetHeight;
@@ -3188,7 +3205,7 @@ function qaList() {
 function viewQA() {
   const eps = live(S.episode), f = UI.qa, list = qaList();
   const values = (key) => Object.fromEntries([...new Set(eps.map((e) => e.auto[key]).filter(Boolean))].sort().map((v) => [v, v]));
-  const pickSel = (key, all, options) => `<select aria-label="${all}" onchange="UI.qa.${key} = this.value; UI.sel.clear(); render()">${opts({'': all, ...options}, f[key])}</select>`;
+  const pickSel = (key, all, options) => dropdown(`qa-${key}`, all, Object.entries({'': all, ...options}), f[key] ?? '', (v) => { UI.qa[key] = v; UI.sel.clear(); });
   const ids = new Set(list.map((e) => e.id));
   [...UI.sel].forEach((id) => { if (!ids.has(id)) UI.sel.delete(id); });
   const allSel = list.length && list.every((e) => UI.sel.has(e.id));

@@ -4,6 +4,7 @@ Usage:
     python3 src/real2sim_platform/test_server.py    # or pytest
 """
 
+import gzip
 import http.client
 from http.server import ThreadingHTTPServer
 import json
@@ -291,6 +292,15 @@ def test_http():
         assert status == 200 and json.loads(body)["target"] == 50 and json.loads(body)["_by"] == "张三"
         assert json.loads(request("POST", "/api/scan")[1])["episode"] == 1
         assert json.loads(request("GET", "/api/items?kind=task")[1])
+        status, body, resp = request("GET", "/api/items?kind=task", headers={"Accept-Encoding": "gzip"})
+        assert resp.getheader("Content-Encoding") == "gzip" and json.loads(gzip.decompress(body))
+        etag = resp.getheader("ETag")
+        assert request("GET", "/api/items?kind=task", headers={"If-None-Match": etag})[:2] == (304, b"")
+        status, body, resp = request("GET", "/", headers={"Accept-Encoding": "gzip"})
+        assert resp.getheader("Content-Encoding") == "gzip" and gzip.decompress(body) == page
+        server.THUMBS_DIR = tmp / "thumbs"
+        (tmp / "broken.jpg").write_bytes(b"not an image")  # ffmpeg fails (or is missing): the original goes out
+        assert request("GET", f"/file?path={tmp / 'broken.jpg'}&w=640")[:2] == (200, b"not an image")
         server.OBJECTS_DIR = tmp / "objects"
         status, body, _ = request("POST", "/api/photo?id=Rigid/cup/00000&name=../a%20b.JPG", b"jpg")
         photo = json.loads(body)["path"]
