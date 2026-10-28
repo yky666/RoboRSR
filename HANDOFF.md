@@ -45,6 +45,9 @@
 - **合并顺序**（合进 `chongzheng/merge-open-prs-1028b`，再快进推 `main`）：#36 大预览居中裁剪；#38 量杯 00000 作 00001 的变体；#39 三个冷水壶合成变体；#40 场景可编辑中文名（带了一份和 #36 相同的裁剪改动，自动合并后无重复）；#41 建模 prompt v2（照片贴图标签）；#42 量杯变体 00002–00005（包含 #38）；#43 审核计数注明含变体。
 - **冲突**：只有 `HANDOFF.md`（开头的会话行和「最近任务」第一节），各 PR 的节都保留，会话行改写成上面这行。
 - **验证**：合并结果 `bash scripts/check.sh` 通过（uv 临时环境：ruff 0.11.7，82 passed、1 skipped），页面内联脚本 `node --check` 通过。
+- **部署**（21:04）：部署机 `/root/RoboDojo` 从 `65d7d5b` 快进到 `a67584f`（stash → ff → stash pop）。部署前 57 个未提交改动的文件里：21 个和新 `main` 一致（#35/#37/#36/#40 等部署时拷过去的），快进后变干净；`make_pitcher.py`、`make_plastic_cups.py`、`object_registration.py` 正好是上一版 `main`（`224b43f`），取新版本；`index.html`、`test_server.py` 是新 `main` 的子集，也变干净；其余 31 个是别的会话（杨开元等）真正的未提交改动，全部保留。唯一手工处理的是 `real2sim/ASSETS.md`：共享库路径那行取新的 `Object/Real2Sim`，保留部署机追加的 10-23–10-27 各节。119 个未跟踪文件没动。备份（`tracked.patch`、状态、改动文件原样、数据库在线备份）和回滚方法在本机 `.agent/ops.local.md`。
+- **部署验证**：RoboDojo 环境 `test_server.py` 13 passed；重启后本机和公网未登录 `/api/info` 401、公网首页 200、页面带新代码；管理员临时会话：物体 315 件（完备 10、待重建 6），场景 7 个，`assets_ok`，冷水壶 00001/00002 挂在 00000 下。没在浏览器里看。
+- **没做**：共享资产库没动（量杯变体 00002–00005 仍未装库）；#41 的 prompt v2 会让 v1 确认过的登记显示为「未确认」，要管理员重新确认。
 
 ### 量杯 4 个泛化变体 `measuring_cup/00002–00005`（2026-10-28 15:2x，`chongzheng/objects-measuring-cup-variants`）
 
