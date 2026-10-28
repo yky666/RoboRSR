@@ -39,7 +39,7 @@
 
 ## 最近任务
 
-### 倒豆评测结果、深圳 500 条数据同步到数采平台（2026-10-28 23:2x，`chongzheng/platform-eval-showcase`，没改代码）
+### 倒豆评测结果、深圳 500 条数据同步到数采平台（2026-10-28 23:2x，`chongzheng/platform-eval-showcase`，PR #45）
 
 - **用户要求**：把 OpenWAM、EWAM、pi0.5 的 G1-D 倒豆仿真评测放进平台「模型评测」，训练用的深圳 500 条数据放进「数据质检」并在「任务采集」里对上，用于给领导展示。
 - **模型评测**：17 条记录，入库在 `real2sim/evals/<id>/{request.json,result.json}`，`request.json` 由平台接口生成（提交人种政）。数据来源是两个运行目录里逐回合的 `episode_*.json`，没有用手抄的汇总：

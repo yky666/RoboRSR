@@ -1471,7 +1471,7 @@ const evalEnvCfgs = (d, task) => {  // env configs to evaluate a task in: those 
   return cfgs.filter((c) => allowed.has(c));
 };
 function viewEvals() {
-  const f = UI.evalStatus ?? 'open';
+  const f = UI.evalStatus ?? 'all';
   const docs = live(S.evaluation).filter((d) => f === 'all' || (f === 'open' ? !['done', 'failed', 'cancelled'].includes(d.status) : d.status === f))
     .sort((x, y) => (y._at || 0) - (x._at || 0));
   return `<div class="page">${pageHead('模型评测', '提交外部训练的模型，由评测负责人交给 coding agent 部署到 5090-2 并在仿真里评测；结果回到这里',
