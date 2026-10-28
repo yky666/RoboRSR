@@ -6,12 +6,14 @@
   kids cup, tall tapered cup, ceramic coffee mug, smoky translucent cup, rounded-square cup (MUG_VARIANTS).
 - measuring_cup/00000, 00001: milky translucent PP measuring cups (400 ml / 500 ml graduations), 14 / 17 cm tall:
   chamfered-square bottom widening to a rounded-square mouth, snap-lid band with a flange and a small hanging tab.
+- measuring_cup/00002-00005: generalization variants of the tall 00001, same sections (not measured; height and
+  colour differ): clear 170 mm, smoky grey 200 mm, opaque orange 120 mm, light blue 155 mm (MEASURING_VARIANTS).
 
 Mug and measuring-cup dimensions and masses are measured (measuring cups: measuring_cup_shape.py).
 
 Usage:
     python scripts/objects/make_plastic_cups.py [RIGID_DIR]    # default Assets/Object/Real2Sim/Rigid
-    python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid/{plastic_mug/0000{0..5},measuring_cup/0000{0,1}}
+    python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid/{plastic_mug,measuring_cup}/0000{0..5}
 Writes RIGID_DIR/<category>/<index>/{object.usdz, metadata.json, description.json}. Needs what make_pitcher.py needs.
 
 Frame: Z up, metres, origin at bbox centre.
@@ -124,6 +126,49 @@ CLEAR_PP = (0.94, 0.95, 0.96)
 # milky 0.25: whitish like the photos in the bright counter scene, beans still visible through the wall (beans greyer
 # in check_cup_beans.py's dim grey-floor scene)
 CLEAR_MIX = dict(milky=0.25, reflection=0.1, roughness=0.3)
+
+# measuring_cup/00002-00005: generalization variants of the tall 00001 (not measured; height and colour differ).
+# Sections stay measuring_cup_shape.CUP, so measuring_cup_shape.in_cavity(p, H) is exact for them too. MARK = top
+# graduation at ~80% of the brim volume like both real cups; mass estimated linear in height through the measured
+# pair (40 g at 140 mm, 60 g at 170 mm). LOOK as in MUG_VARIANTS, "clear" takes (tint, milky share).
+MEASURING_VARIANTS = [
+    dict(
+        H=0.170, MARK=500, LOOK=("clear", (0.96, 0.97, 0.98), 0.03),
+        WORDS=dict(
+            color=["clear", "transparent", "see-through"], adj="clear", tone="transparent", tall="tall", finish="clear",
+        ),
+    ),
+    dict(
+        H=0.200, MARK=600, LOOK=("clear", (0.45, 0.45, 0.47), 0.08),
+        WORDS=dict(
+            color=["smoky grey", "tinted", "translucent grey"], adj="smoky grey", tone="smoky", tall="extra tall",
+            finish="tinted",
+        ),
+    ),
+    dict(
+        H=0.120, MARK=350, LOOK=((0.80, 0.16, 0.02), 0.45),
+        WORDS=dict(
+            color=["orange", "opaque orange", "matte orange"], adj="opaque orange", tone="orange", tall="short",
+            finish="matte",
+        ),
+    ),
+    dict(
+        H=0.155, MARK=450, LOOK=("clear", (0.55, 0.76, 0.96), 0.25),
+        WORDS=dict(
+            color=["light blue", "tinted blue", "translucent blue"], adj="light blue", tone="bluish", tall="tall",
+            finish="blue-tinted",
+        ),
+    ),
+]  # fmt: skip
+MEASURING_WORDS = dict(
+    color=["translucent", "milky white", "frosted clear"], adj="translucent", tone="milky", tall="tall",
+    finish="frosted",
+)  # fmt: skip
+
+
+def measuring_mass(H):
+    (h0, _, m0), (h1, _, m1) = shape.MEASURING
+    return round(m0 + (m1 - m0) * (H - h0) / (h1 - h0), 4)
 
 
 def unit_section(sq):
@@ -365,7 +410,7 @@ def white_pp(st, rgb=WHITE_PP, roughness=0.42):
     )
 
 
-def clear_pp(st, rgb=CLEAR_PP):
+def clear_pp(st, rgb=CLEAR_PP, milky=CLEAR_MIX["milky"]):
     """Hazy translucent PP: rough transmission layered over a white diffuse base. OmniSurface weights are layered
     (diffuse gets 1 - transmission of the energy, times its own weight), so the diffuse weight stays 1 and the milky
     share is set by the transmission weight; a diffuse weight below 1 loses energy and greys the wall. OmniGlass
@@ -379,7 +424,7 @@ def clear_pp(st, rgb=CLEAR_PP):
             "diffuse_reflection_color": rgb,
             "enable_specular_transmission": True,
             "specular_transmission_color": rgb,
-            "specular_transmission_weight": 1.0 - CLEAR_MIX["milky"],
+            "specular_transmission_weight": 1.0 - milky,
             "specular_reflection_weight": CLEAR_MIX["reflection"],
             "specular_reflection_roughness": CLEAR_MIX["roughness"],
             "specular_reflection_ior": 1.49,
@@ -445,9 +490,9 @@ def mug_description(uid, ml, words):
     return {"uuid": uid, "caption": caption, "description": desc}
 
 
-def measuring_description(uid, mark, ml, H):
+def measuring_description(uid, mark, ml, H, w=MEASURING_WORDS):
     caption = {
-        "color": ["translucent", "milky white", "frosted clear"],
+        "color": w["color"],
         "material": ["plastic", "polypropylene", "PP"],
         "size": [f"{mark} ml graduation", f"holds about {ml:.0f} ml to the brim", f"about {H * 100:.1f} cm tall"],
         "name": ["measuring cup", "plastic measuring cup", "storage cup"],
@@ -455,10 +500,10 @@ def measuring_description(uid, mark, ml, H):
         "function": ["measuring beans", "measuring water", "pouring into another cup"],
     }
     desc = [
-        f"translucent rounded-square plastic measuring cup marked up to {mark} ml",
-        "translucent square cup, chamfered at the bottom, with a snap-lid collar",
-        f"tall milky polypropylene cup that holds about {ml:.0f} ml",
-        "frosted measuring cup with a small hanging tab on the rim",
+        f"{w['adj']} rounded-square plastic measuring cup marked up to {mark} ml",
+        f"{w['adj']} square cup, chamfered at the bottom, with a snap-lid collar",
+        f"{w['tall']} {w['tone']} polypropylene cup that holds about {ml:.0f} ml",
+        f"{w['finish']} measuring cup with a small hanging tab on the rim",
         "light plastic cup grasped around its square body",
     ]
     return {"uuid": uid, "caption": caption, "description": desc}
@@ -491,7 +536,7 @@ def mug_measurements(c):
 
 def mug_material(look):
     if look[0] == "clear":
-        return lambda st: clear_pp(st, look[1])
+        return lambda st: clear_pp(st, *look[1:])
     return lambda st: white_pp(st, *look)
 
 
@@ -516,16 +561,18 @@ def main(rigid_dir):
             f"size {meta['physics']['size']}, {len(mug['hulls'])} collision hulls, {meta.get('measurements_mm', '')}"
         )
 
-    for idx, (H, mark, mass) in enumerate(shape.MEASURING):
+    variants = [(v["H"], v["MARK"], measuring_mass(v["H"]), v["LOOK"], v["WORDS"]) for v in MEASURING_VARIANTS]
+    for idx, (H, mark, mass, *look) in enumerate([*shape.MEASURING, *variants]):
         c = build_measuring_cup(H)
         self_check(c)
         lo, hi = c["pts"].min(0), c["pts"].max(0)
         assert np.allclose(-(lo + hi) / 2, shape.origin_shift(H), atol=1e-6), "bbox differs from origin_shift()"
         z = fill_height(c, mark)
-        # the tall 500 ml cup (00001) is the base; the short 400 ml one is its height variant
-        extra = (lambda c: {"variant_of": "Rigid/measuring_cup/00001"}) if idx == 0 else None
-        desc = lambda u: measuring_description(u, mark, c["ml"], H)  # noqa: E731
-        d, meta = save(rigid_dir, "measuring_cup", idx, c, clear_pp, mass, desc, extra)
+        # the tall 500 ml cup (00001) is the base; the short 400 ml one (00000) and 00002+ are its variants
+        extra = (lambda c: {"variant_of": "Rigid/measuring_cup/00001"}) if idx != 1 else None
+        material, words = (mug_material(look[0]), look[1]) if look else (clear_pp, MEASURING_WORDS)
+        desc = lambda u: measuring_description(u, mark, c["ml"], H, words)  # noqa: E731
+        d, meta = save(rigid_dir, "measuring_cup", idx, c, material, mass, desc, extra)
         print(
             f"{d}: {c['ml']:.0f} ml brim, {mark} ml at z={z * 1000:.0f} mm ({z / H:.0%} of height), "
             f"size {meta['physics']['size']}, {len(c['hulls'])} collision hulls"

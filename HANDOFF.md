@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-28
-本会话分支：`chongzheng/objects-measuring-cup-variant`（worktree `../RoboDojo-mcup`）：两只量杯在平台上合成本体 + 变体并标为完备，见「最近任务」第一节。上一会话 `chongzheng/platform-variant-twins`：自建孪生搬到独立的 `Object/Real2Sim` 物体库。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
+本会话分支：`chongzheng/objects-measuring-cup-variants`（worktree `../RoboDojo-mcup-variants`，基于未合并的 `chongzheng/objects-measuring-cup-variant`）：量杯加 4 个泛化变体 `00002–00005` 并放上平台，见「最近任务」第一节。上一会话 `chongzheng/objects-measuring-cup-variant`（worktree `../RoboDojo-mcup`）：两只量杯在平台上合成本体 + 变体并标为完备，见第二节。上一会话 `chongzheng/platform-variant-twins`：自建孪生搬到独立的 `Object/Real2Sim` 物体库。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -17,7 +17,7 @@
   - 构建：`python scripts/g1d/build_asset.py`（读 `real2sim/robot/g1d_v4`）。下载官方资产后先跑一次 `utils/update_embodiment_config_path.py`。
 - **场景**（`real2sim/scenes/`）：env 配置 `g1d` 是办公室，`g1d_counter` 是吧台（移动版 `g1d_counter_mobile` 加了左侧客区；10-28 起过道里有高吧台和绿色岛台，见「最近任务」第一节），`g1d_lab` 是公司实验室，`g1d_school` 是学校实验室绿幕桌，`g1d_shenzhen_lab` 是深圳实验室办公桌。前三个从照片拟合，尺度靠先验；学校的来自同事用真机相机画面拟合的 MuJoCo 孪生；深圳实验室是第一个按平台登记、用卷尺定尺度的场景（卷尺三项通过，站位和叠图待做），10-27 起按房间全景补成整层房间。其余都没有卷尺实测，都没有叠图验收。状态汇总：`python scripts/scenes/acceptance.py`（目前全部 pending）。新场景先在数采平台登记（≥ 5 张照片 + 卷尺实测，写 `registration.json`），再按 `real2sim/scenes/SKILL.md` 交给 coding agent 建模。新场景先在数采平台「登记场景」（至少 5 张照片 + 卷尺实测，写 `real2sim/scenes/<场景>/registration.json`），再按 `real2sim/scenes/SKILL.md` 建模。
 - **物体**：每件资产的来源和匹配程度看 `real2sim/ASSETS.md`。按数采平台的登记（`real2sim/objects/<id>/spec.json` + 照片）给实物建模，交给 coding agent 时按 `scripts/objects/SKILL.md`；平台物体页生成的「建模任务」文本第一行就指向它。
-  - 量杯、塑料马克杯、红豆有实测尺寸和质量。
+  - 量杯、塑料马克杯、红豆有实测尺寸和质量。量杯 `00002–00005`、马克杯 `00001–00005` 是估计的泛化变体。
   - 共享资产库缺 `measuring_cup`、`plastic_mug`，以及量杯任务的布局。
   - 学校的纸杯 `paper_cup/0000{0,1}`、纸盘 `paper_plate/0000{0,1,2}` 是孪生的拟合几何，没在平台登记，没有实测，未装共享库。平台上能看到它们（10-20 部署，见下面「数采平台」）。
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
@@ -38,6 +38,14 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 量杯 4 个泛化变体 `measuring_cup/00002–00005`（2026-10-28 15:2x，`chongzheng/objects-measuring-cup-variants`）
+
+- 用户要求：量杯在平台上只有一个变体（`00000`），多加几个。
+- `make_plastic_cups.py` 新增 `MEASURING_VARIANTS`，`variant_of` 都指向本体 `00001`：透明 170 mm / 500 ml 刻度、烟灰半透明 200 mm / 600 ml、不透明橙色 120 mm / 350 ml、浅蓝半透明 155 mm / 450 ml。截面不变（`measuring_cup_shape.CUP`），只改高度、颜色和透明度，所以 `measuring_cup_shape.in_cavity(p, H)` 对它们同样精确；`shape.MEASURING` 没加项（`collect_office_beans` 按两项解包）。刻度取满口容积约 80%（两只实测量杯都是这个比例），质量按两只实测量杯随高度线性插值（27–80 g），全部是估计值。`clear_pp` 加了 `milky` 参数，`measuring_description` 改为按词表生成；`00000`/`00001` 生成的 `metadata.json`、`description.json` 和上午那版逐字节一致。
+- 检查：`5090-2:/data/robodojo-runs/measuring-cup-variants-20261028-150013`（GPU 0），`check_object.py` 6 只量杯全部 OK（倾角 0°，z 等于半高）。渲染看过后调了一次材质（烟灰太不透、橙色偏黄）再重跑。本机 ruff 0.11.7 通过。没跑 `check_cup_beans.py`（截面和杯底与实测量杯相同）。Kit 要设 `OMNI_KIT_ACCEPT_EULA=YES`，否则后台运行卡在 EULA 提示上。
+- 平台（部署机，没改平台代码）：只把 `00002–00005` 的 `preview/{sim.png,check.json}` 放进 `real2sim/objects/Rigid/measuring_cup/`，`00000`/`00001` 的预览没动（换 `check.json` 会让它们的审核退回待审核）。数据库在线备份 `.cache/mcup-variants-20261028-151854/`，用种政临时会话扫描。结果：4 件都挂在 `00001` 卡片下，有渲染图，`review_state` 为待审核（要管理员审核）；没填负责人、名称等登记字段。
+- 没做：没装共享库，也没进任何任务布局（任务配置写死 `index: [0]`/`[1]`）。
 
 ### 量杯合成本体 + 变体并标为完备（2026-10-28 11:3x，`chongzheng/objects-measuring-cup-variant`）
 
@@ -831,6 +839,8 @@
 ## 最近历史
 
 - 2026-10-28：物体建模 prompt 升到 `real-object-v2`：实物标签必须从照片做贴图，交付同视角照片对照图；v1 确认需重新确认。
+
+- 2026-10-28：量杯新增 4 个泛化变体 `00002–00005`（同截面，改高度和颜色），`check_object` 全部 OK，已放上数采平台（待审核）。
 - 2026-10-28：PR #31–#34 合进 `main`（泛化维度与综合等级、物体资产库分组与审核、塑料马克杯变体、吧台岛台），数采平台部署到合并后的 `main`。
 - 2026-10-28：塑料马克杯 `plastic_mug` 补 `measurements_mm`（误差 0），新增 5 个泛化变体 `00001–00005`，`check_object` 全部 OK。
 - 2026-10-28：吧台场景按 6 张新照片加过道里的高吧台和绿色岛台（含吧凳、线形吊灯），去掉现场已撤的微波炉，白色圆桌改为 4 把椅子，天花板灯槽改为垂直于墙，右侧木柜墙和饮水机按正面照片重排，垃圾桶加照片贴花；脚本专家送杯后退改为 0.5 m 让出吧凳。`5090-2` 上 RTX 渲染、倒水送杯 1/1、送杯 2/4（另 2 个是抓杯失败，旧场景下一样）。
