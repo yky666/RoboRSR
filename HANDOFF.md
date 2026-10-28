@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-28
-本会话分支：`chongzheng/platform-object-libraries`（worktree `../RoboDojo-objlib`）：数采平台物体页按资产库分组 + Real2Sim 物体审核，已部署，见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs` 把深圳实验室装进共享库、合并 6 个 PR（第二节）。下行保留主线历史。
+本会话分支：`chongzheng/merge-open-prs-1028`（worktree `../RoboDojo-merge-1028`）：4 个开着的 PR（#31–#34）合进 `main` 并部署数采平台，见「最近任务」第一节。之前几节按时间倒序是这 4 个 PR 各自的记录。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,18 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 合并全部开着的 PR（#31–#34）并部署数采平台（2026-10-28，`chongzheng/merge-open-prs-1028`）
+
+- **用户要求**：处理当时所有开着的 PR，合并后部署。
+- **合并顺序**：按此顺序合进 `chongzheng/merge-open-prs-1028`，再快进推 `main`（GitHub 自动标为已合并）：
+  - #31 泛化维度 L1–L3 + 综合等级 G0–G3；
+  - #32 物体按资产库分组、Real2Sim 审核、重建负责人、照片排序；
+  - #33 `plastic_mug` 实测尺寸 + 5 个变体；
+  - #34 吧台岛台（本会话上一节）。
+- **冲突**：只有 `HANDOFF.md`。各 PR 的「最近任务」节都保留，「最近历史」两条都留，开头的会话行改写成这一行。#31、#32 都改了 `index.html`、`server.py`、`test_server.py`，自动合并无冲突。
+- **验证**：本机合并结果 `bash scripts/check.sh` 通过（82 passed、1 skipped），页面内联脚本 `node --check` 通过。
+- **部署**：见下一条（部署后补）。
 
 ### 数采平台：物体按资产库分组，Real2Sim 物体管理员审核（2026-10-28，`chongzheng/platform-object-libraries`，已部署）
 
@@ -763,6 +775,7 @@
 
 ## 最近历史
 
+- 2026-10-28：PR #31–#34 合进 `main`（泛化维度与综合等级、物体资产库分组与审核、塑料马克杯变体、吧台岛台），数采平台部署到合并后的 `main`。
 - 2026-10-28：塑料马克杯 `plastic_mug` 补 `measurements_mm`（误差 0），新增 5 个泛化变体 `00001–00005`，`check_object` 全部 OK。
 - 2026-10-28：吧台场景按 6 张新照片加过道里的高吧台和绿色岛台（含吧凳、线形吊灯），去掉现场已撤的微波炉，白色圆桌改为 4 把椅子，天花板灯槽改为垂直于墙，右侧木柜墙和饮水机按正面照片重排，垃圾桶加照片贴花；脚本专家送杯后退改为 0.5 m 让出吧凳。`5090-2` 上 RTX 渲染、倒水送杯 1/1、送杯 2/4（另 2 个是抓杯失败，旧场景下一样）。
 - 2026-10-27：深圳实验室（整层房间版、574 个评测布局）装进 `5090-2` 共享库；本仓库 6 个开着的 PR（#24、#25、#26、#28、#29、#30）合进 `main`，G1-D 夹爪默认改为 55 N / 3.6e4 并限速 0.064 m/s。
