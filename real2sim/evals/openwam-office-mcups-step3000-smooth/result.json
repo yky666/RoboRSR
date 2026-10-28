@@ -1,0 +1,30 @@
+{
+  "evaluated_at": "2026-10-20 14:26",
+  "summary": "严格成功 8/20（40%）、任务判据 17/20（85%）；同一批布局脚本专家严格 13/20（65%）、任务判据 15/20（75%）。",
+  "runs": [
+    {
+      "task": "g1d_pour_beans_measuring_cups",
+      "env_cfg": "g1d_beans_collect",
+      "level": "训练场景：办公室",
+      "layouts": 20,
+      "repeats": 1,
+      "episodes": 20,
+      "success_rate": 0.4,
+      "ci95": [
+        0.219,
+        0.613
+      ],
+      "accepted": 8,
+      "task_success": 17,
+      "task_success_rate": 0.85,
+      "expert_success_rate": 0.65,
+      "expert_task_success_rate": 0.75,
+      "layout_seed": 900,
+      "close_below": 0.87,
+      "mean_chunk_seconds": 0.402,
+      "eval_time": 20,
+      "result_dir": "5090-2:/data/robodojo-runs/openwam-eval-20261020/robodojo/output/policy_eval/openwam3000_900_smooth"
+    }
+  ],
+  "issues": "只有 20 个布局、每个 1 次，区间很宽；这批布局和训练数据同一场景、同一套随机化，但不是训练布局。"
+}

@@ -1,0 +1,77 @@
+{
+  "evaluated_at": "2026-10-27 11:37",
+  "summary": "深圳实验室严格成功 0/15（0%）、任务判据 0/15（0%）（只跑了 15/50 个布局）（严格成功按目标：量杯 0/9、马克杯 0/6）；办公室严格成功 0/12（0%）、任务判据 0/12（0%）（只跑了 12/50 个布局）（严格成功按目标：量杯 0/6、马克杯 0/6）。夹爪阈值 0.96，动作块高斯平滑 σ=2、块间混合 8 步。",
+  "runs": [
+    {
+      "task": "g1d_pour_beans_cup_or_mug",
+      "env_cfg": "g1d_shenzhen_lab_beans_collect",
+      "level": "训练场景：深圳实验室",
+      "layouts": 15,
+      "repeats": 1,
+      "episodes": 15,
+      "success_rate": 0.0,
+      "ci95": [
+        0.0,
+        0.204
+      ],
+      "accepted": 0,
+      "task_success": 0,
+      "task_success_rate": 0.0,
+      "by_target": {
+        "cup": {
+          "episodes": 9,
+          "accepted": 0,
+          "task_success": 0
+        },
+        "mug": {
+          "episodes": 6,
+          "accepted": 0,
+          "task_success": 0
+        }
+      },
+      "rejected_at_start": 0,
+      "layout_seed": 900,
+      "close_below": 0.96,
+      "grip_rule": "threshold",
+      "mean_chunk_seconds": 0.1,
+      "eval_time": 15,
+      "result_dir": "5090-2:/data/robodojo-runs/sz-cupmug-eval-20261022/output/policy_eval/pi05s9999c096_sz"
+    },
+    {
+      "task": "g1d_pour_beans_cup_or_mug",
+      "env_cfg": "g1d_beans_collect",
+      "level": "未见场景：办公室",
+      "layouts": 12,
+      "repeats": 1,
+      "episodes": 12,
+      "success_rate": 0.0,
+      "ci95": [
+        0.0,
+        0.243
+      ],
+      "accepted": 0,
+      "task_success": 0,
+      "task_success_rate": 0.0,
+      "by_target": {
+        "cup": {
+          "episodes": 6,
+          "accepted": 0,
+          "task_success": 0
+        },
+        "mug": {
+          "episodes": 6,
+          "accepted": 0,
+          "task_success": 0
+        }
+      },
+      "rejected_at_start": 0,
+      "layout_seed": 900,
+      "close_below": 0.96,
+      "grip_rule": "threshold",
+      "mean_chunk_seconds": 0.112,
+      "eval_time": 12,
+      "result_dir": "5090-2:/data/robodojo-runs/sz-cupmug-eval-20261022/output/policy_eval/pi05s9999c096_office"
+    }
+  ],
+  "issues": "每个布局只跑 1 次，95% 区间按 Wilson 区间算，仍然较宽；颗粒任务的严格判据有方差（同一组动作回放可能差 1 颗豆子）。办公室场景没有对应的训练数据，用来看换场景后的泛化。中途停止：深圳 15 个、办公室 12 个回合，全部失败，没有跑完 50 个布局，不能当基线。"
+}

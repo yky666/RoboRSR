@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-28
-本会话分支：`chongzheng/merge-open-prs-1028b`（worktree `../RoboDojo-merge-1028b`）：把开着的 #36、#38–#43 合进 `main` 并部署数采平台，见「最近任务」第一节，之后七节是这些 PR 各自的记录（量杯变体、冷水壶变体、建模 prompt v2、审核计数等）。再之前：`chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库；`chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署。下行保留主线历史。
+本会话分支：`chongzheng/platform-eval-showcase`（worktree `../RoboDojo-eval-showcase`）：倒豆评测结果和深圳 500 条数据同步到数采平台，见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs-1028b`：把开着的 #36、#38–#43 合进 `main` 并部署数采平台，之后七节是这些 PR 各自的记录（量杯变体、冷水壶变体、建模 prompt v2、审核计数等）。再之前：`chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库；`chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,19 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 倒豆评测结果、深圳 500 条数据同步到数采平台（2026-10-28 23:2x，`chongzheng/platform-eval-showcase`，没改代码）
+
+- **用户要求**：把 OpenWAM、EWAM、pi0.5 的 G1-D 倒豆仿真评测放进平台「模型评测」，训练用的深圳 500 条数据放进「数据质检」并在「任务采集」里对上，用于给领导展示。
+- **模型评测**：17 条记录，入库在 `real2sim/evals/<id>/{request.json,result.json}`，`request.json` 由平台接口生成（提交人种政）。数据来源是两个运行目录里逐回合的 `episode_*.json`，没有用手抄的汇总：
+  - 深圳倒豆 `g1d_pour_beans_cup_or_mug`（seed 900，50 个布局，有效 49 个；每条两组：深圳 `g1d_shenzhen_lab_beans_collect`、办公室 `g1d_beans_collect`），`5090-2`/`5090-4:/data/robodojo-runs/sz-cupmug-eval-20261022/output/policy_eval/`：OpenWAM step1000/2000/3000（夹爪阈值 0.87）、step2000 加 0.96 或滞回夹爪、step3000 加 0.96；EWAM 2kRobot15w、3kHuman6w 各 step5000/20000；pi0.5 step9999（办公室只跑了 24 个）、step9999 加 0.96（中途停了，状态「已取消」）、step19999。
+  - 办公室量杯 `g1d_pour_beans_measuring_cups`（10-20，20 个布局，带脚本专家对照），`5090-2:/data/robodojo-runs/openwam-eval-20261020/robodojo/output/policy_eval/`：OpenWAM step1000（原始动作、平滑后）、step2500、step3000（都平滑）。
+  - `success_rate` 是严格验收；任务判据、按目标拆分、夹爪设置、结果目录也写在 `result.json` 的 runs 里，不过页面现在只显示严格成功率，其余字段写在摘要里。95% 区间用 Wilson 区间。深圳严格成功率最高的是 OpenWAM step3000 加 0.96（39/49），但换到办公室只有 3/49；EWAM 2kRobot15w step20000 23/49；pi0.5 全部是 0。
+- **数据质检 / 任务采集**：`5090-2:/root/RoboDojo/eval_result/RoboDojo/g1d_pour_beans_cup_or_mug/g1d_shenzhen_pour_beans_cup_or_mug_500/g1d_shenzhen_lab_beans_collect/<seed>_train/datagen/`（18 个 seed 目录，452 MB，不入库）。按导出的 `collection_quality.json` 取 500 条，把原始 HDF5 里逐帧的 JPEG 用 `/usr/bin/ffmpeg` 编码成 H.264（三路相机，CRF 28）；`_result.json` 的 details 以 layout_id 为键，带指令、目标种类、豆数、帧数、原始文件路径。策略名用数据集名，不叫 `scripted_demo`，免得「专家可行性」一栏把只含合格回合的 500/500 当成成功率（实际采集 751 次合格 505 次）。一次性脚本和日志在 `5090-2:/data/robodojo-runs/platform-showcase-20261028/`（`datagen_to_eval_result.py`、`push_records.py`、`verify.py`）。
+- **部署机操作**：先在线备份数据库到 `/root/RoboDojo/.cache/eval-showcase-20261028-232331/`，再用 `Store.open_session("chongzheng")` 开临时会话，PUT `/api/items?kind=evaluation`，POST `/api/scan`，最后 `end_session`。平台代码没动，也没重启。
+- **验证**：从平台接口读回 17 条评测（状态和 runs 与运行目录一致）、500 个回合（全部成功、三路视频齐全、`eval_time ≥ 1`）；`/file` 取视频返回 206 和 `video/mp4`；抽了一帧三路画面看过。没开浏览器看页面（没有平台密码）。
+- **没做的**：500 个回合质检状态仍是「待审」，所以任务卡片的「合格回合」是 0/500，要在「数据质检」里按策略筛出后批量通过（人工结论，不替人点）。这个任务在平台资产库镜像里没有布局，「评测布局」一栏显示待办；`5090-2` 共享库里这个任务的布局也没装。评测回合（`policy_eval`）只存了 json 和 npz，没有视频，所以没进质检；pi0.5 的几段失败视频在 `5090-2:/data/robodojo-runs/pi05-g1d-eval-20261026/videos/`。
+- **回滚**：删 `real2sim/evals/` 下这 17 个目录和上面那个 `eval_result` 子目录，把备份库拷回，然后扫描。
 
 ### 数采平台：变体不审核、跟随本体，物体统计只数本体（2026-10-28 22:xx，`chongzheng/platform-variants-no-review`）
 
