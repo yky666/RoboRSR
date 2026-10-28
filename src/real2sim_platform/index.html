@@ -1912,8 +1912,9 @@ function drawerObject(d) {
         <label class="btn upload" title="jpg / png / webp，单张 ≤ 25 MB">${ic('upload')}上传<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-id="${esc(d.id)}" onchange="uploadPhotos(this)" aria-label="上传实物照片"></label></figcaption>
         ${hero(`obj-photos-${d.id}`, photos, hasPhotoReference(d) ? '实物照片已在对话提供，原图尚未关联到此登记。' : '尚未关联实物照片，可上传或填写参考来源。')}
         <div class="strip">${photoStrip(d)}</div></figure>
-      <figure><figcaption>${ic('cube')}仿真渲染 <span class="muted small">${shown === d ? '' : `${esc(objName(shown))} · `}${renders.length} 张</span>${shown === d ? ''
-        : `<span class="sp"></span><button class="btn btn-ghost" type="button" data-open="object" data-id="${esc(shown.id)}">${ic('external', 'ic-sm')}打开详情</button>`}</figcaption>
+      <figure><figcaption>${ic('cube')}仿真渲染 <span class="muted small">${shown === d ? '' : `${esc(objName(shown))} · `}${renders.length} 张</span><span class="sp"></span>
+        <button class="btn btn-ghost" type="button" data-open="object" data-id="${esc(shown.id)}" ${shown === d ? 'style="visibility:hidden" tabindex="-1" aria-hidden="true"' : ''}>${ic('external', 'ic-sm')}打开详情</button></figcaption>
+
         ${hero(`obj-renders-${shown.id}`, renders, '还没有渲染图：在 GPU 服务器运行下方「渲染」命令，生成到 real2sim/objects/&lt;id&gt;/preview/')}
         <div class="strip">${renders.slice(1).map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="obj-renders-${esc(shown.id)}" data-i="${i + 1}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${file(p)}" alt=""></button></div>`).join('')}</div>
         ${family.length > 1 ? `<div class="vpick" role="group" aria-label="切换预览的变体（${family.length - 1} 个变体）">${family.map((v) => `<button class="vcard" type="button"
