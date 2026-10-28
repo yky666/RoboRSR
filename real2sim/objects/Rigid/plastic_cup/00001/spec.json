@@ -1,0 +1,20 @@
+{
+  "id": "Rigid/plastic_cup/00001",
+  "name": "塑料杯1",
+  "name_en": "plastic cup",
+  "material": "PP 塑料",
+  "color": "半透明蓝色",
+  "mass_g": 24,
+  "dimensions_mm": "开口外径80.2mm，底部直径54.8mm，高度132.6mm",
+  "generalization": {
+    "count": 6,
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "种政",
+  "updated_at": "2026-10-28 11:05:02",
+  "twin": true,
+  "asset_origin": "physical_object"
+}
