@@ -54,18 +54,20 @@ LABEL_TEX = "textures/label.png"
 OPEN_DIR = np.radians(10.0)  # opening direction from the rivet: behind the tab in the can_1 photo (camera at 190 deg)
 # Lid features for a 24.5 mm panel radius (scaled down on smaller lids), estimated from the photos (can_2, can_4):
 HOLE = ((5.5, 2.5), (14.0, 7.0))  # teardrop = hull of two circles (centre along OPEN_DIR, radius) mm: 3-21 mm, 14 wide
-HINGE = 2.5  # tab hinge / flap hinge line, mm from the rivet toward the opening
-FLAP_DROP = np.radians(70)  # scored panel pushed down into the can about its hinge at the narrow end
+HINGE = 2.5  # flap hinge line, mm from the rivet toward the opening
+TAB_DIR = np.radians(50.0)  # ring-pull swivelled on its rivet: face toward the can_0 / can_2 and can_1 cameras
+TAB_HINGE = 2.0  # tab hinge, mm from the rivet along TAB_DIR (clear of the opening's narrow end)
+FLAP_DROP = np.radians(45)  # scored panel pushed down into the can about its hinge at the narrow end
 TAB_TILT = np.radians(80)  # ring-pull raised 80 deg: almost vertical, leaning away from the opening
 TAB = dict(  # ring-pull in its own plane, mm: b along the tab from the hinge to the ring end, a across
-    outline=((1.5, 4.5), (11.5, 6.0)),  # hull of two circles (b, radius): b -3 .. 17.5, 12 wide
-    finger=((11.6, 4.0),),  # large finger hole
-    lower=((2.8, 2.3), (3.5, 2.3)),  # small hole over the rivet tongue
-    split=6.7,  # bar between the holes
-    t=0.5,
+    outline=((1.5, 4.8), (12.0, 6.5)),  # hull of two circles (b, radius): b -3.3 .. 18.5, 13 wide
+    finger=((12.2, 4.2),),  # large finger hole
+    lower=((2.8, 2.4), (3.6, 2.4)),  # small hole over the rivet tongue
+    split=7.0,  # bar between the holes
+    t=1.0,  # sheet with its curled edge
 )
 
-ALU = dict(rgb=(0.82, 0.82, 0.84), rough=0.3, metal=1.0)
+ALU = dict(rgb=(0.55, 0.56, 0.58), rough=0.42, metal=1.0)  # brushed, medium grey in the photos
 COKE_ZERO = dict(
     R=57.7 / 2 * MM, H=146.5 * MM,  # 直径 / 2, 高度 (bottom to the top of the seam): measured
     SEAM_R=27.4 * MM, NECK_H=9.0 * MM, DOME=9.5 * MM, BULGE=0.0,  # 202 seam (54.8 mm), neck, bottom dome: estimated
@@ -246,6 +248,8 @@ class Can:
         self.k = min(1.0, self.panel_r / (24.5 * MM)) * MM  # lid feature scale, m per drawing mm
         e = np.array([np.cos(OPEN_DIR), np.sin(OPEN_DIR)])
         self.e, self.w = e, np.array([-e[1], e[0]])
+        self.te = np.array([np.cos(TAB_DIR), np.sin(TAB_DIR)])
+        self.tw = np.array([-self.te[1], self.te[0]])
         self.hole = self.to_lid(circle_hull(HOLE))
         self.hole_c = self.hole.mean(0)
         assert self.neck_r < R - 0.5 * MM and self.z_neck0 > self.z_body0 + 0.02
@@ -297,7 +301,8 @@ class Can:
                 self.z_panel,
             )
         ]
-        tongue = self.to_lid(np.array([[-2.8, -2.4], [HINGE, -2.4], [HINGE, 2.4], [-2.8, 2.4]]))
+        tongue = np.array([[-2.8, -1.8], [TAB_HINGE, -1.8], [TAB_HINGE, 1.8], [-2.8, 1.8]]) * self.k
+        tongue = tongue[:, :1] * self.te + tongue[:, 1:] * self.tw
         lid.append(mp.prism([tuple(p) for p in tongue], self.z_panel, self.z_panel + 0.4 * MM))
         lid.append(back_disc(2.0 * self.k, self.z_panel + 0.4 * MM, self.z_panel + 1.0 * MM))  # rivet
         parts["lid"] = merge(lid)
@@ -319,10 +324,10 @@ class Can:
 
     def tab_frame(self):
         s, c = np.sin(TAB_TILT), np.cos(TAB_TILT)
-        e3, w3 = np.r_[self.e, 0.0], np.r_[self.w, 0.0]
-        d = -c * e3 + np.array([0, 0, s])  # along the tab, ring end up and away from the opening
-        n = -s * e3 - c * np.array([0, 0, 1.0])  # thickness: away from the opening
-        pivot = np.r_[HINGE * self.k * self.e, self.z_panel + 0.4 * MM]
+        e3, w3 = np.r_[self.te, 0.0], np.r_[self.tw, 0.0]
+        d = -c * e3 + np.array([0, 0, s])  # along the tab, ring end up and leaning back
+        n = -s * e3 - c * np.array([0, 0, 1.0])  # thickness: toward the leaning side
+        pivot = np.r_[TAB_HINGE * self.k * self.te, self.z_panel + 0.4 * MM]
         return pivot, w3, d, n
 
     def tab_map(self, pts):

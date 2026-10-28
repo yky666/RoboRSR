@@ -4,11 +4,17 @@ Per photo: the can's silhouette lines and the front arcs of the paint top (first
 give an ellipse per paint height t in [0, 1]; texel (alpha, t) is read at x = cx(t) + a(t) sin(alpha - cam),
 y = yc(t) + b(t) cos(alpha - cam). cam is the photo's azimuth in the can frame (alpha CCW from +X), set from the
 printed content (logo front at -Y, nutrition panel and barcode at 120-160 deg). Views are blended with cos^4 weights
-after matching their paint red; glare (bright, unsaturated) is down-weighted. The side near +X faces no camera and is
-interpolated across. Row 0 of the image is the paint top, u = alpha / 2pi.
+after matching their paint red; glare (bright, unsaturated) is down-weighted. The blend is then posterized to the
+can's four flat inks (red, black, yellow, white), which removes the photos' shading, glare and blur halos; the side
+near +X that no photo faces is filled by mirroring its neighbours. Row 0 of the image is the paint top,
+u = alpha / 2pi. The same design on the web (cans.ch ref 125284, regular-Coke twin of this Coke Zero can, see
+$RUN/web/sources.txt) was only used to check the layout: its images are lower resolution than these photos.
+
+    python scripts/objects/soda_can_label.py OUT.png    # preview the texture
 """
 
 from pathlib import Path
+import sys
 
 import numpy as np
 from PIL import Image
@@ -119,10 +125,35 @@ def label(out):
     soft = np.stack([ndimage.gaussian_filter(tex[..., k], (14, 3), mode="wrap") for k in range(3)], -1)
     hm = ndimage.gaussian_filter(hole.astype(float), 8, mode="wrap")[..., None]
     tex = tex * (1 - hm) + soft * hm
+    tex = flatten(tex)
     hsv = hsv_of(tex)
-    glare = np.clip((hsv[..., 2] - hsv[..., 1] - 0.3) / 0.2, 0, 1)
-    glare[int(0.12 * th) : int(0.95 * th)] = 0  # neck and bottom-edge glare streaks only
-    glare = ndimage.gaussian_filter(ndimage.maximum_filter(glare, 9), 4)[..., None]
-    tex = tex * (1 - glare) + ref * 0.8 * glare
+    yellow = ((hsv[..., 0] > 0.08) & (hsv[..., 0] < 0.2) & (hsv[..., 1] > 0.3))[..., None]
+    unseen = hm * np.where(yellow & (np.arange(th) >= 0.62 * th)[:, None, None], 0.0, 1.0)  # unseen side: paint red
+    unseen[: int(0.07 * th)] = 1.0  # neck above the FIFA text: plain red (the photos only show dark shading there)
+    tex = tex * (1 - unseen) + np.array(INKS["red"]) * unseen
     Image.fromarray((np.clip(tex, 0, 1) * 255).astype(np.uint8)).save(out)
     return out
+
+
+INKS = {"red": (0.72, 0.03, 0.06), "black": (0.06, 0.05, 0.06), "yellow": (0.95, 0.76, 0.06)}
+
+
+def flatten(tex):
+    """Snap confidently red (incl. dark-shaded and pink-glare red), yellow and black pixels to the flat inks; white
+    print and the anti-aliased edges keep the photo pixels."""
+    hsv = hsv_of(tex)
+    h, s, v = hsv[..., 0], hsv[..., 1], hsv[..., 2]
+    redh = (h < 0.05) | (h > 0.93)
+    neck = (np.arange(len(h)) < 0.12 * len(h))[:, None]
+    masks = {
+        "red": redh & (((s > 0.6) & (v > 0.35)) | (neck & (s > 0.12) & (v > 0.6))),  # neck: pink glare streaks
+        "yellow": (h > 0.08) & (h < 0.2) & (s > 0.5) & (v > 0.55),
+    }
+    for name, m in masks.items():
+        m = ndimage.gaussian_filter(m.astype(float), 0.7)[..., None]
+        tex = tex * (1 - m) + np.array(INKS[name]) * m
+    return tex
+
+
+if __name__ == "__main__":
+    label(sys.argv[1])

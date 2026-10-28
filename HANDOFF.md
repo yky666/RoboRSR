@@ -50,6 +50,7 @@
 - 结构：罐身中空（罐底拱顶 + 直筒 + 收颈 + 卷边）；罐盖低于卷边约 6 mm、带沉槽，由 4 块凸板拼成、留出倒饮口，从开口能看到深色内壁；拉环立起 80°，有指孔和铆钉。碰撞体：罐底 + 罐壁分片 + 罐盖 4 块（开口处留空）+ 拉环；脚本自检确认罐内空腔和开口上方没有碰撞体。`measurements_mm` 的高度到卷边顶、不含拉环（包围盒含拉环，高 160.6 mm）。没有实测摩擦，不写摩擦键。
 - 验证：`measurements_mm` 两项误差 0；`check_object.py --image-dir` 七件 OK，`sim.png`、`check.json` 已同步到部署机。`modeling_prompt.md` 列的碰撞通道、夹持等检验按用户定的流程没做。生成结果在 5090-2 `/data/robodojo-runs/objects-1028/ovl/Rigid/soda_can/`；已装共享库 `Object/Real2Sim`（2026-10-28，新增目录、没有覆盖，回滚清单 `/data/robodojo-assets/backups/added-objects-1028-20261028-120048.txt`）。
 - 10-28 下午按用户反馈重做（原版开口是方的、涂装是格子带）：罐盖改成带泪滴形孔的整块网格，碰撞体为围绕开口的 32 个扇形凸包；加压入罐内的盖板、双孔拉环；涂装由新文件 `scripts/objects/soda_can_label.py` 从三张参考照片展开成贴图（打包进 usdz）。七件重新 `check_object` 通过，开口和空腔探针内没有碰撞体；已覆盖共享库，旧版备份 `/data/robodojo-assets/backups/backup-objects-1028-v1-20261028-143408.tgz`。
+- 10-28 傍晚第三轮（用户批准参考网络图像）：查到这款是 FIFA 2026 德国队主题罐，但网上只有 500×322 的合成小图（来源记在 5090-2 `/data/robodojo-runs/soda_can-v2-20261028-121910/web/sources.txt`），只用来核对布局，没有用网络像素。照片展开贴图去反光、红黄压成纯色；照片没拍到的约 50° 侧面为纯红。罐盖和卷边改为深一些的拉丝铝，拉环加大到 13 × 21.8 × 1 mm 并转向参考视角。七件重新 `check_object` 通过；已覆盖共享库，上一版备份 `/data/robodojo-assets/backups/backup-soda_can-v2-20261028-151210.tgz`。
 
 ### 塑料杯 `Rigid/plastic_cup/00001`（2026-10-28，分支 `z/objects-cup-can-1028`）
 
