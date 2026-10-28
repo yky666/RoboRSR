@@ -323,8 +323,10 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .dd-btn .ic { color: var(--muted); transition: transform .15s; }
 .dd-btn[aria-expanded="true"] { border-color: var(--text); }
 .dd-btn[aria-expanded="true"] .ic { transform: rotate(180deg); }
-.dd-menu { position: absolute; top: calc(100% + 6px); right: 0; z-index: 10; display: grid; gap: 2px; min-width: 132px; padding: 6px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-2); animation: dd-in .12s ease-out; }
-.dd-menu button { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 34px; padding: 0 10px 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--text-2); text-align: left; white-space: nowrap; cursor: pointer; }
+.dd-menu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 10; display: grid; gap: 2px; min-width: max(100%, 132px); max-width: min(420px, calc(100vw - 32px)); padding: 6px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-2); animation: dd-in .12s ease-out; }
+.dd-menu.end { right: 0; left: auto; }
+.dd-menu button { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 0; min-height: 34px; padding: 0 10px 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--text-2); text-align: left; white-space: nowrap; cursor: pointer; }
+.dd-menu button > span { overflow: hidden; text-overflow: ellipsis; }
 .dd-menu button:hover { background: var(--surface-2); color: var(--text); }
 .dd-menu button[aria-selected="true"] { background: var(--surface-2); color: var(--text); font-weight: 600; }
 .toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text-2); font-weight: 500; cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
@@ -753,6 +755,7 @@ const UI = {
   osel: new Set(),  // objects ticked on the objects page, for bulk owner assignment
   ds: {pick: {}, ep: [0, 100], q: '', sort: 'rec', view: 'grid', closed: ['robot', 'skill', 'format', 'license', 'platform', 'local']},  // datasets page filters
   dd: '',  // id of the open dropdown menu
+  qaRate: 1,  // playback speed of the QA videos, kept when another episode is picked
   vpick: {},  // object drawer id -> the variant whose render is previewed in it
   obj: {q: '', photo: false, status: '', owner: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
   qa: {task: '', config: '', policy: '', result: '', status: 'pending'},
@@ -1000,7 +1003,12 @@ function dropdown(id, label, opts, cur, pick) {
   return `<div class="dd"><button id="${id}" type="button" class="dd-btn" aria-haspopup="listbox" aria-expanded="${UI.dd === id}" aria-label="${esc(label)}"
     onclick="UI.dd = UI.dd === '${id}' ? '' : '${id}'; render()">${esc(now ? now[1] : label)}${ic('chev-d', 'ic-sm')}</button>
     ${UI.dd === id ? `<div class="dd-menu" role="listbox" aria-labelledby="${id}">${opts.map(([v, text], i) => `<button type="button" role="option" aria-selected="${now?.[0] === v}"
-      onclick="ddPick('${id}', ${i})">${esc(text)}${now?.[0] === v ? ic('check', 'ic-sm') : ''}</button>`).join('')}</div>` : ''}</div>`;
+      onclick="ddPick('${id}', ${i})" title="${esc(text)}"><span>${esc(text)}</span>${now?.[0] === v ? ic('check', 'ic-sm') : ''}</button>`).join('')}</div>` : ''}</div>`;
+}
+function placeMenus() {  // menus open rightwards from their button; one that would leave the window opens leftwards
+  document.querySelectorAll('.dd-menu').forEach((m) => {
+    if (m.getBoundingClientRect().right > document.documentElement.clientWidth - 8) m.classList.add('end');
+  });
 }
 function ddPick(id, i) {
   UI.dd = '';
@@ -3238,14 +3246,14 @@ function viewQA() {
 function qaPanel(e) {
   if (!e) return `<div class="card">${empty('video', '选择左侧回合开始审核', 'J / K 上下切换 · P 通过并跳到下一条 · R 拒绝 · U 待审')}</div>`;
   const a = e.auto;
-  return `<div class="card"><div id="qa-videos" data-ep="${esc(e.id)}">
+  return `<div class="card"><div>
     <div class="card-h" style="padding-bottom:10px"><div style="min-width:0"><h2 class="mono" style="font-size:14px">${esc(a.task || '（非标准目录）')}</h2>
       <div class="small muted">${esc(a.config)} · ${esc(a.policy)} · seed ${a.seed ?? '—'} · 布局 ${a.layout_id ?? '—'} · #${a.index}</div></div><span class="sp"></span>${a.success ? st('ok', '仿真成功') : st('bad', '仿真失败')}</div>
-    <div style="padding:0 16px">${cams(e).length ? `<div class="videos">${cams(e).map((c) => `<figure><video src="${file(a.videos[c])}" controls muted playsinline preload="metadata" aria-label="${esc(c)} 视频"></video>
+    <div style="padding:0 16px">${cams(e).length ? `<div class="videos" id="qa-videos" data-ep="${esc(e.id)}">${cams(e).map((c) => `<figure><video src="${file(a.videos[c])}" controls muted playsinline preload="metadata" aria-label="${esc(c)} 视频"></video>
       <figcaption>${esc(c)}</figcaption></figure>`).join('')}</div>` : empty('video', '没有视频', '这个回合目录里没有 episode_*_cam_*.mp4')}
       <div class="toolbar" style="margin-top:8px"><button class="btn" type="button" onclick="videos('play')">${ic('play')}同步播放</button>
         <button class="btn" type="button" onclick="videos('pause')">${ic('pause')}暂停</button><button class="btn" type="button" onclick="videos('restart')">${ic('rewind')}从头</button>
-        <select aria-label="播放速度" onchange="videos('rate', this.value)">${opts({0.5: '0.5×', 1: '1×', 2: '2×', 4: '4×'}, '1')}</select></div></div></div>
+        ${dropdown('qa-rate', '播放速度', [[0.5, '0.5×'], [1, '1×'], [2, '2×'], [4, '4×']], UI.qaRate, (v) => videos('rate', v))}</div></div></div>
   <div class="card-b" data-kind="episode" data-id="${esc(e.id)}">
     ${sec('自动检查', stageList(evalStages(EP_CHECKS, e)))}
     ${sec('质检结论', `<div class="decision">
@@ -3740,8 +3748,9 @@ function videos(action, value) {
     if (action === 'play') v.play();
     else if (action === 'pause') v.pause();
     else if (action === 'restart') { v.currentTime = 0; v.play(); }
-    else if (action === 'rate') v.playbackRate = Number(value);
+    else if (action === 'rate') v.defaultPlaybackRate = v.playbackRate = Number(value);
   });
+  if (action === 'rate') UI.qaRate = Number(value);
 }
 function qaFilter(ds) {
   UI.qa = {task: ds.t, config: ds.c, policy: ds.p, result: '', status: ''};
@@ -4120,8 +4129,10 @@ function render() {
   const sideScroll = $('.ds-side')?.scrollTop;
   $('#main').innerHTML = VIEWS[UI.tab]();
   if (sideScroll && $('.ds-side')) $('.ds-side').scrollTop = sideScroll;
+  placeMenus();
   const slot = $('#qa-videos');
   if (oldVideos && slot && oldVideos.dataset.ep === slot.dataset.ep) slot.replaceWith(oldVideos);  // keep playback position
+  else if (slot) videos('rate', UI.qaRate);
   if (scroll && $('.qa-list')) $('.qa-list').scrollTop = scroll;
   renderDrawer();
   mountModel();
