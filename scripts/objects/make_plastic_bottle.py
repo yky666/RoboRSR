@@ -5,12 +5,12 @@
 - plastic_bottle/00000: Real2Sim platform registration real2sim/objects/Clutter/plastic_bottle/00000 (spec.json, by
   徐鹤鸣, 2026-10-23 10:54:15): 农夫山泉 550 ml bottle, transparent, red-and-white label, static friction 0.35,
   开口直径 29.8 mm, 底部直径 64.7 mm (measured). The user added on 2026-10-23: 总高 227 mm without cap, empty mass
-  18 g   (the registered 328 g included water; modelled empty, cap included), 开口直径 is the outer diameter. On 2026-10-27
-  the user sent a straight-on product photo: the shoulder, neck, label band, red-band dip and the label colours are
-  fitted to it (scaled by the 64.7 mm body and the 228.5 mm capped height), the label layout and the embossed arches
-  above it follow it and the four registration photos. Neck finish, grip grooves and the cap stay estimated. The
-  registration asked for the cap removed; the user asked on 2026-10-23 for a cap that can be twisted, so every bottle
-  now has one.
+  18 g (the registered 328 g included water; modelled empty, cap included), 开口直径 is the outer diameter. On
+  2026-10-27 the user sent a straight-on product photo: the shoulder, neck, label band, red-band dip and the label
+  colours are fitted to it (scaled by the 64.7 mm body and the 228.5 mm capped height), the label layout and the
+  embossed arches above it follow it and the four registration photos. Neck finish, grip grooves and the cap stay
+  estimated. The registration asked for the cap removed; the user asked on 2026-10-23 for a cap that can be twisted,
+  so every bottle now has one.
 - plastic_bottle/00001-00005: generalization variants of 00000 (not measured; colour, material, size and shape differ):
   380 ml mini, 1 L tall, frosted rounded-square, green waisted grip bottle, amber wide-mouth juice bottle.
 - Labels are textures drawn by bottle_label.py (needs a CJK font, see bottle_label.FONT_DIRS); variants carry
@@ -606,7 +606,9 @@ def add_cap_joints(st, c, g, mass):
     """Floating articulation body -> cap_twist (revolute about the bottle axis, 0 = closed, + = unscrewing, i.e.
     counter-clockwise seen from above) -> nut -> cap_lift (prismatic along the axis, mimics the twist: one PITCH per
     turn) -> cap. Both stop after OPEN_TURNS; the cap stays on the bottle (a loose cap cannot leave an articulation)."""
-    root = st.GetPrimAtPath("/root/body")  # on the root link, as ArticulationObject.fix_root_link expects
+    # on the first link: with it on /root instead the cap_lift mimic stopped following on most bottles. Physics
+    # fixed_base then does nothing (ArticulationObject.fix_root_link wants it on /root): hold the bottle instead
+    root = st.GetPrimAtPath("/root/body")
     UsdPhysics.ArticulationRootAPI.Apply(root)
     art = PhysxSchema.PhysxArticulationAPI.Apply(root)
     art.CreateEnabledSelfCollisionsAttr(False)
@@ -724,6 +726,7 @@ def save(type_dir, idx, c, g, mass, articulated=False):
             "cap_twist": {"closed": 0.0, "open": round(2 * np.pi * g["OPEN_TURNS"], 4), "unit": "rad"},
             "cap_lift": {"closed": 0.0, "open": round(g["PITCH"] * g["OPEN_TURNS"], 4), "unit": "m"},
         }
+        meta["passive"] = {"functional": {"cap": {"parent_joint": "cap_twist"}}}  # reward joint-ratio checks
     if idx == 0:
         model = parts["model"][0]
         mouth = model[model[:, 2] > c["bottle"].z_ring1 + shift[2] + 1e-6]

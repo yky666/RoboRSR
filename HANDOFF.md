@@ -1,7 +1,7 @@
 # Project Handoff
 
-更新时间：2026-10-27
-本会话分支：`chongzheng/objects-nongfu-refine`（worktree `../RoboDojo-nongfu`）：农夫山泉瓶的形状和标签按照片再优化，见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs` 把深圳实验室装共享库、6 个开着的 PR 合进 `main`（第二节）。下行保留主线历史。
+更新时间：2026-10-28
+本会话分支：`chongzheng/objects-nongfu-refine`（worktree `../RoboDojo-nongfu`）：农夫山泉瓶的形状和标签按照片再优化（已装共享库），之后试 G1-D 双手拧瓶盖（新任务 `g1d_twist_bottle_cap`，脚本专家还没拧开过），见「最近任务」前两节。上一会话 `chongzheng/merge-open-prs` 把深圳实验室装共享库、6 个开着的 PR 合进 `main`（第二节）。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,25 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### G1-D 双手拧瓶盖试验 `g1d_twist_bottle_cap`（2026-10-27/28，`chongzheng/objects-nongfu-refine`，进行中）
+
+- **用户要求**：仿真里试拧瓶盖；方案选了双手（一只手扶瓶身，另一只手拧盖）。
+- **代码**：
+  - 任务 `task/RoboDojo/{config,tasks}/g1d_twist_bottle_cap.*`：可拧盖瓶 `Articulation/plastic_bottle/00000` 站在办公桌中线附近（x ±0.04，y −0.36…−0.30）；成功 = `cap_twist` 过行程 90%（`is_joint_position_above_ratio`，tag `cap`）；`step_lim` 2400。已登记进 `task_inventory.py` 的 custom。
+  - `make_plastic_bottle.py`：关节版 metadata 加 `passive.functional.cap.parent_joint = cap_twist`，判据要用。**共享库里装的还是没有这个键的版本**，正式跑任务前要重新生成并装库。
+  - `scripted_demo.twist_cap_actions`：右手先在瓶子右前上方转到拧盖姿态，左手手指水平从左侧夹瓶身 11 cm 处，右手以 `TOP_ROT`（手指朝下 60°，偏航 `CAP_YAW` 20°）夹瓶盖上半截，每次转 60°（−30…+30°），夹持点随螺距上抬，松开、转回、再夹，最多 16 次。
+  - 还没有评估布局：试验布局由运行目录里的 `setup_twist.py` 写进 `Assets` 覆盖层（共享库没动）。正式做要在 `build_asset.py` 加生成器。
+- **试验中查明的事**（`5090-2:/data/robodojo-runs/nongfu-refine-20261027/`，日志 `twist*.log`、`dbg*.log`，调试帧在 `dbg/`；调试策略 `repo/debug_twist.py` 每 10 步存相机帧和瓶子、关节、手指状态，不入库）：
+  - **`fixed_base` 固定不住这个瓶子**：`fix_root_link` 要求 `ArticulationRootAPI` 挂在被引用的 `/root` 上，而资产挂在 `/root/body`（10-23 的注释写反了，已更正）。改挂 `/root` 能固定住，但多数瓶子拧盖时 `cap_lift` 不再跟着上升（mimic 关节失效，和创建顺序有关），所以资产不改，改为双手方案。
+  - **Dex1-1 腕部相机模块**：在 `dex1_base_link` 系里，相机外壳在手轴上方 4.4–7.7 cm、最远伸到前方 7.6 cm（夹持点在 12 cm）。手指下倾 35°（杯子抓法）时，外壳前角越过瓶轴，把 23 cm 高的瓶子推歪 12–25°；手指水平时离瓶壁约 1.2 cm，夹得住、不推瓶。
+  - **手指竖直朝下够不着**：瓶盖在 0.9 m 高，IK 把夹持点凑到位、手却接近水平。改 `TOP_ROT` 后姿态误差 4–10°。
+  - **双臂交叉都失败**：瓶子放在一侧时，拧盖手跨过去会扫到扶瓶的手臂（PhysX 报 `right_dex1_finger_link_2_tip` 等 Invalid transform，整回合作废）；扶瓶手跨过去会把瓶子撞倒。所以瓶子放中线，左手扶、右手拧。
+  - **从举手起始姿态直接转到拧盖姿态**：右手会扫到躯干（报 `logo_link`），所以先平移到瓶子右前上方再转。
+  - **扶住瓶子时快速大幅转右腕**：瓶子会突然跳动、在左手里歪 32°（推测是全身抖动传到夹着 18 g 关节瓶的手）。所以改成先转右腕、再夹瓶，但这次左手靠近时把瓶子撞飞了。
+  - **结果**：拧动最多的一次是右手转 87°、瓶盖转 12°（单手、瓶子歪着时）；双手方案下右手要么离瓶盖 4–6 cm 夹空，要么前面的碰撞先发生。
+- **验证**：上面的服务器试验；本机 ruff 0.11.7 check / format、`git diff --check` 通过；`check.sh` 的单测和任务清单检查在 `5090-2` 仿真环境里跑：79 passed，清单检查通过（任务数加 1）。
+- **下一步可选**：继续逐个排碰撞（每轮 5–8 分钟）；或者用带避碰的运动规划（G1-D 的 cuRobo 配置还没有，见「剩余事项」）；或者用遥操作 / 真机数据代替脚本专家。
 
 ### 农夫山泉瓶 `plastic_bottle/00000` 形状和标签再优化（2026-10-27，`chongzheng/objects-nongfu-refine`）
 
@@ -745,6 +764,7 @@
 
 - 2026-10-23：G1-D 夹爪限速每指 0.064 m/s（按真机遥操作数据），专家采集通过率不变（6/8 对 6/8），合爪 2 帧 → 5 帧。
 
+- 2026-10-28：G1-D 双手拧瓶盖试验（新任务 `g1d_twist_bottle_cap` + 脚本专家），还没拧开；查明 `fixed_base` 对可拧盖瓶无效、Dex1-1 腕部相机会推倒高瓶、双臂交叉会互撞等，见「最近任务」第一节。
 - 2026-10-27：农夫山泉瓶 00000 按正面商品图重拟合瓶肩（误差 0.13 mm），加拱形压纹，标签改按照片描的版式（山形 logo、正面下凹的红区、条码 / 照片 / 成分表顺序）；变体形状和贴图逐字节不变；`5090-2` 检查全过，经用户同意装进共享库、换了平台预览（旧版有备份）。
 - 2026-10-23：农夫山泉塑料瓶和 5 个变体加竖纹螺旋盖、程序绘制的贴图标签；另出能拧盖的 `Articulation/plastic_bottle`（旋转 + mimic 棱柱关节，两圈拧开），新增 `bottle_label.py`、`check_bottle_cap.py`。
 - 2026-10-23：真机 Motus 倒豆模型（ModelScope `Vincia/WanVlmMask-G1DPourBeansGenEps222-AbsQpos16-30000`）在上海实验室仿真量杯倒豆 0/20（夹爪总是夹空）；新增 `g1d_lab_beans_collect`，收入 `scripts/g1d/remote_policy.py`。

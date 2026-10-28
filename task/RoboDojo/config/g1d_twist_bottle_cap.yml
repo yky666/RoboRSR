@@ -1,0 +1,22 @@
+# G1-D: unscrew the cap of the Nongfu Spring bottle (Articulation/plastic_bottle/00000, scripts/objects/
+# make_plastic_bottle.py: cap_twist 0-720 deg, cap_lift following one 2.7 mm pitch per turn). The bottle stands on the
+# office table with its base fixed, as if held by the other hand; one hand grips the cap from above and twists it in
+# strokes. Eval layouts are written per run for now (HANDOFF.md); these ranges document the workspace.
+Articulation:
+  -
+    common:
+      xlim: [-0.04, 0.04]  # near the midline: the left hand holds, the right twists
+      ylim: [-0.36, -0.30]
+      rotate_rand: False
+      relative_plane: "Table"
+      qpos: [1, 0, 0, 0]
+
+    category:
+      -
+        name: "plastic_bottle"
+        index: [0]
+
+    select_mode:
+      nums: 1
+      mode: "unique"
+      label: ["bottle"]

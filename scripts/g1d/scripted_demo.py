@@ -125,6 +125,22 @@ TABLE_STAND, PLACE_AHEAD, APPROACH = 0.20, 0.38, 0.5
 CHAIR_GAP = np.deg2rad(70)  # narrowest gap between the chairs round the table to stand in
 LOUNGE_LIFT = 0.07  # lift column at the 0.75 m table: 0.07 m above the office desk, as the counter's 0.153
 CARRY_UP = 0.08  # m the side-grasped cup is lifted off the counter for the drive (clears the chair backs, 0.8 m)
+# Bottle cap (g1d_twist_bottle_cap, Articulation/plastic_bottle/00000). The twisting hand grips the cap with TOP_ROT
+# (fingers straight down are out of reach 0.9 m up: the IK met the grip point with the hand near horizontal); the
+# vertical pads sit on the cap's upper part, the tips then ~2 mm clear of the shoulder, which is wider than the cap
+# 15 mm below it. The holding hand grips the body with fingers horizontal: pitched down like the cup grasp, the wrist
+# camera housing (4-8 cm above the pads, up to 7.6 cm forward of the hand base) reached past the bottle axis and
+# pushed the 23 cm bottle over
+CAP_D, CAP_GRIP_DOWN, CAP_PITCH = 0.033, 0.004, 0.0027  # cap diameter, grip point below its top, thread pitch (m)
+CAP_APPROACH = 0.15  # m above the grip: from the raised start pose the turning fingers knocked the bottle over
+# out in front and to the right of the cap, where the hand turns from its start pose: turning on the way, it swung
+# into the torso (PhysX blew up on the fingertips and the logo link)
+CAP_CLEAR = np.array([0.15, 0.05, 0.25])
+BOTTLE_HOLD_UP = 0.11  # m: the holding hand's pads this far above the bottle bottom, on the label
+TWIST_STROKE, TWIST_ACTIONS, TWIST_STROKES = np.deg2rad(60), 30, 16  # per stroke; actions per turn; most strokes
+# twisting hand yaw at mid-stroke (deg, CCW from fingers forward): turned toward the bottle on the midline; fingers
+# straight forward left the stretched right arm 6 cm short of the cap
+CAP_YAW = 20
 
 
 def pad_open(width):
@@ -789,6 +805,74 @@ def pickup_actions(env):
     yield from robot.move(arm, [(point, rot, close_cmd, 36)])  # hold it up
 
 
+def twist_cap_actions(env):
+    """The left arm holds the bottle's body (side grasp from the left, fingers horizontal); the right arm grips the
+    cap from above (TOP_ROT), across its upper part, and unscrews it in TWIST_STROKE strokes: close, turn the hand
+    counter-clockwise (seen from above) about the cap while rising with the thread, open, turn back, regrip."""
+    robot = Robot(env)
+    lm = robot.lm
+    bottle = lm.get_scene_object(0, lm.get_instance_name(0, "bottle"))
+
+    def cap():
+        return {j: float(as_np(bottle.get_joint_info(j)["position"])[0]) for j in ("cap_twist", "cap_lift")}
+
+    # the bottle stands near the midline, each forearm stays on its own side: with the bottle on one side, the arm
+    # reaching across either swept through the other arm (twisting) or knocked the bottle over (holding)
+    arm = next(a for a in robot.arms if a.arm_key.startswith("right"))
+    holder = next(a for a in robot.arms if a is not arm)
+    centre, out = robot.object("bottle")[0], -1.0
+    open_cmd = pad_open(CAP_D)
+    ready = Rotation.from_euler("z", np.deg2rad(CAP_YAW) - TWIST_STROKE / 2) * TOP_ROT  # stroke start
+    turned = Rotation.from_euler("z", TWIST_STROKE) * ready
+    clear = centre + [0, 0, robot.object("bottle")[2][2] / 2] + CAP_CLEAR
+    # the twisting hand turns before the bottle is held: whipping it round later jerked the holding hand and the
+    # light bottle in its grip blew up
+    yield from robot.move(arm, [(clear, arm.pose()[1], open_cmd, 45), (clear, ready, open_cmd, 120)])
+    body, hand, _, _, body_open = cup_grasp(lm, out, "bottle", BOTTLE_HOLD_UP, pitch=0)
+    approach = body - hand.apply([CUP_SLIDE, 0, 0])
+    print(f"[scripted_demo] bottle at {centre.round(3)}: hold with {holder.arm_key} at {body.round(3)}")
+    yield from robot.move(
+        holder,
+        [
+            (approach + [0, 0, HOVER], hand, body_open, 54),
+            (approach, hand, body_open, 30),
+            (body, hand, body_open, 40),  # slide in
+            (body, hand, 0, 15),  # close
+        ],
+    )
+    centre, rot, ext, _, _ = robot.object("bottle")  # where the hold left it
+    grip = centre + rot.apply([0, 0, ext[2] / 2 - CAP_GRIP_DOWN])
+    print(f"[scripted_demo] cap at {grip.round(3)} with {arm.arm_key}, open {open_cmd:.2f}")
+    yield from robot.move(
+        arm,
+        [
+            (grip + [0, 0, CAP_APPROACH], ready, open_cmd, 60),
+            (grip + [0, 0, HOVER], ready, open_cmd, 30),
+            (grip, ready, open_cmd, 30),
+        ],
+    )
+    print(f"[scripted_demo] at the cap: grip err {np.linalg.norm(arm.grasp_point() - grip):.3f} m", flush=True)
+    z0 = grip[2]
+    for k in range(TWIST_STROKES):
+        start, rot0 = cap(), arm.pose()[1]
+        point = np.r_[grip[:2], z0 + start["cap_lift"]]
+        yield from robot.move(arm, [(point, ready, 0, 15)])
+        rise = CAP_PITCH * TWIST_STROKE / (2 * np.pi)
+        yield from robot.move(arm, [(point + [0, 0, rise], turned, 0, TWIST_ACTIONS)])
+        turn = (arm.pose()[1] * rot0.inv()).as_rotvec()[2]
+        end = cap()
+        err = np.linalg.norm(arm.grasp_point() - point - [0, 0, rise])
+        print(
+            f"[scripted_demo] stroke {k}: hand {np.degrees(turn):.0f} deg, cap"
+            f" {np.degrees(end['cap_twist'] - start['cap_twist']):.0f} deg (total {np.degrees(end['cap_twist']):.0f},"
+            f" lift {end['cap_lift'] * 1000:.2f} mm), grip err {err:.3f} m"
+            f" / {np.degrees((arm.pose()[1] * turned.inv()).magnitude()):.0f} deg",
+            flush=True,
+        )
+        point = np.r_[grip[:2], z0 + end["cap_lift"]]
+        yield from robot.move(arm, [(point, turned, open_cmd, 12), (point, ready, open_cmd, TWIST_ACTIONS)])
+
+
 def stack_actions(env):
     robot = Robot(env)
     labels = ["block_0", "block_1", "block_2"]
@@ -815,6 +899,7 @@ DEMOS = {
     "g1d_stack_blocks": stack_actions,
     "g1d_deliver_cup_to_lounge": deliver_cup_actions,
     "g1d_pour_water_deliver_to_lounge": pour_deliver_actions,
+    "g1d_twist_bottle_cap": twist_cap_actions,
 }
 
 
