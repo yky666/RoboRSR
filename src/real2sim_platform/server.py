@@ -93,6 +93,7 @@ GZIP_SUFFIXES = {".html", ".json", ".md"}
 THUMB_WIDTHS = (320, 640, 1280)
 THUMBS_DIR = ROOT / ".cache" / "thumbs"
 _gzipped = {}  # path -> (etag, gzip bytes) of the last version served
+mimetypes.add_type("image/webp", ".webp")  # missing from Python 3.10's table
 USERNAME = re.compile(r"[\w.-]{1,32}")
 PBKDF2_ROUNDS = 200_000
 COOKIE, SESSION_DAYS = "r2s_session", 14
