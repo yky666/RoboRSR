@@ -570,8 +570,11 @@ def scan_objects(assets, tasks, keep):
         # check_object.py --image-dir result, synced with the renders: a built asset, maybe not installed yet
         check = load_json(OBJECTS_DIR / oid / "preview" / "check.json") or {}
         names = ((load_json(d / "description.json") or {}).get("caption") or {}).get("name") or [None]
+        library = d.parent.parent.parent.name if d.exists() else None  # Real2Sim, RoboDojo, or None: not built yet
         pattern = re.compile(rf"Rigid/{category}\b|\"{category}\"")
+        # the benchmark's own objects have no generator here, however loosely a script names their category
         generator = next((p for p, text in generators.items() if pattern.search(text)), None)
+        generator = None if library == "RoboDojo" else generator
         found[oid] = {
             "physical_source": registration.get("twin") is True
             or registration.get("asset_origin") == "physical_object",
@@ -580,7 +583,7 @@ def scan_objects(assets, tasks, keep):
             "category": category,
             "index": index,
             "dir": str(d),
-            "library": d.parent.parent.parent.name,  # Real2Sim (twins built here) or RoboDojo (the benchmark's)
+            "library": library,
             **used.get(oid, {"tasks": [], "labels": []}),
             "generator": generator.relative_to(ROOT).as_posix() if generator else None,
             "in_library": meta is not None,

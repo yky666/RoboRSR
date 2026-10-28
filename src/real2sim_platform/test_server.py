@@ -311,6 +311,13 @@ def test_http():
         found = server.scan_objects(tmp, {}, ["Rigid/cup/00005"])["Rigid/cup/00005"]
         assert found["in_library"] and found["library"] == "Real2Sim" and found["mass"] == 0.02
         assert 5 in server.object_indices(tmp, server.Store(tmp / "indices.sqlite3"))["Rigid/cup"]
+        for lib, idx in (("RoboDojo", 7), ("Real2Sim", 8)):  # a library pitcher vs one built by make_pitcher.py
+            (tmp / f"Object/{lib}/Rigid/pitcher/{idx:05d}").mkdir(parents=True)
+            (tmp / f"Object/{lib}/Rigid/pitcher/{idx:05d}/metadata.json").write_text("{}")
+        found = server.scan_objects(tmp, {}, ["Rigid/pitcher/00007", "Rigid/pitcher/00008", "Rigid/pitcher/00009"])
+        assert found["Rigid/pitcher/00007"]["generator"] is None
+        assert found["Rigid/pitcher/00008"]["generator"] == "scripts/objects/make_pitcher.py"
+        assert found["Rigid/pitcher/00009"]["library"] is None  # registered, not built yet
         preview = tmp / "objects/Rigid/cup/00004/preview"  # built and checked, not in the library yet
         preview.mkdir(parents=True)
         check = {"settle": "pass", "mass_kg": 0.038, "size_m": [0.05, 0.04, 0.02], "measurements_mm": {"高": 46.4}}
