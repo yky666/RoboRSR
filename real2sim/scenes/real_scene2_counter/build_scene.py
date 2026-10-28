@@ -21,7 +21,8 @@ import sys
 import cv2
 import numpy as np
 from pxr import Gf, Sdf, Usd, UsdGeom, UsdLux, UsdPhysics, UsdShade, Vt
-from shapely.geometry import box as sbox
+from shapely.geometry import LineString, box as sbox
+from shapely.geometry.polygon import orient
 import trimesh
 
 HERE = Path(__file__).resolve().parent
@@ -56,7 +57,7 @@ SINK = dict(
 # The faucet stands on the back rim right of the sink centre (both photos); the fit sees its visible base front.
 FAUCET = dict(x=r3(F["faucet_x"]), y=r3(SINK["cy"] + SINK["sy"] / 2 + 0.035), height=0.30, reach=0.17, r=0.012)
 BASKET = dict(dx=0.12, dy=-0.02, r=0.09, h=0.085)  # strainer basket hanging in the sink's right half
-MICROWAVE = dict(w=0.485, d=r3(F["mw_d"]), h=0.29, x0=r3(F["mw_x0"]), front=r3(F["mw_front"] + DY))
+CARD = (r3(F["mw_x0"] + 0.17), r3(F["mw_front"] + DY + 0.10))  # notice card on the countertop
 WALL = dict(y=COUNTER["depth"] / 2, height=r3(F["alcove_top"]))  # alcove ceiling (wood soffit) height
 # Shelves run from the left column and stop short of the right one; z: top surface heights.
 SHELVES = dict(
@@ -69,10 +70,21 @@ SHELVES = dict(
 # left_w: neither counter photo sees the left column's far side; its front runs >= 0.71 m left of the counter in photo2
 # and >= 0.99 m right of its left face in lounge2 (back-projected), so 1.0 m, estimated (was assumed 0.45 m)
 COLUMNS = dict(left_w=1.0, left_front=r3(F["left_front"] + DY), right_front=r3(F["right_front"] + DY))
-# Right of the counter a wall of tall wood cabinets runs on in the right column's plane, with a two-bay water
-# dispenser (photo2 pixels back-projected onto that plane): x ranges, z range, recess depth.
-CABINETS = dict(x1=4.2, seams_x=(2.10, 2.95), groove_x=2.45, upper_z=2.04, dispenser_top_z=1.55)
-DISPENSER = dict(bays=((2.97, 3.40), (3.45, 3.85)), z=(0.78, 1.36), depth=0.30)
+# Islands in the aisle, the dispenser bays and the cabinet wall's end: fit_island.py (four photos, cameras anchored on
+# the counter, so the same scale basis as the counter).
+IF = json.loads((HERE / "fit_island.json").read_text())["dims"]
+# Right of the counter a wall of tall wood cabinets runs on in the right column's plane up to x1, with a two-bay water
+# dispenser; panel seams and the fire-hydrant door back-projected from island_right.jpg, which sees the wall square on.
+CABINETS = dict(
+    x1=5.4,
+    seams_x=(1.80, 2.26, 2.69, 3.34, 3.98),
+    upper_z=2.13,  # one horizontal seam across the wall up to the last seam
+    dispenser_top_z=1.66,  # across the two dispenser columns
+    hydrant=(4.21, 5.25, 2.47),  # door x range and top
+)
+DISPENSER = dict(
+    bays=((IF["disp_x0"], IF["disp_x1"]), (IF["disp_x2"], IF["disp_x3"])), z=(IF["disp_z0"], IF["disp_z1"]), depth=0.30
+)
 # Lounge left of the counter (fit_lounge.py, three photos; scale from its round table, top assumed 0.75 m): a wallpaper
 # alcove between the counter's left column and a wood column further left, with round cafe tables in front. Its frame
 # has x = 0 on the left column's left face and y = 0 on the wallpaper; here it is placed at LOUNGE_ORIGIN.
@@ -98,29 +110,72 @@ LOUNGE = dict(
 )
 # Top of the room, back-projected through the lounge1 camera: the alcove's wood soffit (its underside lit warm by a
 # hidden strip) runs from the wallpaper to the columns' front at band_z; a 10 cm wood fascia, then a 0.22 m white
-# plaster strip, then the perforated wood ceiling (~3.2 m, estimated: only its edge is in the photos) with a dark
-# downlight slot about 0.8 m out from the columns.
-CEILING = dict(z=3.20, fascia_z=3.11, strip_w=0.22, slot_y=r3(COLUMNS["left_front"] - 0.80), slot_w=0.12)
-DOWNLIGHT = dict(r=0.045, dx=1.0)
+# plaster strip along the whole wall, then the perforated wood ceiling (~3.2 m, estimated: only its edge is in the
+# photos). Dark slots cross it at right angles to the wall, every 2.6 m (back-projected onto the ceiling: x = -4.97
+# from lounge1, about 0.2 and 2.8 from island_right / island_left / island_front), each with twin downlights. Beyond
+# wood_x1 the ceiling is white plaster (ceiling.jpg; where it starts is estimated).
+CEILING = dict(z=3.20, fascia_z=3.11, strip_w=0.22, slot_x0=0.2, slot_dx=2.6, slot_w=0.12, wood_x1=6.8)
+DOWNLIGHT = dict(r=0.04, pair=0.09, y=(-1.2, -3.6, -6.0))
 # Round cafe tables: wood top, brass column and base disc (2 cm high, under the chassis' 3.4 cm clearance). The second
 # table (left, white chairs) is only partly in the photos: placed by eye, its size copied from the first.
 TABLE = dict(top_z=0.75, top_r=r3(LF["table_r"]), top_t=0.03, col_r=0.035, base_r=r3(LF["base_r"]), base_h=0.02)
 TABLES = {"blue": lounge_xy(LF["table_x"], LF["table_y"]), "white": lounge_xy(-4.0, -2.9)}
 # Chairs (Rigid lounge_chair/<index>, scripts/objects/make_lounge_chair.py) face their table: (table, index, bearing
 # deg of the chair seen from the table centre, distance). The blue four stand in a cross turned a little off the axes
-# (floor contacts back-projected through the lounge3 camera, 0.45-0.9 m out: evened to 0.75 m); the white two by eye.
+# (floor contacts back-projected through the lounge3 camera, 0.45-0.9 m out: evened to 0.75 m); the white table also
+# has four (the user, 10-28), set out in a cross by eye as the photos only show its edge.
 CHAIRS = [
     ("blue", 0, 185, 0.75),
     ("blue", 0, 265, 0.75),
     ("blue", 0, 350, 0.75),
     ("blue", 0, 85, 0.75),
     ("white", 1, 30, 0.75),
-    ("white", 1, -30, 0.75),
+    ("white", 1, 120, 0.75),
+    ("white", 1, 210, 0.75),
+    ("white", 1, 300, 0.75),
 ]
 # Two stainless pedal bins side by side against the wainscot (back-projected from lounge2 and lounge3), and a socket.
-BINS = dict(x=lounge_xy(-4.1, 0)[0], w=0.36, d=0.30, h=0.62, gap=0.01)
+# Shape from bins.jpg: rounded corners, a stainless lid, a black base band and a black pedal; the left one is for
+# recyclables, the right one for residual waste, their print rectified from the photo (label: x half-width, z range).
+BINS = dict(x=lounge_xy(-4.1, 0)[0], w=0.36, d=0.30, h=0.62, gap=0.01, r=0.035, lid_h=0.05, base_h=0.03)
+BIN_LABELS = {  # texture: bins.jpg quad (top-left, top-right, bottom-right, bottom-left)
+    "bin_recycle": [(250, 312), (360, 312), (358, 492), (250, 490)],
+    "bin_residual": [(462, 362), (590, 362), (588, 545), (462, 545)],
+}
+BIN_LABEL = dict(half_w=0.105, z=(0.20, 0.44))
 LOUNGE_SOCKET = (lounge_xy(-0.6, 0)[0], 0.25)
-ROOM = dict(x0=r3(LOUNGE["x0"] - LOUNGE["left_col_w"] - 2.5), x1=CABINETS["x1"], y0=-5.5)  # photos taken ~4.5 m out
+# x1: island_end.jpg was taken from x = 7.7; y0: island_front / island_right from y = -5.9 / -6.4 (fit_island.py)
+ROOM = dict(x0=r3(LOUNGE["x0"] - LOUNGE["left_col_w"] - 2.5), x1=9.0, y0=-7.0)
+
+# The islands (fit_island.py; stadium plans, long side along X). The bar: a white top on a bronze stadium pedestal at
+# its left end, its right end on a bronze drum standing on the green island. The green island: lower, a white top over
+# a fluted green base on a bronze plinth, inset from the top's edge.
+BAR = dict(x0=IF["bar_x0"], x1=IF["bar_x1"], y0=IF["bar_y0"], y1=IF["bar_y1"], z=IF["bar_z"], t=IF["bar_t"])
+BAR_YC = r3((BAR["y0"] + BAR["y1"]) / 2)
+PEDESTAL = dict(x0=IF["ped_x0"], x1=IF["ped_x1"], w=IF["ped_w"])
+DRUM = dict(x0=IF["drum_x0"], x1=IF["drum_x1"], w=IF["drum_w"])
+GREEN = dict(
+    x0=IF["green_x0"],
+    x1=IF["green_x1"],
+    y0=IF["green_y0"],
+    y1=IF["green_y1"],
+    z=IF["green_z"],
+    t=IF["green_t"],
+    inset=IF["green_inset"],
+    plinth_h=0.06,
+    flute_pitch=0.075,  # convex vertical flutes, as in the photos
+    flute_depth=0.012,
+)
+# Six bar stools (black shell seat, splayed oak legs, a black footrest frame), seat centres back-projected from
+# island_front.jpg onto the seat height: three on the aisle side, three on the wall side, between the pedestal and the
+# green island, nudged clear of both; their backs face away from the bar.
+STOOL = dict(seat_z=0.75, seat_r=0.19, shell_t=0.012, back_h=0.07, leg_r=0.016, top_r=0.12, foot_r=0.21, rest_z=0.30)
+STOOLS = [(x, r3(BAR["y0"] + 0.12), 90.0) for x in (-0.50, -0.07, 0.30)]
+STOOLS += [(x, r3(BAR["y1"] + 0.16), -90.0) for x in (-0.40, 0.05, 0.50)]
+# Two linear pendants over the bar's centre line (island_front.jpg back-projected onto it): a black rod hung from the
+# ceiling on two wires, three brass lamp boxes below it glowing at their undersides.
+PENDANTS = [(-1.82, -0.45), (0.38, 1.69)]
+PENDANT = dict(lamp_bottom=2.18, lamp_h=0.05, lamp_w=0.06, rod_r=0.013, gap=0.03)
 POSTER = dict(x0=r3(F["poster_x0"]), x1=r3(F["poster_x1"]), z0=r3(F["poster_z0"]), z1=r3(F["poster_z1"]))
 # name: (x, z centre, w, h); back-projected from both photos onto the wall
 SOCKETS = {"single": (-0.96, 0.95, 0.086, 0.086), "double": (-0.30, 0.91, 0.17, 0.086)}
@@ -149,7 +204,14 @@ SHELF_ITEMS = {
 
 # Not calibrated: 9000 / 4500 K / 250 overexposed the marble and turned the wood orange in the first RTX render.
 LIGHTS = dict(
-    panels=[(-0.6, -0.55), (0.6, -0.55), (0.0, -1.8), (TABLES["blue"][0], TABLES["blue"][1] + 0.4), (-5.0, -1.6)],
+    panels=[
+        (-0.6, -0.55),
+        (0.6, -0.55),
+        (0.0, -1.8),
+        (TABLES["blue"][0], TABLES["blue"][1] + 0.4),
+        (-5.0, -1.6),
+        (2.8, (GREEN["y0"] + GREEN["y1"]) / 2),
+    ],
     panel_size=(1.2, 0.6),
     intensity=6000.0,
     color_temperature=5000.0,
@@ -173,8 +235,6 @@ MATERIALS = {
     "basket_mesh": ((0.35, 0.35, 0.36), 0.45, 1.0, 0.6, None),
     "dispenser_back": ((0.55, 0.56, 0.58), 0.25, 1.0, 1.0, None),
     "bin_label": ((1.0, 1.0, 1.0), 0.6, 0.0, 1.0, "bin_label.png"),
-    "microwave_black": ((0.015, 0.015, 0.017), 0.20, 0.0, 1.0, None),
-    "microwave_front": ((1.0, 1.0, 1.0), 0.08, 0.0, 1.0, "microwave_front.png"),
     "poster": ((1.0, 1.0, 1.0), 0.6, 0.0, 1.0, "poster.png"),
     "frame_white": ((0.82, 0.82, 0.80), 0.4, 0.0, 1.0, None),
     "socket_white": ((0.84, 0.84, 0.82), 0.4, 0.0, 1.0, None),
@@ -196,10 +256,18 @@ MATERIALS = {
     "ceiling_wood": ((1.0, 1.0, 1.0), 0.8, 0.0, 1.0, "ceiling_wood.png"),
     "slot_dark": ((0.04, 0.04, 0.04), 0.6, 0.0, 1.0, None),
     "downlight": ((1.0, 1.0, 1.0), 0.3, 0.0, 1.0, "glow.png"),
+    "bronze": ((0.45, 0.24, 0.13), 0.30, 1.0, 1.0, None),
+    "green_flute": ((0.045, 0.25, 0.13), 0.25, 0.0, 1.0, None),
+    "stool_black": ((0.02, 0.02, 0.022), 0.25, 0.0, 1.0, None),
+    "stool_oak": ((0.60, 0.36, 0.17), 0.50, 0.0, 1.0, None),
+    "pendant_black": ((0.03, 0.03, 0.03), 0.35, 0.5, 1.0, None),
+    "lamp_glow": ((1.0, 1.0, 1.0), 0.3, 0.0, 1.0, "glow_warm.png"),
+    "bin_recycle": ((1.0, 1.0, 1.0), 0.5, 0.0, 1.0, "bin_recycle.png"),
+    "bin_residual": ((1.0, 1.0, 1.0), 0.5, 0.0, 1.0, "bin_residual.png"),
 }
-CUTOUT = {"bin_label"}  # textures whose alpha cuts the surface (opacityThreshold)
-# back-lit: the texture also drives emissiveColor (the green band, the soffit's underside, the downlights)
-EMISSIVE = {"green_band", "wood_lit", "downlight"}
+CUTOUT = {"bin_label", "bin_recycle", "bin_residual"}  # textures whose alpha cuts the surface (opacityThreshold)
+# back-lit: the texture also drives emissiveColor (the green band, the soffit's underside, the downlights, the pendants)
+EMISSIVE = {"green_band", "wood_lit", "downlight", "lamp_glow"}
 PHYS = {
     "default": (0.5, 0.45, 0.0),
     "quartz": (0.55, 0.45, 0.0),
@@ -569,13 +637,25 @@ def build_textures():
     cv2.imwrite(str(TEX / "wood.png"), cv2.resize(wood, (256, 1024)))
     cv2.imwrite(str(TEX / "terrazzo.png"), terrazzo(im))
     cv2.imwrite(str(TEX / "marble.png"), marble())
-    cv2.imwrite(
-        str(TEX / "microwave_front.png"), warp(im, [(614, 472), (812, 497), (812, 640), (619, 585)], (512, 300))
-    )
     cv2.imwrite(str(TEX / "poster.png"), poster_texture(im, im2))
     cv2.imwrite(str(TEX / "bin_label.png"), bin_label_texture(im2))
     cv2.imwrite(str(TEX / "ceiling_wood.png"), perforated_wood())
     cv2.imwrite(str(TEX / "glow.png"), np.full((8, 8, 3), 255, np.uint8))
+    cv2.imwrite(str(TEX / "glow_warm.png"), np.full((8, 8, 3), (150, 210, 255), np.uint8))  # BGR, warm white
+    bins = cv2.imread(str(PHOTOS / "bins.jpg"))
+    for name, corners in BIN_LABELS.items():
+        cv2.imwrite(str(TEX / f"{name}.png"), print_decal(bins, corners))
+
+
+def print_decal(img, corners, size=(256, 300)):
+    """Printed label on brushed steel as a cutout decal: the quad rectified, alpha where darker than the steel around
+    it, the print's own colour kept (blue on the recyclables bin, black on the other)."""
+    patch = warp(img, corners, size)
+    lum = cv2.cvtColor(patch, cv2.COLOR_BGR2GRAY).astype(np.float32)
+    bg = cv2.medianBlur(lum.astype(np.uint8), 31).astype(np.float32)
+    alpha = np.clip((bg - lum - 25) * 8, 0, 255).astype(np.uint8)
+    ink = np.clip(patch.astype(np.float32) * 0.8, 0, 255).astype(np.uint8)
+    return np.dstack([ink, alpha])
 
 
 def perforated_wood(size=512, seed=5):
@@ -700,23 +780,13 @@ def add_counter(L):
     L.mesh("Faucet/lever", box_c(f["x"] + 0.03, f["y"], top + 0.04, 0.06, 0.012, 0.012), "chrome")
     L.collider("Colliders/faucet_riser", box_c(f["x"], f["y"], top, 0.05, 0.05, f["height"]))
     L.collider("Colliders/faucet_arc", swept_tube(pts[11:], f["r"], sections=8).convex_hull)
-    m = MICROWAVE
-    x0, x1, y0, y1 = m["x0"], m["x0"] + m["w"], m["front"], m["front"] + m["d"]
-    L.mesh("Microwave/body", box_xyz(x0, x1, y0 + 0.004, y1, top + 0.012, top + m["h"]), "microwave_black")
-    L.mesh(
-        "Microwave/front",
-        quad((x0, y0, top + 0.012), (x1, y0, top + 0.012), (x1, y0, top + m["h"]), (x0, y0, top + m["h"])),
-        "microwave_front",
-        uv=rect_uv(0, x0, x1, top + 0.012, top + m["h"]),
-    )
-    for i, (fx, fy) in enumerate([(fx, fy) for fx in (x0 + 0.04, x1 - 0.04) for fy in (y0 + 0.05, y1 - 0.05)]):
-        L.mesh(f"Microwave/foot_{i}", cyl(fx, fy, top, 0.012, 0.012, 12), "plastic_black")
-    card = box_c(x0 + 0.17, y0 + 0.10, top + m["h"], 0.075, 0.004, 0.10)
-    card.apply_transform(
-        trimesh.transformations.rotation_matrix(math.radians(-12), [1, 0, 0], [x0 + 0.17, y0 + 0.10, top + m["h"]])
-    )
-    L.mesh("Microwave/card", card, "card")
-    L.collider("Colliders/microwave", box_xyz(x0, x1, y0, y1, top, top + m["h"]))
+    # The microwave is gone (the 10-28 photos; it stays the scale basis of fit_photo.py); its notice card now stands on
+    # the countertop where it was.
+    cx, cy = CARD
+    card = box_c(cx, cy, top, 0.075, 0.004, 0.10)
+    card.apply_transform(trimesh.transformations.rotation_matrix(math.radians(-12), [1, 0, 0], [cx, cy, top]))
+    L.mesh("Card", card, "card")
+    L.collider("Colliders/card", box_c(cx, cy, top, 0.08, 0.03, 0.10))
 
 
 def add_background(L):
@@ -742,16 +812,20 @@ def add_background(L):
     bays = [box_xyz(x0, x1, rf - 0.01, rf + dp["depth"], *dp["z"]) for x0, x1 in dp["bays"]]
     L.mesh("CabinetsRight/body", wall.difference(trimesh.util.concatenate(bays)), "wood", uv=planar_uv(0.6, 2.4))
     yf = rf - 0.0005
-    seams = [(x, x, 0.0, H) for x in cb["seams_x"]]
+    sx, (h0, h1, htop), fz = cb["seams_x"], cb["hydrant"], CEILING["fascia_z"]
+    seams = [(x, x, 0.0, fz) for x in sx]
     seams += [
-        (hl, cb["seams_x"][1], cb["upper_z"], cb["upper_z"]),
-        (cb["seams_x"][1], cb["x1"], *[cb["dispenser_top_z"]] * 2),
+        (hl, sx[-1], cb["upper_z"], cb["upper_z"]),
+        (sx[2], sx[-1], *[cb["dispenser_top_z"]] * 2),
+        (h0, h0, 0.0, htop),
+        (h1, h1, 0.0, htop),
+        (h0, h1, htop, htop),
     ]
     for i, (x0, x1, z0, z1) in enumerate(seams):
         L.mesh(f"CabinetsRight/seam_{i}", box_xyz(x0 - 0.002, x1 + 0.002, yf, rf, z0 - 0.002, z1 + 0.002), "door_seam")
-    L.mesh(
-        "CabinetsRight/groove", box_xyz(cb["groove_x"] - 0.006, cb["groove_x"] + 0.006, yf, rf, 0.65, 1.35), "door_seam"
-    )
+    # painted office wall on from the cabinets' end (island_front.jpg), in their plane
+    L.mesh("WallRight/upper", box_xyz(cb["x1"], r["x1"], rf, wy + 0.02, 0.0, HR), "wall_paint")
+    L.mesh("WallRight/skirting", box_xyz(cb["x1"], r["x1"], rf - 0.01, rf, 0.0, 0.06), "skirting")
     for i, (x0, x1) in enumerate(dp["bays"]):
         z0, z1 = dp["z"]
         L.mesh(
@@ -770,7 +844,7 @@ def add_background(L):
     L.mesh(
         "Soffit", box_xyz(-hl, hl, min(cl["left_front"], rf), wy + 0.02, H, HR), "wood", uv=planar_uv(0.6, 2.4)
     )
-    L.mesh("Ceiling", down_quad(r["x0"], r["x1"], r["y0"], col_back, HR), "ceiling_wood", uv=lambda fv, fn: fv[:, :2] / 0.6)
+    add_ceiling(L, col_back)
     # office wall beyond the lounge's left column (not in the photos), on the lounge wallpaper plane
     ly, lc = LOUNGE["wall_y"], LOUNGE["x0"] - LOUNGE["left_col_w"]
     L.mesh("WallLeft/upper", box_xyz(r["x0"], lc, ly, ly + 0.02, 0.0, HR), "wall_paint")
@@ -803,6 +877,7 @@ def add_background(L):
         "cabinets_right": (hl, dp["bays"][0][0], rf, wy + 0.02, 0.0, H),
         "cabinets_right_far": (dp["bays"][0][0], cb["x1"], rf + dp["depth"], wy + 0.02, 0.0, H),
         "wall_left": (r["x0"], lc, ly, ly + 0.03, 0.0, HR),
+        "wall_right": (cb["x1"], r["x1"], rf, wy + 0.02, 0.0, HR),
         "wall_back": (r["x0"], r["x1"], r["y0"] - 0.1, r["y0"], 0.0, HR),
         "wall_w": (r["x0"] - 0.1, r["x0"], r["y0"], ly, 0.0, HR),
         "wall_e": (r["x1"], r["x1"] + 0.1, r["y0"], wy, 0.0, HR),
@@ -830,6 +905,31 @@ def add_background(L):
             L.mesh(f"Shelves/{level}_items/{nm}", m, mat, smooth=shape == "cyl")
 
 
+def add_ceiling(L, back):
+    """Perforated wood ceiling (white plaster beyond wood_x1); the white plaster strip along the wall in front of the
+    soffits and cabinets; dark slots across it at right angles to the wall with twin downlights."""
+    r, ce, top = ROOM, CEILING, room_height()
+    front = LOUNGE["soffit_front"]
+    y1, lc = front - ce["strip_w"], LOUNGE["x0"] - LOUNGE["left_col_w"]
+    wood = down_quad(r["x0"], ce["wood_x1"], r["y0"], back, top)
+    L.mesh("Ceiling/wood", wood, "ceiling_wood", uv=lambda fv, fn: fv[:, :2] / 0.6)
+    L.mesh("Ceiling/plaster", down_quad(ce["wood_x1"], r["x1"], r["y0"], back, top), "plaster_white")
+    L.mesh("Ceiling/strip", box_xyz(lc, CABINETS["x1"], y1, front, ce["fascia_z"], top), "plaster_white")
+    xs = ce["slot_x0"] + ce["slot_dx"] * np.arange(-4, 3)
+    xs = xs[(xs > r["x0"] + 0.5) & (xs < ce["wood_x1"] - 0.5)]
+    for i, x in enumerate(xs):
+        w = ce["slot_w"] / 2
+        L.mesh(f"Ceiling/slot_{i}", box_xyz(x - w, x + w, r["y0"], y1, top - 0.01, top), "slot_dark")
+        for j, y in enumerate(DOWNLIGHT["y"]):
+            for k, dx in enumerate((-DOWNLIGHT["pair"] / 2, DOWNLIGHT["pair"] / 2)):
+                L.mesh(
+                    f"Ceiling/downlight_{i}_{j}_{k}",
+                    cyl(x, y + dx, top - 0.013, DOWNLIGHT["r"], 0.003, 24),
+                    "downlight",
+                    smooth=True,
+                )
+
+
 def room_height():
     return CEILING["z"]
 
@@ -851,7 +951,7 @@ def round_table(L, name, cx, cy):
 
 
 def add_lounge(L):
-    lg, b = LOUNGE, BINS
+    lg = LOUNGE
     x0, x1, y, sk = lg["x0"], lg["x1"], lg["wall_y"], lg["skirting_h"]
     wz, pz, bz = lg["wainscot_z"], lg["paper_z"], lg["band_z"]
     wood = planar_uv(0.6, 2.4)
@@ -871,15 +971,9 @@ def add_lounge(L):
         uv=rect_uv(0, x0, x1, pz, bz),
     )
     L.mesh("Alcove/wall", box_xyz(x0, x1, y, y + 0.02, 0.0, room_height()), "wall_paint")
-    lc, ce, front, top = x0 - lg["left_col_w"], CEILING, lg["soffit_front"], room_height()
+    lc, front, top = x0 - lg["left_col_w"], lg["soffit_front"], room_height()
     L.mesh("Alcove/soffit", box_xyz(x0, x1, front, y, bz, top), "wood", uv=wood)
     L.mesh("Alcove/soffit_lit", down_quad(x0, x1, front, y, bz - 0.001), "wood_lit", uv=wood)
-    # white plaster strip in front of the soffit (and the left column), then the downlight slot in the ceiling
-    L.mesh("Ceiling/strip", box_xyz(lc, x1, front - ce["strip_w"], front, ce["fascia_z"], top), "plaster_white")
-    sy, sw = ce["slot_y"], ce["slot_w"]
-    L.mesh("Ceiling/slot", box_xyz(lc, x1, sy - sw / 2, sy + sw / 2, top - 0.01, top), "slot_dark")
-    for i, x in enumerate(np.arange(lc + DOWNLIGHT["dx"] / 2, x1, DOWNLIGHT["dx"])):
-        L.mesh(f"Ceiling/downlight_{i}", cyl(x, sy, top - 0.013, DOWNLIGHT["r"], 0.003, 24), "downlight", smooth=True)
     L.mesh("Alcove/column_left", box_xyz(lc, x0, lg["left_col_front"], y + 0.02, 0.0, room_height()), "wood", uv=wood)
     L.collider("Colliders/alcove_wall", box_xyz(x0, x1, y - 0.025, y + 0.02, 0.0, room_height()))
     L.collider("Colliders/alcove_column_left", box_xyz(lc, x0, lg["left_col_front"], y + 0.02, 0.0, room_height()))
@@ -887,12 +981,146 @@ def add_lounge(L):
     L.mesh("Alcove/socket", box_c(sx, y - 0.026, sz - 0.043, 0.086, 0.006, 0.086), "socket_white")
     for name, (cx, cy) in TABLES.items():
         round_table(L, f"Table_{name}", cx, cy)
-    for i, dx in enumerate((-(b["w"] + b["gap"]) / 2, (b["w"] + b["gap"]) / 2)):
-        cx, cy = b["x"] + dx, y - 0.03 - b["d"] / 2
-        L.mesh(f"Bins/body_{i}", box_c(cx, cy, 0.03, b["w"], b["d"], b["h"] - 0.05), "steel")
-        L.mesh(f"Bins/lid_{i}", box_c(cx, cy, b["h"] - 0.02, b["w"] - 0.01, b["d"] - 0.01, 0.02), "plastic_black")
-        L.mesh(f"Bins/foot_{i}", box_c(cx, cy, 0.0, b["w"] - 0.03, b["d"] - 0.03, 0.03), "plastic_black")
+    add_bins(L, y)
+
+
+def add_bins(L, wall_y):
+    b, lb = BINS, BIN_LABEL
+    zb, zl = b["base_h"], b["h"] - b["lid_h"]
+    for i, (dx, label) in enumerate(zip((-(b["w"] + b["gap"]) / 2, (b["w"] + b["gap"]) / 2), BIN_LABELS)):
+        cx, cy = b["x"] + dx, wall_y - 0.03 - b["d"] / 2
+        plan = rounded_rect(cx, cy, b["w"], b["d"], b["r"])
+        L.mesh(f"Bins/base_{i}", trimesh.creation.extrude_polygon(plan.buffer(-0.004), zb), "plastic_black")
+        body = trimesh.creation.extrude_polygon(plan, zl - zb).apply_translation([0, 0, zb])
+        L.mesh(f"Bins/body_{i}", body, "steel")
+        lid = trimesh.creation.extrude_polygon(plan.buffer(0.003), b["lid_h"] - 0.012).apply_translation([0, 0, zl])
+        L.mesh(f"Bins/lid_{i}", lid, "steel")
+        crown = trimesh.creation.extrude_polygon(rounded_rect(cx, cy, b["w"] - 0.03, b["d"] - 0.03, b["r"]), 0.012)
+        L.mesh(f"Bins/lid_crown_{i}", crown.apply_translation([0, 0, b["h"] - 0.012]), "steel")
+        yf = cy - b["d"] / 2
+        L.mesh(f"Bins/pedal_{i}", box_xyz(cx - 0.06, cx + 0.06, yf - 0.06, yf + 0.01, 0.015, 0.05), "plastic_black")
+        x0, x1, (z0, z1), ly = cx - lb["half_w"], cx + lb["half_w"], lb["z"], yf - 0.0006
+        face = quad((x0, ly, z0), (x1, ly, z0), (x1, ly, z1), (x0, ly, z1))
+        L.mesh(f"Bins/label_{i}", face, label, uv=rect_uv(0, x0, x1, z0, z1))
         L.collider(f"Colliders/bin_{i}", box_c(cx, cy, 0.0, b["w"], b["d"], b["h"]))
+
+
+def stadium(x0, x1, y0, y1, segs=16):
+    """Stadium plan (half-circle ends of radius (y1 - y0) / 2), long side along X."""
+    r, yc = (y1 - y0) / 2, (y0 + y1) / 2
+    return LineString([(x0 + r, yc), (max(x1 - r, x0 + r + 1e-3), yc)]).buffer(r, quad_segs=segs)
+
+
+def prism(poly, z0, z1):
+    return trimesh.creation.extrude_polygon(poly, z1 - z0).apply_translation([0, 0, z0])
+
+
+def fluted_wall(poly, z0, z1, pitch, depth, per=8):
+    """Vertical wall round `poly` with convex half-round flutes standing `depth` proud of it; open top and bottom.
+    Returns the mesh and its per-vertex normals (smooth across each flute, a crease between flutes)."""
+    ring = orient(poly).exterior
+    n = max(int(round(ring.length / pitch)), 3) * per
+    s = np.linspace(0, ring.length, n, endpoint=False)
+    p = np.array([ring.interpolate(d).coords[0] for d in s])
+    t = np.roll(p, -1, 0) - np.roll(p, 1, 0)
+    nrm = np.c_[t[:, 1], -t[:, 0]] / np.linalg.norm(t, axis=1, keepdims=True)  # outward for a CCW ring
+    u = (np.arange(n) % per + 0.5) / per * 2 - 1  # -1..1 across each flute
+    bump = depth * np.sqrt(1 - u**2)
+    q = p + nrm * bump[:, None]
+    slope = -depth * u / np.sqrt(1 - u**2) / (pitch / 2)  # d(bump)/ds
+    tan = t / np.linalg.norm(t, axis=1, keepdims=True)
+    vn = nrm - tan * slope[:, None]
+    vn /= np.linalg.norm(vn, axis=1, keepdims=True)
+    v = np.vstack([np.c_[q, np.full(n, z0)], np.c_[q, np.full(n, z1)]])
+    i = np.arange(n)
+    j = (i + 1) % n
+    faces = np.vstack([np.c_[i, j, j + n], np.c_[i, j + n, i + n]])
+    normals = np.vstack([np.c_[vn, np.zeros(n)]] * 2)
+    return trimesh.Trimesh(v, faces, process=False), normals
+
+
+def stool(L, name, x, y, facing):
+    """Bar stool: black shell seat with a low back away from `facing` (deg, the way the sitter faces), four splayed oak
+    legs, a black footrest frame between them."""
+    s = STOOL
+    top = s["seat_z"]
+    L.mesh(f"{name}/seat", cyl(x, y, top - 0.03, s["seat_r"], 0.03, 32), "stool_black", smooth=True)
+    back = math.radians(facing + 180)
+    arc = trimesh.creation.annulus(
+        s["seat_r"] - s["shell_t"], s["seat_r"], s["back_h"], sections=32, transform=T(x, y, top + s["back_h"] / 2)
+    )
+    keep = np.cos(np.arctan2(arc.vertices[:, 1] - y, arc.vertices[:, 0] - x) - back) > 0.35
+    arc.update_faces(keep[arc.faces].all(1))
+    arc.remove_unreferenced_vertices()
+    L.mesh(f"{name}/back", arc, "stool_black", smooth=True)
+    feet, rest = [], []
+    for k in range(4):
+        a = back + math.radians(45 + 90 * k)
+        d = np.array([math.cos(a), math.sin(a), 0.0])
+        p_top = np.array([x, y, top - 0.03]) + d * s["top_r"]
+        p_foot = np.array([x, y, 0.0]) + d * s["foot_r"]
+        leg = trimesh.creation.cylinder(s["leg_r"], segment=[p_top, p_foot], sections=12)
+        L.mesh(f"{name}/leg_{k}", leg, "stool_oak")
+        rest.append(p_foot + (p_top - p_foot) * s["rest_z"] / p_top[2])
+        feet.append(p_foot)
+    bars = [trimesh.creation.cylinder(0.006, segment=[rest[k], rest[(k + 1) % 4]], sections=8) for k in range(4)]
+    L.mesh(f"{name}/footrest", trimesh.util.concatenate(bars), "pendant_black")
+    L.collider(f"Colliders/{name}", cyl(x, y, 0.0, s["foot_r"] + s["leg_r"], top, 16))
+
+
+def pendant(L, name, x0, x1):
+    p, y, ceil = PENDANT, BAR_YC, room_height()
+    zl = p["lamp_bottom"]
+    zr = zl + p["lamp_h"] + p["gap"] + p["rod_r"]
+    rod = trimesh.creation.cylinder(p["rod_r"], segment=[(x0, y, zr), (x1, y, zr)], sections=16)
+    L.mesh(f"{name}/rod", rod, "pendant_black", smooth=True)
+    n, margin, gap, hw = 3, 0.04, 0.03, p["lamp_w"] / 2
+    w = (x1 - x0 - 2 * margin - (n - 1) * gap) / n
+    for k in range(n):
+        a = x0 + margin + k * (w + gap)
+        L.mesh(f"{name}/lamp_{k}", box_xyz(a, a + w, y - hw, y + hw, zl, zl + p["lamp_h"]), "brass")
+        e = 0.005
+        L.mesh(f"{name}/glow_{k}", down_quad(a + e, a + w - e, y - hw + e, y + hw - e, zl - 0.001), "lamp_glow")
+        L.mesh(f"{name}/stem_{k}", cyl(a + w / 2, y, zl + p["lamp_h"], 0.006, p["gap"], 8), "brass")
+    for k, xw in enumerate((x0 + 0.12, x1 - 0.12)):
+        L.mesh(f"{name}/wire_{k}", cyl(xw, y, zr, 0.0015, ceil - zr, 6), "pendant_black")
+        L.mesh(f"{name}/canopy_{k}", box_c(xw, y, ceil - 0.03, 0.10, 0.05, 0.03), "brass")
+
+
+def add_island(L):
+    b, pd, dr, g = BAR, PEDESTAL, DRUM, GREEN
+    yc, under = BAR_YC, b["z"] - b["t"]
+    bar = stadium(b["x0"], b["x1"], b["y0"], b["y1"])
+    L.mesh("Bar/top", prism(bar, under, b["z"]), "quartz")
+    ped = stadium(pd["x0"], pd["x1"], yc - pd["w"] / 2, yc + pd["w"] / 2)
+    L.mesh("Bar/pedestal", prism(ped, 0.0, under), "bronze")
+    drum = stadium(dr["x0"], dr["x1"], yc - dr["w"] / 2, yc + dr["w"] / 2)
+    L.mesh("Bar/drum", prism(drum, g["z"], under), "bronze")
+    green = stadium(g["x0"], g["x1"], g["y0"], g["y1"])
+    L.mesh("Green/top", prism(green, g["z"] - g["t"], g["z"]), "quartz")
+    base = stadium(g["x0"] + g["inset"], g["x1"] - g["inset"], g["y0"] + g["inset"], g["y1"] - g["inset"])
+    L.mesh("Green/plinth", prism(base, 0.0, g["plinth_h"]), "bronze")
+    core = base.buffer(-g["flute_depth"] - 0.004)
+    wall, normals = fluted_wall(core, g["plinth_h"], g["z"] - g["t"], g["flute_pitch"], g["flute_depth"])
+    L.mesh("Green/flutes", wall, "green_flute", normals=normals)
+    for i, (x, y, facing) in enumerate(STOOLS):
+        stool(L, f"Stools/stool_{i}", x, y, facing)
+    for i, (x0, x1) in enumerate(PENDANTS):
+        pendant(L, f"Pendants/pendant_{i}", x0, x1)
+    # convex colliders, each <= 64 hull vertices (6 segments per quarter circle)
+    hull = {
+        "bar_top": prism(stadium(b["x0"], b["x1"], b["y0"], b["y1"], 6), under, b["z"]),
+        "bar_pedestal": prism(stadium(pd["x0"], pd["x1"], yc - pd["w"] / 2, yc + pd["w"] / 2, 6), 0.0, under),
+        "bar_drum": prism(stadium(dr["x0"], dr["x1"], yc - dr["w"] / 2, yc + dr["w"] / 2, 6), g["z"], under),
+        "green_top": prism(stadium(g["x0"], g["x1"], g["y0"], g["y1"], 6), g["z"] - g["t"], g["z"]),
+        "green_base": prism(
+            stadium(g["x0"] + g["inset"], g["x1"] - g["inset"], g["y0"] + g["inset"], g["y1"] - g["inset"], 6),
+            0.0,
+            g["z"] - g["t"],
+        ),
+    }
+    for nm, m in hull.items():
+        L.collider(f"Colliders/{nm}", m, pkey="quartz" if nm.endswith("top") else "default")
 
 
 def chair_poses():
@@ -942,7 +1170,7 @@ def add_lights(L):
     dome.CreateColorAttr(Gf.Vec3f(0.95, 0.95, 1.0))
 
 
-SCENE_LAYERS = ("Background", "Counter", "Lounge", "Lights")
+SCENE_LAYERS = ("Background", "Counter", "Lounge", "Island", "Lights")
 
 
 def main():
@@ -958,6 +1186,7 @@ def main():
         ("background", add_background),
         ("counter", add_counter),
         ("lounge", add_lounge),
+        ("island", add_island),
         ("lights", add_lights),
         ("chairs", add_chairs),
     ]:
@@ -1003,7 +1232,6 @@ def main():
         ),
         columns={n: v * k for n, v in COLUMNS.items()},
         sink={n: v * k for n, v in SINK.items()},
-        microwave={n: v * k for n, v in MICROWAVE.items()},
         shelf_top_z=[z * k for z in SHELVES["z"]],
         # the lounge for mobile tasks (layouts place the chairs, scripts/g1d/build_asset.py)
         lounge=dict(
@@ -1014,11 +1242,20 @@ def main():
             tables={n: [v * k for v in xy] for n, xy in TABLES.items()},
             chairs=[dict(index=i, xy=[v * k for v in xy], yaw_deg=yaw) for i, xy, yaw in chair_poses()],
         ),
+        # the islands in the aisle (static): stadium plans as x/y ranges, top heights; stools as centre and radius
+        islands=dict(
+            **{
+                name: dict(x=[d["x0"] * k, d["x1"] * k], y=[d["y0"] * k, d["y1"] * k], top_z=d["z"] * k)
+                for name, d in (("bar", BAR), ("green", GREEN))
+            },
+            stools=[dict(xy=[x * k, y * k], r=(STOOL["foot_r"] + STOOL["leg_r"]) * k) for x, y, _ in STOOLS],
+        ),
         layers=dict(
             scene="scene.usda",
             background="background.usda",
             table="counter.usda",
             lounge="lounge.usda",
+            island="island.usda",
             lights="lights.usda",
             preview="preview.usda",
         ),
