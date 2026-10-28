@@ -3,7 +3,8 @@
 The image is the label unrolled: u (left to right) runs counter-clockwise around the bottle seen from above, which is
 left to right for a viewer outside; v runs bottom to top. Bottom `share` of the height is the label's main colour, the
 rest its second colour. Front panel: picture, brand, Latin brand, product and volume; back panel: composition table,
-barcode, fine print and a QR code. Everything printed is generic or fictional except the 00000 twin's brand words.
+barcode, fine print and a QR code. Everything printed is generic or fictional except the registered twins' brand
+words (00000, 00006).
 """
 
 import os
@@ -146,6 +147,18 @@ def picture(kind, w, h, main, accent, rng):
             for a in np.linspace(0, 2 * np.pi, 10, endpoint=False):
                 d.line([(x, y), (x + 0.85 * r * np.cos(a), y + 0.85 * r * np.sin(a))], fill=(252, 220, 140), width=3)
             d.ellipse([x - 0.12 * r, y - 0.12 * r, x + 0.12 * r, y + 0.12 * r], fill=(252, 230, 170, 255))
+    elif kind == "leaves":  # tea leaves: almond shapes with a midrib, in greens over the gradient
+        for _ in range(12):
+            length, width = rng.uniform(0.30, 0.55) * h, rng.uniform(0.10, 0.16) * h
+            x, y, a = rng.uniform(0.1, 0.9) * w, rng.uniform(0.2, 0.9) * h, rng.uniform(0, np.pi)
+            t = np.linspace(-1, 1, 24)
+            u, v = t * length / 2, np.sqrt(1 - t * t) * width / 2
+            ca, sa = np.cos(a), np.sin(a)
+            outline = [(x + p * ca - q * sa, y + p * sa + q * ca) for p, q in zip(u, v)]
+            outline += [(x + p * ca + q * sa, y + p * sa - q * ca) for p, q in zip(u[::-1], v[::-1])]
+            green = (int(rng.uniform(40, 90)), int(rng.uniform(120, 170)), int(rng.uniform(50, 80)), 230)
+            d.polygon(outline, fill=green)
+            d.line([outline[0], outline[23]], fill=(220, 240, 200, 200), width=2)
     elif kind == "stripes":
         for k in range(-6, 12):
             x0 = k * w / 6

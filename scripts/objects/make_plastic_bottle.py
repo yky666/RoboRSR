@@ -10,13 +10,20 @@
   cap removed; the user asked on 2026-10-23 for a cap that can be twisted, so every bottle now has one.
 - plastic_bottle/00001-00005: generalization variants of 00000 (not measured; colour, material, size and shape differ):
   380 ml mini, 1 L tall, frosted rounded-square, green waisted grip bottle, amber wide-mouth juice bottle.
+- plastic_bottle/00006: Real2Sim platform registration real2sim/objects/Clutter/plastic_bottle/00006 (spec.json, by
+  徐鹤鸣, 2026-10-28 11:08:58): 东方树叶 500 ml square tea bottle, transparent with a label, 33 g with its cap,
+  瓶口外径 39.6 mm, 瓶身边长 62.2 mm (measured); 高度 205 mm with the cap (the registration says 20.5 mm, the user
+  confirmed 205 on 2026-10-28, and asked for the real cap, removable). Corner rounding, shoulder, 38 mm finish
+  details, label band and the white cap are estimated from the four photos.
+- plastic_bottle/00007-00012: generalization variants of 00006 (not measured; label, colour, material, size and shape
+  differ; same finish, so the 00006 cap fits all of them).
 - Labels are textures drawn by bottle_label.py (needs a CJK font, see bottle_label.FONT_DIRS); variants carry
   fictional brands.
 
 Usage:
     python scripts/objects/make_plastic_bottle.py [TYPE_DIR]    # default Assets/Object/Real2Sim/Clutter
-    python scripts/objects/check_object.py Assets/Object/Real2Sim/Clutter/plastic_bottle/0000{0,1,2,3,4,5}
-    python scripts/objects/check_bottle_cap.py Assets/Object/Real2Sim/Articulation/plastic_bottle/0000{0,1,2,3,4,5}
+    python scripts/objects/check_object.py Assets/Object/Real2Sim/Clutter/plastic_bottle/000{00..12}
+    python scripts/objects/check_bottle_cap.py Assets/Object/Real2Sim/Articulation/plastic_bottle/000{00..12}
 Writes TYPE_DIR/plastic_bottle/<index>/ and TYPE_DIR/../Articulation/plastic_bottle/<index>/, each {object.usdz,
 metadata.json, description.json}. Needs what make_pitcher.py needs, and PIL.
 
@@ -198,6 +205,179 @@ VARIANTS = [  # generalization variants 00001-00005: overrides of NONGFU, all un
         ),
     ),
 ]  # fmt: skip
+
+# Bottle 00006 (东方树叶). Same conventions as NONGFU; the section is a rounded square, R is half the side.
+DONGFANG = dict(
+    NONGFU,
+    H=0.2035,  # mouth height: 高度 205 mm (measured, with the cap) minus the cap top CAP_TOP above the mouth
+    R=0.0311,  # 瓶身边长 / 2, measured 62.2 mm across the flats
+    SQ=4.5,  # rounded-square section: corner rounding estimated from the photos
+    FIL=0.006, FOOT=0.020, DOME=0.005,  # bottom: estimated
+    Z_SH=0.150, SH_P=1.0,  # square body below, short shoulder into the round neck: estimated
+    R_NECK=0.0192, NECK_H=0.004, RING_T=0.0015, R_RING=0.0215,  # 38 mm wide-mouth finish: estimated
+    FINISH_H=0.016,
+    R_THREAD=0.0198,  # 瓶口外径 / 2, measured 39.6 mm: outer diameter of the threaded finish (thread crests)
+    R_CORE=0.0188, R_BORE=0.0170, THREADS=(0.0070, 0.0035),  # estimated
+    GROOVES=(), WAIST=None,
+    LABEL=(0.050, 0.150, 0.65), RECESS=0.0006,  # label band and its light share: estimated
+    LABEL_RGB=((0.82, 0.83, 0.78), (0.02, 0.26, 0.12)),  # light main band, dark green top band and print
+    TINT=(0.97, 0.98, 0.98), FROST=0.0,
+    MASS=0.033,  # measured, cap included
+    CAP_RGB=(0.85, 0.85, 0.83), CAP_T=0.0016, CAP_TOP=0.0015, CAP_RIBS=120, RIB_D=0.0003, BAND_H=0.005,
+    CAP_MASS=0.0035, PITCH=0.0045, OPEN_TURNS=1.25,  # 38 mm cap: part of MASS, thread pitch, turns to loosen
+    BRIM=(520, 640),  # ml: a 500 ml bottle with its headspace
+    MEASURE="square", FRICTION=None,  # no measured friction: runtime defaults apply
+    ART=dict(
+        brand="东方树叶", latin="ORIENTAL LEAF", tagline="原叶冷泡 · 茶香自然", product="茉莉花茶", volume="500ml",
+        note="0糖 0卡 0脂", picture="leaves", table="nutrition", trim=(0.02, 0.26, 0.12), ean="6 900000 905126",
+        facts=dict(ingredients="水、茉莉花茶、维生素C", shelf="12个月", standard="GB/T 21733"),
+    ),
+    WORDS=dict(
+        color=["transparent", "green and white label", "white cap"],
+        material=["plastic", "clear PET", "thin-walled plastic"],
+        name=["tea bottle", "plastic bottle", "Oriental Leaf bottle"],
+        shape=["rounded square body", "wide neck", "white screw cap"],
+        function=["holding tea", "being picked up and placed", "being opened"],
+        look="clear square tea bottle with a green and white label and a white cap",
+    ),
+)  # fmt: skip
+
+
+def tea(brand, latin, product, volume, picture, trim, ean, ingredients):
+    return dict(
+        brand=brand, latin=latin, tagline="冷泡原叶 清爽回甘", product=product, volume=volume, note="无糖 · 0能量",
+        picture=picture, table="nutrition", trim=trim, ean=ean,
+        facts=dict(ingredients=ingredients, shelf="12个月", standard="GB/T 21733"),
+    )  # fmt: skip
+
+
+DONGFANG_VARIANTS = [  # generalization variants 00007-00012: overrides of DONGFANG, all unmeasured (estimated)
+    dict(
+        H=0.225,
+        R=0.0320,
+        Z_SH=0.170,
+        LABEL=(0.055, 0.162, 0.60),
+        LABEL_RGB=((0.70, 0.82, 0.62), (0.03, 0.22, 0.05)),
+        CAP_RGB=(0.10, 0.40, 0.12),
+        ART=tea(
+            "茗泉", "MING QUAN", "茉莉清茶", "600ml", "leaves", (0.03, 0.22, 0.05), "6 900000 911423", "水、茉莉花茶"
+        ),
+        WORDS=dict(
+            color=["transparent", "light green label", "green cap"],
+            material=["plastic", "clear PET", "thin plastic"],
+            name=["tall tea bottle", "600 ml bottle", "green tea bottle"],
+            shape=["tall rounded square body", "wide neck", "green screw cap"],
+            function=["holding tea", "being picked up and placed", "being opened"],
+            look="tall clear square green tea bottle with a light green label",
+        ),
+    ),
+    dict(
+        H=0.170,
+        R=0.0290,
+        Z_SH=0.122,
+        LABEL=(0.040, 0.115, 0.60),
+        TINT=(0.90, 0.75, 0.50),
+        LABEL_RGB=((0.85, 0.78, 0.62), (0.30, 0.12, 0.03)),
+        CAP_RGB=(0.30, 0.12, 0.03),
+        ART=tea("岩韵", "YAN YUN", "乌龙茶", "400ml", "stripes", (0.30, 0.12, 0.03), "6 900000 913502", "水、乌龙茶"),
+        WORDS=dict(
+            color=["amber tinted", "cream and brown label", "brown cap"],
+            material=["plastic", "amber PET", "thin plastic"],
+            name=["oolong tea bottle", "400 ml bottle", "short tea bottle"],
+            shape=["short rounded square body", "wide neck", "brown screw cap"],
+            function=["holding tea", "being picked up and placed", "being opened"],
+            look="short amber square oolong tea bottle with a cream and brown label",
+        ),
+    ),
+    dict(
+        SQ=2.0,
+        R=0.0320,
+        LABEL_RGB=((0.88, 0.80, 0.78), (0.50, 0.03, 0.05)),
+        CAP_RGB=(0.50, 0.03, 0.05),
+        ART=tea(
+            "荔香", "LI XIANG", "荔枝红茶", "500ml", "fruit", (0.50, 0.03, 0.05), "6 900000 915277", "水、红茶、荔枝汁"
+        ),
+        WORDS=dict(
+            color=["transparent", "pink and red label", "red cap"],
+            material=["plastic", "clear PET", "thin plastic"],
+            name=["round tea bottle", "black tea bottle", "plastic bottle"],
+            shape=["round body", "wide neck", "red screw cap"],
+            function=["holding tea", "being picked up and placed", "being opened"],
+            look="clear round lychee black tea bottle with a red label",
+        ),
+    ),
+    dict(
+        SQ=3.0,
+        FROST=0.3,
+        TINT=(0.95, 0.95, 0.95),
+        LABEL_RGB=((0.05, 0.05, 0.05), (0.80, 0.60, 0.15)),
+        CAP_RGB=(0.05, 0.05, 0.05),
+        ART=tea("红袍", "HONG PAO", "大红袍", "500ml", "stripes", (0.80, 0.60, 0.15), "6 900000 917046", "水、岩茶"),
+        WORDS=dict(
+            color=["frosted white", "black and gold label", "black cap"],
+            material=["plastic", "frosted PET", "matte plastic"],
+            name=["frosted tea bottle", "rock tea bottle", "plastic bottle"],
+            shape=["soft square body", "wide neck", "black screw cap"],
+            function=["holding tea", "being picked up and placed", "being opened"],
+            look="frosted soft-square tea bottle with a black and gold label",
+        ),
+    ),
+    dict(
+        WAIST=(0.003, 0.050, 0.108),
+        LABEL=(0.112, 0.144, 0.50),
+        LABEL_RGB=((0.85, 0.85, 0.20), (0.03, 0.15, 0.45)),
+        CAP_RGB=(0.85, 0.75, 0.10),
+        ART=tea(
+            "柠檬时光",
+            "LEMON TIME",
+            "柠檬茶",
+            "500ml",
+            "fruit",
+            (0.03, 0.15, 0.45),
+            "6 900000 919318",
+            "水、红茶、柠檬汁",
+        ),
+        WORDS=dict(
+            color=["transparent", "yellow and blue label", "yellow cap"],
+            material=["plastic", "clear PET", "thin plastic"],
+            name=["lemon tea bottle", "grip tea bottle", "plastic bottle"],
+            shape=["waisted square body", "wide neck", "yellow screw cap"],
+            function=["holding tea", "being gripped at the waist", "being opened"],
+            look="clear waisted square lemon tea bottle with a yellow and blue label",
+        ),
+    ),
+    dict(
+        H=0.150,
+        R=0.0270,
+        Z_SH=0.098,
+        LABEL=(0.035, 0.090, 0.60),
+        LABEL_RGB=((0.95, 0.80, 0.80), (0.70, 0.20, 0.30)),
+        CAP_RGB=(0.95, 0.75, 0.78),
+        ART=tea(
+            "桃屿",
+            "TAO YU",
+            "白桃乌龙",
+            "300ml",
+            "bubbles",
+            (0.70, 0.20, 0.30),
+            "6 900000 921564",
+            "水、乌龙茶、白桃汁",
+        ),
+        WORDS=dict(
+            color=["transparent", "pink label", "pink cap"],
+            material=["plastic", "clear PET", "thin plastic"],
+            name=["mini tea bottle", "300 ml bottle", "peach tea bottle"],
+            shape=["small rounded square body", "wide neck", "pink screw cap"],
+            function=["holding tea", "carrying in a bag", "being opened"],
+            look="small clear square peach oolong tea bottle with a pink label",
+        ),
+    ),
+]
+
+FAMILIES = [  # first index, base registration, variants
+    (0, dict(NONGFU, BRIM=(550, 620), MEASURE="round", FRICTION=(STATIC_FRICTION, DYNAMIC_FRICTION)), VARIANTS),
+    (6, DONGFANG, DONGFANG_VARIANTS),
+]
 
 
 class Bottle:
@@ -654,9 +834,29 @@ def description(uid, g, ml):
     return {"uuid": uid, "caption": caption, "description": desc}
 
 
-def save(type_dir, idx, c, g, mass, articulated=False):
+def measurements(c, parts, every, g):
+    """measurements_mm of a registered bottle, named as its spec.json dimensions_mm."""
+    model = parts["model"][0]
+    mouth = model[model[:, 2] > c["bottle"].z_ring1 + c["shift"][2] + 1e-6]
+    if g["MEASURE"] == "round":
+        foot = model[model[:, 2] < model[:, 2].min() + 0.010]
+        return {
+            "开口直径": round(float(np.ptp(mouth[:, 0])) * 1000, 1),  # outer, thread crests
+            "底部直径": round(float(np.ptp(foot[:, 0])) * 1000, 1),  # outer body just above the bottom fillet
+        }
+    lo = model[:, 2].min()
+    body = model[(model[:, 2] > lo + g["FIL"]) & (model[:, 2] < lo + g["Z_SH"])]
+    return {
+        "瓶口外径": round(float(np.ptp(mouth[:, 0])) * 1000, 1),  # outer, thread crests
+        "瓶身边长": round(float(np.ptp(body[:, 0])) * 1000, 1),  # across the flats
+        "高度": round(float(np.ptp(every[:, 2])) * 1000, 1),  # bottom to the top of the cap
+    }
+
+
+def save(type_dir, idx, c, g, mass, articulated=False, base_idx=0):
     """Clutter/<category>/<idx>: one rigid body, cap fixed on. With articulated: the sibling
-    Articulation/<category>/<idx> with the cap on cap_twist / cap_lift (add_cap_joints)."""
+    Articulation/<category>/<idx> with the cap on cap_twist / cap_lift (add_cap_joints). base_idx: the registered
+    bottle this one is (idx == base_idx) or varies."""
     every = np.concatenate([p for p, _ in c["parts"].values()])
     shift = -(every.min(0) + every.max(0)) / 2
     parts = {k: (p + shift, f) for k, (p, f) in c["parts"].items()}
@@ -671,47 +871,44 @@ def save(type_dir, idx, c, g, mass, articulated=False):
     write_usdz(d / "object.usdz", c, g, label_png, articulated, mass)
     faces = [f for _, fs in parts.values() for f in fs]
     meta = pc.metadata(uid, dict(pts=every + shift, faces=faces, contact_r=c["contact_r"]), mass, shift)
-    del meta["physics"]["friction"]
-    meta["physics"].update(static_friction=STATIC_FRICTION, dynamic_friction=DYNAMIC_FRICTION)
+    meta["physics"].pop("friction", None)  # pc.metadata no longer writes it on every branch
+    if g["FRICTION"]:
+        meta["physics"].update(static_friction=g["FRICTION"][0], dynamic_friction=g["FRICTION"][1])
     meta["visual"] = {"color_parts": ["cap"]}  # rt_color recolours the cap; the bottle stays clear, the label printed
     if articulated:  # joint positions as ArticulationObject reports them: radians, metres
         meta["articulation"] = {
             "cap_twist": {"closed": 0.0, "open": round(2 * np.pi * g["OPEN_TURNS"], 4), "unit": "rad"},
             "cap_lift": {"closed": 0.0, "open": round(g["PITCH"] * g["OPEN_TURNS"], 4), "unit": "m"},
         }
-    if idx == 0:
-        model = parts["model"][0]
-        mouth = model[model[:, 2] > c["bottle"].z_ring1 + shift[2] + 1e-6]
-        foot = model[model[:, 2] < model[:, 2].min() + 0.010]
-        meta["measurements_mm"] = {
-            "开口直径": round(float(np.ptp(mouth[:, 0])) * 1000, 1),  # outer, thread crests
-            "底部直径": round(float(np.ptp(foot[:, 0])) * 1000, 1),  # outer body just above the bottom fillet
-        }
+    if idx == base_idx:
+        meta["measurements_mm"] = measurements(dict(c, shift=shift), parts, every + shift, g)
     else:
-        meta["variant_of"] = f"{kind}/{CATEGORY}/00000"
+        meta["variant_of"] = f"{kind}/{CATEGORY}/{base_idx:05d}"
     (d / "metadata.json").write_text(json.dumps(meta, indent=4, ensure_ascii=False))
     (d / "description.json").write_text(json.dumps(description(uid, g, c["ml"]), indent=4))
     return d, meta
 
 
 def main(type_dir):
-    base = None
-    for idx, over in enumerate([{}] + VARIANTS):
-        g = {**NONGFU, **over}
-        c = build(g)
-        if idx == 0:
-            base = c["ml"]
-            assert 550 < base < 620, f"brim volume {base:.0f} ml does not fit a 550 ml bottle"
-            mass = g["MASS"]
-        else:
-            mass = round(NONGFU["MASS"] * c["ml"] / base, 4)  # estimated: empty 00000 scaled by brim volume
-        for articulated in (False, True):
-            d, meta = save(type_dir, idx, c, g, mass, articulated)
-            print(
-                f"{d}: {c['ml']:.0f} ml brim, mass {mass} kg, size {meta['physics']['size']}, "
-                f"{len(c['hulls']) + 1} collision hulls, label {c['label_px']} px, "
-                f"measurements_mm {meta.get('measurements_mm', '-')}"
-            )
+    for first, registered, variants in FAMILIES:
+        base = None
+        for k, over in enumerate([{}] + variants):
+            g = {**registered, **over}
+            c = build(g)
+            if k == 0:
+                base = c["ml"]
+                lo, hi = g["BRIM"]
+                assert lo < base < hi, f"brim volume {base:.0f} ml outside {lo}-{hi} ml"
+                mass = g["MASS"]
+            else:
+                mass = round(registered["MASS"] * c["ml"] / base, 4)  # estimated: the registered bottle by brim volume
+            for articulated in (False, True):
+                d, meta = save(type_dir, first + k, c, g, mass, articulated, first)
+                print(
+                    f"{d}: {c['ml']:.0f} ml brim, mass {mass} kg, size {meta['physics']['size']}, "
+                    f"{len(c['hulls']) + 1} collision hulls, label {c['label_px']} px, "
+                    f"measurements_mm {meta.get('measurements_mm', '-')}"
+                )
 
 
 if __name__ == "__main__":

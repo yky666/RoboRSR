@@ -1,0 +1,22 @@
+{
+  "id": "Clutter/plastic_bottle/00006",
+  "twin": true,
+  "asset_origin": "physical_object",
+  "name": "东方树叶",
+  "name_en": "plastic bottle",
+  "material": "PP 塑料",
+  "color": "透明，带有标签",
+  "mass_g": 33,
+  "dimensions_mm": "瓶口外径39.6mm，瓶身边长62.2mm，高度20.5mm",
+  "features": "带标签",
+  "generalization": {
+    "count": 6,
+    "requirements": "标签允许泛化",
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "种政",
+  "updated_at": "2026-10-28 11:50:26"
+}

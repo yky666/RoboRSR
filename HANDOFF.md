@@ -23,6 +23,7 @@
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
   - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
+  - 东方树叶 `Clutter/plastic_bottle/00006`（另有能拧盖的 Articulation 版本）和 6 个泛化变体：按平台登记建，未装共享库（见「最近任务」）。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
   - 杯对杯倒豆、量杯对倒：部分 seed 成功。
@@ -38,6 +39,12 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 东方树叶 `Clutter/plastic_bottle/00006`（2026-10-28，分支 `z/objects-plastic-bottle-00006`）
+
+- 平台建模任务（徐鹤鸣 10-28 登记）：东方树叶 500 ml 方瓶，33 g，瓶口外径 39.6、瓶身边长 62.2 mm；登记的高度 20.5 mm 是笔误，用户 10-28 确认为 205 mm（含瓶盖），并要求保留真实瓶盖、做成可移除的结构。在 `make_plastic_bottle.py` 上扩展：`FAMILIES` 分两个系列（00000 农夫山泉、00006 东方树叶），各自的 `measurements_mm` 名称、`variant_of`、满口容积范围和摩擦（00006 没有实测摩擦，不写摩擦键）；`bottle_label.py` 加茶叶插图 `leaves`。顺手修了 `del meta["physics"]["friction"]`：`pc.metadata` 已不写 `friction`，原脚本直接运行会 KeyError。
+- 瓶盖：沿用这个脚本的做法，`Clutter/` 是瓶盖固定的单刚体，`Articulation/` 是能拧的版本（`cap_twist` 拧 1.25 圈，`cap_lift` 跟着升 5.6 mm，38 mm 盖的螺距按 4.5 mm 估计）；关节体里的瓶盖拧松后不能完全脱离瓶身。6 个变体瓶口和 00006 一样，同一个瓶盖都能盖。
+- 验证：`measurements_mm` 三项误差 0（高度含瓶盖）；`check_object.py --image-dir` Clutter 七件 OK，`check_bottle_cap.py` Articulation 七件落地和拧开 / 拧回都 OK；`sim.png`、`check.json` 已同步到部署机。生成结果在 5090-2 `/data/robodojo-runs/plastic_bottle_00006-1028/ovl/`（脚本同时重新生成了 00000–00005，装库时只拷 00006–00012，不要覆盖共享库里已有的），未装共享库。
 
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 
