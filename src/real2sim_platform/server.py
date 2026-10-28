@@ -1276,7 +1276,6 @@ class Handler(BaseHTTPRequestHandler):
 
                 entry = {
                     "state": {"approve": "approved", "reject": "rejected", "reopen": "reopened"}[action],
-
                     "by": self.user["name"],
                     "at": time.time(),
                     "note": note,

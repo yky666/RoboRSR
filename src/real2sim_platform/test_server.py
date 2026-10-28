@@ -663,7 +663,7 @@ def test_object_review_and_libraries(tmp_path, monkeypatch):
         assert call("boss", "PUT", obj, {"review_action": "reject"})[0] == 400  # a reason is required
         status, doc = call("boss", "PUT", obj, {"review_action": "reject", "review_note": "把手太粗"})
         assert status == 200 and doc["review_state"] == "rebuild" and doc["review"]["by"] == "管理员"
-        assert call("boss", "PUT", obj, {"review_action": "reopen"})[1]["review_state"] == "review"  # undo the rejection
+        assert call("boss", "PUT", obj, {"review_action": "reopen"})[1]["review_state"] == "review"  # undo reject
         assert call("boss", "PUT", obj, {"review_action": "reopen"})[0] == 409  # already awaiting review
         status, doc = call("boss", "PUT", obj, {"review_action": "approve"})
         assert doc["review_state"] == "done" and len(doc["review"]["history"]) == 3
