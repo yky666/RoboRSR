@@ -27,19 +27,17 @@ ROOT = Path(__file__).resolve().parents[2]
 LIBRARY = ROOT / "real2sim" / "materials" / "library.json"
 ROLES = ("floor", "wall", "tabletop")
 ORIGINAL = "original"
-# library categories (scene_parts.CATEGORIES) a surface may take; scene-extracted materials only go to their own role
-ROLE_CATEGORIES = {
-    "floor": {"wood", "tile", "stone", "fabric", "plastic"},
-    "wall": {"paint", "tile", "stone", "wood", "paper", "fabric", "plastic"},
-    "tabletop": {"wood", "stone", "plastic", "metal", "glass", "tile"},
-}
+SURFACE_POOLS = json.loads((LIBRARY.parent / "surface_pools.json").read_text(encoding="utf-8"))
 
 
-def fits(entry, role):
-    """Whether a library material suits a surface role."""
+def fits(entry, role, scene=None):
+    """Explicit surface whitelist, narrowed to the scene profile when known."""
     if entry.get("category") == "scene":
-        return entry.get("role") == role
-    return entry.get("category") in ROLE_CATEGORIES[role]
+        return entry.get("role") == role and (not scene or entry.get("source") == scene)
+    groups = SURFACE_POOLS["pools"][role]
+    profile = SURFACE_POOLS["scenes"].get(scene)
+    allowed = SURFACE_POOLS["profiles"][profile][role] if profile else groups
+    return entry["id"].removeprefix("mdl/") in {mid for group in allowed for mid in groups[group]}
 
 
 def load(scene_dir):
@@ -81,7 +79,7 @@ def overrides(parts, choice, library):
         if mid not in library:
             raise KeyError(f"{role}: material {mid!r} is not in {LIBRARY.relative_to(ROOT)}")
         entry = library[mid]
-        if not fits(entry, role):
+        if not fits(entry, role, parts.get("scene")):
             raise ValueError(f"{role}: material {mid!r} ({entry.get('category')}) does not suit this surface")
         for part in parts["roles"][role]["parts"]:
             scale = None

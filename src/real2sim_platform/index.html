@@ -1173,7 +1173,7 @@ function appearanceSection(d) {
   return sec(`${ic('layers')}外观与桌高`, `${roles}${table}
     <div class="toolbar" style="margin-top:10px"><button class="btn btn-primary" type="button" onclick="saveAppearance('${esc(d.id)}')">${ic('check')}保存外观设置</button>
       <span class="small muted">${d.auto.appearance ? `已写入 ${esc(dir)}/appearance.json` : '还没有设置，场景按重建原样使用'}</span></div>
-    <p class="hint">固定设置在重新生成评测布局（scripts/g1d/build_asset.py）时写进本场景的布局；随机池用于数据生成，见下面命令。材质库 ${MATS.length} 个：场景提取 + 资产库 MDL。</p>
+    <p class="hint">固定设置在重新生成评测布局（scripts/g1d/build_asset.py）时写进本场景的布局；随机池用于数据生成，见下面命令。仅显示适合当前场景和表面的白名单材质：办公室用地毯/木地板与木桌，吧台可用石材/陶瓷，实验台可用涂层/拉丝不锈钢；原材质可保留。</p>
     ${code(`# 把设置写进一批布局（固定设置；--randomize 时有随机池的部分每个布局重新抽取）\npython scripts/scenes/appearance.py ${dir} <布局目录> [--randomize --seed 0]`)}`);
 }
 async function saveAppearance(id) {
@@ -2352,7 +2352,7 @@ const PICK = {
   mat: {
     // only the materials that suit the key's surface (mt-<list>-<role>), server-side appearance.fits; an upstream
     // task's tabletop and ground (mt-rsi-*) take MDL materials only
-    all: (key) => MATS.filter((m) => (m.roles || []).includes(key.split('-')[2])
+    all: (key) => MATS.filter((m) => (key.startsWith('mt-rsi-') ? m.roles || [] : m.scene_roles?.[AP?.id] || m.roles || []).includes(key.split('-')[2])
       && (!key.startsWith('mt-rsi-') || (m.kind === 'mdl' && (rso()?.materials || []).includes(m.id.replace(/^mdl\//, '')))))
       .sort((x, y) => Number(y.category === 'scene') - Number(x.category === 'scene') || x.name.localeCompare(y.name)),
     get: (id) => MATS.find((m) => m.id === id), name: (m) => m.name, img: (m) => m?.thumb, icon: 'image',

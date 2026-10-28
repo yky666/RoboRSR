@@ -354,6 +354,10 @@ def material_library():
         thumb = appearance.LIBRARY.parent / "preview" / f"{e['id'].replace('/', '__')}.jpg"
         e["thumb"] = str(thumb) if thumb.is_file() else None
         e["roles"] = [role for role in appearance.ROLES if appearance.fits(e, role)]
+        e["scene_roles"] = {
+            scene: [role for role in appearance.ROLES if appearance.fits(e, role, scene)]
+            for scene in appearance.SURFACE_POOLS["scenes"]
+        }
     return entries
 
 
@@ -372,7 +376,9 @@ def write_appearance(scene, settings):
     picked = [(r, fixed.get(r)) for r in appearance.ROLES] + [
         (r, m) for r in appearance.ROLES for m in pools.get(r) or []
     ]
-    unfit = [f"{m}（{r}）" for r, m in picked if m and m != appearance.ORIGINAL and not appearance.fits(library[m], r)]
+    unfit = [
+        f"{m}（{r}）" for r, m in picked if m and m != appearance.ORIGINAL and not appearance.fits(library[m], r, scene)
+    ]
     if unfit:
         return f"材质不适合这类表面：{'、'.join(unfit)}"
     span = pools.get("table_top_z") or []
@@ -510,6 +516,12 @@ def write_randomization(task, profile, assets, pools=None):
         return "pool 只能是 train（数据方）或 exam（评测方）"
     if error := rsi_profile.check(profile, rsi_profile.options(assets, pool, pools)):
         return error
+    library = {entry["id"]: entry for entry in material_library()}
+    for key, role in (("tables", "tabletop"), ("grounds", "floor"), ("walls", "wall")):
+        for mid in profile.get(key) or []:
+            entry = library.get(f"mdl/{mid}")
+            if not entry or not appearance.fits(entry, role):
+                return f"材质不适合这类表面：{mid}（{role}）"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(profile, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return None

@@ -1,7 +1,7 @@
 # Project Handoff
 
-更新时间：2026-10-28
-本会话分支：`chongzheng/platform-variant-twins`（worktree `../RoboDojo-variant-twins`）：自建孪生搬到独立的 `Object/Real2Sim` 物体库（代码、共享库都已搬），见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
+更新时间：2026-10-29
+本会话分支：`codex/surface-material-pools`：室内表面材质白名单已接入并部署，见「最近任务」首节。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,15 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 室内表面材质白名单（2026-10-29）
+
+- 用户确认将筛选的 37 套材质接入并部署到数采平台。`real2sim/materials/surface_pools.json` 保存地板 18、墙面 8、桌面 17 套（去重 37）的 ID、类别、office/counter/lab 适用范围；学校按 lab、深圳实验室办公区按 office。原材质保留；不删除共享库资产。
+- `appearance.fits` 统一供平台选择器、保存接口、布局应用使用；`/api/materials` 返回各场景 `scene_roles`。场景提取材质仅用于本场景的原表面；上游任务选择器仍取自己的 train/exam 池与表面白名单交集，保存时再校验。未改变采样算法、UV 或物理参数。
+- 已在 5090-2 部署白名单 JSON 与 appearance/server/index 的定向补丁并重启平台；保留服务器上更新的导航、压缩、缩略图等功能。部署前备份在服务器 `.cache/surface-pools-before-20261029/`。原有场景外观配置没有超出白名单的选择。
+- 验证：`bash scripts/check.sh`（uv 临时 CPU 依赖环境）83 passed、1 skipped、82 subtests passed；页面 JS `node --check` 通过。远端核实 37 个 MDL 存在，登录后的材料 API 200；实验室桌面提交木纹被 400 拒绝；未登录 API 401，页面 200。临时验收 session 已删除。未跑 GPU：本机非开发环境，按用户指示跳过。
+- 下一步：平台场景抽屉「外观与桌高」中选择固定材质或随机池，生成布局后才作用于后续采集；现有布局不自动重写。新场景需在 JSON 中指定 profile；未映射场景只受表面总白名单约束。此筛选尚未经过 RTX 外观与纹理尺度验收。
+
 
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 

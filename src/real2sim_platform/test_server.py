@@ -53,7 +53,7 @@ def test_randomization_profile():
     for d in (
         "Room/Simple_Room_red",
         "Room/Simple_Room_teal",
-        "Material/material_0122",
+        "Material/material_0123",
         "Object/RoboDojo/Clutter/pen/00000",
     ):
         (assets / d).mkdir(parents=True)
@@ -62,7 +62,7 @@ def test_randomization_profile():
     (assets / "Background/studio.hdr").write_text("")
     empty = {"rooms": [], "materials": [], "hdrs": [], "distractors": [], "instances": []}
     tiers = {
-        "seen": ["material:material_0122"],
+        "seen": ["material:material_0123"],
         "t0": [],
         "pools": {
             "train": empty | {"rooms": ["Simple_Room_red"], "hdrs": ["studio.hdr"], "distractors": ["clutter:pen/0"]},
@@ -76,7 +76,7 @@ def test_randomization_profile():
 
     try:
         profile = {"position": True, "color": True, "scale": [0.9, 1.1], "rooms": ["Simple_Room_red"]}
-        profile |= {"tables": ["material_0122"], "background": {"hdrs": ["studio.hdr"], "intensity": [600, 1400]}}
+        profile |= {"tables": ["material_0123"], "background": {"hdrs": ["studio.hdr"], "intensity": [600, 1400]}}
         profile |= {
             "clutter": {"count": [2, 5]},
             "lights": {"count": [1, 2], "types": ["Sphere"]},
@@ -105,12 +105,17 @@ def test_appearance_settings():
         (tmp / scene / "usd/parts.json").write_text((scenes_dir / scene / "usd/parts.json").read_text())
     server.build_asset.SCENES_DIR = tmp
     try:
-        lab = {"fixed": {"floor": "mdl/material_0124", "wall": None, "table_top_z": 0.9}}
-        lab["random"] = {"tabletop": ["original", "real_scene1_office/tabletop/table_white"]}
+        lab = {"fixed": {"floor": "mdl/material_0075", "wall": None, "table_top_z": 0.9}}
+        lab["random"] = {"tabletop": ["original", "mdl/material_0053"]}
         lab["random"]["table_top_z"] = [0.7, 0.95]
         assert server.write_appearance("real_scene3_lab", lab) is None
         written = json.loads((tmp / "real_scene3_lab/appearance.json").read_text())
-        assert written == {"fixed": {"floor": "mdl/material_0124", "table_top_z": 0.9}, "random": lab["random"]}
+        assert written == {"fixed": {"floor": "mdl/material_0075", "table_top_z": 0.9}, "random": lab["random"]}
+        assert "不适合" in server.write_appearance("real_scene3_lab", {"fixed": {"floor": "mdl/material_0004"}})
+        assert "不适合" in server.write_appearance("real_scene3_lab", {"random": {"tabletop": ["mdl/material_0123"]}})
+        materials = {m["id"]: m for m in server.material_library()}
+        assert "tabletop" in materials["mdl/material_0473"]["scene_roles"]["real_scene3_lab"]
+        assert "tabletop" not in materials["mdl/material_0473"]["scene_roles"]["real_scene1_office"]
         assert "没有 nope" in server.write_appearance("real_scene3_lab", {"fixed": {"floor": "nope"}})
         unfit = {"random": {"wall": ["real_scene3_lab/floor/carpet"]}}  # a scene's floor stays a floor
         assert "不适合" in server.write_appearance("real_scene3_lab", unfit)
@@ -118,7 +123,7 @@ def test_appearance_settings():
         assert "两个值" in server.write_appearance("real_scene3_lab", {"random": {"table_top_z": [0.9, None]}})
         assert "数字" in server.write_appearance("real_scene3_lab", {"fixed": {"table_top_z": "0.9"}})
         assert "不能升降" in server.write_appearance("real_scene2_counter", {"fixed": {"table_top_z": 0.9}})
-        assert server.write_appearance("real_scene2_counter", {"fixed": {"tabletop": "mdl/material_0083"}}) is None
+        assert server.write_appearance("real_scene2_counter", {"fixed": {"tabletop": "mdl/material_0084"}}) is None
         assert server.write_appearance("real_scene3_lab", {"fixed": {}, "random": {}}) is None
         assert not (tmp / "real_scene3_lab/appearance.json").exists()  # nothing set: the twin as built
         assert "parts.json" in server.write_appearance("real_scene9_x", {})
