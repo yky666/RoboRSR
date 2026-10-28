@@ -13,7 +13,7 @@ description: 按 Real2Sim 数采平台的物体登记（real2sim/objects/<id>/sp
 | :-- | :-- | :-- | :-- |
 | 登记（输入） | 部署机 `<仓库>/real2sim/objects/<id>/`：`spec.json`、`reference/*.jpg` | 拷回本机后入库 | 只读；同步到本机，随脚本一起提交 |
 | 生成代码 | `scripts/objects/make_*.py`；任务也要用的几何放 `scripts/objects/<类别>_shape.py`（只依赖 numpy） | 入库 | 新建或修改 |
-| 生成结果 | `Assets/Object/RoboDojo/<id>/`（`object.usdz`、`metadata.json`、`description.json`） | 不入库 | 只由脚本写，不手改；不要往 `Assets/` 放要入库的文件 |
+| 生成结果 | `Assets/Object/Real2Sim/<id>/`（Real2Sim 物体库；官方物体在 `Object/RoboDojo/`，编号两库共用不重复）（`object.usdz`、`metadata.json`、`description.json`） | 不入库 | 只由脚本写，不手改；不要往 `Assets/` 放要入库的文件 |
 | 渲染预览和检查结果 | `real2sim/objects/<id>/preview/sim.png`、`check.json` | 不入库 | `check_object.py --image-dir` 生成，同步到部署机：平台据此显示渲染图，并在资产装进共享库之前就推进「建模」「尺寸核对」「物理检验」 |
 | 验证 | `5090-2` 的隔离目录 `/data/robodojo-runs/<名称>-<时间>/` | 不入库 | 生成到隔离目录的覆盖目录里再检查 |
 | 共享资产库 | `5090-2:/data/robodojo-assets/Assets` | 不入库 | 只有用户同意后，按 README「改服务器共享资产库」装 |
@@ -92,7 +92,7 @@ rsync -az --exclude preview/ <部署机>:<仓库>/real2sim/objects/<id>/ real2si
 **约定**（新脚本照 `make_plastic_cups.py`，它是最新的写法）：
 
 - docstring：真实对应物和测量来源（spec 的 `updated_at`）、Usage、坐标系、USD 结构。
-- 命令行：`python scripts/objects/make_<类别>.py [TYPE_DIR]`，默认 `Assets/Object/RoboDojo/Rigid`，写到 `<TYPE_DIR>/<类别>/<编号>/`。不要把共享库路径写死。老脚本 `make_pitcher.py`、`make_water_cup.py` 的参数是类别目录，改它们时保持原样。
+- 命令行：`python scripts/objects/make_<类别>.py [TYPE_DIR]`，默认 `Assets/Object/Real2Sim/Rigid`，写到 `<TYPE_DIR>/<类别>/<编号>/`。不要把共享库路径写死。老脚本 `make_pitcher.py`、`make_water_cup.py` 的参数是类别目录，改它们时保持原样。
 - 依赖：numpy、scipy、pxr。用 `import make_pitcher as mp` 取共享 USD 工具（`add_xform`、`add_mesh`、`add_material`、`arc`、`sweep`、`prism`、`vertex_normals`、`signed_volume`、`r4`）；直接导入不了 pxr 时它会启动 Kit。脚本结尾照 `make_plastic_cups.py` 处理 `mp.APP`：出异常时 `os._exit(1)`，否则 `APP.close()`。
 - 单位：spec 用 mm、g，脚本常量用 m、kg；每个常量注释标「实测」或「估计」。
 - 坐标系：Z 向上，单位米，原点在包围盒中心（生成后整体平移 `-(lo + hi) / 2`，见 `save()`）。有把手或壶嘴的物体，把手朝 +X，和官方 `mug` 一致。

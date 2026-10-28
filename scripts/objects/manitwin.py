@@ -53,9 +53,9 @@ HANDLE_QUATS = ([0.5, 0.5, 0.5, 0.5], [0.5, -0.5, 0.5, -0.5])
 
 
 def robodojo_objects(assets):
-    """(id, category, sorted extents) of every object in a RoboDojo Assets tree."""
+    """(id, category, sorted extents) of every object in an Assets tree (both object libraries)."""
     found = []
-    for meta in Path(assets).glob("Object/RoboDojo/*/*/*/metadata.json"):
+    for meta in Path(assets).glob("Object/*/*/*/*/metadata.json"):
         geometry = json.loads(meta.read_text(encoding="utf-8")).get("geometry") or {}
         extents = (geometry.get("aligned_bbox") or geometry.get("oriented_bbox") or {}).get("extents")
         if extents:
@@ -147,9 +147,9 @@ def handle_frames(points):
 
 
 def robodojo_faces(assets):
-    """{face count: object} of every RoboDojo object (metadata geometry.faces, one copy of the visual mesh)."""
+    """{face count: object} of every object in both libraries (metadata geometry.faces, one copy of the visual mesh)."""
     found = {}
-    for meta in Path(assets).glob("Object/RoboDojo/*/*/*/metadata.json"):
+    for meta in Path(assets).glob("Object/*/*/*/*/metadata.json"):
         faces = (json.loads(meta.read_text(encoding="utf-8")).get("geometry") or {}).get("faces")
         if faces:
             found[int(faces)] = "/".join(meta.parts[-4:-1])

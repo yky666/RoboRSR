@@ -141,7 +141,7 @@ def prompt(doc):
             "从项目实际工厂加载，验证落地/静置、碰撞通道与实体阻挡、复位/再次加载；按物体类型补开合、悬垂、压缩、卸载恢复或夹持测试。仅报告实际运行项目，保留失败；独立模型/静态渲染不能证明任务可用或实物标定。",
             "",
             "## 交付与入库",
-            f"代码及输入：real2sim/objects/{doc['id']}/spec.json、reference/、生成脚本、参数来源；生成结果：object.usdz、metadata.json、description.json、runtime_config.json（适用时）。",
+            f"代码及输入：real2sim/objects/{doc['id']}/spec.json、reference/、生成脚本、参数来源；生成结果（Real2Sim物体库Assets/Object/Real2Sim/{doc['id']}/）：object.usdz、metadata.json、description.json、runtime_config.json（适用时）。",
             "用同名 measurements_mm 对照已实测尺寸；估计值独立保存。交付原生报告、模型SHA、多视角渲染和参考对照。",
             "通过对应类型复用与物理检查后加入基础资产；未通过项留研究资产。统一名称/ID/单位/字段格式。"
             "共享库部署遵守用户授权范围，保留备份；更新 ASSETS.md、HANDOFF.md 与平台署名。",

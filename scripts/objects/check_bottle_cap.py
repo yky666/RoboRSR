@@ -6,7 +6,7 @@ following one thread pitch per turn, then screw back closed.
 
 Usage:
     python scripts/objects/check_bottle_cap.py DIR [DIR ...] [--image out.png]
-    e.g. python scripts/objects/check_bottle_cap.py Assets/Object/RoboDojo/Articulation/plastic_bottle/0000{0,1,2,3,4,5}
+    e.g. python scripts/objects/check_bottle_cap.py Assets/Object/Real2Sim/Articulation/plastic_bottle/0000{0,1,2,3,4,5}
 """
 
 import argparse

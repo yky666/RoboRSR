@@ -24,6 +24,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
+from env.global_configs import object_dir  # noqa: E402
 from scripts.datagen.collect import SECTIONS, code_revision, layout_dir, layout_files, load_yaml, sha256  # noqa: E402
 
 SOURCES = ("scripts/datagen", "scripts/g1d", "scripts/objects", "src/eval_client", "env", "task/RoboDojo", "utils")
@@ -61,9 +62,7 @@ def asset_hashes(layouts, env_cfg):
             for key, entries in (layout.get(section) or {}).items():
                 for e in entries:
                     kind = "Clutter" if e.get("type") == "cluttered" else section
-                    folder = (
-                        assets / "Object/RoboDojo" / kind / e.get("category", key) / f"{e.get('category_idx', 0):05d}"
-                    )
+                    folder = Path(object_dir(f"{kind}/{e.get('category', key)}/{e.get('category_idx', 0):05d}", assets))
                     files |= {folder / "object.usdz", folder / "metadata.json"}
         room = (layout.get("Room") or {}).get("default")
         if room:

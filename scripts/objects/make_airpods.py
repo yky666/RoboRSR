@@ -7,8 +7,8 @@
   Not modelled: speaker holes, status light, lanyard loop, the slight dome of the faces.
 
 Usage:
-    python scripts/objects/make_airpods.py [RIGID_DIR]    # default Assets/Object/RoboDojo/Rigid
-    python scripts/objects/check_object.py Assets/Object/RoboDojo/Rigid/airpods/00000
+    python scripts/objects/make_airpods.py [RIGID_DIR]    # default Assets/Object/Real2Sim/Rigid
+    python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid/airpods/00000
 Writes RIGID_DIR/airpods/<index>/{object.usdz, metadata.json, description.json}. Needs what make_pitcher.py needs.
 
 Frame: Z up, metres, origin at bbox centre. 厚 along Z (lying flat), 宽 along X, 高 along Y; lid (hinge side) on +Y,
@@ -34,7 +34,7 @@ import make_pitcher as mp  # noqa: E402  (shared USD helpers; starts Kit when px
 from make_pitcher import Sdf, Usd, UsdGeom, UsdPhysics, UsdShade  # noqa: E402
 import make_plastic_cups as pc  # noqa: E402  (loft, add_collision, metadata)
 
-RIGID_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/RoboDojo/Rigid"
+RIGID_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/Real2Sim/Rigid"
 N_THETA = pc.N_THETA  # multiple of 4: every ring passes through its four face centres, so the extents are exact
 CASE = dict(
     H=0.04640,  # 高, measured: lid-hinge side to port side, outer, lying flat it is the Y extent

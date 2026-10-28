@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-28
-本会话分支：`chongzheng/merge-open-prs-1028`（worktree `../RoboDojo-merge-1028`）：4 个开着的 PR（#31–#34）合进 `main` 并部署数采平台，见「最近任务」第一节。之前几节按时间倒序是这 4 个 PR 各自的记录。下行保留主线历史。
+本会话分支：`chongzheng/platform-variant-twins`（worktree `../RoboDojo-variant-twins`）：自建孪生搬到独立的 `Object/Real2Sim` 物体库（代码、共享库都已搬），见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -34,10 +34,37 @@
   - 随机左右手、随机朝向、大范围位置的一份，也已上传 ModelScope 私有仓库（单独的仓库）。
 - **数采平台** `src/real2sim_platform/`：部署在 `5090-2`，经阿里云反向隧道对外访问。场景卡片封面是 RTX 渲染图，抽屉里有 3D 预览（见「最近历史」10-21）。
 - **服务器**：只用 `5090-2`（8×5090）。
-  - 共享资产库：`/data/robodojo-assets/Assets`（10-20 整体迁来，39 GB）。改它要先征得同意，备份放 `/data/robodojo-assets/backups/`。运行目录的 `Assets/` 覆盖目录里，不改的部分直接从它软链接或拷贝。数采平台现在读的还是手动刷新的元数据镜像 `/root/RoboDojo_assets/Assets`，不是这个库。
+  - 共享资产库：`/data/robodojo-assets/Assets`（10-20 整体迁来，39 GB）。改它要先征得同意，备份放 `/data/robodojo-assets/backups/`。物体分两个库：`Object/RoboDojo/` 是官方的，`Object/Real2Sim/` 是自建孪生（10-28 起；RoboDojo 下留有指向它的软链接，见「最近任务」第一节）。运行目录的 `Assets/` 覆盖目录里，不改的部分直接从它软链接或拷贝。数采平台现在读的还是手动刷新的元数据镜像 `/root/RoboDojo_assets/Assets`，不是这个库。
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
+
+- **起因**（用户）：建模时把 Real2Sim 实物孪生错存进了官方 RoboDojo 物体库，应该单独放 Real2Sim 库。范围（用户选）：全部自建孪生。
+- **代码**：
+  - `env/global_configs.py` 新增 `OBJECT_LIBRARIES = ("Real2Sim", "RoboDojo")` 和 `object_dir(rel, assets)`：按 `<类型>/<类别>/<编号>` 先在 Real2Sim 库找，再找 RoboDojo。布局和任务配置只写类别和编号，不写库名，所以不用改；编号在两个库之间不重复。
+  - `layout_manager.py` 加载物体时用它；`build_asset.py`、`rsi_profile.py`、`rsi_assets.library`（两个库都扫）、`x5_layouts.py`、`run_batch.asset_hashes`、`instance_fit.py`、`prepare_bean_pour_layouts.py`（干扰物从两个库的 Clutter 里选）、`manitwin.py` 的尺寸查重也都改成了两个库。
+  - `scripts/objects/make_*.py` 默认写到 `Assets/Object/Real2Sim/...`。不要对 Real2Sim 库跑官方库的 `Rigid/format.py`，它会重排编号。ManiTwin 和 GSO 导入的仍然进 RoboDojo 库（外部数据集，不是孪生）。
+  - 平台：扫描时按 `object_dir` 定位，`auto.library` 记录物体在哪个磁盘库（`Real2Sim` / `RoboDojo`）。和 #32 的页面分组（字段 `library`：`real2sim` / `robodojo` / 公开库）合并后，`ownObj` 也认 Real2Sim 磁盘库，所以搬过去的物体默认进「Real2Sim 实物孪生」分区；落地检查命令按物体所在的库生成路径。
+- **共享库**（用户同意，11:01）：`5090-2:/data/robodojo-assets/Assets/Object/Real2Sim/` 下共 195 件，126 MB。搬的依据：
+  - `metadata.json` 有 `source_asset`（真实场景资产包 scene1/4/5/6/7、real_scene1、pour_scene_v2、scene3_pour_pack），或有 `variant_of`、`measurements_mm`；
+  - `ASSETS.md` 里生成脚本的产出（pitcher、water_cup、plastic_cup、red_bean、airpods、plastic_bottle 等）；
+  - 平台登记了 `spec.json` 的（cable、microwave、sorting_bin、capybara_plush、soft_block、cloth_patch、long_zip_bag、plastic_mailer、air_freshener、aurora_flange、hammer/00009、mango_prop、wooden_arch_block）。
+  - 每件原路径留了相对软链接 `../../../Real2Sim/<id>`，旧代码和老运行目录照常能加载；属主改成和库一致的 1008。搬前目录清单、清单和脚本在 `backups/*-20261028-110056*`，脚本加参数 `undo` 可以原样搬回。平台元数据镜像 `/root/RoboDojo_assets/Assets` 也做了同样的搬迁。
+- **验证**：
+  - 本机：`check.sh` 里的单测 78 项通过、1 项跳过，包括 `test_server.py` 新增的 Real2Sim 库用例；ruff 0.11.7 通过。
+  - `5090-2` 搬前对照：隔离目录 `real2sim-lib-20261028-104917`（本分支，pitcher、water_cup、plastic_cup 只放在 Real2Sim 下）对比 `real2sim-lib-ctrl-…`（`origin/main`），`g1d` seed 0：
+    - 倒水两边都是 1.0；
+    - 杯对杯两边都是 0.0：初始状态逐毫米相同，失败是这个 seed 本来就不稳（已知）；
+    - 拾取 1.0。
+  - 搬后：新代码直接用真实共享库跑倒水 1.0、杯对杯 0.0；旧代码经软链接跑倒水 1.0，两边都没有报错。
+  - 新平台代码对镜像扫描：195 件归 Real2Sim，官方物体归 RoboDojo。
+- **平台修正**：生成脚本按类别名模糊匹配，`bottle/00061`（官方瓶子）因为 `make_plastic_bottle.py` 里有 `"bottle"` 被当成自建、进了 Real2Sim 分区。现在磁盘上在 RoboDojo 库的物体不再匹配生成脚本；`auto.library` 对还没建模型的物体为空。镜像里另把学校纸杯、纸盘（5 件，只在镜像、不在共享库）也搬到了 Real2Sim。
+- **遗留**：
+  - 软链接是过渡用的：等旧运行目录不再用（它们的 `Assets/Object/RoboDojo/Rigid/pitcher` 等链到共享库），并且主线合并了本分支，再删掉。删之前先确认没有在跑的作业。
+  - 平台没部署：`5090-2` 的工作区里有其他会话未提交的改动，等合并后按 `.agent/ops.local.md` 更新。
+  - 本机 `Assets/` 是空的，`init_assets.sh` 下载的官方资产没有 Real2Sim 库，自建物体要用生成脚本自己生成。
 
 ### 合并全部开着的 PR（#31–#34）并部署数采平台（2026-10-28，`chongzheng/merge-open-prs-1028`）
 

@@ -15,7 +15,7 @@ import argparse
 from isaaclab.app import AppLauncher
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--pitcher-dir", default="Assets/Object/RoboDojo/Rigid/pitcher/00002")
+parser.add_argument("--pitcher-dir", default="Assets/Object/Real2Sim/Rigid/pitcher/00002")
 parser.add_argument("--fluid-dir", default="Assets/Object/RoboDojo/Fluid/wuliangye/00000")
 parser.add_argument("--out", default="output/pitcher/fluid")
 parser.add_argument("--red-beans", action="store_true", help="granular red beans instead of the asset's liquid")

@@ -57,7 +57,8 @@ conda activate RoboDojo
 bash scripts/init_assets.sh
 python utils/update_embodiment_config_path.py
 
-# 4. 生成自建物体（写入 Assets/Object/RoboDojo/Rigid/），然后刷新 uuid_map.json
+# 4. 生成自建物体，写入 Real2Sim 物体库 Assets/Object/Real2Sim/（官方物体在 Assets/Object/RoboDojo/；加载器先找 Real2Sim，
+#    再找 RoboDojo，env/global_configs.py 的 object_dir）。不要对 Real2Sim 跑官方库的 Rigid/format.py：它会重排编号
 python scripts/objects/make_pitcher.py            # 冷水壶 pitcher
 python scripts/objects/make_water_cup.py          # 水杯 water_cup
 python scripts/objects/make_water_cup.py --plastic   # 塑料杯 plastic_cup
@@ -66,7 +67,6 @@ python scripts/objects/make_airpods.py            # 耳机充电盒 airpods
 python scripts/objects/make_lounge_chair.py       # 吧台客区的扶手椅 lounge_chair（蓝、白）
 python scripts/objects/make_plastic_cups.py       # 量杯 measuring_cup、塑料马克杯 plastic_mug（含 5 个泛化变体）
 python scripts/objects/make_plastic_bottle.py     # 带盖塑料瓶 plastic_bottle（Clutter/ 刚体，Articulation/ 能拧盖；标签要中文字体，见 bottle_label.py）
-python Assets/Object/RoboDojo/Rigid/format.py
 
 # 5. 构建 G1-D 机器人（读 real2sim/robot/g1d_v4，写 Assets/Robots/g1d/）、红豆材质，
 #    安装 4 个场景到 Assets/Room/real_scene{1,2,3,4}/，并为每个场景生成 G1-D 任务的评测布局。
@@ -113,7 +113,7 @@ bash scripts/robodojo.sh eval \
 **资产物理检验**：
 
 ```bash
-PYTHONPATH=. python scripts/objects/check_object.py Assets/Object/RoboDojo/Rigid/pitcher/00000 --image pitcher_check.png
+PYTHONPATH=. python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid/pitcher/00000 --image pitcher_check.png
 PYTHONPATH=. python scripts/objects/check_pitcher_fluid.py --device cpu --out output/pitcher/fluid   # 加 --red-beans 测红豆
 ```
 
@@ -155,10 +155,10 @@ python3 src/real2sim_platform/server.py --host 0.0.0.0 \
 
 扫描结果和人工录入分开存（SQLite，默认 `.cache/real2sim_platform.sqlite3`，`--db` 可改），重新扫描不会覆盖录入内容。登记为实物孪生的物体，登记信息同时写到 `real2sim/objects/<id>/spec.json`（和 `reference/` 实拍照片同一目录，作为建模输入）；建好的资产在 `metadata.json` 顶层写 `measurements_mm`（按尺寸文本里的名称写模型实际值），平台从尺寸文本里解析出每个「名称 数值」，按名称自动核对。平台里的实测值是工作记录，定稿后按 `real2sim/ASSETS.md` 的维护规则写回生成脚本和登记表。自检：`python3 src/real2sim_platform/test_server.py`。
 
-物体图片按 id（`<类型>/<类别>/<编号>`，与 `Assets/Object/RoboDojo/` 下相同）放在 `real2sim/objects/<id>/`：`reference/` 是实物照片（随仓库，走 LFS；网页上传也存到这里），`preview/` 是仿真渲染（可重新生成，不入库）。渲染在 GPU 服务器上每个物体单独出图：
+物体图片按 id（`<类型>/<类别>/<编号>`，与 `Assets/Object/<Real2Sim 或 RoboDojo>/` 下相同）放在 `real2sim/objects/<id>/`：`reference/` 是实物照片（随仓库，走 LFS；网页上传也存到这里），`preview/` 是仿真渲染（可重新生成，不入库）。渲染在 GPU 服务器上每个物体单独出图：
 
 ```bash
-PYTHONPATH=. python scripts/objects/check_object.py Assets/Object/RoboDojo/Rigid/measuring_cup/0000{0,1} --image-dir real2sim/objects
+PYTHONPATH=. python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid/measuring_cup/0000{0,1} --image-dir real2sim/objects
 ```
 
 ## 仓库结构

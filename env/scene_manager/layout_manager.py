@@ -160,13 +160,12 @@ class LayoutManager:
                     for inst in inst_list:
                         cat_idx = inst.get("category_idx", None)
                         prim_path, inst_name = self._generate_object_paths(env_idx, cat, cat_idx, type=key.lower())
+                        section = "Clutter" if inst.get("type") == "cluttered" else key
+                        obj_dir = object_dir(f"{section}/{cat}/{cat_idx:05d}")
                         if key in ["Rigid", "Dynamic", "Garment", "Articulation", "Geometry", "Fluid"]:
-                            if "type" in inst and inst["type"] == "cluttered":
-                                usd_path = f"{OBJECTS_PATH}/Clutter/{cat}/{cat_idx:05d}/object.usdz"
-                            else:
-                                usd_path = f"{OBJECTS_PATH}/{key}/{cat}/{cat_idx:05d}/object.usdz"
+                            usd_path = f"{obj_dir}/object.usdz"
                             if not os.path.exists(usd_path):
-                                usd_path = f"{OBJECTS_PATH}/{key}/{cat}/{cat_idx:05d}/object.usd"
+                                usd_path = f"{obj_dir}/object.usd"
                         if "visual" in inst:
                             visual_cfg = inst.get("visual")
                             if isinstance(visual_cfg, DictConfig):
@@ -182,10 +181,7 @@ class LayoutManager:
                         inst["prim_path"] = prim_path
                         inst["usd_path"] = usd_path
                         inst["inst_name"] = inst_name
-                        if "type" in inst and inst["type"] == "cluttered":
-                            modeldir = f"{OBJECTS_PATH}/Clutter/{cat}"
-                        else:
-                            modeldir = f"{OBJECTS_PATH}/{key}/{cat}"
+                        modeldir = os.path.dirname(obj_dir)
                         data = load_object_metadata(modeldir, cat_idx)
                         data["model_name"] = cat
                         data["model_id"] = cat_idx
@@ -783,11 +779,8 @@ class LayoutManager:
     def _get_category_indices(self, cat_name: List[str], type: str) -> List[List[int]]:
         cat_idx = []
         for name in cat_name:
-            modeldir = os.path.join(OBJECTS_PATH, type, name)
-            if not os.path.isdir(modeldir):
-                cat_idx.append([])
-                continue
-            model_indices = os.listdir(modeldir)
+            modeldirs = [os.path.join(ASSETS_PATH, "Object", lib, type, name) for lib in OBJECT_LIBRARIES]
+            model_indices = sorted({n for d in modeldirs if os.path.isdir(d) for n in os.listdir(d)})
             indices = []
             for model_idx in model_indices:
                 try:

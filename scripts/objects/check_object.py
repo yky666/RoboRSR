@@ -5,7 +5,7 @@ Fails if an object tips over, sinks into / floats above the floor, or is still m
 
 Usage:
     python scripts/objects/check_object.py DIR [DIR ...] [--image out.png] [--image-dir real2sim/objects]
-    e.g. python scripts/objects/check_object.py Assets/Object/RoboDojo/Rigid/pitcher/0000{0,1,2}
+    e.g. python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid/pitcher/0000{0,1,2}
 --image-dir renders every object on its own, to <image-dir>/<type>/<category>/<index>/preview/sim.png (the layout the
 Real2Sim platform reads, src/real2sim_platform).
 """

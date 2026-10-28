@@ -10,9 +10,8 @@
 Mug and measuring-cup dimensions and masses are measured (measuring cups: measuring_cup_shape.py).
 
 Usage:
-    python scripts/objects/make_plastic_cups.py [RIGID_DIR]    # default Assets/Object/RoboDojo/Rigid
-    python scripts/objects/check_object.py Assets/Object/RoboDojo/Rigid/{plastic_mug/0000{0..5},measuring_cup/0000{0,1}}
-After adding to Assets, run Assets/Object/RoboDojo/Rigid/format.py to refresh uuid_map.json.
+    python scripts/objects/make_plastic_cups.py [RIGID_DIR]    # default Assets/Object/Real2Sim/Rigid
+    python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid/{plastic_mug/0000{0..5},measuring_cup/0000{0,1}}
 Writes RIGID_DIR/<category>/<index>/{object.usdz, metadata.json, description.json}. Needs what make_pitcher.py needs.
 
 Frame: Z up, metres, origin at bbox centre.
@@ -39,7 +38,7 @@ import measuring_cup_shape as shape  # noqa: E402
 import plastic_mug_shape  # noqa: E402
 from plastic_mug_shape import MUG  # noqa: E402
 
-RIGID_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/RoboDojo/Rigid"
+RIGID_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/Real2Sim/Rigid"
 N_THETA = shape.N_THETA
 STAVE_TOL = 0.0003  # max collision-wall intrusion into the cavity
 BOTTOM_SIDES = 24  # bottom slab polygon: PhysX GPU convexes (particle contacts) take <= 64 vertices, <= 32 per face

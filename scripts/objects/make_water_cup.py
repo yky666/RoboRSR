@@ -7,11 +7,11 @@ real2sim/scene3_pour_pack/scene_spec.json (receiver_cup). The plastic cup is cle
 the Dex1-1 fingers in the clips.
 
 Usage:
-    python scripts/objects/make_water_cup.py [OUT_DIR]    # default Assets/Object/RoboDojo/Rigid/water_cup
+    python scripts/objects/make_water_cup.py [OUT_DIR]    # default Assets/Object/Real2Sim/Rigid/water_cup
     python scripts/objects/make_water_cup.py --plastic [OUT_DIR]    # default .../Rigid/plastic_cup
     python scripts/objects/make_water_cup.py --gray [OUT_DIR]       # smoke-grey tumbler, .../Rigid/plastic_cup/00001
     python scripts/objects/make_water_cup.py --blue [OUT_DIR]       # opaque blue cup, .../Rigid/plastic_cup/00002
-    python scripts/objects/check_object.py Assets/Object/RoboDojo/Rigid/water_cup/00000
+    python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid/water_cup/00000
 Writes OUT_DIR/00000/{object.usdz, metadata.json, description.json}. Needs what make_pitcher.py needs.
 
 Frame: Z up, metres, origin at bbox centre.
@@ -34,7 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import make_pitcher as mp  # noqa: E402  (shared USD helpers; starts Kit when pxr needs it)
 from make_pitcher import Sdf, Usd, UsdGeom, UsdPhysics, UsdShade  # noqa: E402
 
-OUT_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/RoboDojo/Rigid/water_cup"
+OUT_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/Real2Sim/Rigid/water_cup"
 
 H, R0, R1 = 0.118, 0.0275, 0.0365  # height, outer radius at the bottom and at the rim
 T_WALL, T_BOTTOM = 0.003, 0.006

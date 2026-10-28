@@ -31,6 +31,7 @@ from scipy.spatial.transform import Rotation
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
+from env.global_configs import OBJECT_LIBRARIES, object_dir  # noqa: E402
 from scripts.g1d.prepare_office_beans_layouts import sample_layouts, yaw_wxyz  # noqa: E402
 
 TASK = "g1d_pour_beans_cup_or_mug"
@@ -74,10 +75,12 @@ def place_pose(trans, xy, z, yaw):
     return pos.tolist(), [float(w), float(x), float(y), float(z_)]
 
 
-def clutter_library(clutter_dir):
-    """[(category, index, metadata)] of Clutter objects with a model and an upright placement small enough."""
+def clutter_library(assets):
+    """[(category, index, metadata)] of Clutter objects (every library) with a model and an upright placement small
+    enough."""
     out = []
-    for folder in sorted(Path(clutter_dir).glob("*/0*")):
+    folders = [f for lib in OBJECT_LIBRARIES for f in (Path(assets) / "Object" / lib / "Clutter").glob("*/0*")]
+    for folder in sorted(folders, key=lambda f: f.parts[-2:]):
         if not any((folder / name).exists() for name in ("object.usdz", "object.usd")):
             continue
         meta = json.loads((folder / "metadata.json").read_text())
@@ -133,11 +136,10 @@ def main():
     cups = {c["label"]: c for c in template["Rigid"]["measuring_cup"]}
     if {(label, c["category_idx"]) for label, c in cups.items()} != {("source_cup", 1), ("target_cup", 0)}:
         parser.error("Template must pour tall measuring cup 1 into short measuring cup 0")
-    objects = args.assets / "Object/RoboDojo"
-    mug_meta = json.loads((objects / "Rigid/plastic_mug/00000/metadata.json").read_text())
-    library = clutter_library(objects / "Clutter")
+    mug_meta = json.loads((Path(object_dir("Rigid/plastic_mug/00000", args.assets)) / "metadata.json").read_text())
+    library = clutter_library(args.assets)
     if len({c for c, _, _ in library}) < DISTRACTORS[1]:
-        parser.error(f"Only {len(library)} usable Clutter objects in {objects / 'Clutter'}")
+        parser.error(f"Only {len(library)} usable Clutter objects in {args.assets}/Object/*/Clutter")
     source_entry, target_entry = cups["source_cup"], cups["target_cup"]
     table_z = target_entry["default_pos"][2] - target_entry["physics"]["size"][2] / 2 - 1e-4
     tall_h = source_entry["physics"]["size"][2]
