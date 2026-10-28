@@ -619,7 +619,10 @@ def test_registration_confirmation_and_stale_prompt(tmp_path):
     assert not registration.state(doc)["confirmed"]
     doc["modeling_confirmation"] = registration.confirm(doc, "杨开元")
     result = registration.state(doc)
-    assert result["confirmed"] and "real-object-v1" in result["prompt"] and "保留未知" in result["prompt"]
+    assert result["confirmed"] and "real-object-v2" in result["prompt"] and "保留未知" in result["prompt"]
+    assert "照片贴图" in result["prompt"] and "不得用程序绘制" in result["prompt"]
+    stale = {**doc, "modeling_confirmation": {**doc["modeling_confirmation"], "version": "real-object-v1"}}
+    assert not registration.state(stale)["confirmed"]
     assert "0.1" in result["prompt"] and doc.get("real_mass") is None
     assert not registration.state({**doc, "color": "红色"})["confirmed"]
     photo.write_bytes(b"new reference, changed")

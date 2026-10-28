@@ -104,6 +104,12 @@ rsync -az --exclude preview/ <部署机>:<仓库>/real2sim/objects/<id>/ real2si
 - 碰撞体：容器要空心，用杯底一块 + 杯壁分片（`wall_staves`），开口不能被封住。每个凸包 ≤ 64 个顶点、单个面 ≤ 32 个顶点，超出 PhysX GPU 限制就不能和颗粒碰撞，豆子会穿过去；底板多边形用 24 边（`BOTTOM_SIDES`）。
 - 自检（脚本里 assert，不通过不写文件）：每个可见部件 `signed_volume > 0`（绕序朝外）；凸包不侵入空腔（`cavity_probe` + `self_check`）。容器打印容积；spec 写了容量（刻度、满口毫升数）就对一下。
 - 材质：不透明用 OmniPBR；半透明塑料用 OmniSurface（漫反射权重固定 1，只用透射权重调乳白程度，粗糙度 ≤ 0.35，原因见 `clear_pp` 的注释）；透明玻璃用 OmniGlass。按 spec 的材质、颜色和照片调，目测接近即可。
+- **标签、贴纸、印刷图案**：实物上有标签、贴纸、logo、文字或花纹，就必须做成照片贴图，不能省略，也不能用程序画的通用文字、插图、纯色块代替（农夫山泉 00000 的程序标签、东方树叶第一版包满整瓶的标签，都因此被用户判为"很假"）。
+  - 位置：先在照片上标出每块标签的起止高度和所在面或包角，只贴在实物有标签的位置；每块单独一个网格（`/root/visual/label_front`、`label_back`、`label_neck` 等），纹理打进 usdz（`textures/<名称>.png`），略高出表面 0.1–0.3 mm 免得闪烁，用不透明的 OmniPBR。
+  - 贴图：平面标签从照片按四个角点做透视校正；圆柱面按柱面展开（只取正对相机那一段，边缘斜视处不可信）；再除掉照片的平滑明暗、压掉高光。分辨率 ≥ 10 px/mm，文字要可读。可复用 `bottle_label.py` 的 `photo_panel`、`photo_band`、`even_light`（东方树叶 00006 的实现，在分支 `z/objects-plastic-bottle-00006`，合并前从该分支取）。
+  - 透明主体会透出标签背面：背面用纸背颜色（`two_sided`），不要镜像正面图案。
+  - 照片缺某一面（背面、瓶颈、底部）：在交付说明里列出缺的角度，请登记人补拍；补拍前该面用纯色底，并在 `ASSETS.md` 写「缺照片」，不要编内容。
+  - 泛化变体可以换成虚构品牌的绘制标签，但位置和覆盖范围沿用本体。
 - uuid：`uuid.uuid5(uuid.NAMESPACE_URL, f"robodojo/rigid/{类别}/{编号}")`，编号用整数。
 - `description.json`：`uuid`；`caption` 下 `color`、`material`、`size`、`name`、`shape`、`function` 各 3 个英文短语；`description` 是 5 句英文描述。
 
@@ -163,7 +169,7 @@ CUDA_VISIBLE_DEVICES=<卡> PYTHONPATH=. python scripts/objects/check_object.py o
 
 ### 8. 外观
 
-- 把 `preview/sim.png` 和 `reference/` 里的照片并排看：轮廓比例、颜色、透明度、把手位置。差得明显就调几何或材质。
+- 按 `reference/` 每张照片的视角各渲染一张，和照片并排拼成对照图放进 `preview/`：逐项核对截面形状、肩颈比例、颜色、透明度、把手位置，以及每块标签的位置、大小、颜色和文字。标签缺失或与照片对不上就不算完成，回到第 4 步。
 - 把 `preview/` 同步回本机和部署机的同一路径（平台读部署机上的），这个目录不入库。
 - `preview/check.json` 由 `check_object.py` 写：落地结果（`settle`）、资产的质量、尺寸和 `measurements_mm`。其余物理检验做了哪项，就在里面加 `"checks": {"collision" | "grasp" | "liquid" | "render": "pass" | "fail" | "na"}` 和 `"notes": {项: 依据}`（如「容器口未封，check_cup_beans 保留 100%」「非容器」）；没做的不写，不要为了通过而写 pass。重跑 `check_object.py` 会覆盖这个文件，补写的项要重新加。平台上人工选的结论优先。
 

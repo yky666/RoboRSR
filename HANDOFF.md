@@ -53,6 +53,13 @@
 - 平台录入的中文名（数据库 `name` 字段，记在「种政」名下）：00000「冷水壶」，00001「冷水壶（琥珀色）」，00002「冷水壶（透明）」。另一组 `water_pitcher/00000–00005`（已被驳回、待补实物照片重建）没动。
 - 验证：平台重扫后三条的 `auto.variant_of` 符合预期；部署机页面的卡片视图会过滤掉变体。没重启服务，也没在浏览器里看。
 
+### 物体建模 prompt v2：实物标签必须用照片贴图（2026-10-28，`chongzheng/platform-prompt-labels`，未部署）
+
+- **起因**（用户）：平台按 prompt 建的东方树叶、农夫山泉"很假"，而且没有贴纸。原因：`real-object-v1` 的外观只有一句"标签与参考核对"，没说标签怎么做，于是农夫山泉 00000 用了程序画的通用文字和插图，东方树叶第一版标签包满整瓶、瓶型也套了圆瓶模板（`z/objects-plastic-bottle-00006` 下午已改成从照片裁剪，那个分支还没合并）。
+- **改动**：`object_registration.py` 模板升到 `real-object-v2`，新增「标签、贴纸与印刷图案」：标签、logo、文字必须从参考照片裁剪并做透视校正或柱面展开、去掉明暗后作纹理，不得省略或用程序绘制的代替；只贴在实物有标签的位置，每块单独网格，≥ 10 px/mm，不透明材质，透明主体透出的背面用纸背色；照片缺的面要求补拍、不编内容；变体可用虚构品牌但位置沿用本体；交付同视角照片对照图，标签不符不算完成。几何一句加了"截面、肩颈比例、盖子逐张对照照片，不套现成模板"。`scripts/objects/SKILL.md` 第 4 步加同样的标签规则（指向 `bottle_label.py` 的 `photo_panel`/`photo_band`/`even_light`），第 8 步改成按每张照片的视角渲染并拼对照图；`ASSET_WORKFLOW.md` 同步版本说明。
+- **兼容性**：版本号进了 `revision`，所以 v1 确认过的登记在平台上都会变回"未确认"，管理员重新点确认才会生成新 prompt 和 `modeling_prompt.md`。这是有意的：旧 prompt 正是出问题的那份。
+- **验证**：本机 `test_server.py` 13 passed（新增断言：prompt 含标签规则、v1 的确认失效），ruff 0.11.7 check/format、`git diff --check` 通过。本机缺 ruff/pytest 环境，用 `uvx`/`uv run` 临时跑；没跑完整 `scripts/check.sh`（其余单测需要 h5py、opencv 等）。没部署到 `5090-2`。
+
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 
 - **起因**（用户）：建模时把 Real2Sim 实物孪生错存进了官方 RoboDojo 物体库，应该单独放 Real2Sim 库。范围（用户选）：全部自建孪生。
@@ -808,6 +815,7 @@
 
 ## 下一会话
 
+0. 物体 prompt v2（`chongzheng/platform-prompt-labels`）：合并后部署数采平台，管理员对东方树叶、农夫山泉等已确认的登记重新点确认；再按新 prompt 重做农夫山泉 00000 的照片标签（东方树叶等 `z/objects-plastic-bottle-00006` 合并后复核）。
 0. RSI：先读 `rsi/AGENTS.md`。资产分池、ManiTwin 干扰物、Poly Haven HDR 已完成（见「最近任务」前两节），新资产在 `5090-2:/data/robodojo-runs/rsi-assets-20261024/`，用 `rsi_assets.py link` 合并进运行目录。下一步按优先级：材质（Poly Haven PBR 贴图转 MDL，官方材质被三套评测集用完了）→ 房间变体（新材质给 `Simple_Room` 换墙面）→ GSO 的鞋和玩具 → 任务物体的新实例 → 12 个 `_random` 任务基础版的 X5 脚本专家。每次加完新资产都要重跑 `rsi_assets.py scan` 并把 `pools.json` 入库。
 0. 榜单：基线已停（16:35，用户要求），先问用户是否续跑；续跑后收两份基线（`smoke_results/baseline_*_20261022.md`，核对每个任务 `eval_time >= 1`），按任务对比 OpenWAM / pi0.5 / 有无官方数据；看失败视频做归类；然后开始把 `collect.py` 和插件接口推广到 dual X5，按优先级给无官方数据的任务写专家。
 0. 实现平台登记的 `g1d_pour_beans_any_cups`：在平台任务抽屉复制「实现任务」文本交给 coding agent（输入 `real2sim/tasks/g1d_pour_beans_any_cups/registration.json`）。
@@ -822,6 +830,7 @@
 
 ## 最近历史
 
+- 2026-10-28：物体建模 prompt 升到 `real-object-v2`：实物标签必须从照片做贴图，交付同视角照片对照图；v1 确认需重新确认。
 - 2026-10-28：PR #31–#34 合进 `main`（泛化维度与综合等级、物体资产库分组与审核、塑料马克杯变体、吧台岛台），数采平台部署到合并后的 `main`。
 - 2026-10-28：塑料马克杯 `plastic_mug` 补 `measurements_mm`（误差 0），新增 5 个泛化变体 `00001–00005`，`check_object` 全部 OK。
 - 2026-10-28：吧台场景按 6 张新照片加过道里的高吧台和绿色岛台（含吧凳、线形吊灯），去掉现场已撤的微波炉，白色圆桌改为 4 把椅子，天花板灯槽改为垂直于墙，右侧木柜墙和饮水机按正面照片重排，垃圾桶加照片贴花；脚本专家送杯后退改为 0.5 m 让出吧凳。`5090-2` 上 RTX 渲染、倒水送杯 1/1、送杯 2/4（另 2 个是抓杯失败，旧场景下一样）。
