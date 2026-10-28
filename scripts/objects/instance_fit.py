@@ -23,9 +23,13 @@ handle height and handle-to-hook alignment (is_lift is left out: it compares wit
 import argparse
 import json
 from pathlib import Path
+import sys
 
 import numpy as np
 import transforms3d as t3d
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from env.global_configs import object_dir  # noqa: E402
 
 TABLE_Z = 0.765
 DROP_M = 0.005
@@ -36,7 +40,7 @@ FLUID_HALF_M = 0.035  # half the height of the task's fluid column (Fluid/wulian
 
 
 def _meta(assets, section, category, index):
-    path = Path(assets) / "Object/RoboDojo" / section / category / f"{index:05d}" / "metadata.json"
+    path = Path(object_dir(f"{section}/{category}/{index:05d}", assets)) / "metadata.json"
     return json.loads(path.read_text(encoding="utf-8"))
 
 

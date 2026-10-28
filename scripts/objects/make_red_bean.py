@@ -5,7 +5,7 @@ Blunt-ended superellipsoid, 7 x 5 x 5 mm and 0.1 g (measured adzuki), glossy dar
 along the +Y side. The bean particles of the g1d tasks are 4 mm PBD spheres; this mesh is not their collider.
 
 Usage:
-    python scripts/objects/make_red_bean.py [RIGID_DIR]    # default Assets/Object/RoboDojo/Rigid
+    python scripts/objects/make_red_bean.py [RIGID_DIR]    # default Assets/Object/Real2Sim/Rigid
 Writes RIGID_DIR/red_bean/00000/{object.usdz, metadata.json, description.json}.
 
 Frame: Z up (thickness), X along the bean, hilum on +Y, metres, origin at the centre.

@@ -35,6 +35,9 @@ import xml.etree.ElementTree as ET
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
+sys.path.insert(0, str(ROOT))
+from env.global_configs import object_dir  # noqa: E402
+
 UNITREE_RAW = "https://raw.githubusercontent.com/unitreerobotics/unitree_ros/master/"
 V4_URDF = "g1_d_full_dex1_v4.urdf"
 G1_DEX1_URDF = "robots/g1_description/g1_29dof_mode_15_with_dex1_1.urdf"
@@ -123,6 +126,10 @@ D435_INERTIAL = (
     '<inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.01"/>'
     '<inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/></inertial>'
 )
+
+
+def object_meta(assets, rel):
+    return json.loads((Path(object_dir(rel, assets)) / "metadata.json").read_text())
 
 
 def mesh_files(root):
@@ -297,7 +304,7 @@ def swap_bottle_for_pitcher(layout, assets, layout_index, table_top):
     """Replace the wuliangye bottle (and the fluid inside it) by our fridge jug, spout turned toward the cup, and the
     cup by our water cup, POUR_CUP_PULL closer to the robot; None if the cup then sits too close to the jug."""
     index = layout_index % 3  # jug colour variant
-    meta = json.loads((assets / "Object/RoboDojo/Rigid/pitcher" / f"{index:05d}/metadata.json").read_text())
+    meta = object_meta(assets, f"Rigid/pitcher/{index:05d}")
     bottle = layout["Rigid"].pop("wuliangye")[0]
     pitcher = dict(bottle, category="pitcher", category_idx=index, physics=dict(meta["physics"], type="rigid"))
     height = meta["physics"]["size"][2]
@@ -318,7 +325,7 @@ def swap_bottle_for_pitcher(layout, assets, layout_index, table_top):
     layout["Rigid"][key].remove(mug)
     if not layout["Rigid"][key]:
         del layout["Rigid"][key]
-    meta = json.loads((assets / "Object/RoboDojo/Rigid/water_cup/00000/metadata.json").read_text())
+    meta = object_meta(assets, "Rigid/water_cup/00000")
     x, y, _ = mug["default_pos"]
     cup = dict(mug, category="water_cup", category_idx=0, physics=dict(meta["physics"], type="rigid"))
     cup["default_pos"] = [x, y + POUR_CUP_PULL, table_top + meta["physics"]["size"][2] / 2 + 1e-4]
@@ -333,7 +340,7 @@ def two_cups(layout, assets, layout_index, table_top):
     right; positions drawn from the bottle's original one, so every seed folder and layout differs (indices repeat).
     The right hand does not pour: the cup turns between the pads (one Dex1 finger sits on its open stop, on the other
     side of the cup than in the left hand) and the beans stay in at 85 deg."""
-    meta = json.loads((assets / "Object/RoboDojo/Rigid/plastic_cup/00000/metadata.json").read_text())
+    meta = object_meta(assets, "Rigid/plastic_cup/00000")
     z = table_top + meta["physics"]["size"][2] / 2 + 1e-4
     template = layout["Rigid"].pop("wuliangye")[0]
     rng = random.Random(json.dumps(template["default_pos"]))
@@ -371,7 +378,7 @@ def two_measuring_cups(layout, assets, layout_index, table_top):
     cups = layout["Rigid"].pop("plastic_cup")
     for cup, (idx, label) in zip(cups, MEASURING_CUPS):
         assert cup["label"] == label
-        meta = json.loads((assets / f"Object/RoboDojo/Rigid/measuring_cup/{idx:05d}/metadata.json").read_text())
+        meta = object_meta(assets, f"Rigid/measuring_cup/{idx:05d}")
         cup.update(category="measuring_cup", category_idx=idx, default_ori=MEASURING_ORI)
         cup["physics"] = dict(meta["physics"], type="rigid")
         cup["default_pos"][2] = table_top + meta["physics"]["size"][2] / 2 + 1e-4
@@ -406,7 +413,7 @@ def _obb(assets, kind, cat, entry):
 
     idx = entry.get("category_idx", 0)
     sub = "Clutter" if entry.get("type") == "cluttered" else kind
-    meta = json.loads((assets / "Object/RoboDojo" / sub / cat / f"{idx:05d}/metadata.json").read_text())
+    meta = object_meta(assets, f"{sub}/{cat}/{idx:05d}")
     verts = meta["geometry"]["oriented_bbox"]["vertices"]
     scale, pos, q = entry.get("scale", [1, 1, 1]), entry["default_pos"], entry["default_ori"]
     rot = Rotation.from_quat([q[1], q[2], q[3], q[0]])
@@ -488,7 +495,7 @@ def randomize_objects(layout, rules, table_top, assets, seed):
                 rgb = colorsys.hsv_to_rgb(rng.random(), rng.uniform(0.45, 0.9), rng.uniform(0.35, 0.9))
                 sub, index = "Clutter" if entry.get("type") == "cluttered" else "Rigid", entry.get("category_idx", 0)
                 name = entry.get("category") or cat
-                meta = json.loads((assets / f"Object/RoboDojo/{sub}/{name}/{index:05d}/metadata.json").read_text())
+                meta = object_meta(assets, f"{sub}/{name}/{index:05d}")
                 visual = dict(entry.get("visual") or {}, color=[round(c**2.2, 4) for c in rgb])  # sRGB -> linear
                 if meta.get("visual", {}).get("color_parts"):
                     visual["color_parts"] = meta["visual"]["color_parts"]
@@ -520,7 +527,7 @@ def deliver_cup_layout(assets, room, room_pos, params, rng):
     real mass so the chassis pushes rather than flings them) at their photo poses, jittered."""
 
     def entry(cat, idx, label, xy, yaw, plane, z_base):
-        meta = json.loads((assets / f"Object/RoboDojo/Rigid/{cat}/{idx:05d}/metadata.json").read_text())
+        meta = object_meta(assets, f"Rigid/{cat}/{idx:05d}")
         physics = dict(meta["physics"], type="rigid")
         if cat == "lounge_chair":
             physics["mass_cap"] = physics["mass"]

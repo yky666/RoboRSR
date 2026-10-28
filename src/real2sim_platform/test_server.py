@@ -296,6 +296,13 @@ def test_http():
         built.mkdir(parents=True)
         (built / "metadata.json").write_text(json.dumps({"physics": {"mass": 0.05}, "measurements_mm": {"高": 95.5}}))
         assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["measurements"] == {"高": 95.5}
+        assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["library"] == "RoboDojo"
+        twin_dir = tmp / "Object/Real2Sim/Rigid/cup/00005"  # a twin built here: the Real2Sim library, found first
+        twin_dir.mkdir(parents=True)
+        (twin_dir / "metadata.json").write_text(json.dumps({"physics": {"mass": 0.02}}))
+        found = server.scan_objects(tmp, {}, ["Rigid/cup/00005"])["Rigid/cup/00005"]
+        assert found["in_library"] and found["library"] == "Real2Sim" and found["mass"] == 0.02
+        assert 5 in server.object_indices(tmp, server.Store(tmp / "indices.sqlite3"))["Rigid/cup"]
         preview = tmp / "objects/Rigid/cup/00004/preview"  # built and checked, not in the library yet
         preview.mkdir(parents=True)
         check = {"settle": "pass", "mass_kg": 0.038, "size_m": [0.05, 0.04, 0.02], "measurements_mm": {"高": 46.4}}

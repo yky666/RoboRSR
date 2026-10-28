@@ -18,7 +18,7 @@ import argparse
 from isaaclab.app import AppLauncher
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--rigid-dir", default="Assets/Object/RoboDojo/Rigid")
+parser.add_argument("--rigid-dir", default="Assets/Object/Real2Sim/Rigid")
 parser.add_argument("--fluid-dir", default="Assets/Object/RoboDojo/Fluid/wuliangye/00000")
 parser.add_argument("--out", default="output/plastic_cups/beans")
 parser.add_argument("--seconds", type=float, default=2.0)

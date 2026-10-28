@@ -4,7 +4,8 @@ Stdlib only (any python3 >= 3.10, no Isaac). On start, and on "从项目同步" 
     real2sim/scenes/<dir>/                reference photos, camera fit, USD, check_report.json, previews, render, GLB
     env_cfg/scene/<name>.yml              the benchmark's own scenes (robodojo_<name>) and the tasks that load them
     task/RoboDojo/config/<task>.yml       tasks (scripts/internal/task_inventory.py), objects of the G1-D tasks
-    <assets>/Object/RoboDojo/<id>/        metadata.json / description.json of those objects
+    <assets>/Object/<library>/<id>/       metadata.json / description.json of those objects; Real2Sim twins built here
+                                          in Object/Real2Sim/, the benchmark's own in Object/RoboDojo/
     <assets>/Eval_Layout/RoboDojo/<cfg>/  eval layouts per task and env config
     <eval-root>/**/_result.json           collected episodes and their camera videos (src/eval_client/eval_env.py)
 Scan results go to each record's "auto"; what is entered in the page (measurements, check verdicts, QA) sits next to it
@@ -47,10 +48,13 @@ from urllib.parse import parse_qs, unquote, urlparse
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path[:0] = [str(ROOT / "scripts" / s) for s in ("internal", "g1d", "scenes", "datagen")]
+sys.path.append(str(ROOT))
 import appearance  # a scene's surface materials and desk height -> layouts
 import build_asset  # SCENES: env config -> real2sim scene
 import rsi_profile  # an upstream task's randomization profile -> scripts/datagen/x5_layouts.py
 import task_inventory
+
+from env.global_configs import OBJECT_LIBRARIES, object_dir
 
 KINDS = ("scene", "object", "task", "episode", "embodiment", "evaluation", "prototype")
 PROTOTYPES_DIR = ROOT / "real2sim" / "prototypes"
@@ -555,7 +559,7 @@ def scan_objects(assets, tasks, keep):
     found = {}
     for oid in sorted(set(used) | {k for k in keep if OBJECT_ID.fullmatch(k)}):
         kind, category, index = oid.split("/")
-        d = assets / "Object" / "RoboDojo" / oid
+        d = Path(object_dir(oid, assets))
         meta = load_json(d / "metadata.json")
         physics = (meta or {}).get("physics", {})
         # check_object.py --image-dir result, synced with the renders: a built asset, maybe not installed yet
@@ -568,6 +572,7 @@ def scan_objects(assets, tasks, keep):
             "category": category,
             "index": index,
             "dir": str(d),
+            "library": d.parent.parent.parent.name,  # Real2Sim (twins built here) or RoboDojo (the benchmark's)
             **used.get(oid, {"tasks": [], "labels": []}),
             "generator": generator.relative_to(ROOT).as_posix() if generator else None,
             "in_library": meta is not None,
@@ -628,8 +633,8 @@ def clutter_categories(assets):
 
 
 def object_indices(assets, store):
-    """{"Rigid/cup": [0, 1, ...]}: indices taken per <type>/<category> in the library, real2sim/objects or the store."""
-    roots = (assets / "Object" / "RoboDojo", OBJECTS_DIR)
+    """{"Rigid/cup": [0, 1, ...]}: indices taken per <type>/<category> in any library, real2sim/objects or the store."""
+    roots = (*(assets / "Object" / lib for lib in OBJECT_LIBRARIES), OBJECTS_DIR)
     ids = [p.relative_to(root).as_posix() for root in roots for p in root.glob("*/*/*") if p.is_dir()]
     taken = {}
     for oid in ids + [d["id"] for d in store.list("object")]:

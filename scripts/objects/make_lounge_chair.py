@@ -9,8 +9,8 @@ the lounge fit (fit_lounge.py, table top assumed 0.75 m); the mass is a typical 
 chairs are a different, rounder model in the photos; only the colour differs here.
 
 Usage:
-    python scripts/objects/make_lounge_chair.py [RIGID_DIR]    # default Assets/Object/RoboDojo/Rigid
-    python scripts/objects/check_object.py Assets/Object/RoboDojo/Rigid/lounge_chair/00000
+    python scripts/objects/make_lounge_chair.py [RIGID_DIR]    # default Assets/Object/Real2Sim/Rigid
+    python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid/lounge_chair/00000
 Writes RIGID_DIR/lounge_chair/<index>/{object.usdz, metadata.json, description.json}. Needs what make_pitcher.py
 needs.
 
@@ -40,7 +40,7 @@ import make_pitcher as mp  # noqa: E402  (shared USD helpers; starts Kit when px
 from make_pitcher import Sdf, Usd, UsdGeom, UsdPhysics, UsdShade  # noqa: E402
 import make_plastic_cups as pc  # noqa: E402  (add_collision, metadata)
 
-RIGID_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/RoboDojo/Rigid"
+RIGID_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/Real2Sim/Rigid"
 CHAIR = dict(
     # plan: a U, straight front at FRONT_X, half-round back about (BACK_CX, 0) of radius R (width 2R), estimated
     FRONT_X=0.26, BACK_CX=-0.01, R=0.29,

@@ -14,9 +14,9 @@
   fictional brands.
 
 Usage:
-    python scripts/objects/make_plastic_bottle.py [TYPE_DIR]    # default Assets/Object/RoboDojo/Clutter
-    python scripts/objects/check_object.py Assets/Object/RoboDojo/Clutter/plastic_bottle/0000{0,1,2,3,4,5}
-    python scripts/objects/check_bottle_cap.py Assets/Object/RoboDojo/Articulation/plastic_bottle/0000{0,1,2,3,4,5}
+    python scripts/objects/make_plastic_bottle.py [TYPE_DIR]    # default Assets/Object/Real2Sim/Clutter
+    python scripts/objects/check_object.py Assets/Object/Real2Sim/Clutter/plastic_bottle/0000{0,1,2,3,4,5}
+    python scripts/objects/check_bottle_cap.py Assets/Object/Real2Sim/Articulation/plastic_bottle/0000{0,1,2,3,4,5}
 Writes TYPE_DIR/plastic_bottle/<index>/ and TYPE_DIR/../Articulation/plastic_bottle/<index>/, each {object.usdz,
 metadata.json, description.json}. Needs what make_pitcher.py needs, and PIL.
 
@@ -48,7 +48,7 @@ from make_pitcher import Gf, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt  # noqa
 import make_plastic_cups as pc  # noqa: E402  (loft, unit_section, metadata)
 from pxr import PhysxSchema  # noqa: E402
 
-TYPE_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/RoboDojo/Clutter"
+TYPE_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/Real2Sim/Clutter"
 CATEGORY = "plastic_bottle"
 LABEL_TEX = "textures/label.png"  # inside the usdz, next to object.usdc
 LABEL_PX, LABEL_MAX_PX = 1024, 4096  # label texture height; width follows the label's perimeter, capped

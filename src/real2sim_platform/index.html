@@ -610,7 +610,7 @@ const OBJECT_TYPES = {Rigid: '刚体', Articulation: '关节物体', Clutter: '�
 const METHODS = {'': '未定', script: '参数化脚本', photogrammetry: '摄影测量', generative: '3D 生成模型', library: '开源 / 官方物体库'};
 const CHECK_STATES = {'': '未测', pass: '通过', fail: '不通过', na: '不适用'};
 const PHYS = [
-  ['settle', '落地静置', '1 s 内稳定，倾斜 < 1°，速度 < 5 mm/s', (d) => `PYTHONPATH=. python scripts/objects/check_object.py Assets/Object/RoboDojo/${d.id} --image-dir real2sim/objects`],
+  ['settle', '落地静置', '1 s 内稳定，倾斜 < 1°，速度 < 5 mm/s', (d) => `PYTHONPATH=. python scripts/objects/check_object.py ${objPath(d)} --image-dir real2sim/objects`],
   ['collision', '碰撞体', '与桌面、其他物体初始无穿插；容器口没被碰撞体封住', () => ''],
   ['grasp', '抓取', 'Dex1 用脚本抓起，保持 3 s 不滑落', () => ''],
   ['liquid', '盛液（仅容器）', '静置时液体保留率 ≥ 99%',
@@ -1568,8 +1568,9 @@ const objName = (d) => d.name || d.auto.name || d.auto.category;
 // generalization variants (metadata.json "variant_of") sit on their base object's card
 const baseOf = (d) => (d.auto.variant_of && d.auto.variant_of !== d.id ? S.object.find((x) => x.id === d.auto.variant_of) : null);
 const variantsOf = (id) => S.object.filter((x) => x.auto.variant_of === id && x.id !== id);
-// a library object with variants, or a variant, is a Real2Sim twin even without a registration here (d.twin)
-const twinObj = (d) => Boolean(d.twin || (d.auto.variant_of && d.auto.variant_of !== d.id) || variantsOf(d.id).length);
+// registered here (d.twin), or built into the Real2Sim object library (Object/Real2Sim/, not the benchmark's RoboDojo/)
+const twinObj = (d) => Boolean(d.twin || d.auto.library === 'Real2Sim');
+const objPath = (d) => `Assets/Object/${d.auto?.library || 'Real2Sim'}/${d.id}`;
 const ownObj = (d) => Boolean(d.auto.generator || twinObj(d));
 function objMedia(d, thumb = false) {
   const a = d.auto, render = a.renders?.[0], photo = a.photos?.[0], main = render || photo;
@@ -1665,7 +1666,7 @@ function modelingBrief(d) {  // the task for a coding agent that builds this twi
     '',
     ...genBrief(d),
     '验收：',
-    `1. ${a.generator ? `在现有生成脚本 ${a.generator} 上修改` : `新建生成脚本 scripts/objects/make_${d.id.split('/')[1]}.py`}，资产生成到 Assets/Object/RoboDojo/${d.id}/（object.usdz、metadata.json、description.json），生成结果不入库。`,
+    `1. ${a.generator ? `在现有生成脚本 ${a.generator} 上修改` : `新建生成脚本 scripts/objects/make_${d.id.split('/')[1]}.py`}，资产生成到 Assets/Object/Real2Sim/${d.id}/（object.usdz、metadata.json、description.json），生成结果不入库。`,
     '2. metadata.json 顶层 measurements_mm 的键和上面实测尺寸的名称一字不差，值从生成的网格量；每项误差 < max(2 mm, 2%)，质量用实测值。平台按名称自动核对。',
     `3. check_object.py --image-dir real2sim/objects 落地检查通过：渲染图和检查结果写到 ${dir}/preview/（sim.png、check.json），和实拍照片对比过外观。其余物理检验（collision 碰撞体、grasp 抓取、liquid 盛液、render 光照渲染）做了哪项，就在 check.json 里加 "checks": {项: "pass" | "fail" | "na"} 和 "notes": {项: 依据}，没做的不写。把 preview/ 同步到部署机的同一路径，平台据此自动推进「建模」和「物理检验」。`,
     `4. 提交生成脚本、${dir}/ 下的 spec.json 和照片、real2sim/ASSETS.md；装进服务器共享资产库前先征得同意。`,
@@ -1744,7 +1745,7 @@ function drawerObject(d) {
       <dt>用于任务</dt><dd>${(a.tasks || []).map((t) => link('task', t)).join('、') || '—'}</dd>
       <dt>任务标签</dt><dd class="mono small">${esc((a.labels || []).join(', ') || '—')}</dd></dl>`)}
     ${sec('备注', area(d, 'notes'))}
-    ${sec(`${ic('terminal')}命令`, code(`${a.generator ? `python ${a.generator}   # 生成\n` : ''}PYTHONPATH=. python scripts/objects/check_object.py Assets/Object/RoboDojo/${d.id} --image-dir real2sim/objects   # 落地检查 + 渲染`))}`,
+    ${sec(`${ic('terminal')}命令`, code(`${a.generator ? `python ${a.generator}   # 生成\n` : ''}PYTHONPATH=. python scripts/objects/check_object.py ${objPath(d)} --image-dir real2sim/objects   # 落地检查 + 渲染`))}`,
   };
 }
 const WIZ = [

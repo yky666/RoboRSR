@@ -5,10 +5,10 @@ Rounded-square ribbed glass body, shoulder into a round neck, round plastic lid 
 side handle hanging from the lid.
 
 Usage:
-    python scripts/objects/make_pitcher.py [OUT_DIR]    # default Assets/Object/RoboDojo/Rigid/pitcher
-    python scripts/objects/check_object.py Assets/Object/RoboDojo/Rigid/pitcher/0000{0,1,2}
+    python scripts/objects/make_pitcher.py [OUT_DIR]    # default Assets/Object/Real2Sim/Rigid/pitcher
+    python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid/pitcher/0000{0,1,2}
 Writes OUT_DIR/0000{0,1,2}/{object.usdz, metadata.json, description.json}, one index per colour
-variant. After adding to Assets, run Assets/Object/RoboDojo/Rigid/format.py to refresh uuid_map.json.
+variant. Do not run the benchmark library's Rigid/format.py on Real2Sim: it renumbers category folders.
 Needs numpy + scipy and pxr (usd-core, or the Isaac Sim env, where Kit is started to provide it).
 
 Frame: Z up, metres, origin at bbox centre, handle on +X, spout on -X (like `mug`).
@@ -37,7 +37,7 @@ except ImportError:  # Isaac Sim pip env: pxr is importable only once Kit is run
     APP = SimulationApp({"headless": True})
     from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade, Vt
 
-OUT_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/RoboDojo/Rigid/pitcher"
+OUT_DIR = Path(__file__).resolve().parents[2] / "Assets/Object/Real2Sim/Rigid/pitcher"
 
 # ---- dimensions (m). Reference: Luminarc Quadro 1.1 L jug, 24.5 cm tall, 8.9 cm wide ----
 A = 0.0445  # body half-width at face centre (rib crests)

@@ -16,7 +16,7 @@
 
 ## 物体
 
-路径 `Assets/Object/RoboDojo/Rigid/<类别>/<编号>/`，由生成脚本写入，不入库。
+路径 `Assets/Object/Real2Sim/<类型>/<类别>/<编号>/`（Real2Sim 物体库，和官方的 `Object/RoboDojo/` 分开；加载器先找 Real2Sim），由生成脚本写入，不入库。共享库里从真实场景资产包来的孪生（`metadata.json` 有 `source_asset`）、它们的泛化变体（`variant_of`）和平台登记的孪生也都在 Real2Sim 库，2026-10-28 从 `Object/RoboDojo/` 搬来，原路径留了相对软链接给旧代码用。
 
 | 资产 | 真实对应物 | 生成脚本 | 尺寸 | 质量 | 摩擦 | 外观 | 共享库 |
 | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
@@ -91,4 +91,4 @@
 - 新增资产、改生成参数、量到实测值，都更新本表对应行，和代码放在同一个提交里。
 - 实物照片放 `real2sim/objects/<类型>/<类别>/<编号>/reference/`（数采平台物体页也能上传到这里），仿真渲染由 `check_object.py --image-dir real2sim/objects` 生成到同一 id 的 `preview/`（不入库）。
 - 装进或更新服务器共享资产库后改“共享库”一栏（流程见 README「改服务器共享资产库」）。
-- 核对共享库：`ssh 5090-2 'ls /data/robodojo-assets/Assets/Object/RoboDojo/Rigid/<类别>'`。
+- 核对共享库：`ssh 5090-2 'ls /data/robodojo-assets/Assets/Object/Real2Sim/Rigid/<类别>'`。

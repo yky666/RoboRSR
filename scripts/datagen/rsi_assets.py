@@ -22,8 +22,12 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+from env.global_configs import OBJECT_LIBRARIES  # noqa: E402
+
 POOLS = ROOT / "rsi" / "assets" / "pools.json"
 # tasks with official training data (HF RoboDojo-Benchmark/RoboDojo data/RoboDojo/, 2026-10-22)
 OFFICIAL_TRAIN_TASKS = frozenset(
@@ -74,9 +78,9 @@ def library(assets):
             found[f"material:{p.name}"] = None
     for p in sorted((assets / "Background").glob("*.hdr")):
         found[f"hdr:{p.name}"] = None
-    objects = assets / "Object" / "RoboDojo"
     for section in ("Clutter", *SECTIONS):
-        for meta in sorted(objects.glob(f"{section}/*/*/metadata.json")):
+        metas = [m for lib in OBJECT_LIBRARIES for m in (assets / "Object" / lib).glob(f"{section}/*/*/metadata.json")]
+        for meta in sorted(metas, key=lambda m: m.parts[-3:]):
             if not meta.parent.name.isdigit():
                 continue
             geometry = json.loads(meta.read_text(encoding="utf-8")).get("geometry") or {}

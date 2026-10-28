@@ -46,6 +46,7 @@ sys.path[:0] = [str(ROOT), str(ROOT / "scripts" / "datagen")]
 import rsi_assets  # noqa: E402
 import rsi_profile  # noqa: E402
 
+from env.global_configs import object_dir  # noqa: E402
 from utils.cluttered_generator import ClutteredGenerator  # noqa: E402
 
 CONFIG_DIR = ROOT / "task" / "RoboDojo" / "config"
@@ -147,7 +148,7 @@ class Assets:
     def meta(self, section, category, index, clutter=False):
         key = ("Clutter" if clutter else section, category, index)
         if key not in self.cache:
-            path = self.root / "Object" / "RoboDojo" / key[0] / category / f"{index:05d}" / "metadata.json"
+            path = Path(object_dir(f"{key[0]}/{category}/{index:05d}", self.root)) / "metadata.json"
             self.cache[key] = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
         return self.cache[key]
 

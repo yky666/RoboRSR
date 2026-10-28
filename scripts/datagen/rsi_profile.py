@@ -21,6 +21,8 @@ from pathlib import Path
 
 import rsi_assets
 
+from env.global_configs import object_dir as library_dir  # rsi_assets put the repo root on sys.path
+
 ROOT = Path(__file__).resolve().parents[2]
 PROFILES_DIR = ROOT / "real2sim" / "benchmark_tasks"  # <task>/randomization.json
 SUBJECTS = ROOT / "rsi" / "subjects.yaml"
@@ -39,11 +41,11 @@ LIMITS = {  # (low, high) any range value must stay inside
 
 
 def object_dir(assets, asset_id):
-    """Object/RoboDojo/<Section or Clutter>/<category>/<index> of an object asset id."""
+    """Object/<library>/<Section or Clutter>/<category>/<index> of an object asset id."""
     kind, _, name = asset_id.partition(":")
     category, index = name.split("/")
     section = "Clutter" if kind == "clutter" else kind
-    return Path(assets) / "Object" / "RoboDojo" / section / category / f"{int(index):05d}"
+    return Path(library_dir(f"{section}/{category}/{int(index):05d}", assets))
 
 
 def options(assets, pool="train", pools=None):

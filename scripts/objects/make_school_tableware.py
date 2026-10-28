@@ -11,8 +11,8 @@ Not registered on the Real2Sim platform and not tape-measured: sizes are fitted 
 masses come from its density hypothesis (288 kg/m^3 on the collision volume), colours are its flat sRGB RGBA.
 
 Usage:
-    python scripts/objects/make_school_tableware.py [RIGID_DIR]    # default Assets/Object/RoboDojo/Rigid
-    python scripts/objects/check_object.py Assets/Object/RoboDojo/Rigid/{paper_cup/0000{0,1},paper_plate/0000{0,1,2}}
+    python scripts/objects/make_school_tableware.py [RIGID_DIR]    # default Assets/Object/Real2Sim/Rigid
+    python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid/{paper_cup/0000{0,1},paper_plate/0000{0,1,2}}
 Writes RIGID_DIR/<category>/<index>/{object.usdz, metadata.json, description.json}. Needs what make_pitcher.py needs.
 
 Frame: Z up, metres, origin at bbox centre.
@@ -33,7 +33,7 @@ import make_pitcher as mp  # noqa: E402  (shared USD helpers; starts Kit when px
 import make_plastic_cups as pc  # noqa: E402  (loft, wall staves, cavity check, save)
 
 ROOT = Path(__file__).resolve().parents[2]
-RIGID_DIR = ROOT / "Assets/Object/RoboDojo/Rigid"
+RIGID_DIR = ROOT / "Assets/Object/Real2Sim/Rigid"
 CUP_SHAPES = json.loads((ROOT / "real2sim/scenes/real_scene4_school/bundle/cup_shapes.json").read_text())["shapes"]
 SEC = pc.unit_section(2.0)
 CUP_TB = 0.003  # bottom thickness: the fitted profiles start their tapered wall at 3 mm
