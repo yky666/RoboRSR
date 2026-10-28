@@ -1,0 +1,32 @@
+{
+  "id": "Clutter/plastic_bottle/00013",
+  "twin": true,
+  "asset_origin": "physical_object",
+  "name": "塑料瓶",
+  "name_en": "plastic bottle",
+  "material": "PP 塑料",
+  "color": "透明",
+  "mass_g": 65,
+  "dimensions_mm": "开口外径40.1mm，类椭圆瓶身，短边70mm，长边104.1mm",
+  "generalization": {
+    "count": 6,
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "徐鹤鸣",
+  "updated_at": "2026-10-28 14:28:39",
+  "reference_source": "实物",
+  "mass_policy": "measured",
+  "dimension_policy": "measured",
+  "physics_requirements": "只做静置测试",
+  "features": "类椭圆瓶身，具体看照片",
+  "requirements": "把盖子做成可移除结构",
+  "modeling_confirmation": {
+    "version": "real-object-v1",
+    "revision": "9d65c466bb228d6fdf92a96bebade2b30188e5bef718135eb60f5779f9aec34a",
+    "by": "徐鹤鸣",
+    "at": 1793168919.260992
+  }
+}

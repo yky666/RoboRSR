@@ -19,13 +19,20 @@
   whose textures are rectified from the registration photos in real2sim/objects/Clutter/plastic_bottle/00006/reference.
 - plastic_bottle/00007-00012: generalization variants of 00006 (not measured; label, colour, material, size and shape
   differ; same construction and finish, so the 00006 cap fits all of them).
+- plastic_bottle/00013: Real2Sim platform registration real2sim/objects/Clutter/plastic_bottle/00013 (spec.json, by
+  徐鹤鸣, 2026-10-28 14:28:39): unlabelled transparent PP bottle with an oval body, 65 g with its cap, 开口外径
+  40.1 mm, 短边 70 mm, 长边 104.1 mm (measured); removable cap requested. Built by OvalBottle from the three photos
+  (estimated): height 235 mm with the cap, superellipse section narrowing towards the rounded bottom edge, broad
+  shoulder into a short round neck, star push-up, pebbled wall (normal map), wide translucent white ribbed cap.
+- plastic_bottle/00014-00019: generalization variants of 00013 (not measured; colour, material, size and shape
+  differ; same finish, so the 00013 cap fits all of them).
 - Other labels are textures drawn by bottle_label.py (needs a CJK font, see bottle_label.FONT_DIRS); variants carry
   fictional brands.
 
 Usage:
     python scripts/objects/make_plastic_bottle.py [TYPE_DIR]    # default Assets/Object/Real2Sim/Clutter
-    python scripts/objects/check_object.py Assets/Object/Real2Sim/Clutter/plastic_bottle/000{00..12}
-    python scripts/objects/check_bottle_cap.py Assets/Object/Real2Sim/Articulation/plastic_bottle/000{00..12}
+    python scripts/objects/check_object.py Assets/Object/Real2Sim/Clutter/plastic_bottle/000{00..19}
+    python scripts/objects/check_bottle_cap.py Assets/Object/Real2Sim/Articulation/plastic_bottle/000{00..19}
 Writes TYPE_DIR/plastic_bottle/<index>/ and TYPE_DIR/../Articulation/plastic_bottle/<index>/, each {object.usdz,
 metadata.json, description.json}. Needs what make_pitcher.py needs, and PIL.
 
@@ -36,6 +43,8 @@ USD (Articulation): /root (ArticulationRootAPI) -> body (shell, label, bottle co
     collider), joints/cap_twist + joints/cap_lift (add_cap_joints); textures/label.png inside the usdz.
 TeaBottle (00006-00012): visual/label_front, label_back, label_neck (textures/<name>.png) instead of visual/label, and
     visual/cap_top (the inset top disc) next to visual/cap.
+OvalBottle (00013-00019): visual/model and visual/cap only; textures/pebble.png (normal map of the pebbled wall) inside
+    the usdz of the pebbled ones.
 Each bottle is a loft of sections r * ring(b) along Z: b = 1 is the variant's section (circle or rounded square), b = 0
 a circle; the shoulder blends from b = 1 into the round neck.
 """
@@ -50,7 +59,8 @@ import uuid
 
 import numpy as np
 from PIL import Image, ImageChops
-from scipy.spatial import ConvexHull
+from scipy.ndimage import gaussian_filter
+from scipy.spatial import ConvexHull, cKDTree
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import bottle_label  # noqa: E402
@@ -343,9 +353,119 @@ DONGFANG_VARIANTS = [  # generalization variants 00007-00012: overrides of DONGF
     ),
 ]  # fmt: skip
 
+# Bottle 00013 (oval PP bottle), from the three registration photos unless marked measured. Section: superellipse with
+# half-widths A (X) and B (Y); no label; the whole wall is pebbled (normal map, PEBBLE_TEX).
+OVAL = dict(
+    OVAL=True,
+    H=0.2332,  # mouth height: total 235 mm with the cap (estimated: ~2.26 x the width in the front photo) - CAP_TOP
+    A=0.05205,  # 长边 / 2, measured 104.1 mm: outer width along X at the widest section (top of the straight body)
+    B=0.0350,  # 短边 / 2, measured 70 mm: outer width along Y at the same section
+    SQ=2.5,  # section superellipse exponent: between an ellipse (2) and a rounded rectangle (estimated, top photo)
+    TAPER=0.85,  # half-widths at the bottom edge over those at Z_SH: sides narrow towards the bottom (estimated)
+    FIL=0.013, DOME=0.005,  # bottom edge fillet, push-up height (estimated)
+    STAR=(0.65, 0.30, 5),  # star push-up: radius as a share of the flat bottom's short half-width, lobe depth, lobes
+    Z_SH=0.150, SH_P=1.5,  # straight body top, shoulder fullness exponent (estimated)
+    R_NECK=0.0195, NECK_H=0.0075, RING_T=0.0015, R_RING=0.0218,  # short neck and support ring (estimated)
+    FINISH_H=0.023,  # support ring top to mouth (38 mm-class wide-mouth finish), estimated
+    R_THREAD=0.02005,  # 开口外径 / 2, measured 40.1 mm: outer diameter of the threaded finish (thread crests)
+    R_CORE=0.0190, R_BORE=0.0172, THREADS=(0.0040, 0.0090, 0.0140),  # estimated
+    WALL=0.0009,  # visual wall, estimated: 65 g of PP spread over ~700 cm^2 of bottle and cap
+    TINT=(0.97, 0.98, 0.98), FROST=0.0,
+    PEBBLE=0.5,  # normal-map strength of the pebbled wall, 0 = smooth
+    MASS=0.065,  # measured, empty with the cap
+    CAP_T=0.0022, CAP_TOP=0.0018, CAP_RIBS=120, RIB_D=0.0003, BAND_H=0.005,  # 44.5 x 24 mm ribbed cap (estimated)
+    CAP_RGB=(0.92, 0.92, 0.90), CAP_MILKY=0.7,  # translucent white PP cap: milky share, 0 = opaque paint
+    CAP_MASS=0.005, PITCH=0.0045, OPEN_TURNS=1.25,  # part of MASS, thread pitch, turns to loosen (estimated)
+    BRIM=(900, 1150),  # ml: a ~1 L bottle
+    MEASURE="oval", FRICTION=None,  # no measured friction: runtime defaults apply
+    WORDS=dict(
+        color=["transparent", "white cap", "clear with a frosty sparkle"],
+        material=["plastic", "pebbled clear PP", "textured plastic"],
+        name=["oval bottle", "plastic bottle", "1 litre bottle"],
+        shape=["oval body", "broad rounded shoulder", "wide white screw cap"],
+        function=["holding drinks", "being picked up and placed", "being opened"],
+        look="clear oval plastic bottle with a pebbled surface and a wide white screw cap",
+    ),
+)  # fmt: skip
+
+OVAL_VARIANTS = [  # generalization variants 00014-00019: overrides of OVAL, all unmeasured (estimated); same finish
+    dict(
+        H=0.1982, A=0.0445, B=0.0300, Z_SH=0.122, TINT=(0.82, 0.90, 0.97), CAP_MILKY=0.0, CAP_RGB=(0.03, 0.15, 0.50),
+        WORDS=dict(
+            color=["light blue tinted", "blue cap", "transparent"],
+            material=["plastic", "pebbled blue PP", "textured plastic"],
+            name=["small oval bottle", "plastic bottle", "600 ml bottle"],
+            shape=["small oval body", "rounded shoulder", "blue screw cap"],
+            function=["holding water", "carrying in a bag", "being opened"],
+            look="small light blue oval plastic bottle with a pebbled surface and a blue cap",
+        ),
+    ),
+    dict(
+        SQ=3.5, TAPER=0.95, PEBBLE=0.0, CAP_MILKY=0.0, CAP_RGB=(0.02, 0.02, 0.02),
+        WORDS=dict(
+            color=["transparent", "black cap", "glossy clear"],
+            material=["plastic", "smooth clear PP", "glossy plastic"],
+            name=["rectangular bottle", "plastic bottle", "1 litre bottle"],
+            shape=["rounded rectangular body", "broad shoulder", "black screw cap"],
+            function=["holding drinks", "standing on a shelf", "being opened"],
+            look="smooth clear rounded-rectangle plastic bottle with a black screw cap",
+        ),
+    ),
+    dict(
+        SQ=2.0, PEBBLE=0.0, FROST=0.4, TINT=(0.95, 0.95, 0.95), CAP_MILKY=0.0, CAP_RGB=(0.80, 0.25, 0.02),
+        WORDS=dict(
+            color=["frosted white", "orange cap", "milky"],
+            material=["plastic", "frosted PP", "matte plastic"],
+            name=["frosted bottle", "elliptical bottle", "plastic bottle"],
+            shape=["elliptical body", "rounded shoulder", "orange screw cap"],
+            function=["holding drinks", "being picked up and placed", "being opened"],
+            look="frosted milky elliptical plastic bottle with an orange screw cap",
+        ),
+    ),
+    dict(
+        H=0.2612, A=0.0560, B=0.0375, Z_SH=0.172, TINT=(0.86, 0.62, 0.30),
+        WORDS=dict(
+            color=["amber tinted", "white cap", "transparent brown"],
+            material=["plastic", "pebbled amber PP", "textured plastic"],
+            name=["large oval bottle", "amber bottle", "1.3 litre bottle"],
+            shape=["tall oval body", "broad rounded shoulder", "white screw cap"],
+            function=["holding juice", "being picked up and placed", "being opened"],
+            look="tall amber oval plastic bottle with a pebbled surface and a white cap",
+        ),
+    ),
+    dict(
+        H=0.1782, A=0.0500, B=0.0400, Z_SH=0.108, SH_P=1.2, TAPER=0.92, TINT=(0.70, 0.88, 0.72), CAP_MILKY=0.0,
+        CAP_RGB=(0.04, 0.30, 0.08),
+        WORDS=dict(
+            color=["green tinted", "green cap", "transparent"],
+            material=["plastic", "pebbled green PP", "textured plastic"],
+            name=["squat oval bottle", "green bottle", "plastic flask"],
+            shape=["short wide oval body", "rounded shoulder", "green screw cap"],
+            function=["holding drinks", "standing on a shelf", "being opened"],
+            look="short green tinted oval plastic flask with a pebbled surface and a green cap",
+        ),
+    ),
+    dict(
+        H=0.2382, A=0.0480, B=0.0290, SQ=3.0, TAPER=0.82, Z_SH=0.160, TINT=(0.97, 0.84, 0.88), CAP_MILKY=0.0,
+        CAP_RGB=(0.80, 0.30, 0.45),
+        WORDS=dict(
+            color=["pink tinted", "pink cap", "transparent"],
+            material=["plastic", "pebbled pink PP", "textured plastic"],
+            name=["slim oval bottle", "pink bottle", "plastic bottle"],
+            shape=["slim tapered oval body", "rounded shoulder", "pink screw cap"],
+            function=["holding drinks", "carrying in a bag", "being opened"],
+            look="slim pink tinted oval plastic bottle that narrows towards the bottom, with a pink cap",
+        ),
+    ),
+]  # fmt: skip
+PEBBLE_TILES = 8  # pebble texture repeats around a section (~35 mm tiles on 00013)
+PEBBLE_CELLS, PEBBLE_PX = 16, 512  # pebbles across a tile (~2 mm each), texture pixels
+PEBBLE_TEX = "textures/pebble.png"
+
 FAMILIES = [  # first index, base registration, variants
     (0, dict(NONGFU, BRIM=(550, 620), MEASURE="round", FRICTION=(STATIC_FRICTION, DYNAMIC_FRICTION)), VARIANTS),
     (6, DONGFANG, DONGFANG_VARIANTS),
+    (13, OVAL, OVAL_VARIANTS),
 ]
 
 
@@ -897,6 +1017,247 @@ def tea_looks(g):
     return looks
 
 
+def oval_section(a, b, n):
+    """Superellipse with half-widths a (X) and b (Y) and exponent n, N_THETA points uniform by arc length, CCW from
+    +X: points 0, N_THETA / 4, ... sit on the axes, so the widths of the mesh are exactly 2a and 2b."""
+    t = np.linspace(0, 2 * np.pi, 4096, endpoint=False)
+    c, s = np.cos(t), np.sin(t)
+    rho = (np.abs(c / a) ** n + np.abs(s / b) ** n) ** (-1 / n)
+    closed = np.vstack([np.c_[rho * c, rho * s], [[a, 0.0]]])
+    d = np.r_[0, np.cumsum(np.linalg.norm(np.diff(closed, axis=0), axis=1))]
+    u = np.linspace(0, d[-1], N_THETA, endpoint=False)
+    return np.c_[np.interp(u, d, closed[:, 0]), np.interp(u, d, closed[:, 1])]
+
+
+class OvalBottle(Bottle):
+    """Oval bottle (00013 family): superellipse body narrowing towards a rounded bottom edge, star-shaped push-up,
+    broad shoulder whose section blends into the round neck, wide-mouth finish; no label."""
+
+    def half(self, z):
+        """Outer half-widths along X and Y and the section exponent at z (body above FIL, shoulder, neck)."""
+        g = self.g
+        if z <= g["Z_SH"]:
+            k = 1 - (1 - g["TAPER"]) * (1 - max(z, g["FIL"]) / g["Z_SH"]) ** 2
+            return g["A"] * k, g["B"] * k, g["SQ"]
+        t = (min(z, self.z_neck) - g["Z_SH"]) / (self.z_neck - g["Z_SH"])
+        s = (1 + np.cos(np.pi * t ** g["SH_P"])) / 2
+        rn = g["R_NECK"]
+        return rn + (g["A"] - rn) * s, rn + (g["B"] - rn) * s, 2 + (g["SQ"] - 2) * s
+
+    def oring(self, z, inset=0.0):
+        a, b, n = self.half(z)
+        return oval_section(a - inset, b - inset, n)
+
+    def fillet(self, inset=0.0):
+        """Bottom edge rings [(ring, z)] from the flat bottom up to the body at FIL (inset: the inner wall)."""
+        g = self.g
+        f = g["FIL"]
+        a, b, n = self.half(f)
+        return [
+            (
+                oval_section(a - f + (f - inset) * np.sin(p), b - f + (f - inset) * np.sin(p), n),
+                f - (f - inset) * np.cos(p),
+            )
+            for p in np.linspace(0, np.pi / 2, 7)
+        ]
+
+    def star(self, s):
+        """Push-up ring at scale s (1: its foot on the bottom), on the angles of the flat bottom's ring so the faces
+        between the two stay regular."""
+        g = self.g
+        share, depth, lobes = g["STAR"]
+        flat = self.fillet()[0][0]
+        phi = np.arctan2(flat[:, 1], flat[:, 0])
+        r = s * share * flat[N_THETA // 4, 1] * (1 + depth * np.cos(lobes * phi)) / (1 + depth)
+        return np.c_[r * np.cos(phi), r * np.sin(phi)]
+
+    def body_samples(self):
+        g = self.g
+        return list(np.arange(g["FIL"], g["Z_SH"], 0.003)[1:]) + [g["Z_SH"]]
+
+    def shoulder_samples(self):
+        g = self.g
+        return list(g["Z_SH"] + np.linspace(0, 1, 37)[1:] * (self.z_neck - g["Z_SH"]))
+
+    def profiles(self):
+        g = self.g
+        DOME, W = g["DOME"], g["WALL"]
+        dome = [(s, DOME * (1 - s * s) ** 2) for s in (0.3, 0.55, 0.75, 0.9)]
+        zs = self.body_samples() + self.shoulder_samples()
+        outer = [(0.0, DOME)] + [(self.star(s), z) for s, z in dome] + [(self.star(1.0), 0.0)] + self.fillet()
+        outer += [(self.oring(z), z) for z in zs]
+        outer += [(self.ring(r, 0.0), z) for r, z in TeaBottle.finish(self)]
+        inner = [(self.ring(g["R_BORE"], 0.0), self.z_neck)] * 2 + [(self.ring(g["R_NECK"] - W, 0.0), self.z_neck)]
+        inner += [(self.oring(z, W), z) for z in zs[::-1]] + self.fillet(W)[::-1]
+        inner += [(self.star(1.0), W)] + [(self.star(s), z + W) for s, z in dome[::-1]] + [(0.0, DOME + W)]
+        return outer, inner
+
+    def collision_levels(self):
+        """Bottle.collision_levels on the oval rings."""
+        g = self.g
+        zs = np.unique(np.r_[np.arange(g["FIL"], self.z_neck, 0.001), g["Z_SH"], self.z_neck])
+        rings = [self.oring(z) for z in zs]
+        levels, i = [0], 0
+        while i < len(zs) - 1:
+            j = i + 1
+            while j + 1 < len(zs):
+                k = np.arange(i + 1, j + 1)
+                w = ((zs[k] - zs[i]) / (zs[j + 1] - zs[i]))[:, None, None]
+                lerp = (1 - w) * rings[i] + w * rings[j + 1]
+                if np.max(np.linalg.norm(np.stack([rings[m] for m in k]) - lerp, axis=2)) > LEVEL_TOL:
+                    break
+                j += 1
+            levels.append(j)
+            i = j
+        return zs[levels]
+
+    def hulls(self):
+        g = self.g
+        step = N_THETA // BOTTOM_SIDES
+        (flat, _), (top, z_top) = self.fillet()[0], self.fillet()[-1]
+        hulls = [np.array([(*p, 0.0) for p in flat[::step]] + [(*p, z_top) for p in top[::step]])]
+        hulls += wall_staves([(z, self.oring(z), self.oring(z, T_COLL)) for z in self.collision_levels()])
+        bore = self.ring(g["R_BORE"], 0.0)
+        for z0, z1, r in (
+            (self.z_neck, self.z_ring0, g["R_NECK"]),
+            (self.z_ring0, self.z_ring1, g["R_RING"]),
+            (self.z_ring1, g["H"], g["R_THREAD"]),
+        ):
+            hulls += wall_staves([(z0, self.ring(r, 0.0), bore), (z1, self.ring(r, 0.0), bore)])
+        return hulls
+
+    def cavity(self, z):
+        if z <= self.z_neck:
+            return self.oring(z, T_COLL)
+        return self.ring(self.g["R_BORE"], 0.0)
+
+    def brim_ml(self):
+        """Visual inner volume from the bottom to the mouth (push-up and bottom fillet ignored)."""
+        g = self.g
+        z = np.linspace(g["WALL"], g["H"], 600)
+        a = [
+            pc.section_area(self.ring(g["R_BORE"], 0.0) if v > self.z_neck else self.oring(max(v, g["FIL"]), g["WALL"]))
+            for v in z
+        ]
+        a = np.array(a)
+        return float(np.sum((a[1:] + a[:-1]) / 2 * np.diff(z)) * 1e6)
+
+
+def loft_uv(profile, tiles):
+    """Per-face-vertex UVs of pc.loft(profile): u = PEBBLE tiles around each ring, v along the profile scaled by the
+    local ring perimeter so the texture keeps its aspect where the section shrinks (shoulder, neck, push-up)."""
+    ring_of, col_of, rings = [], [], []
+    for i, (r, z) in enumerate(profile):
+        if np.isscalar(r) and r == 0:
+            ring_of.append(i)
+            col_of.append(-1)
+            rings.append(np.zeros((1, 3)) + (0.0, 0.0, z))
+        else:
+            ring_of += [i] * N_THETA
+            col_of += list(range(N_THETA))
+            rings.append(np.c_[r, np.full(N_THETA, z)])
+    v = [0.0]
+    for p, q in zip(rings, rings[1:]):
+        per = max(np.linalg.norm(np.diff(np.vstack([x, x[:1]]), axis=0), axis=1).sum() for x in (p, q))
+        v.append(v[-1] + float(np.linalg.norm(p - q, axis=1).mean()) * tiles / max(per, 1e-3))
+    pts, faces = pc.loft(profile)
+    ring_of, col_of = np.array(ring_of), np.array(col_of, dtype=float)
+    uv = []
+    for f in faces:
+        col = col_of[f]
+        real = col >= 0
+        if np.ptp(col[real]) > N_THETA / 2:  # the face straddles the seam at +X
+            col[real & (col < N_THETA / 2)] += N_THETA
+        col[~real] = col[real].mean()
+        uv += [(c / N_THETA * tiles, v[ring_of[i]]) for c, i in zip(col, f)]
+    return np.array(uv)
+
+
+def pebble_texture():
+    """Tileable normal map of the pebbled wall: Voronoi cells raised into round bumps, PNG path (raw, not sRGB)."""
+    rng = np.random.default_rng(13)
+    n = PEBBLE_CELLS
+    seeds = (
+        (np.stack(np.meshgrid(np.arange(n), np.arange(n)), -1).reshape(-1, 2) + rng.uniform(0.15, 0.85, (n * n, 2))) / n
+    ) % 1
+    px = (np.stack(np.meshgrid(np.arange(PEBBLE_PX), np.arange(PEBBLE_PX)), -1).reshape(-1, 2) + 0.5) / PEBBLE_PX
+    d = cKDTree(seeds, boxsize=1.0).query(px)[0].reshape(PEBBLE_PX, PEBBLE_PX) * n
+    h = gaussian_filter(-(d**2), 2.0, mode="wrap")
+    gy, gx = (np.roll(h, -1, a) - np.roll(h, 1, a) for a in (0, 1))
+    slope = np.hypot(gx, gy)
+    k = 0.4 / np.percentile(slope, 95)  # steepest bumps tilt the normal by ~22 deg
+    nrm = np.dstack([-gx * k, gy * k, np.ones_like(h)])
+    nrm /= np.linalg.norm(nrm, axis=2, keepdims=True)
+    path = Path(tempfile.mkdtemp()) / "pebble.png"
+    Image.fromarray(np.round((nrm + 1) * 127.5).astype(np.uint8)).save(path)
+    return path
+
+
+def oval_looks(g):
+    """Materials of the OvalBottle parts that differ from the shared ones."""
+
+    def pebbled(st):
+        mat = mp.add_material(
+            st,
+            "/root/_materials/Plastic",
+            "OmniGlass",
+            {"glass_color": g["TINT"], "glass_ior": 1.49, "frosting_roughness": 0.0, "thin_walled": False},
+            g["TINT"],
+            0.25,
+            0.05,
+        )
+        sh = UsdShade.Shader.Get(st, "/root/_materials/Plastic/Shader")
+        tex = sh.CreateInput("normal_map_texture", Sdf.ValueTypeNames.Asset)
+        tex.Set(Sdf.AssetPath(PEBBLE_TEX))
+        tex.GetAttr().SetColorSpace("raw")
+        sh.CreateInput("normal_map_strength", Sdf.ValueTypeNames.Float).Set(g["PEBBLE"])
+        return mat
+
+    def milky_cap(st):  # as pc.clear_pp: white diffuse base, the transmission weight sets the translucency
+        return mp.add_material(
+            st,
+            "/root/_materials/Cap",
+            "OmniSurface",
+            {
+                "diffuse_reflection_weight": 1.0,
+                "diffuse_reflection_color": g["CAP_RGB"],
+                "enable_specular_transmission": True,
+                "specular_transmission_color": g["CAP_RGB"],
+                "specular_transmission_weight": 1.0 - g["CAP_MILKY"],
+                "specular_reflection_weight": 0.1,
+                "specular_reflection_roughness": 0.3,
+                "specular_reflection_ior": 1.49,
+                "thin_walled": False,
+            },
+            g["CAP_RGB"],
+            0.8,
+            0.3,
+        )
+
+    looks = {"cap": milky_cap if g["CAP_MILKY"] else paint("Cap", g["CAP_RGB"])}
+    if g["PEBBLE"]:
+        looks["model"] = pebbled
+    return looks
+
+
+def build_oval(g):
+    b = OvalBottle(g)
+    outer, inner = b.profiles()
+    cap, cap_hull = b.cap()
+    parts = {"model": pc.loft(outer + inner), "cap": cap}
+    for name, part in parts.items():
+        assert mp.signed_volume(*part) > 0, f"{name} has inward-facing winding"
+    hulls = b.hulls()
+    check_hulls(g, b, hulls)
+    flat = b.fillet()[0][0]
+    assert np.max(np.linalg.norm(b.star(1.0), axis=1) / np.linalg.norm(flat, axis=1)) < 0.9, "push-up off the flat"
+    return dict(
+        parts=parts, hulls=hulls, cap_hull=cap_hull, uvs={"model": loft_uv(outer + inner, PEBBLE_TILES)},
+        textures={PEBBLE_TEX: pebble_texture()} if g["PEBBLE"] else {}, label_px="-", ml=b.brim_ml(),
+        contact_r=float(flat[N_THETA // 4, 1]), bottle=b,
+    )  # fmt: skip
+
+
 def build(g):
     b = Bottle(g)
     outer, inner = b.profiles()
@@ -1024,12 +1385,14 @@ def add_meshes(st, c, g, links):
     looks = {"model": glass(g), "label": label_look(g), "cap": paint("Cap", g["CAP_RGB"])}
     if g.get("TEA"):
         looks.update(tea_looks(g))
+    if g.get("OVAL"):
+        looks.update(oval_looks(g))
     for name, (pts, faces) in c["parts"].items():
         link = links["cap" if name.startswith("cap") else "body"]
         if not st.GetPrimAtPath(f"{link}/visual"):
             mp.add_xform(st, f"{link}/visual")
         mesh = mp.add_mesh(st, f"{link}/visual/{name}", pts, faces, mp.vertex_normals(pts, faces))
-        if name.startswith("label"):
+        if name.startswith("label") or name in c.get("uvs", {}):
             uv = c["uvs"][name] if "uvs" in c else c["label_uv"]
             UsdGeom.PrimvarsAPI(mesh).CreatePrimvar(
                 "st", Sdf.ValueTypeNames.TexCoord2fArray, UsdGeom.Tokens.faceVarying
@@ -1146,6 +1509,13 @@ def measurements(c, parts, every, g):
             "底部直径": round(float(np.ptp(foot[:, 0])) * 1000, 1),  # outer body just above the bottom fillet
         }
     lo = model[:, 2].min()
+    if g["MEASURE"] == "oval":
+        body = model[(model[:, 2] > lo + g["FIL"]) & (model[:, 2] < lo + g["Z_SH"] + 1e-6)]
+        return {
+            "开口外径": round(float(np.ptp(mouth[:, 0])) * 1000, 1),  # outer, thread crests
+            "短边": round(float(np.ptp(body[:, 1])) * 1000, 1),  # outer, widest section, along Y
+            "长边": round(float(np.ptp(body[:, 0])) * 1000, 1),  # outer, widest section, along X
+        }
     body = model[(model[:, 2] > lo + g["FIL"]) & (model[:, 2] < lo + g["Z_SH"])]
     return {
         "瓶口外径": round(float(np.ptp(mouth[:, 0])) * 1000, 1),  # outer, thread crests
@@ -1168,6 +1538,8 @@ def save(type_dir, idx, c, g, mass, articulated=False, base_idx=0):
     uid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"robodojo/{kind.lower()}/{CATEGORY}/{idx}"))
     if g.get("TEA"):
         label_png = tea_textures(g, c, idx)
+    elif g.get("OVAL"):
+        label_png = c["textures"]
     else:
         label_png = Path(tempfile.mkdtemp()) / "label.png"
         art = bottle_label.draw_label(g["ART"], *g["LABEL_RGB"], g["LABEL"][2], c["label_px"], idx)
@@ -1198,7 +1570,7 @@ def main(type_dir):
         base = None
         for k, over in enumerate([{}] + variants):
             g = {**registered, **over}
-            c = (build_tea if g.get("TEA") else build)(g)
+            c = (build_oval if g.get("OVAL") else build_tea if g.get("TEA") else build)(g)
             if k == 0:
                 base = c["ml"]
                 lo, hi = g["BRIM"]
