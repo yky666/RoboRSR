@@ -39,16 +39,17 @@
 
 ## 最近任务
 
-### BanzhiFlywheel 产品顶栏 + 数据集页设计稿（2026-10-28，`chongzheng/platform-banzhi-flywheel`，未推送、未部署）
+### BanzhiFlywheel 产品顶栏 + 公开数据集页设计稿（2026-10-28，`chongzheng/platform-banzhi-flywheel`，未推送、未部署）
 
-- **起因**（用户）：整个平台叫 BanzhiFlywheel（纯文字 logo），现有平台作为「仿真平台」，并列一个「数据集」板块；先出设计稿，不替换现在的平台。之后用户要求：不要大块黑色，顶栏更扁平。
+- **起因**（用户）：整个平台叫 BanzhiFlywheel（纯文字 logo），现有平台作为「仿真平台」，并列「数据集」板块；先出设计稿，不替换现在的平台。后续要求：不要大块黑色、顶栏扁平、背景更白、日间 / 夜间 / 跟随系统切换、下拉框学 RoboFlywheel。**数据集板块收录的是外部公开发布的数据集（人工录入），不是我们自产的**；只做商业零售、家居服务两类室内场景。
 - **改动**（只动 `src/real2sim_platform/index.html`，服务端和接口不变）：
-  - 顶部新增白底产品栏 `.gbar`（56 px）：纯文字字标 `.wordmark`（23 px，粗体 Banzhi + 细体 Flywheel + 蓝色圆点，无图形）、文字标签「仿真平台 / 数据集」（当前项 2 px 下划线）、用户菜单。原来的横向导航降为仿真平台的二级导航 `.side`（56 px，浅灰底，粘在产品栏下面），数据集页隐藏它（`.app.no-sub`）。`--top` = 两栏高度之和，QA 面板的 sticky 偏移随之调整。登录卡片也换成字标。
-  - 右上角用户区一行显示（头像 + 名字），用户名放在悬停提示里。
-  - 数据集页 `#datasets`（`viewDatasets` / `dsSidebar` / `dsCard` / `drawerDataset`）：浅色页头 + 4 个统计块（只计 released）；左侧分面筛选栏，右侧结果（数量、搜索、排序：最近更新 / Episode / 时长、已选条件可逐个移除或清除全部）。分面定义在 `DS_FACETS`：数据类型（真机 / 仿真 / Ego）、Episode 数量（对数刻度双滑块）、应用领域（只做商业零售、家居服务两类室内服务）、室内空间、机器人形态、机器人本体、操作类型（桌面 / Local / Mobile / Whole-body）、技能、传感模态、数据格式、发布状态。组内为「或」、组间为「且」，计数按其余条件动态算，0 条的选项灰显。后 4 组默认折叠（`UI.ds.closed`）。卡片封面取平台里对应场景的渲染图或照片；抽屉多了「分类」一节。
-  - **数据是 `scripts/datagen/registry.json` 5 条记录的手抄中文快照（常量 `DATASETS`，每条的分类在 `f` 里，是我拟的初稿，没和用户确认）**，页面底部有「设计预览」提示。现有 5 条都是仿真、G1-D、桌面操作，所以真机 / Ego、移动和全身操作等选项目前都是 0。
-- **验证**：本机临时库（`/tmp/bzf/`，账号 `preview`）起 `server.py --port 8799`，浏览器在 1440 和 390 px 下看了数据集页、场景页、总览和数据集抽屉，无横向溢出；`git diff --check` 通过。没跑 `check.sh` 和 `test_server.py`（没动服务端）。
-- **剩余**：要转正需 (1) 服务端加 `/api/datasets` 读 registry.json，删掉前端快照，分类字段（`f` 里那些键）要写进 registry；(2) registry 没有体积和许可证字段，卡片暂不显示；手机宽度下筛选栏堆在列表上方、比较长，可改成抽屉；(3) 先合并 `platform-ui-refresh`，再推送本分支、开 PR、合并后按 `.agent/ops.local.md` 重启 `5090-2` 的平台。
+  - 产品栏 `.gbar`（56 px，白底细线）：字标 `.wordmark`（23 px，粗体 Banzhi + 细体 Flywheel + 蓝点）、「仿真平台 / 数据集」下划线标签、主题切换、一行的用户区。原横向导航降为仿真平台的二级导航 `.side`，数据集页隐藏（`.app.no-sub`）；`--top` = 两栏高度之和。
+  - 主题：所有颜色变量改为 `light-dark(日, 夜)`，`<html data-theme>` 取 light / dark / system（`color-scheme` 切换），存 `localStorage['bzf-theme']`，`<head>` 里的一行脚本在首帧前设好。写死的浅色（callout、表头、胶囊、玻璃底、按钮文字等）都换成了变量，新增 `--on-primary`、`--glass`；3D 预览背景读 `.m3d` 的计算颜色。日间整体调白（surface-2 #F8F8F9、边框更浅）。
+  - 通用下拉 `dropdown(id, label, opts, cur, pick)`：胶囊按钮 + 浮层菜单，点外面或 Esc 关闭（`UI.dd`）。
+  - 数据集页 `#datasets`：页头 4 个统计；左侧分面筛选 `DS_FACETS`（数据类型 真机 / 仿真 / Ego、Episode 对数双滑块、应用领域、室内空间、机器人形态、操作类型、本体、技能、格式、许可、发布平台、本地副本），组内或、组间且，计数动态；右侧顶栏：数量、重置、说明、搜索、排序下拉（推荐 / 规模 / 体量 / 名称）、卡片 / 列表视图切换。卡片仿 RoboFlywheel（图标 + 类型角标、名称、机构、分类行、简介、Episode / 时长、许可和体量）；抽屉有分类、来源链接和本地副本。重新渲染时保留筛选栏滚动位置，选项有固定 id 以保住焦点。
+  - **数据**：常量 `DATASETS` 30 条，从用户的 Notion「OSS /mnt/data 数据清单」（公开页面，浏览器读取）挑出与室内服务相关的公开数据集，排除自采 G1-D、转换中间产物和团队上传的 failure 数据；宇树按 G1 WBT 全身遥操作（59 个任务）和 G1 Dex1 桌面（94 个任务）两条汇总。Episode / 时长 / 许可只填了核对过的：AgiBot World Beta 和宇树取自 HF 卡片，RoboMIND / RoboMIND 2.0 / DROID / RoboCOIN / InternData-M1 取自 RoboFlywheel 页面，其余来自 Notion 备注或留空。体量和本地副本来自 Notion。**仓库是公开的，所以没写 Notion 里的本地路径、服务器名和运维备注。** 领域 / 空间 / 技能等分类是初稿。
+- **验证**：本机临时库（`/tmp/bzf/`，账号 `preview`）起 `server.py --port 8799`，浏览器 1440 px 下看了数据集页（日间、夜间、下拉展开、筛选后侧栏滚动保持）、仿真平台场景页夜间；早先在 390 px 看过顶栏。`git diff --check` 通过。没跑 `check.sh` 和 `test_server.py`（没动服务端）。Notion 连接器授权后没加载出工具，改用公开页面读取。
+- **剩余**：(1) 数据集目录要转正：改成服务端读的数据文件（如 `real2sim/datasets.json`）或接 Notion，并补齐空缺的 Episode / 时长 / 许可、确认分类；(2) 手机宽度下筛选栏堆在列表上方，可改成抽屉；(3) 先合并 `platform-ui-refresh`，再推送本分支、开 PR、合并后按 `.agent/ops.local.md` 重启 `5090-2` 的平台。
 
 ### 数采平台界面改为 RoboFlywheel 风格（2026-10-28，`chongzheng/platform-ui-refresh`，未推送、未部署）
 

@@ -4,24 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BanzhiFlywheel · 仿真平台</title>
+<script>document.documentElement.dataset.theme = localStorage.getItem('bzf-theme') || 'system';</script>
 <!-- three.js for the scene 3D view, fetched by the browser from the npm mirror only when a scene drawer shows a model -->
 <script type="importmap">{"imports": {"three": "https://registry.npmmirror.com/three/0.169.0/files/build/three.module.min.js",
   "three/addons/": "https://registry.npmmirror.com/three/0.169.0/files/examples/jsm/"}}</script>
 <style>
+/* every colour is light-dark(day, night); <html data-theme> picks light / dark / system through color-scheme */
+:root { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
 :root {
-  --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #F5F5F6; --surface-3: #EBEBED;
-  --border: #EAEAEC; --border-strong: #DCDCE0;
-  --text: #111113; --text-2: #3F3F46; --muted: #6B6B74; --faint: #A1A1AA;
-  --primary: #111113; --primary-hover: #2E2E33; --primary-soft: #F2F2F4; --primary-line: #D4D4D8; --ring: #111113;
-  --link: #1D4ED8; --info: #2563EB; --info-soft: #EEF4FF;
-  --accent: #D97706; --accent-text: #B45309; --accent-soft: #FEF3C7;
-  --ok: #15803D; --ok-soft: #E7F8EC; --ok-bar: #22C55E;
-  --bad: #B91C1C; --bad-soft: #FDECEC; --bad-bar: #EF4444;
-  --todo: #52525B; --todo-soft: #F2F2F4; --todo-bar: #DEDEE3;
+  --bg: light-dark(#FFFFFF, #0C0C0E); --surface: light-dark(#FFFFFF, #141417); --surface-2: light-dark(#F8F8F9, #1C1C20); --surface-3: light-dark(#F0F0F2, #26262B);
+  --border: light-dark(#EEEEF0, #25252A); --border-strong: light-dark(#E1E1E5, #34343B);
+  --text: light-dark(#111113, #EDEDEF); --text-2: light-dark(#3F3F46, #C8C8CE); --muted: light-dark(#6B6B74, #91919A); --faint: light-dark(#A1A1AA, #5F5F68);
+  --primary: light-dark(#111113, #EDEDEF); --primary-hover: light-dark(#2E2E33, #FFFFFF); --on-primary: light-dark(#FFFFFF, #111113);
+  --primary-soft: light-dark(#F4F4F5, #1F1F23); --primary-line: light-dark(#D4D4D8, #3A3A41); --ring: light-dark(#111113, #EDEDEF);
+  --link: light-dark(#1D4ED8, #7AAEFF); --info: light-dark(#2563EB, #7AAEFF); --info-soft: light-dark(#EEF4FF, #16203A);
+  --accent: light-dark(#D97706, #F59E0B); --accent-text: light-dark(#B45309, #FBBF24); --accent-soft: light-dark(#FEF3C7, #2B210C);
+  --ok: light-dark(#15803D, #4ADE80); --ok-soft: light-dark(#E7F8EC, #10261A); --ok-bar: #22C55E;
+  --bad: light-dark(#B91C1C, #F87171); --bad-soft: light-dark(#FDECEC, #2B1414); --bad-bar: #EF4444;
+  --todo: light-dark(#52525B, #A1A1AA); --todo-soft: light-dark(#F4F4F5, #1F1F23); --todo-bar: light-dark(#E2E2E6, #34343B);
+  --glass: light-dark(rgba(255, 255, 255, .9), rgba(20, 20, 23, .86));
   --radius: 16px; --radius-sm: 10px;
   --shadow-1: none;
-  --shadow-2: 0 10px 30px rgba(17, 17, 19, .07);
-  --shadow-3: 0 24px 60px rgba(17, 17, 19, .18);
+  --shadow-2: 0 10px 30px light-dark(rgba(17, 17, 19, .07), rgba(0, 0, 0, .45));
+  --shadow-3: 0 24px 60px light-dark(rgba(17, 17, 19, .18), rgba(0, 0, 0, .6));
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Segoe UI", Roboto, sans-serif;
   --mono: "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   --gbar: 56px; --sub: 56px; --top: calc(var(--gbar) + var(--sub));
@@ -66,14 +73,18 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .product[aria-current="page"]::after { content: ""; position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; border-radius: 2px; background: var(--text); }
 .login-brand { flex-direction: column; align-items: flex-start; gap: 8px; }
 .login-brand .wordmark { font-size: 30px; }
-.gbar .me { align-self: center; gap: 2px; margin-left: auto; }
+.theme { display: flex; align-self: center; gap: 2px; margin-left: auto; padding: 2px; border-radius: 999px; background: var(--surface-2); }
+.theme .btn-icon { width: 28px; min-height: 28px; color: var(--muted); }
+.theme .btn-icon:hover { color: var(--text); }
+.theme .btn-icon[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
+.gbar .me { align-self: center; gap: 2px; margin-left: -12px; }
 .gbar .me .sp, .gbar .me-name small { display: none; }
 .gbar .avatar { width: 28px; height: 28px; margin-right: 6px; font-size: 13px; }
 .gbar .me-name { margin-right: 6px; }
 .gbar .me-name b { font-weight: 500; }
 .gbar .me .btn-icon { width: 32px; min-height: 32px; color: var(--muted); }
 .gbar .me .btn-icon:hover { color: var(--text); }
-.side { position: sticky; top: var(--gbar); z-index: 5; display: flex; align-items: center; gap: 24px; min-height: var(--sub); padding: 0 max(40px, calc((100% - 1440px) / 2)); background: rgba(250, 250, 251, .92); border-bottom: 1px solid var(--border); backdrop-filter: saturate(180%) blur(12px); }
+.side { position: sticky; top: var(--gbar); z-index: 5; display: flex; align-items: center; gap: 24px; min-height: var(--sub); padding: 0 max(40px, calc((100% - 1440px) / 2)); background: var(--glass); border-bottom: 1px solid var(--border); backdrop-filter: saturate(180%) blur(12px); }
 .app.no-sub .side { display: none; }
 .side .nav-item[aria-current="page"] { background: var(--surface); box-shadow: inset 0 0 0 1px var(--border); }
 nav { display: flex; flex: 1; justify-content: flex-start; gap: 2px; min-width: 0; margin-left: -12px; overflow-x: auto; scrollbar-width: none; }
@@ -93,7 +104,7 @@ nav::-webkit-scrollbar { display: none; }
 .me-name { max-width: 120px; min-width: 0; overflow: hidden; line-height: 1.25; }
 .me-name b { display: block; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
 .me-name small { color: var(--muted); font: 11px var(--mono); }
-.login { display: grid; min-height: 100vh; place-items: center; padding: 24px; background: radial-gradient(circle at 50% 0, #F2F2F4 0, transparent 55%), var(--bg); }
+.login { display: grid; min-height: 100vh; place-items: center; padding: 24px; background: radial-gradient(circle at 50% 0, var(--surface-2) 0, transparent 55%), var(--bg); }
 .login-card { display: flex; flex-direction: column; gap: 14px; width: min(400px, 100%); padding: 32px; border-radius: 20px; box-shadow: var(--shadow-2); }
 .login-card h1 { margin: 6px 0 0; font-size: 22px; font-weight: 700; }
 .login-card p { margin: 0; }
@@ -181,13 +192,13 @@ main { flex: 1; min-width: 0; padding: 36px 40px 72px; }
 @media (max-width: 1280px) { .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 1100px) { .duo { grid-template-columns: 1fr; } }
 @media (max-width: 720px) { .pipeline { grid-template-columns: 1fr; } }
-.step { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--primary); color: #fff; font: 700 11px var(--mono); }
+.step { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--primary); color: var(--on-primary); font: 700 11px var(--mono); }
 .meter { display: grid; grid-template-columns: minmax(96px, 1fr) minmax(60px, 1.2fr) auto; align-items: center; gap: 10px; padding: 6px 0; font-size: 13px; }
 .meter .lbl { color: var(--text-2); }
 .meter .val { min-width: 64px; color: var(--muted); font: 12px var(--mono); text-align: right; }
-.callout { display: flex; gap: 10px; margin-bottom: 16px; padding: 12px 16px; border: 1px solid #FDE68A; border-radius: 12px; background: #FFFBEB; color: #92400E; font-size: 13px; }
-.callout.bad { border-color: #FECACA; background: #FEF2F2; color: #991B1B; }
-.callout.ok { border-color: #BBF7D0; background: #F0FDF4; color: #166534; }
+.callout { display: flex; gap: 10px; margin-bottom: 16px; padding: 12px 16px; border: 1px solid light-dark(#FDE68A, #4A3A12); border-radius: 12px; background: light-dark(#FFFBEB, #221A08); color: light-dark(#92400E, #FCD34D); font-size: 13px; }
+.callout.bad { border-color: light-dark(#FECACA, #4A1D1D); background: light-dark(#FEF2F2, #241010); color: light-dark(#991B1B, #FCA5A5); }
+.callout.ok { border-color: light-dark(#BBF7D0, #14402A); background: light-dark(#F0FDF4, #0D2016); color: light-dark(#166534, #86EFAC); }
 .users { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; }
 @media (max-width: 1000px) { .users { grid-template-columns: 1fr; } }
 .stack { display: flex; flex-direction: column; gap: 12px; }
@@ -204,11 +215,11 @@ main { flex: 1; min-width: 0; padding: 36px 40px 72px; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; padding: 6px 14px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text); font-weight: 500; white-space: nowrap; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
 .btn:hover { border-color: var(--faint); background: var(--surface-2); text-decoration: none; }
 .btn:disabled { opacity: .55; cursor: not-allowed; }
-.btn-primary { border-color: var(--primary); background: var(--primary); color: #fff; }
+.btn-primary { border-color: var(--primary); background: var(--primary); color: var(--on-primary); }
 .btn-primary:hover { border-color: var(--primary-hover); background: var(--primary-hover); }
-.btn-ok { border-color: var(--ok); background: var(--ok); color: #fff; }
+.btn-ok { border-color: var(--ok); background: var(--ok); color: var(--on-primary); }
 .btn-ok:hover { background: #166534; }
-.btn-bad { border-color: var(--bad); background: var(--bad); color: #fff; }
+.btn-bad { border-color: var(--bad); background: var(--bad); color: var(--on-primary); }
 .btn-bad:hover { background: #991B1B; }
 .btn-ghost { border-color: transparent; background: transparent; }
 .btn-ghost:hover { border-color: transparent; }
@@ -218,7 +229,7 @@ main { flex: 1; min-width: 0; padding: 36px 40px 72px; }
 kbd { padding: 0 5px; border: 1px solid currentColor; border-radius: 4px; font: 500 11px/16px var(--mono); opacity: .75; }
 input:not([type=checkbox]):not([type=file]), select, textarea { min-height: 36px; padding: 6px 12px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface); transition: border-color .15s, box-shadow .15s; }
 input:not([type=checkbox]):not([type=file]):hover, select:hover, textarea:hover { border-color: var(--faint); }
-input:not([type=checkbox]):not([type=file]):not([type=range]):focus-visible, select:focus-visible, textarea:focus-visible { border-color: var(--ring); outline: none; box-shadow: 0 0 0 3px rgba(17, 17, 19, .1); }
+input:not([type=checkbox]):not([type=file]):not([type=range]):focus-visible, select:focus-visible, textarea:focus-visible { border-color: var(--ring); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 14%, transparent); }
 input[type=checkbox] { width: 16px; height: 16px; margin: 0; accent-color: var(--primary); cursor: pointer; }
 textarea { width: 100%; min-height: 72px; resize: vertical; }
 select { cursor: pointer; }
@@ -229,8 +240,8 @@ select { cursor: pointer; }
 .segctl { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: 999px; background: var(--surface-2); }
 .segctl button { min-height: 30px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--text-2); font-weight: 500; cursor: pointer; transition: background .15s, color .15s; }
 .segctl button:hover { color: var(--text); }
-.segctl button[aria-pressed="true"] { background: var(--primary); color: #fff; }
-.segctl button[aria-pressed="true"] .muted { color: rgba(255, 255, 255, .72); }
+.segctl button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
+.segctl button[aria-pressed="true"] .muted { color: color-mix(in srgb, var(--on-primary) 72%, transparent); }
 
 /* status */
 .st { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border: 1px solid transparent; border-radius: 999px; background: var(--todo-soft); color: var(--todo); font-size: 12px; font-weight: 500; white-space: nowrap; }
@@ -248,7 +259,7 @@ select { cursor: pointer; }
 .seg i { flex: 1; height: 6px; border-radius: 2px; background: var(--todo-bar); }
 .seg i.ok { background: var(--ok-bar); }
 .seg i.bad { background: var(--bad-bar); }
-.seg i.na { background: repeating-linear-gradient(45deg, #E2E8F0 0 2px, #F8FAFC 2px 4px); }
+.seg i.na { background: repeating-linear-gradient(45deg, var(--todo-bar) 0 2px, var(--surface) 2px 4px); }
 .progress-row { display: flex; align-items: center; gap: 10px; }
 .bar { display: flex; height: 8px; overflow: hidden; border-radius: 999px; background: var(--surface-3); }
 .bar i { display: block; height: 100%; }
@@ -260,10 +271,10 @@ select { cursor: pointer; }
 .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-1); }
 table { width: 100%; border-collapse: separate; border-spacing: 0; }
 th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
-th { position: sticky; top: 0; z-index: 1; background: #FAFAFB; color: var(--muted); font-size: 12px; font-weight: 600; white-space: nowrap; }
+th { position: sticky; top: 0; z-index: 1; background: light-dark(#FCFCFD, #17171A); color: var(--muted); font-size: 12px; font-weight: 600; white-space: nowrap; }
 tbody tr:last-child td { border-bottom: 0; }
 tr[data-open] { cursor: pointer; }
-tr[data-open]:hover td { background: #FAFAFB; }
+tr[data-open]:hover td { background: light-dark(#FAFAFB, #19191D); }
 tr.sel td, tr.sel:hover td { background: var(--primary-soft); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .t-main { font-weight: 600; }
@@ -286,16 +297,42 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .ds-kpis span { display: block; color: var(--muted); font-size: 12px; }
 .ds-kpis b { display: block; margin-top: 6px; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
 .ds-kpis small { margin-left: 4px; color: var(--muted); font-size: 13px; font-weight: 500; letter-spacing: 0; }
-.ds-card .mcard-t b { flex: 1; min-width: 0; }
+.ds-card { display: flex; flex-direction: column; gap: 10px; padding: 18px 18px 16px; cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .2s; }
+.ds-card:hover { border-color: var(--primary-line); box-shadow: var(--shadow-2); transform: translateY(-2px); }
+.ds-top { display: flex; align-items: center; gap: 6px; }
+.ds-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--surface-2); color: var(--text-2); }
+.ds-name { display: block; font-size: 17px; font-weight: 700; letter-spacing: -.02em; }
+.ds-org { margin-top: 2px; color: var(--muted); font-size: 12px; }
+.ds-card .stats { margin-top: auto; }
+.src { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+.src-real { background: var(--info-soft); color: var(--info); }
+.src-sim { background: light-dark(#F3EEFF, #231A38); color: light-dark(#6D28D9, #C4B5FD); }
+.src-ego { background: var(--accent-soft); color: var(--accent-text); }
+.ds-n { margin: 0; font-size: 22px; font-weight: 700; }
+.ds-n .num { margin-left: 2px; color: var(--muted); font-size: 14px; font-weight: 500; }
+.ds-note { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-size: 12px; }
+.ds-note code { color: var(--text-2); }
+.ds-bar .search input { width: 200px; }
+.views { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--border); border-radius: 999px; }
+.views .btn-icon { width: 30px; min-height: 30px; color: var(--muted); }
+.views .btn-icon[aria-pressed="true"] { background: var(--surface-2); color: var(--text); }
+/* dropdown: pill button + floating menu */
+.dd { position: relative; }
+.dd-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px 0 16px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text); font-weight: 500; cursor: pointer; transition: border-color .15s; }
+.dd-btn:hover { border-color: var(--faint); }
+.dd-btn .ic { color: var(--muted); transition: transform .15s; }
+.dd-btn[aria-expanded="true"] { border-color: var(--text); }
+.dd-btn[aria-expanded="true"] .ic { transform: rotate(180deg); }
+.dd-menu { position: absolute; top: calc(100% + 6px); right: 0; z-index: 10; display: grid; gap: 2px; min-width: 132px; padding: 6px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-2); animation: dd-in .12s ease-out; }
+.dd-menu button { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 34px; padding: 0 10px 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--text-2); text-align: left; white-space: nowrap; cursor: pointer; }
+.dd-menu button:hover { background: var(--surface-2); color: var(--text); }
+.dd-menu button[aria-selected="true"] { background: var(--surface-2); color: var(--text); font-weight: 600; }
+@keyframes dd-in { from { opacity: 0; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .dd-menu { animation: none; } .dd-btn .ic { transition: none; } }
 .ds-desc { display: -webkit-box; min-height: 3.2em; margin: 0; overflow: hidden; color: var(--text-2); font-size: 13px; line-height: 1.6; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.ds-ph { display: grid; place-items: center; gap: 8px; width: 100%; height: 100%; background: repeating-linear-gradient(135deg, var(--surface-2) 0 10px, #F9F9FA 10px 20px); color: var(--muted); font-size: 13px; align-content: center; }
 .ds-foot > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .ds-foot { display: flex; align-items: center; gap: 8px; white-space: nowrap; padding-top: 10px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
-.ds-meta { margin-top: -4px; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-.tag.ghost { background: transparent; box-shadow: inset 0 0 0 1px var(--border); color: var(--muted); font-family: var(--font); }
-.ds-card .chips .tag { font-family: var(--font); }
-.sdot { display: inline-block; width: 6px; height: 6px; margin-right: 2px; border-radius: 50%; }
-.src-sim { background: #7C3AED; } .src-real { background: var(--info); } .src-ego { background: var(--accent); }
+.ds-meta { overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 /* datasets: facet sidebar + results */
 .ds-layout { display: grid; grid-template-columns: 252px minmax(0, 1fr); align-items: start; gap: 32px; }
 .ds-side { position: sticky; top: calc(var(--gbar) + 16px); max-height: calc(100vh - var(--gbar) - 32px); margin: -4px 0 0 -8px; padding: 0 8px 24px; overflow-y: auto; scrollbar-width: thin; }
@@ -305,7 +342,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .fgroup > summary::-webkit-details-marker { display: none; }
 .fgroup > summary .chev { margin-left: auto; color: var(--faint); transition: transform .15s ease-out; }
 .fgroup[open] > summary .chev { transform: rotate(90deg); }
-.fcount { min-width: 18px; padding: 0 6px; border-radius: 999px; background: var(--text); color: #fff; font: 600 11px/18px var(--mono); text-align: center; }
+.fcount { min-width: 18px; padding: 0 6px; border-radius: 999px; background: var(--text); color: var(--bg); font: 600 11px/18px var(--mono); text-align: center; }
 .flist { display: grid; gap: 2px; }
 .fopt { display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; color: var(--text-2); text-align: left; cursor: pointer; transition: background .15s, color .15s; }
 .fopt:hover { background: var(--surface-2); }
@@ -315,7 +352,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .fchips { display: flex; flex-wrap: wrap; gap: 6px; }
 .fchip { min-height: 30px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text-2); font-size: 13px; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
 .fchip:hover { border-color: var(--faint); }
-.fchip[aria-pressed="true"] { border-color: var(--text); background: var(--text); color: #fff; }
+.fchip[aria-pressed="true"] { border-color: var(--text); background: var(--text); color: var(--bg); }
 .fopt.none, .fchip.none { color: var(--faint); }
 .fchip.none { border-style: dashed; }
 .range2 { position: relative; height: 24px; margin: 4px 6px 0; }
@@ -323,18 +360,18 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .range2 .track { right: 0; left: 0; background: var(--surface-3); }
 .range2 .fill { background: var(--text); }
 .range2 input[type=range] { position: absolute; inset: 0; width: 100%; min-height: 0; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; pointer-events: none; -webkit-appearance: none; appearance: none; }
-.range2 input::-webkit-slider-thumb { width: 16px; height: 16px; border: 2px solid var(--text); border-radius: 50%; background: #fff; cursor: grab; pointer-events: auto; -webkit-appearance: none; }
-.range2 input::-moz-range-thumb { width: 12px; height: 12px; border: 2px solid var(--text); border-radius: 50%; background: #fff; cursor: grab; pointer-events: auto; }
+.range2 input::-webkit-slider-thumb { width: 16px; height: 16px; border: 2px solid var(--text); border-radius: 50%; background: var(--surface); cursor: grab; pointer-events: auto; -webkit-appearance: none; }
+.range2 input::-moz-range-thumb { width: 12px; height: 12px; border: 2px solid var(--text); border-radius: 50%; background: var(--surface); cursor: grab; pointer-events: auto; }
 .range2 input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(17, 17, 19, .15); }
 .range2-l { display: flex; justify-content: space-between; margin: 6px 0 0; color: var(--muted); font: 12px var(--mono); }
-.ds-bar { margin-bottom: 12px; }
-.ds-bar select { padding: 0 14px; border-radius: 999px; }
+.ds-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+.ds-main { min-height: calc(100vh - var(--gbar)); }
 .ds-n { font-size: 15px; }
 .ds-active { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 14px; }
 .ds-x { gap: 4px; height: 26px; border: 0; font-family: var(--font); cursor: pointer; }
 .ds-x:hover { background: var(--surface-3); }
 .btn-sm { min-height: 28px; padding: 0 10px; font-size: 12px; }
-.ds-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+.ds-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
 @media (max-width: 960px) {
   .ds-layout { grid-template-columns: 1fr; gap: 16px; }
   .ds-side { position: static; max-height: none; margin: 0; padding: 0; overflow: visible; }
@@ -353,14 +390,14 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .media > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .media .inset { position: absolute; right: 8px; bottom: 8px; width: 34%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border: 2px solid #fff; border-radius: 6px; box-shadow: var(--shadow-2); }
 .media .pills { position: absolute; top: 8px; right: 8px; left: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
-.pill { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; background: rgba(255, 255, 255, .9); color: var(--text); font: 500 11px var(--mono); box-shadow: 0 1px 2px rgba(17, 17, 19, .08); backdrop-filter: blur(6px); }
-.m3d { position: relative; aspect-ratio: 4 / 3; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: #F0F0F2; }
+.pill { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; background: var(--glass); color: var(--text); font: 500 11px var(--mono); box-shadow: 0 1px 2px rgba(17, 17, 19, .08); backdrop-filter: blur(6px); }
+.m3d { position: relative; aspect-ratio: 4 / 3; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
 .m3d:fullscreen { border: 0; border-radius: 0; }
 .m3d canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
 .m3d canvas:active { cursor: grabbing; }
 .m3d-status { position: absolute; inset: 0; display: grid; place-items: center; padding: 16px; color: var(--muted); font-size: 13px; text-align: center; pointer-events: none; }
 .m3d-bar { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; }
-.m3d-bar .btn { min-height: 28px; padding: 3px 9px; font-size: 12px; background: rgba(255, 255, 255, .9); }
+.m3d-bar .btn { min-height: 28px; padding: 3px 9px; font-size: 12px; background: var(--glass); }
 .m3d-hint { position: absolute; left: 8px; bottom: 8px; padding: 2px 7px; border-radius: 6px; background: rgba(15, 23, 42, .6); color: #fff; font-size: 11px; pointer-events: none; }
 .vcard { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-align: left; cursor: pointer; }
 .vcard:hover { border-color: var(--primary-line); }
@@ -435,7 +472,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .wz-dot { display: grid; place-items: center; width: 28px; height: 28px; border: 1.5px solid var(--border-strong); border-radius: 50%; background: var(--surface); font: 600 12px var(--mono); transition: background .2s, border-color .2s, color .2s; }
 .wz-dot .ic { display: none; width: 14px; height: 14px; }
 .wz-steps button.on { color: var(--text); font-weight: 600; }
-.wz-steps button.on .wz-dot { border-color: var(--primary); background: var(--primary); color: #fff; box-shadow: 0 0 0 4px var(--primary-soft); }
+.wz-steps button.on .wz-dot { border-color: var(--primary); background: var(--primary); color: var(--on-primary); box-shadow: 0 0 0 4px var(--primary-soft); }
 .wz-steps button.done { color: var(--text-2); }
 .wz-steps button.done .wz-dot { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
 .wz-steps button.done .wz-dot span { display: none; }
@@ -491,7 +528,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .presets button { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border: 1px dashed var(--border-strong); border-radius: 999px; background: none; color: var(--text-2); font-size: 12px; cursor: pointer; }
 .presets button:hover { border-color: var(--ring); color: var(--primary); }
-.wz-foot { position: sticky; bottom: -48px; z-index: 1; display: flex; align-items: center; gap: 12px; margin: 24px -22px -48px; padding: 14px 22px; border-top: 1px solid var(--border); background: rgba(255, 255, 255, .94); backdrop-filter: blur(6px); }
+.wz-foot { position: sticky; bottom: -48px; z-index: 1; display: flex; align-items: center; gap: 12px; margin: 24px -22px -48px; padding: 14px 22px; border-top: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(6px); }
 .wz-foot .field-error { flex: 1; min-width: 0; text-align: center; }
 .wz-foot .btn { min-height: 40px; padding: 0 16px; }
 .nt-role, .nt-level { margin-top: 10px; padding: 14px; border: 1px dashed var(--border-strong); border-radius: var(--radius); }
@@ -554,7 +591,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .hint { color: var(--muted); font-size: 12px; }
 @media (max-width: 560px) { .form { grid-template-columns: 1fr; } .stage-list li { grid-template-columns: 84px 1fr; } .stage-list .sl-detail { grid-column: 1 / -1; } }
 .code { position: relative; }
-.code pre { margin: 0; padding: 14px 46px 14px 16px; overflow: auto; border-radius: 12px; background: #111113; color: #E2E8F0; font: 12px/1.65 var(--mono); white-space: pre-wrap; word-break: break-all; }
+.code pre { margin: 0; padding: 14px 46px 14px 16px; overflow: auto; border-radius: 12px; background: light-dark(#111113, #1C1C20); color: #E2E8F0; font: 12px/1.65 var(--mono); white-space: pre-wrap; word-break: break-all; }
 .code .copy { position: absolute; top: 6px; right: 6px; border-color: rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .06); color: #CBD5E1; }
 .code .copy:hover { background: rgba(255, 255, 255, .14); }
 
@@ -563,9 +600,9 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .qa-list { max-height: calc(100vh - var(--top) - 210px); }
 .qa-panel { position: sticky; top: calc(var(--top) + 20px); }
 @media (max-width: 1200px) { .qa { grid-template-columns: 1fr; } .qa-panel { position: static; } .qa-list { max-height: 460px; } }
-.bulkbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px 8px 0 0; background: var(--primary); color: #fff; font-size: 13px; }
-.bulkbar .btn { min-height: 30px; border-color: rgba(255, 255, 255, .35); background: rgba(255, 255, 255, .08); color: #fff; }
-.bulkbar .btn:hover { background: rgba(255, 255, 255, .18); }
+.bulkbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px 8px 0 0; background: var(--primary); color: var(--on-primary); font-size: 13px; }
+.bulkbar .btn { min-height: 30px; border-color: color-mix(in srgb, var(--on-primary) 35%, transparent); background: color-mix(in srgb, var(--on-primary) 8%, transparent); color: var(--on-primary); }
+.bulkbar .btn:hover { background: color-mix(in srgb, var(--on-primary) 18%, transparent); }
 .videos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .videos figure { position: relative; margin: 0; }
 .videos video { display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 8px; background: #000; }
@@ -583,7 +620,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .lb-nav:hover { background: rgba(255, 255, 255, .18); }
 .lb-prev { left: 12px; }
 .lb-next { right: 12px; }
-#toast { position: fixed; bottom: 24px; left: 50%; z-index: 40; display: flex; align-items: center; gap: 8px; max-width: min(560px, 92vw); padding: 10px 14px; border-radius: 10px; background: #0F172A; color: #fff; box-shadow: var(--shadow-3); font-size: 13px; opacity: 0; pointer-events: none; transform: translate(-50%, 12px); transition: opacity .2s, transform .2s; }
+#toast { position: fixed; bottom: 24px; left: 50%; z-index: 40; display: flex; align-items: center; gap: 8px; max-width: min(560px, 92vw); padding: 10px 14px; border-radius: 10px; background: light-dark(#0F172A, #2A2A30); color: #fff; box-shadow: var(--shadow-3); font-size: 13px; opacity: 0; pointer-events: none; transform: translate(-50%, 12px); transition: opacity .2s, transform .2s; }
 #toast.on { opacity: 1; transform: translate(-50%, 0); }
 #toast.err { background: #7F1D1D; }
 .spin { animation: spin 1s linear infinite; }
@@ -633,6 +670,11 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
     <symbol id="i-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.2A10.4 10.4 0 0 1 12 4c6.4 0 10 8 10 8a17.6 17.6 0 0 1-2.2 3.2"/><path d="M6.6 6.6C3.9 8.4 2 12 2 12s3.6 8 10 8a9.7 9.7 0 0 0 5.4-1.6"/><path d="M14.1 14.1a3 3 0 0 1-4.2-4.2"/><path d="m2 2 20 20"/></symbol>
     <symbol id="i-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></symbol>
     <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+    <symbol id="i-chev-d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
     <symbol id="i-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></symbol>
     <symbol id="i-table" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/></symbol>
   </defs>
@@ -653,6 +695,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
   <header class="gbar">
     <a class="brand" href="#overview" aria-label="BanzhiFlywheel 首页"><span class="wordmark" aria-hidden="true">Banzhi<em>Flywheel</em></span></a>
     <nav id="products" class="products" aria-label="产品"></nav>
+    <div id="theme" class="theme" role="group" aria-label="主题"></div>
     <div id="me" class="me"></div>
   </header>
   <aside class="side">
@@ -702,7 +745,8 @@ const S = {scene: [], object: [], task: [], episode: [], embodiment: [], evaluat
 const UI = {
   tab: 'overview', drawer: null, ep: null, taskDim: 'custom', taskQ: '', sel: new Set(), loaded: false, syncing: false, syncedAt: '',
   osel: new Set(),  // objects ticked on the objects page, for bulk owner assignment
-  ds: {pick: {}, ep: [0, 100], q: '', sort: 'new', closed: ['robot', 'sensor', 'format', 'status']},  // datasets page filters
+  ds: {pick: {}, ep: [0, 100], q: '', sort: 'rec', view: 'grid', closed: ['robot', 'skill', 'format', 'license', 'platform', 'local']},  // datasets page filters
+  dd: '',  // id of the open dropdown menu
   vpick: {},  // object drawer id -> the variant whose render is previewed in it
   obj: {q: '', photo: false, status: '', owner: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
   qa: {task: '', config: '', policy: '', result: '', status: 'pending'},
@@ -942,6 +986,11 @@ const area = (d, f, attrs = '') => `<textarea id="${fid(f)}" data-f="${f}" ${att
 const row = (label, f, control, hint = '') => `<label for="${fid(f)}">${label}</label><div class="ctl">${control}${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
 const searchBox = (id, value, setter, hint) => `<div class="search">${ic('search')}<input id="${id}" type="text" placeholder="${hint}" aria-label="${hint}" value="${esc(value)}"
   oninput="if (!event.isComposing) { ${setter} = this.value; render(); }" oncompositionend="${setter} = this.value; render()"></div>`;
+// pill button with a floating option menu; pick is JS run with $v replaced by the chosen value
+const dropdown = (id, label, opts, cur, pick) => `<div class="dd"><button id="${id}" type="button" class="dd-btn" aria-haspopup="listbox" aria-expanded="${UI.dd === id}" aria-label="${label}"
+  onclick="UI.dd = UI.dd === '${id}' ? '' : '${id}'; render()">${esc(Object.fromEntries(opts)[cur])}${ic('chev-d', 'ic-sm')}</button>
+  ${UI.dd === id ? `<div class="dd-menu" role="listbox" aria-labelledby="${id}">${opts.map(([v, text]) => `<button type="button" role="option" aria-selected="${v === cur}"
+    onclick="UI.dd = ''; ${pick.replaceAll('$v', v)}; render(); $('#${id}').focus()">${esc(text)}${v === cur ? ic('check', 'ic-sm') : ''}</button>`).join('')}</div>` : ''}</div>`;
 const link = (kind, id, text = id) => `<a href="#${TAB_OF[kind]}" data-go="${kind}" data-id="${esc(id)}">${esc(text)}</a>`;
 const assetsWarning = () => (INFO.assets_ok ? '' : `<div class="callout">${ic('alert')}<div>资产库 <span class="mono">${esc(INFO.assets)}</span> 下没有 Object/：物体元数据和评测布局数不可用。
   本机先运行 <span class="mono">scripts/init_assets.sh</span>，或在服务器上用 <span class="mono">--assets</span> 指向共享资产库。</div></div>`);
@@ -1052,89 +1101,191 @@ function drawerPrototype(d) {
       <p class="hint">研究资产保留已有模型与验证记录；当前不作为完整本体或任务登记的新候选。</p>`};
 }
 
-// ---------- datasets: a snapshot of scripts/datagen/registry.json until the server serves it ----------
+// ---------- datasets: public datasets entered by hand (numbers from the publishers or RoboFlywheel; local copy from the OSS inventory) ----------
 const DATASETS = [
-  {id: 'g1d_shenzhen_pour_beans_cup_or_mug_500', title: '深圳实验室 · 倒豆到量杯或马克杯', status: 'released', created: '2026-10-22',
-    scene: 'real_scene5_shenzhen_lab', sceneName: '深圳实验室办公桌', task: 'g1d_pour_beans_cup_or_mug', episodes: 500, frames: 199697, fps: 30,
-    desc: 'G1-D 双臂把高量杯里的红豆倒进矮量杯或白色马克杯，指令点名目标容器；随机持杯手和朝向，桌上 2–5 个干扰物。',
-    f: {source: ['sim'], domain: ['commercial', 'home'], space: ['office'], form: ['wheeled_humanoid'], robot: ['g1d'], manip: ['tabletop'],
-      skill: ['pour', 'granular'], sensor: ['head_rgb', 'wrist_rgb', 'language'], format: ['lerobot3']},
-    tags: ['语言条件', '干扰物', '随机持杯手'], format: 'LeRobot v3.0', published: 'ModelScope 私有',
-    repo: 'ChongZheng/g1d_shenzhen_pour_beans_cup_or_mug_500', env_cfg: 'g1d_shenzhen_lab_beans_collect（物理 1/600 s，动作 30 Hz）',
-    acceptance: 'all_beans_retained_any_target_v2：整回合两杯不碰、目标杯倾角 ≤ 15°；最后 30 帧豆子全在目标杯。751 次尝试中 505 次通过，量杯 257 / 马克杯 243。',
-    layouts: '1100 个候选布局，seed 500–521，split=train', validation: '导出回读 500 / 199697 帧；audit.py 独立复算 500/500；8 条开环回放，臂关节偏差 ≤ 2e-3 rad。',
-    location: '5090-2:/data/robodojo-runs/shenzhen-beans-20261021'},
-  {id: 'g1d_office_pour_beans_random_hand_yaw_100', title: '办公室 · 随机手与朝向倒豆', status: 'released', created: '2026-10-19',
-    scene: 'real_scene1_office', sceneName: '办公室', task: 'g1d_pour_beans_measuring_cups', episodes: 100, frames: 39827, fps: 30,
-    desc: '左右手各 50 条，量杯位置和偏航在大范围内拉丁超立方采样，672 颗红豆全部倒进矮量杯。',
-    f: {source: ['sim'], domain: ['commercial', 'home'], space: ['office'], form: ['wheeled_humanoid'], robot: ['g1d'], manip: ['tabletop'],
-      skill: ['pour', 'granular'], sensor: ['head_rgb', 'wrist_rgb', 'language'], format: ['lerobot3']},
-    tags: ['随机持杯手', '随机朝向'], format: 'LeRobot v3.0（旧导出）', published: 'ModelScope 私有',
-    repo: 'ChongZheng/g1d_office_pour_beans_random_hand_yaw_100', env_cfg: 'g1d_beans_collect（物理 1/600 s，动作 30 Hz）',
-    acceptance: 'all_beans_retained_v2（672 颗）；176 次尝试中 104 次通过（左 53 / 右 51），每只手取最早的 50 条。',
-    layouts: '400 个布局，左右手各 200，6 维拉丁超立方', validation: '导出回读 100 / 39827 帧；逐回合复数 67200 颗豆子，无遗留无洒出。',
-    location: '5090-2:/data/robodojo-runs/office-beans-random-20261019'},
-  {id: 'g1d_office_pour_all_red_beans_measuring_cups_100', title: '办公室 · 量杯对倒红豆', status: 'released', created: '2026-10-19',
-    scene: 'real_scene1_office', sceneName: '办公室', task: 'g1d_pour_beans_measuring_cups', episodes: 100, frames: 40279, fps: 30,
-    desc: '固定朝向的量杯对倒：实测尺寸和质量的量杯，5.6 mm 红豆 672 颗，全部倒进矮量杯且两杯保持直立。',
-    f: {source: ['sim'], domain: ['commercial', 'home'], space: ['office'], form: ['wheeled_humanoid'], robot: ['g1d'], manip: ['tabletop'],
-      skill: ['pour', 'granular'], sensor: ['head_rgb', 'wrist_rgb', 'language'], format: ['lerobot3']},
-    tags: ['实测资产'], format: 'LeRobot v3.0（旧导出）', published: 'ModelScope 私有',
-    repo: 'ChongZheng/g1d_office_pour_all_red_beans_measuring_cups_100', env_cfg: 'g1d_beans_collect（物理 1/600 s，动作 30 Hz）',
-    acceptance: 'all_beans_retained_v2：672 颗全在矮杯，两杯 30 帧内偏离竖直 ≤ 30°；118 次尝试中 108 次通过。',
-    layouts: '400 个候选（4 维拉丁超立方），seed 100–107', validation: '导出回读 100 / 40279 帧；LeRobot 0.4.4 解码每回合首尾帧。',
-    location: '5090-2:/data/robodojo-runs/office-beans-measured-20261019'},
-  {id: 'g1d_aurora_v3_wide_45mm_delivery_sample', title: 'Aurora 触觉夹爪 · 双臂搬运样本', status: 'incomplete', created: '2026-10-24',
-    scene: '', sceneName: '独立验证桌', task: 'dual_arm_pick_transport_place', episodes: 1, frames: 154, fps: 10,
-    desc: '外部交付的验证样本：45 mm / 50 g 物体双臂抓取、搬运、放置，带四路 FEM 触觉视频；不是训练发布版本。',
-    f: {source: ['sim'], domain: ['commercial'], space: ['lab'], form: ['wheeled_humanoid'], robot: ['g1d'], manip: ['tabletop'],
-      skill: ['pick_place', 'transport', 'bimanual'], sensor: ['tactile'], format: ['hdf5', 'lerobot3']},
-    tags: ['交付样本'], format: 'HDF5 + LeRobot v3（触觉）', published: '未上传',
-    repo: '', env_cfg: 'g1d_four_pad_episode.v1（物理 240 Hz，记录 10 Hz）',
-    acceptance: '交付 case09：严格双臂抓放通过；没有验证过训练策略。', layouts: '固定的双臂验证布局，不是评测划分',
-    validation: '保留交付方的 HDF5 / LeRobot 审计；6 条任务审计在验收时独立复算。', location: '本机 worktree .cache/aurora-v3-delivery/'},
-  {id: 'g1d_office_pour_all_red_beans_old_cups', title: '办公室 · 量杯对倒（旧杯，已替代）', status: 'superseded', created: '2026-10-19',
-    scene: 'real_scene1_office', sceneName: '办公室', task: 'g1d_pour_beans_measuring_cups', episodes: 106, frames: 0, fps: 30,
-    desc: '量杯尺寸来自照片估计、4 mm 红豆的早期版本，已被实测量杯版本替代，LeRobot 导出停在 8 / 100。',
-    f: {source: ['sim'], domain: ['commercial', 'home'], space: ['office'], form: ['wheeled_humanoid'], robot: ['g1d'], manip: ['tabletop'],
-      skill: ['pour', 'granular'], sensor: ['head_rgb', 'wrist_rgb', 'language'], format: ['raw']},
-    tags: [], format: '原始回合（npz + MP4）', published: '未发布',
-    repo: '', env_cfg: 'g1d_beans_collect（物理 1/600 s，动作 30 Hz）',
-    acceptance: 'all_beans_retained_v2（1840 颗 4 mm 豆子）；141 次尝试中 106 次通过。', layouts: 'g1d/9 候选，seed 100–107',
-    validation: '—', location: '5090-2:/data/robodojo-runs/office-beans-100-20261019'},
+  {id: 'agibot-world-beta', name: 'AgiBot World Beta', org: '智元机器人 AgiBot', url: 'https://huggingface.co/datasets/agibot-world/AgiBotWorld-Beta',
+    episodes: 1000000, epText: '100 万+', hours: 2976.4, size: '45 TB', tb: 45,
+    desc: '100 台机器人在 100 多个真实场景采集，覆盖家居、零售、餐饮、办公、工业 5 个领域、200 多类任务和 87 种原子技能，含视觉触觉、灵巧手和移动双臂数据。',
+    f: {source: ['real'], domain: ['commercial', 'home'], space: ['store', 'cafe', 'office', 'kitchen', 'living'], form: ['wheeled_humanoid'], robot: ['agibot'], manip: ['tabletop', 'mobile'],
+      skill: ['pick_place', 'organize', 'deformable', 'articulated', 'wipe'], format: ['hdf5', 'lerobot3'], license: ['ccbyncsa'], platform: ['hf'], local: ['partial']}},
+  {id: 'unitree-g1-wbt', name: 'Unitree G1 WBT 全身遥操作系列', org: '宇树科技 Unitree', url: 'https://huggingface.co/unitreerobotics',
+    episodes: null, hours: null, size: '约 774 GB · 59 个任务', tb: 0.76,
+    desc: 'G1 人形全身遥操作，配 Brainco / Inspire 灵巧手：铺床、收衣服放进洗衣机、碗碟放进洗碗机、饮料放进冰箱、整理超市货架、收拾客厅拖鞋等家务与零售任务。',
+    f: {source: ['real'], domain: ['home', 'commercial'], space: ['bedroom', 'living', 'kitchen', 'bathroom', 'store'], form: ['legged_humanoid'], robot: ['unitree_g1'], manip: ['whole_body', 'mobile'],
+      skill: ['pick_place', 'organize', 'deformable', 'articulated'], format: [], license: ['unknown'], platform: ['ms', 'hf'], local: ['complete']}},
+  {id: 'unitree-g1-dex1', name: 'Unitree G1 Dex1 桌面操作系列', org: '宇树科技 Unitree', url: 'https://huggingface.co/unitreerobotics',
+    episodes: null, hours: null, size: '约 1.7 TB · 94 个任务', tb: 1.7,
+    desc: 'G1 上身加 Dex1 两指夹爪，每个任务一个仓库（如叠毛巾 200 条、30 fps、4 路相机）：叠衣物、收纳餐具和调料、整理书架文具、擦桌子、放食物进烤箱、水果分拣等。',
+    f: {source: ['real', 'sim'], domain: ['home', 'commercial'], space: ['kitchen', 'living', 'bedroom', 'office', 'store', 'bathroom'], form: ['legged_humanoid'], robot: ['unitree_g1'], manip: ['tabletop'],
+      skill: ['pick_place', 'organize', 'deformable', 'wipe', 'assembly', 'pour'], format: ['lerobot21'], license: ['apache'], platform: ['ms', 'hf'], local: ['complete']}},
+  {id: 'robomind-2', name: 'RoboMIND 2.0', org: '北京人形机器人创新中心 X-Humanoid', url: 'https://www.modelscope.cn/collections/X-Humanoid/RoboMIND20',
+    episodes: 230630, hours: 1341, size: '约 91 TB · 9 个子集', tb: 91,
+    desc: '多本体真机操作数据：Franka、UR5、AgileX 双臂、天工 / 天轶人形等平台，另有 Franka 仿真子集；任务含餐厅摆放餐具、厨房备菜、抓取放置等。',
+    f: {source: ['real', 'sim'], domain: ['commercial', 'home'], space: ['cafe', 'kitchen'], form: ['single_arm', 'dual_arm', 'wheeled_humanoid'], robot: ['franka', 'ur5', 'agilex', 'tiangong'], manip: ['tabletop', 'mobile'],
+      skill: ['pick_place', 'organize'], format: [], license: ['apache'], platform: ['ms'], local: ['partial']}},
+  {id: 'galaxea-open-world', name: 'Galaxea Open-World Dataset', org: '星海图 Galaxea AI', url: 'https://www.modelscope.cn/datasets/Galaxea/Galaxea-Open-World-Dataset',
+    episodes: null, hours: null, size: '4.7 TB', tb: 4.7,
+    desc: '全部在真实的居住与工作环境中采集，统一使用 Galaxea R1 双臂全身本体并带子任务级语言标注，约 10 万条轨迹，用于训练 G0 双系统 VLA 模型。',
+    f: {source: ['real'], domain: ['home', 'commercial'], space: ['living', 'kitchen', 'bedroom', 'office', 'store'], form: ['wheeled_humanoid'], robot: ['galaxea'], manip: ['mobile', 'whole_body'],
+      skill: ['pick_place', 'organize', 'articulated'], format: ['lerobot'], license: ['ccbyncsa'], platform: ['ms', 'hf'], local: ['complete']}},
+  {id: 'geniesim-3', name: 'Genie Sim 3.0 Dataset', org: '智元机器人 AgiBot', url: 'https://modelscope.cn/datasets/agibot_world/GenieSim3.0-Dataset',
+    episodes: null, hours: null, size: '39 TB', tb: 39,
+    desc: 'Genie Sim 3.0 仿真平台生成的大规模操作数据，LeRobot 格式，含整理工作台、拉抽屉等任务。',
+    f: {source: ['sim'], domain: ['commercial', 'home'], space: ['office'], form: ['wheeled_humanoid'], robot: ['agibot'], manip: ['tabletop', 'mobile'],
+      skill: ['pick_place', 'organize', 'articulated'], format: ['lerobot'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'agibot-world-2026', name: 'AgiBot World 2026', org: '智元机器人 AgiBot', url: 'https://www.modelscope.cn/datasets/agibot-world/AgiBotWorld2026',
+    episodes: null, hours: null, size: '8.6 TB', tb: 8.6,
+    desc: 'AgiBot World 的 2026 版本，分模仿学习（ImitationLearning）、富交互（RichInteraction）和仿真三部分。',
+    f: {source: ['real', 'sim'], domain: ['commercial', 'home'], space: [], form: ['wheeled_humanoid'], robot: ['agibot'], manip: [],
+      skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'droid', name: 'DROID', org: 'Stanford · UC Berkeley 等', url: 'https://www.modelscope.cn/datasets/nvidia/Cosmos3-DROID',
+    episodes: 95600, hours: 511, size: '707 GB', tb: 0.69,
+    desc: '数十名采集者在北美、亚洲、欧洲 564 个真实场景（家庭、办公室等）用 Franka 遥操作采集；这里收录 NVIDIA 转换的 LeRobot v3 版本，含成功与失败轨迹。',
+    f: {source: ['real'], domain: ['home', 'commercial'], space: ['office', 'kitchen', 'living'], form: ['single_arm'], robot: ['franka'], manip: ['tabletop'],
+      skill: ['pick_place', 'organize', 'articulated'], format: ['lerobot3'], license: ['ccby'], platform: ['ms'], local: ['complete']}},
+  {id: 'robocoin', name: 'RoboCOIN', org: '智源研究院 BAAI', url: 'https://www.modelscope.cn/organization/RoboCOIN',
+    episodes: 101576, hours: 704, size: '6.0 TB', tb: 6,
+    desc: '面向双臂协同一体化操作的数据集，跨 15 种机器人本体、16 类场景、421 种任务。',
+    f: {source: ['real'], domain: ['home', 'commercial'], space: [], form: ['dual_arm'], robot: ['multi'], manip: ['tabletop'],
+      skill: ['pick_place', 'organize', 'deformable'], format: [], license: ['apache'], platform: ['ms'], local: ['complete']}},
+  {id: 'robomind', name: 'RoboMIND', org: '北京人形机器人创新中心 X-Humanoid', url: 'https://www.modelscope.cn/datasets/X-Humanoid/RoboMIND',
+    episodes: 107097, hours: 379, size: '12 TB', tb: 12,
+    desc: '多本体真机操作基准：人工遥操作采集约 10.7 万条演示，479 类任务，跨 Franka、UR5e、AgileX 双臂和人形，含失败案例。',
+    f: {source: ['real'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm', 'legged_humanoid'], robot: ['franka', 'ur5', 'agilex', 'tiangong'], manip: ['tabletop'],
+      skill: ['pick_place'], format: [], license: ['apache'], platform: ['ms'], local: ['complete']}},
+  {id: 'robochallenge-table30', name: 'RoboChallenge Table30 v1 / v2', org: 'RoboChallenge', url: 'https://huggingface.co/datasets/RoboChallenge/Table30v2',
+    episodes: null, hours: null, size: '约 1.6 TB', tb: 1.6,
+    desc: 'RoboChallenge 真机评测的 30 个桌面任务数据，v2 增加双臂版本。',
+    f: {source: ['real'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm'], robot: ['multi'], manip: ['tabletop'],
+      skill: ['pick_place', 'organize'], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
+  {id: 'gm-100', name: 'GM-100', org: 'Robbyant', url: 'https://www.modelscope.cn/datasets/robbyant/gm100',
+    episodes: null, hours: null, size: '1.5 TB', tb: 1.5,
+    desc: '多本体基准：AgiBot G1、AgileX、Galaxea R1 Pro 三个平台，LeRobot v2.1 格式。',
+    f: {source: ['real'], domain: [], space: [], form: ['wheeled_humanoid', 'dual_arm'], robot: ['agibot', 'agilex', 'galaxea'], manip: ['tabletop'],
+      skill: [], format: ['lerobot21'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'molmoact2-yam', name: 'MolmoAct2 BimanualYAM', org: 'Allen Institute for AI', url: 'https://huggingface.co/datasets/allenai/MolmoAct2-BimanualYAM-Dataset',
+    episodes: 32246, hours: 720, size: '约 2.35 TB', tb: 2.35,
+    desc: 'YAM 双臂真机数据，约 3.2 万条、720 小时，用于 MolmoAct2 训练。',
+    f: {source: ['real'], domain: [], space: [], form: ['dual_arm'], robot: ['yam'], manip: ['tabletop'],
+      skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['none']}},
+  {id: 'gr00t-teleop-gr1', name: 'GR00T Teleop GR1', org: 'NVIDIA', url: 'https://www.modelscope.cn/datasets/nv-community/PhysicalAI-Robotics-GR00T-Teleop-GR1',
+    episodes: null, hours: null, size: '70 GB', tb: 0.07,
+    desc: 'NVIDIA PhysicalAI 发布的 Fourier GR1 人形遥操作数据。',
+    f: {source: ['real'], domain: [], space: [], form: ['legged_humanoid'], robot: ['fourier_gr1'], manip: ['tabletop'],
+      skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'humanoid-everyday', name: 'Humanoid Everyday', org: 'USC PSI Lab', url: 'https://huggingface.co/datasets/USC-PSI-Lab/humanoid-everyday',
+    episodes: null, hours: null, size: '约 1 TB', tb: 1,
+    desc: '人形机器人日常任务数据集。',
+    f: {source: ['real'], domain: ['home'], space: [], form: ['legged_humanoid'], robot: [], manip: [],
+      skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['none']}},
+  {id: 'biplay', name: 'BiPlay', org: 'UC Berkeley', url: 'https://huggingface.co/datasets/oier-mees/BiPlay',
+    episodes: 7023, hours: 9.7, size: '313 GB', tb: 0.31,
+    desc: 'ALOHA 双臂桌面自由玩耍数据，约 9.7 小时、7023 个片段。',
+    f: {source: ['real'], domain: ['home'], space: [], form: ['dual_arm'], robot: ['agilex'], manip: ['tabletop'],
+      skill: ['pick_place'], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
+  {id: 'maniparena', name: 'ManipArena', org: 'ManipArena', url: 'https://huggingface.co/datasets/ManipArena/maniparena-dataset',
+    episodes: 10800, epText: '约 1.08 万', hours: null, size: '236 GB', tb: 0.23,
+    desc: '固定和移动双臂的真机操作数据，约 1.08 万条。',
+    f: {source: ['real'], domain: [], space: [], form: ['dual_arm'], robot: [], manip: ['tabletop', 'mobile'],
+      skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
+  {id: 'tacverse', name: 'TacVerse Open Data', org: 'Xense Robotics', url: 'https://www.modelscope.cn/datasets/XenseRobotics/TacVerse-Opendata',
+    episodes: null, hours: null, size: '135 GB', tb: 0.13,
+    desc: '带视触觉传感的真机操作数据。',
+    f: {source: ['real'], domain: [], space: [], form: [], robot: [], manip: ['tabletop'],
+      skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['partial']}},
+  {id: 'realomni-10kh', name: '10Kh RealOmni Open Data', org: '简智新创 GenRobot', url: 'https://modelscope.cn/datasets/GenRobot.AI/10Kh-RealOmin-OpenData',
+    episodes: null, hours: null, size: '6.3 TB', tb: 6.3,
+    desc: 'GenRobot 开源的真实场景操作数据（名称标注万小时级）。',
+    f: {source: ['real'], domain: [], space: [], form: [], robot: [], manip: [],
+      skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'hy-embodied-vla', name: 'Hy-Embodied 0.5 VLA Data', org: '腾讯 Tencent', url: 'https://www.modelscope.cn/datasets/tencent/Hy-Embodied-0.5-VLA-Data',
+    episodes: null, hours: null, size: '19 TB', tb: 19,
+    desc: '腾讯混元具身 0.5 的 VLA 训练数据。',
+    f: {source: ['real'], domain: [], space: [], form: [], robot: [], manip: [],
+      skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'interndata-a1', name: 'InternData-A1', org: '上海人工智能实验室 InternRobotics', url: 'https://www.modelscope.cn/datasets/InternRobotics/InternData-A1',
+    episodes: null, hours: null, size: '6.5 TB', tb: 6.5,
+    desc: '以仿真为主、混合真机的操作数据，覆盖 Franka、Genie-1、Lift2、Split-ALOHA 等本体。',
+    f: {source: ['sim', 'real'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm', 'wheeled_humanoid'], robot: ['franka', 'agibot', 'agilex'], manip: ['tabletop'],
+      skill: ['pick_place'], format: ['lerobot3'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'interndata-m1', name: 'InternData-M1', org: '上海人工智能实验室 InternRobotics', url: 'https://www.modelscope.cn/datasets/InternRobotics/InternData-M1',
+    episodes: 508511, hours: 1839, size: '5.6 TB', tb: 5.6,
+    desc: '仿真引擎批量生成的抓取放置数据，支撑 InternVLA-M1 空间引导操作模型，用于提升未见物体上的泛化。',
+    f: {source: ['sim'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm'], robot: ['franka'], manip: ['tabletop'],
+      skill: ['pick_place'], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'robotwin-2', name: 'RoboTwin 2.0', org: 'RoboTwin 团队', url: 'https://www.modelscope.cn/datasets/TianxingChen/RoboTwin2.0',
+    episodes: null, hours: null, size: '509 GB', tb: 0.5,
+    desc: '50 个双臂桌面任务，每个任务有干净场景 50 条和域随机化 500 条两个版本。',
+    f: {source: ['sim'], domain: ['home'], space: [], form: ['dual_arm'], robot: ['multi'], manip: ['tabletop'],
+      skill: ['pick_place', 'organize', 'articulated'], format: ['hdf5'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'robocasa', name: 'RoboCasa', org: 'UT Austin 等', url: 'https://huggingface.co/datasets/haosulab/RoboCasa',
+    episodes: null, hours: null, size: '3.5 GB', tb: 0.0035,
+    desc: '大规模厨房仿真环境中的日常任务演示，如开关柜门、取放物品。',
+    f: {source: ['sim'], domain: ['home'], space: ['kitchen'], form: ['single_arm'], robot: ['franka'], manip: ['mobile'],
+      skill: ['pick_place', 'articulated'], format: ['hdf5'], license: ['unknown'], platform: ['hf'], local: ['complete']}},
+  {id: 'libero', name: 'LIBERO', org: 'UT Austin', url: 'https://www.modelscope.cn/datasets/nvidia/LIBERO_LeRobot_v3',
+    episodes: null, hours: null, size: '4.2 GB', tb: 0.0042,
+    desc: '家居场景的终身学习操作基准，含 libero_10 / 90 / goal / object / spatial 五个子集；这里是 NVIDIA 转换的 LeRobot v3 版本。',
+    f: {source: ['sim'], domain: ['home'], space: ['kitchen', 'living'], form: ['single_arm'], robot: ['franka'], manip: ['tabletop'],
+      skill: ['pick_place', 'articulated'], format: ['lerobot3'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'dexmimicgen', name: 'DexMimicGen', org: 'NVIDIA 等', url: 'https://huggingface.co/datasets/MimicGen/dexmimicgen_datasets',
+    episodes: null, hours: null, size: '约 60 GB', tb: 0.06,
+    desc: '用 MimicGen 自动扩增的双臂与人形灵巧操作仿真数据。',
+    f: {source: ['sim'], domain: [], space: [], form: ['legged_humanoid', 'dual_arm'], robot: ['fourier_gr1'], manip: ['tabletop'],
+      skill: [], format: ['hdf5'], license: ['unknown'], platform: ['hf'], local: ['none']}},
+  {id: 'egomimic', name: 'EgoMimic', org: 'Georgia Tech', url: 'https://huggingface.co/datasets/gatech/EgoMimic',
+    episodes: null, hours: null, size: '226 GB', tb: 0.22,
+    desc: '第一视角人类示范和机器人数据配对，用于从人到机器人的迁移学习。',
+    f: {source: ['ego', 'real'], domain: ['home'], space: [], form: ['human', 'dual_arm'], robot: [], manip: ['tabletop'],
+      skill: ['pick_place'], format: ['hdf5'], license: ['unknown'], platform: ['hf'], local: ['complete']}},
+  {id: 'omniworld-epic-kitchens', name: 'OmniWorld · EPIC-KITCHENS', org: 'InternRobotics 整理', url: 'https://www.modelscope.cn/datasets/InternRobotics/OmniWorld',
+    episodes: null, hours: null, size: '225 GB', tb: 0.22,
+    desc: '家庭厨房的第一视角视频（EPIC-KITCHENS），由 OmniWorld 统一整理。',
+    f: {source: ['ego'], domain: ['home'], space: ['kitchen'], form: ['human'], robot: [], manip: [],
+      skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'ace-data-0', name: 'ACE-Data-0', org: 'ACE Robotics', url: 'https://www.modelscope.cn/datasets/ACERobotics/ACE-Data-0',
+    episodes: null, hours: null, size: '846 GB', tb: 0.83,
+    desc: '人类示范数据。',
+    f: {source: ['ego'], domain: [], space: [], form: ['human'], robot: [], manip: [],
+      skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+  {id: 'vitra-1m', name: 'VITRA-1M', org: 'VITRA', url: 'https://huggingface.co/datasets/VITRA-VLA/VITRA-1M',
+    episodes: null, hours: null, size: '约 85 GB', tb: 0.08,
+    desc: '人手操作视频数据，用于 VLA 预训练。',
+    f: {source: ['ego'], domain: [], space: [], form: ['human'], robot: [], manip: [],
+      skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
 ];
-const DS_STATUS = {released: ['ok', '已发布'], incomplete: ['warn', '样本'], superseded: ['na', '已替代']};
-const dsHours = (d) => (d.frames ? d.frames / d.fps / 3600 : 0);
-const dsDur = (h) => (!h ? '—' : h >= 1 ? `${h.toFixed(1)} h` : h * 60 >= 1 ? `${Math.round(h * 60)} 分钟` : `${Math.round(h * 3600)} 秒`);
-const dsCover = (d) => { const s = d.scene && S.scene.find((x) => x.id === d.scene); return s && (s.auto.renders?.[0] || s.auto.photos?.[0]); };
 // facets: [key, title, look, options]; a dataset matches a facet when any of its values is picked (OR within, AND across)
 const DS_FACETS = [
-  ['source', '数据类型', 'chips', [['real', '真机采集'], ['sim', '仿真生成'], ['ego', 'Ego 第一视角']]],
+  ['source', '数据类型', 'chips', [['real', '真机采集'], ['sim', '仿真生成'], ['ego', 'Ego · 人类示范']]],
   ['domain', '应用领域', 'list', [['commercial', '商业 / 零售'], ['home', '家居服务']]],
-  ['space', '室内空间', 'list', [['store', '门店 / 货架'], ['cafe', '餐饮 / 吧台'], ['office', '办公 / 前台'], ['kitchen', '厨房'], ['living', '客厅'], ['bedroom', '卧室'], ['lab', '实验台']]],
-  ['form', '机器人形态', 'list', [['wheeled_humanoid', '轮式人形'], ['legged_humanoid', '足式人形'], ['dual_arm', '固定双臂'], ['single_arm', '单臂']]],
-  ['robot', '机器人本体', 'list', [['g1d', 'Unitree G1-D'], ['x5', 'ARX X5 双臂']]],
+  ['space', '室内空间', 'list', [['store', '门店 / 商超'], ['cafe', '餐饮'], ['office', '办公'], ['kitchen', '厨房'], ['living', '客厅'], ['bedroom', '卧室'], ['bathroom', '卫浴']]],
+  ['form', '机器人形态', 'list', [['wheeled_humanoid', '轮式人形'], ['legged_humanoid', '足式人形'], ['dual_arm', '双臂'], ['single_arm', '单臂'], ['human', '人手（无机器人）']]],
   ['manip', '操作类型', 'list', [['tabletop', '桌面操作'], ['local', '局部操作 · Local Manipulation'], ['mobile', '移动操作 · Mobile Manipulation'], ['whole_body', '全身操作 · Whole-body']]],
-  ['skill', '技能', 'chips', [['pick_place', '抓取放置'], ['pour', '倾倒'], ['transport', '搬运'], ['articulated', '开合铰接'], ['deformable', '柔性物体'], ['granular', '颗粒物'], ['bimanual', '双臂协同']]],
-  ['sensor', '传感模态', 'chips', [['head_rgb', '头部 RGB'], ['wrist_rgb', '腕部 RGB'], ['depth', '深度'], ['tactile', '触觉'], ['language', '语言指令']]],
-  ['format', '数据格式', 'list', [['lerobot3', 'LeRobot v3.0'], ['hdf5', 'HDF5'], ['raw', '原始回合']]],
-  ['status', '发布状态', 'list', [['released', '已发布'], ['incomplete', '样本'], ['superseded', '已替代']]],
+  ['robot', '机器人本体', 'list', [['agibot', 'AgiBot G1 / Genie'], ['unitree_g1', 'Unitree G1'], ['galaxea', 'Galaxea R1'], ['franka', 'Franka'], ['ur5', 'UR5'], ['agilex', 'AgileX / ALOHA'],
+    ['tiangong', '天工 / 天轶'], ['yam', 'YAM'], ['fourier_gr1', 'Fourier GR1'], ['multi', '多本体']]],
+  ['skill', '技能', 'chips', [['pick_place', '抓取放置'], ['organize', '整理收纳'], ['deformable', '柔性物体'], ['articulated', '开合铰接'], ['wipe', '擦拭清洁'], ['pour', '倾倒'], ['assembly', '装配插拔']]],
+  ['format', '数据格式', 'list', [['lerobot21', 'LeRobot v2.1'], ['lerobot3', 'LeRobot v3.0'], ['lerobot', 'LeRobot（其他版本）'], ['hdf5', 'HDF5']]],
+  ['license', '许可', 'list', [['apache', 'Apache-2.0'], ['ccby', 'CC BY 4.0'], ['ccbyncsa', 'CC BY-NC-SA 4.0'], ['unknown', '未注明']]],
+  ['platform', '发布平台', 'list', [['ms', 'ModelScope'], ['hf', 'Hugging Face']]],
+  ['local', '本地副本', 'list', [['complete', '已下载'], ['partial', '部分下载'], ['none', '未下载']]],
 ];
 const DS_LABEL = Object.fromEntries(DS_FACETS.map(([k, , , opts]) => [k, Object.fromEntries(opts)]));
-const DS_SRC = {real: 'src-real', sim: 'src-sim', ego: 'src-ego'};
-const DS_SORT = {new: '最近更新', episodes: 'Episode 最多', hours: '时长最长'};
-const dsVals = (d, k) => (k === 'status' ? [d.status] : d.f[k] || []);
-const dsLabels = (d, k) => dsVals(d, k).map((v) => DS_LABEL[k][v]);
-// Episode range on a log scale: slider positions 0..100
-const DS_EP_MAX = Math.max(...DATASETS.map((d) => d.episodes));
-const dsEp = (t) => Math.round(Math.exp((t / 100) * Math.log(DS_EP_MAX)));
+const DS_SRC_IC = {real: 'bot', sim: 'cube', ego: 'eye'};
+const DS_SORT = [['rec', '推荐'], ['episodes', '规模'], ['size', '体量'], ['name', '名称']];
+const dsLabels = (d, k) => (d.f[k] || []).map((v) => DS_LABEL[k][v]);
+const dsEpText = (d) => d.epText || (d.episodes ? d.episodes.toLocaleString() : '—');
+const dsHoursText = (d) => (d.hours ? `${d.hours.toLocaleString()} h` : '—');
+// Episode range on a log scale between the smallest and largest known counts: slider positions 0..100
+const DS_EP = DATASETS.map((d) => d.episodes).filter(Boolean), DS_EP_LO = Math.log(Math.min(...DS_EP)), DS_EP_HI = Math.log(Math.max(...DS_EP));
+const dsEp = (t) => Math.round(Math.exp(DS_EP_LO + (t / 100) * (DS_EP_HI - DS_EP_LO)));
+const dsEpFull = () => UI.ds.ep[0] === 0 && UI.ds.ep[1] === 100;
 const dsPick = (k, v) => { const s = UI.ds.pick[k] ||= []; const i = s.indexOf(v); i < 0 ? s.push(v) : s.splice(i, 1); render(); };
 const dsClear = (k) => { if (k) UI.ds.pick[k] = []; else { UI.ds.pick = {}; UI.ds.ep = [0, 100]; UI.ds.q = ''; } render(); };
 function dsMatch(d, skip) {
   const f = UI.ds, q = f.q.trim().toLowerCase();
-  if (d.episodes < dsEp(f.ep[0]) || d.episodes > dsEp(f.ep[1])) return false;
-  if (q && !`${d.id} ${d.title} ${d.task} ${d.sceneName} ${d.tags.join(' ')} ${DS_FACETS.flatMap(([k]) => dsLabels(d, k)).join(' ')}`.toLowerCase().includes(q)) return false;
-  return DS_FACETS.every(([k]) => k === skip || !f.pick[k]?.length || dsVals(d, k).some((v) => f.pick[k].includes(v)));
+  if (!dsEpFull() && (!d.episodes || d.episodes < dsEp(f.ep[0]) || d.episodes > dsEp(f.ep[1]))) return false;
+  if (q && !`${d.name} ${d.org} ${d.desc} ${DS_FACETS.flatMap(([k]) => dsLabels(d, k)).join(' ')}`.toLowerCase().includes(q)) return false;
+  return DS_FACETS.every(([k]) => k === skip || !f.pick[k]?.length || (d.f[k] || []).some((v) => f.pick[k].includes(v)));
 }
 function dsEpInput() {  // live label while dragging; the list re-renders on change, so the thumb being dragged stays in place
   const [a, b] = [...document.querySelectorAll('.range2 input')].map((x) => Number(x.value)), lo = Math.min(a, b), hi = Math.max(a, b);
@@ -1143,83 +1294,88 @@ function dsEpInput() {  // live label while dragging; the list re-renders on cha
   $('#ds-ep-hi').textContent = dsEp(hi).toLocaleString();
 }
 function dsEpChange() {
-  const v = [...document.querySelectorAll('.range2 input')].map((x) => Number(x.value)).sort((x, y) => x - y);
-  UI.ds.ep = v;
+  UI.ds.ep = [...document.querySelectorAll('.range2 input')].map((x) => Number(x.value)).sort((x, y) => x - y);
   render();
 }
+const dsFold = (k) => `ontoggle="UI.ds.closed = this.open ? UI.ds.closed.filter((x) => x !== '${k}') : [...new Set([...UI.ds.closed, '${k}'])]"`;
 function dsSidebar() {
   const f = UI.ds;
   const group = ([k, title, look, opts]) => {
-    const picked = f.pick[k] || [], pool = DATASETS.filter((d) => dsMatch(d, k));
-    const count = (v) => pool.filter((d) => dsVals(d, k).includes(v)).length;
-    const all = `<button type="button" class="${look === 'chips' ? 'fchip' : 'fopt'}" aria-pressed="${!picked.length}" onclick="dsClear('${k}')"><span>全部</span>${look === 'list' ? `<span class="num">${pool.length}</span>` : ''}</button>`;
+    const picked = f.pick[k] || [], pool = DATASETS.filter((d) => dsMatch(d, k)), cls = look === 'chips' ? 'fchip' : 'fopt';
+    const count = (v) => pool.filter((d) => (d.f[k] || []).includes(v)).length;
     const items = opts.map(([v, label]) => {
       const n = count(v);
-      return `<button type="button" class="${look === 'chips' ? 'fchip' : 'fopt'}${n ? '' : ' none'}" aria-pressed="${picked.includes(v)}" onclick="dsPick('${k}', '${v}')"><span>${esc(label)}</span>${look === 'list' ? `<span class="num">${n}</span>` : ''}</button>`;
+      return `<button id="f-${k}-${v}" type="button" class="${cls}${n ? '' : ' none'}" aria-pressed="${picked.includes(v)}" onclick="dsPick('${k}', '${v}')"><span>${esc(label)}</span>${look === 'list' ? `<span class="num">${n}</span>` : ''}</button>`;
     }).join('');
-    return `<details class="fgroup" ${f.closed.includes(k) ? '' : 'open'} ontoggle="UI.ds.closed = this.open ? UI.ds.closed.filter((x) => x !== '${k}') : [...new Set([...UI.ds.closed, '${k}'])]">
+    return `<details class="fgroup" ${f.closed.includes(k) ? '' : 'open'} ${dsFold(k)}>
       <summary>${title}${picked.length ? `<span class="fcount">${picked.length}</span>` : ''}${ic('chev-r', 'chev')}</summary>
-      <div class="${look === 'chips' ? 'fchips' : 'flist'}">${all}${items}</div></details>`;
+      <div class="${look === 'chips' ? 'fchips' : 'flist'}"><button id="f-${k}-all" type="button" class="${cls}" aria-pressed="${!picked.length}" onclick="dsClear('${k}')"><span>全部</span>${look === 'list' ? `<span class="num">${pool.length}</span>` : ''}</button>${items}</div></details>`;
   };
-  const ep = `<details class="fgroup" ${f.closed.includes('ep') ? '' : 'open'} ontoggle="UI.ds.closed = this.open ? UI.ds.closed.filter((x) => x !== 'ep') : [...new Set([...UI.ds.closed, 'ep'])]">
-    <summary>Episode 数量${ic('chev-r', 'chev')}</summary>
+  const ep = `<details class="fgroup" ${f.closed.includes('ep') ? '' : 'open'} ${dsFold('ep')}>
+    <summary>Episode${ic('chev-r', 'chev')}</summary>
     <div class="range2"><div class="track"></div><div class="fill" style="left:${f.ep[0]}%;right:${100 - f.ep[1]}%"></div>
       <input id="ds-ep-a" type="range" min="0" max="100" value="${f.ep[0]}" aria-label="Episode 下限" oninput="dsEpInput()" onchange="dsEpChange()">
       <input id="ds-ep-b" type="range" min="0" max="100" value="${f.ep[1]}" aria-label="Episode 上限" oninput="dsEpInput()" onchange="dsEpChange()"></div>
-    <div class="range2-l num"><span id="ds-ep-lo">${dsEp(f.ep[0]).toLocaleString()}</span><span id="ds-ep-hi">${dsEp(f.ep[1]).toLocaleString()}</span></div></details>`;
+    <div class="range2-l num"><span id="ds-ep-lo">${dsEp(f.ep[0]).toLocaleString()}</span><span id="ds-ep-hi">${dsEp(f.ep[1]).toLocaleString()}</span></div>
+    <p class="hint" style="margin:6px 0 0">拖动后只显示有 Episode 统计的数据集</p></details>`;
   const [first, ...rest] = DS_FACETS;
   return `<aside class="ds-side" aria-label="筛选数据集">${group(first)}${ep}${rest.map(group).join('')}</aside>`;
 }
+const dsSrcBadge = (v) => `<span class="src src-${v}">${esc(DS_LABEL.source[v])}</span>`;
 function dsCard(d) {
-  const cover = dsCover(d), [s, label] = DS_STATUS[d.status], src = d.f.source[0];
-  const meta = [...dsLabels(d, 'domain'), ...dsLabels(d, 'space'), ...dsLabels(d, 'form'), ...dsLabels(d, 'manip')].join(' · ');
-  return `<article class="card mcard ds-card" data-open="dataset" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开数据集 ${esc(d.title)}">
-    <div class="media r169">${cover ? `<img loading="lazy" decoding="async" src="${file(cover)}" alt="">` : `<div class="ds-ph">${ic('database', 'ic-lg')}<span>${esc(d.sceneName)}</span></div>`}
-      <div class="pills"><span class="pill"><i class="sdot ${DS_SRC[src]}"></i>${esc(DS_LABEL.source[src])}</span><span class="pill">${esc(dsLabels(d, 'robot').join(' / '))}</span></div></div>
-    <div class="mcard-b"><div class="mcard-t"><b>${esc(d.title)}</b>${st(s, label)}</div>
-      <div class="ds-meta">${esc(meta)}</div>
-      <p class="ds-desc">${esc(d.desc)}</p>
-      <div class="chips">${dsLabels(d, 'skill').map((t) => `<span class="tag">${esc(t)}</span>`).join('')}${d.tags.map((t) => `<span class="tag ghost">${esc(t)}</span>`).join('')}</div>
-      ${stats([['Episode', d.episodes.toLocaleString()], ['总时长', dsDur(dsHours(d))], ['帧数', d.frames ? d.frames.toLocaleString() : '—']])}
-      <div class="ds-foot"><span>${esc(d.format)} · ${esc(d.published)}</span><span>${esc(d.created)}</span></div></div></article>`;
+  const src = d.f.source[0], meta = [...dsLabels(d, 'domain'), ...dsLabels(d, 'form'), ...dsLabels(d, 'manip').map((x) => x.split(' · ')[0])].join(' · ');
+  return `<article class="card ds-card" data-open="dataset" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开数据集 ${esc(d.name)}">
+    <div class="ds-top"><span class="ds-icon">${ic(DS_SRC_IC[src], 'ic-lg')}</span><span class="sp"></span>${d.f.source.map(dsSrcBadge).join('')}</div>
+    <div><b class="ds-name">${esc(d.name)}</b><div class="ds-org">${esc(d.org)}</div></div>
+    ${meta ? `<div class="ds-meta">${esc(meta)}</div>` : ''}
+    <p class="ds-desc">${esc(d.desc)}</p>
+    ${stats([['Episode', dsEpText(d)], ['总时长', dsHoursText(d)]])}
+    <div class="ds-foot"><span>许可 ${esc(dsLabels(d, 'license').join(' / '))}</span><span>${esc(d.size)}</span></div></article>`;
+}
+function dsTable(rows) {
+  return `<div class="table-wrap"><table class="ds-table"><thead><tr><th>数据集</th><th>类型</th><th>形态 / 本体</th><th class="num">Episode</th><th class="num">总时长</th><th class="num">体量</th><th>许可</th><th>本地</th></tr></thead><tbody>
+    ${rows.map((d) => `<tr data-open="dataset" data-id="${esc(d.id)}" tabindex="0"><td><div class="t-main">${esc(d.name)}</div><div class="t-sub">${esc(d.org)}</div></td>
+      <td><div class="chips">${d.f.source.map(dsSrcBadge).join('')}</div></td><td class="small">${esc([...dsLabels(d, 'form'), ...dsLabels(d, 'robot')].join(' · ') || '—')}</td>
+      <td class="num">${dsEpText(d)}</td><td class="num">${dsHoursText(d)}</td><td class="num nowrap">${esc(d.size.split(' · ')[0])}</td>
+      <td class="small nowrap">${esc(dsLabels(d, 'license').join(' / '))}</td><td class="small nowrap">${esc(dsLabels(d, 'local').join(''))}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function viewDatasets() {
-  const f = UI.ds, by = {new: (x, y) => y.created.localeCompare(x.created), episodes: (x, y) => y.episodes - x.episodes, hours: (x, y) => dsHours(y) - dsHours(x)}[f.sort];
+  const f = UI.ds, by = {rec: () => 0, episodes: (x, y) => (y.episodes || 0) - (x.episodes || 0), size: (x, y) => y.tb - x.tb, name: (x, y) => x.name.localeCompare(y.name)}[f.sort];
   const shown = DATASETS.filter((d) => dsMatch(d)).sort(by);
-  const rel = DATASETS.filter((d) => d.status === 'released'), n = (xs, k) => xs.reduce((s, d) => s + (k === 'h' ? dsHours(d) : d[k]), 0);
+  const sum = (k) => DATASETS.reduce((s, d) => s + (d[k] || 0), 0);
   const active = [
     ...DS_FACETS.flatMap(([k, title]) => (f.pick[k] || []).map((v) => [`${title}：${DS_LABEL[k][v]}`, `dsPick('${k}', '${v}')`])),
-    ...(f.ep[0] > 0 || f.ep[1] < 100 ? [[`Episode ${dsEp(f.ep[0])}–${dsEp(f.ep[1])}`, 'UI.ds.ep = [0, 100]; render()']] : []),
+    ...(dsEpFull() ? [] : [[`Episode ${dsEp(f.ep[0]).toLocaleString()}–${dsEp(f.ep[1]).toLocaleString()}`, 'UI.ds.ep = [0, 100]; render()']]),
   ];
+  const views = [['grid', '卡片视图', 'grid'], ['list', '列表视图', 'list']].map(([k, label, icon]) =>
+    `<button type="button" class="btn btn-icon btn-ghost" aria-pressed="${f.view === k}" aria-label="${label}" title="${label}" onclick="UI.ds.view = '${k}'; render()">${ic(icon)}</button>`).join('');
   return `<div class="page">
-    <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>室内服务具身数据集</h1>
-      <p>聚焦商业零售与家居服务两类室内场景。仿真数据由 Real2Sim 场景和实测物体生成，经独立审计复算验收；state 与 action 语义、物理配置和真机映射统一按 <code>scripts/datagen/CONTRACT.md</code>。</p></div>
-      <div class="ds-kpis"><div><span>已发布数据集</span><b>${rel.length}<small>/ ${DATASETS.length}</small></b></div><div><span>Episode</span><b>${n(rel, 'episodes').toLocaleString()}</b></div>
-        <div><span>帧数</span><b>${n(rel, 'frames').toLocaleString()}</b></div><div><span>总时长</span><b>${n(rel, 'h').toFixed(1)}<small>h</small></b></div></div></section>
+    <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>公开具身数据集</h1>
+      <p>人工整理的公开机器人操作数据集，聚焦商业零售与家居服务两类室内场景；数字以发布方公布为准，「本地副本」来自团队的 OSS 数据盘点。</p></div>
+      <div class="ds-kpis"><div><span>收录数据集</span><b>${DATASETS.length}</b></div><div><span>已知 Episode 合计</span><b>${Math.round(sum('episodes') / 1e4).toLocaleString()}<small>万+</small></b></div>
+        <div><span>已知时长合计</span><b>${Math.round(sum('hours')).toLocaleString()}<small>h</small></b></div><div><span>已下载到本地</span><b>${DATASETS.filter((d) => d.f.local[0] !== 'none').length}<small>/ ${DATASETS.length}</small></b></div></div></section>
     <div class="ds-layout">${dsSidebar()}
       <section class="ds-main" aria-label="数据集列表">
-        <div class="toolbar ds-bar"><b class="ds-n">${shown.length} 个数据集</b><span class="sp"></span>${searchBox('ds-q', f.q, 'UI.ds.q', '搜索数据集、任务、场景')}
-          <select id="ds-sort" aria-label="排序" onchange="UI.ds.sort = this.value; render()">${Object.entries(DS_SORT).map(([k, label]) => `<option value="${k}" ${f.sort === k ? 'selected' : ''}>${label}</option>`).join('')}</select></div>
-        ${active.length || f.q ? `<div class="ds-active">${active.map(([label, undo]) => `<button type="button" class="tag ds-x" onclick="${undo}" aria-label="移除筛选 ${esc(label)}">${esc(label)}${ic('close', 'ic-sm')}</button>`).join('')}
-          <button type="button" class="btn btn-ghost btn-sm" onclick="dsClear()">清除全部</button></div>` : ''}
-        ${shown.length ? `<div class="grid ds-grid">${shown.map(dsCard).join('')}</div>` : `<div class="card">${empty('database', '没有匹配的数据集', '放宽筛选条件，或点「清除全部」')}</div>`}
-        <p class="hint" style="margin-top:20px">设计预览：数据来自 scripts/datagen/registry.json 的快照，分类标签为初稿；接入后由服务端读取。</p></section></div></div>`;
+        <div class="ds-bar"><h2 class="ds-n">数据集 <span class="num">${shown.length}</span></h2>
+          <button type="button" class="btn btn-sm" onclick="dsClear()" ${active.length || f.q ? '' : 'disabled'}>${ic('rotate', 'ic-sm')}重置</button>
+          <span class="ds-note">统一按 LeRobot 数据语义整理，训练接入见 <code>scripts/datagen/CONTRACT.md</code></span><span class="sp"></span>
+          ${searchBox('ds-q', f.q, 'UI.ds.q', '搜索数据集')}${dropdown('ds-sort', '排序', DS_SORT, f.sort, "UI.ds.sort = '$v'")}<div class="views" role="group" aria-label="视图">${views}</div></div>
+        ${active.length ? `<div class="ds-active">${active.map(([label, undo]) => `<button type="button" class="tag ds-x" onclick="${undo}" aria-label="移除筛选 ${esc(label)}">${esc(label)}${ic('close', 'ic-sm')}</button>`).join('')}</div>` : ''}
+        ${!shown.length ? `<div class="card">${empty('database', '没有匹配的数据集', '放宽筛选条件，或点「重置」')}</div>`
+          : f.view === 'list' ? dsTable(shown) : `<div class="grid ds-grid">${shown.map(dsCard).join('')}</div>`}
+        <p class="hint" style="margin-top:20px">设计预览：目录由人工录入，分类标签为初稿；Episode 和时长空缺的待补，部分取自 RoboFlywheel 的统计。</p></section></div></div>`;
 }
 function drawerDataset(d) {
-  const [s, label] = DS_STATUS[d.status];
-  const use = d.repo ? `modelscope download --dataset ${d.repo} --local_dir data/${d.id}\n\nfrom lerobot.datasets.lerobot_dataset import LeRobotDataset\nds = LeRobotDataset("${d.id}", root="data/${d.id}")` : '';
-  return {title: d.title, sub: `${d.id} · ${d.created}`,
-    body: `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px">${st(s, label)}${d.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+  const host = d.url.includes('huggingface') ? 'Hugging Face' : 'ModelScope';
+  return {title: d.name, sub: d.org,
+    actions: `<a class="btn" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">${ic('external')}在 ${host} 打开</a>`,
+    body: `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px">${d.f.source.map(dsSrcBadge).join('')}${dsLabels(d, 'skill').map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
       <p style="margin:0 0 14px;line-height:1.7">${esc(d.desc)}</p>
-      ${stats([['Episode', d.episodes.toLocaleString()], ['帧数', d.frames ? d.frames.toLocaleString() : '—'], ['帧率', `${d.fps} Hz`], ['总时长', dsDur(dsHours(d))]])}
-      ${sec(`${ic('layers')}分类`, `<dl class="kv">${DS_FACETS.filter(([k]) => k !== 'status').map(([k, title]) =>
-        `<dt>${title}</dt><dd>${dsLabels(d, k).map((x) => esc(x)).join('、') || '—'}</dd>`).join('')}</dl>`)}
-      ${sec(`${ic('list')}采集设置`, `<dl class="kv"><dt>场景</dt><dd>${d.scene ? link('scene', d.scene, d.sceneName) : esc(d.sceneName)}</dd><dt>任务</dt><dd class="mono">${esc(d.task)}</dd>
-        <dt>env 配置</dt><dd class="mono small">${esc(d.env_cfg)}</dd><dt>布局</dt><dd class="small">${esc(d.layouts)}</dd></dl>`)}
-      ${sec(`${ic('check')}验收`, `<dl class="kv"><dt>判据</dt><dd class="small">${esc(d.acceptance)}</dd><dt>复核</dt><dd class="small">${esc(d.validation)}</dd></dl>`)}
-      ${sec(`${ic('database')}格式与位置`, `<dl class="kv"><dt>格式</dt><dd>${esc(d.format)}</dd><dt>发布</dt><dd>${esc(d.published)}${d.repo ? ` · <span class="mono small">${esc(d.repo)}</span>` : ''}</dd>
-        <dt>原始数据</dt><dd class="mono small">${esc(d.location)}</dd></dl>`)}
-      ${use ? sec(`${ic('terminal')}下载与加载`, code(use, '复制下载命令')) : ''}`};
+      ${stats([['Episode', dsEpText(d)], ['总时长', dsHoursText(d)], ['体量', d.size]])}
+      ${sec(`${ic('layers')}分类`, `<dl class="kv">${DS_FACETS.filter(([k]) => !['source', 'skill', 'local'].includes(k)).map(([k, title]) =>
+        `<dt>${title}</dt><dd>${dsLabels(d, k).map((x) => esc(x)).join('、') || '<span class="muted">待补</span>'}</dd>`).join('')}</dl>`)}
+      ${sec(`${ic('database')}获取`, `<dl class="kv"><dt>来源</dt><dd><a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" class="mono small">${esc(d.url.replace(/^https?:\/\/(www\.)?/, ''))}</a></dd>
+        <dt>本地副本</dt><dd>${esc(dsLabels(d, 'local').join(''))}</dd></dl>`)}`};
 }
 
 // ---------- overview ----------
@@ -3746,7 +3902,7 @@ function startViewer(el) {
       renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
       renderer.toneMapping = THREE.NeutralToneMapping;
       const scene = new THREE.Scene(), pmrem = new THREE.PMREMGenerator(renderer);
-      scene.background = new THREE.Color(0xeef2f7);
+      scene.background = new THREE.Color(getComputedStyle(el).backgroundColor);
       scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
       const sun = new THREE.DirectionalLight(0xffffff, 1.0);
       sun.position.set(2, 6, 3);
@@ -3910,6 +4066,7 @@ function onKey(ev) {
     return;
   }
   if (!ME) return;
+  if (ev.key === 'Escape' && UI.dd) { const id = UI.dd; UI.dd = ''; render(); $(`#${id}`)?.focus(); return; }
   if (ev.key === 'Escape' && UI.drawer) { closeDrawer(); return; }
   if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches('[data-open][tabindex]')) { ev.preventDefault(); ev.target.click(); return; }
   if (UI.tab !== 'qa' || UI.drawer || ev.target.matches('input, textarea, select, video') || ev.metaKey || ev.ctrlKey || ev.altKey) return;
@@ -3923,6 +4080,7 @@ function onKey(ev) {
   ev.preventDefault();
 }
 function onClick(ev) {
+  if (UI.dd && !ev.target.closest('.dd')) { UI.dd = ''; render(); }
   const lb = ev.target.closest('[data-lb]');
   if (lb) { lightbox(GAL[lb.dataset.lb], Number(lb.dataset.i)); return; }
   const g = ev.target.closest('[data-go]');
@@ -3942,7 +4100,9 @@ function render() {
   renderNav();
   if (!UI.loaded) return;
   const focus = document.activeElement?.id, scroll = $('.qa-list')?.scrollTop, oldVideos = $('#qa-videos'), opening = UI.drawerFocus;
+  const sideScroll = $('.ds-side')?.scrollTop;
   $('#main').innerHTML = VIEWS[UI.tab]();
+  if (sideScroll && $('.ds-side')) $('.ds-side').scrollTop = sideScroll;
   const slot = $('#qa-videos');
   if (oldVideos && slot && oldVideos.dataset.ep === slot.dataset.ep) slot.replaceWith(oldVideos);  // keep playback position
   if (scroll && $('.qa-list')) $('.qa-list').scrollTop = scroll;
@@ -3960,6 +4120,13 @@ document.addEventListener('change', onFieldChange);
 document.addEventListener('keydown', onKey);
 document.addEventListener('click', onClick);
 $('#lightbox').addEventListener('click', (ev) => { if (ev.target.classList.contains('lb-stage')) closeLB(); });
+const THEMES = [['light', '日间', 'sun'], ['dark', '夜间', 'moon'], ['system', '跟随系统', 'monitor']];
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  localStorage.setItem('bzf-theme', t);
+  $('#theme').innerHTML = THEMES.map(([k, label, icon]) => `<button type="button" class="btn btn-icon btn-ghost" aria-pressed="${t === k}" aria-label="${label}" title="${label}" onclick="setTheme('${k}')">${ic(icon)}</button>`).join('');
+}
+setTheme(document.documentElement.dataset.theme);
 UI.tab = tabFromHash();
 renderNav();
 fetch('/api/me').then((r) => (r.ok ? r.json() : null)).then((me) => {
