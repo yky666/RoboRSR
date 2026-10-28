@@ -1564,11 +1564,13 @@ async function createEval(btn) {
 
 // ---------- objects ----------
 const mm = (size, digits = 0) => (Array.isArray(size) ? size.map((v) => (v * 1000).toFixed(digits)).join(' × ') : '—');
-const ownObj = (d) => Boolean(d.auto.generator || d.twin);
 const objName = (d) => d.name || d.auto.name || d.auto.category;
 // generalization variants (metadata.json "variant_of") sit on their base object's card
 const baseOf = (d) => (d.auto.variant_of && d.auto.variant_of !== d.id ? S.object.find((x) => x.id === d.auto.variant_of) : null);
 const variantsOf = (id) => S.object.filter((x) => x.auto.variant_of === id && x.id !== id);
+// a library object with variants, or a variant, is a Real2Sim twin even without a registration here (d.twin)
+const twinObj = (d) => Boolean(d.twin || (d.auto.variant_of && d.auto.variant_of !== d.id) || variantsOf(d.id).length);
+const ownObj = (d) => Boolean(d.auto.generator || twinObj(d));
 function objMedia(d, thumb = false) {
   const a = d.auto, render = a.renders?.[0], photo = a.photos?.[0], main = render || photo;
   if (thumb) return `<span class="thumb">${main ? `<img loading="lazy" decoding="async" src="${file(main)}" alt="">` : ic('cube')}</span>`;
@@ -1580,7 +1582,7 @@ function objMedia(d, thumb = false) {
 }
 function objList() {
   const f = UI.obj, q = f.q.toLowerCase();
-  return S.object.filter((d) => (!f.src || (f.src === 'own' ? ownObj(d) : f.src === 'official' ? !ownObj(d) : Boolean(d.twin)))
+  return S.object.filter((d) => (!f.src || (f.src === 'own' ? ownObj(d) : f.src === 'official' ? !ownObj(d) : twinObj(d)))
     && (!f.photo || d.auto.photos?.length)
     && (!q || `${d.id} ${d.name || ''} ${d.auto.name || ''} ${(d.auto.tasks || []).join(' ')}`.toLowerCase().includes(q)))
     .sort((x, y) => Number(ownObj(y)) - Number(ownObj(x)) || x.id.localeCompare(y.id));
@@ -1591,7 +1593,7 @@ function viewObjects() {
     : f.view === 'cards' ? `<div class="grid cards">${docs.filter((d) => !baseOf(d)).map((d) => {
       const rs = evalStages(OBJ_STAGES, d);
       return `<article class="card mcard" data-open="object" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开物体 ${esc(d.id)}">${objMedia(d)}
-        <div class="mcard-b"><div class="mcard-t"><b>${esc(objName(d))}</b>${d.twin ? '<span class="tag">孪生</span>' : ''}</div>
+        <div class="mcard-b"><div class="mcard-t"><b>${esc(objName(d))}</b>${twinObj(d) ? '<span class="tag">孪生</span>' : ''}</div>
           <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>
           <div class="small muted">${measured(d) ? `实测 ${esc(dimText(d))}` : `仿真 ${mm(d.auto.size)} mm`}</div>${progress(rs)}</div></article>`;
     }).join('')}</div>`

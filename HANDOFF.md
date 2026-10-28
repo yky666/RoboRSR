@@ -1,7 +1,7 @@
 # Project Handoff
 
-更新时间：2026-10-27
-本会话分支：`chongzheng/merge-open-prs`（worktree `../RoboDojo-merge-prs`）：深圳实验室装共享库，6 个开着的 PR 合进 `main`，见「最近任务」第一节。上一会话 `chongzheng/scene-shenzhen-lab-room` 把深圳实验室补成整层房间（第二节）。下行保留主线历史。
+更新时间：2026-10-28
+本会话分支：`chongzheng/platform-variant-twins`（worktree `../RoboDojo-variant-twins`）：数采平台把带变体的资产归为实物孪生，见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs` 深圳实验室装共享库，6 个开着的 PR 合进 `main`（第二节）。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,13 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 数采平台：带变体的资产归为实物孪生（2026-10-28，`chongzheng/platform-variant-twins`）
+
+- 用户：资产库里有变体的资产其实都是 Real2Sim 实物孪生（`metadata.json` 有 `variant_of`，`source_asset` 是 `scene4_asset_pack/...`），从「官方库」移到「实物孪生」。
+- `index.html` 新增 `twinObj`：平台登记过的孪生（`d.twin`）、本体有变体的、自己是变体的，都算孪生；来源筛选、排序（`ownObj`）和卡片「孪生」标签改用它。`d.twin` 本身不动：它仍表示在平台登记、要实测的孪生，测量阶段、`spec.json`、建模任务照旧只看它。
+- 验证：`test_server.py`、`node --check` 页面脚本；本机临时实例（资产库元数据从 5090-2 镜像拷来）灌入部署机数据库的 273 个物体：孪生 203 件，卡片 48 张，其中 22 个带变体的本体（car_key、tumbler、storage_basket 等）新归入孪生；剩下 54 件官方库物体没有一件带变体。
+- **未部署**：5090-2 工作区有其他会话未提交的改动，部署要等这个分支合并后按 `.agent/ops.local.md` 更新。
 
 ### 深圳实验室装共享库 + 合并全部开着的 PR（2026-10-27，`chongzheng/merge-open-prs`）
 
