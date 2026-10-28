@@ -704,7 +704,7 @@ def write_registration(doc):
         "name_en": r.get("name_en"),
         "scene_type": r.get("scene_type"),
         "location": r.get("location"),
-        "purpose": r.get("purpose"),  # twin | train | holdout: real-robot twin, training variant, L5 held out
+        "purpose": r.get("purpose"),  # twin | train | holdout: real-robot twin, training variant, scene-axis L3
         "measurements": tape,
         "table": {
             "thickness_cm": r.get("thickness_cm"),
@@ -770,15 +770,15 @@ def write_task_registration(doc, names=None):
         "horizon_s": r.get("horizon_s"),
         "target_episodes": r.get("target"),
         "owner": doc.get("owner") and {"username": doc["owner"], "name": (names or {}).get(doc["owner"], doc["owner"])},
-        "objects": r.get("roles"),  # [{label, candidates, holdout, count}]; holdout = only in L4 eval layouts
-        "randomize": r.get("randomize"),  # ["position", "yaw"]: varied in training and L1 layouts; agent sets ranges
-        # ["lateral", "distance", "height", "yaw"] of the robot base: varied in training and L2 layouts
-        "robot_pose": r.get("robot_pose"),
-        "appearance": r.get("appearance"),  # ["light", "texture", "camera"]: varied in training and L3 layouts
+        "objects": r.get("roles"),  # [{label, candidates, holdout, count}]; holdout = only in object-axis L3 layouts
         # {count, candidates, holdout, clutter_library, clutter_categories: [] = the whole Clutter library}
         "distractors": r.get("distractors"),
         "scenes": scenes,
-        "levels": r.get("levels"),  # {"L1": {"target": 50, "range": "..."}}, only the chosen levels
+        # {axis: {"max": 0-3, "ranges": {"L1": "...", ...}}} for spatial, scene, object, camera, language; training
+        # layouts go up to min(max, L2), L3 is held out for evaluation
+        "generalization": r.get("generalization"),
+        "grades": r.get("grades"),  # {"G0": 25, ...}: eval layouts per grade, Gk = every axis at min(k, its max)
+        "diagnostic": r.get("diagnostic"),  # eval layouts per axis and level, the other axes at L0
         "extra_generalization": r.get("extra"),
         "expert": r.get("expert"),
         "requirements": r.get("requirements"),
