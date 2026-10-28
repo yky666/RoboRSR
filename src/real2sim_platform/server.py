@@ -1265,14 +1265,18 @@ class Handler(BaseHTTPRequestHandler):
             if action:
                 if not self.user["admin"]:
                     return self.send_json({"error": "只有管理员可以审核物体"}, 403)
-                if action not in ("approve", "reject"):
-                    return self.send_json({"error": "审核结论只能是通过或退回"}, 400)
+                if action not in ("approve", "reject", "reopen"):
+                    return self.send_json({"error": "审核结论只能是通过、退回或撤回"}, 400)
+                if action == "reopen" and review_state(current) == "review":
+                    return self.send_json({"error": "已经是待审核"}, 409)
                 if action == "reject" and not note:
                     return self.send_json({"error": "退回重建要写明原因"}, 400)
-                if action == "approve" and not current["auto"].get("built"):
-                    return self.send_json({"error": "还没有建好的模型，不能通过审核"}, 409)
+                if action != "reject" and not current["auto"].get("built"):
+                    return self.send_json({"error": "还没有建好的模型，不能审核"}, 409)
+
                 entry = {
-                    "state": "approved" if action == "approve" else "rejected",
+                    "state": {"approve": "approved", "reject": "rejected", "reopen": "reopened"}[action],
+
                     "by": self.user["name"],
                     "at": time.time(),
                     "note": note,

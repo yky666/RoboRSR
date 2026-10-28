@@ -248,6 +248,11 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .m3d-hint { position: absolute; left: 8px; bottom: 8px; padding: 2px 7px; border-radius: 6px; background: rgba(15, 23, 42, .6); color: #fff; font-size: 11px; pointer-events: none; }
 .vcard { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-align: left; cursor: pointer; }
 .vcard:hover { border-color: var(--primary-line); }
+.vpick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.vpick .vcard { flex: 0 1 150px; min-height: 44px; }
+.vpick .vcard[aria-pressed="true"] { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-line); }
+.vpick .thumb { width: 40px; height: 30px; }
+
 .vcard > span:last-child { display: grid; min-width: 0; }
 .vcard b { overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
 .mcard-b { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px 12px; }
@@ -571,6 +576,7 @@ const S = {scene: [], object: [], task: [], episode: [], embodiment: [], evaluat
 const UI = {
   tab: 'overview', drawer: null, ep: null, taskDim: 'custom', taskQ: '', sel: new Set(), loaded: false, syncing: false, syncedAt: '',
   osel: new Set(),  // objects ticked on the objects page, for bulk owner assignment
+  vpick: {},  // object drawer id -> the variant whose render is previewed in it
   obj: {q: '', photo: false, status: '', owner: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
   qa: {task: '', config: '', policy: '', result: '', status: 'pending'},
 };
@@ -1744,31 +1750,40 @@ function viewObjects() {
 function reviewPanel(d) {
   const r = d.review || {}, [s, label] = REVIEW[d.review_state] || REVIEW.rebuild, built = d.auto.built;
   const why = d.review_state === 'done' ? `${r.by} 于 ${fmtTime(r.at)} 审核通过`
-    : d.review_state === 'review' ? (r.state ? '模型在上次审核后重建过，需要重新审核' : '模型已建好，等管理员对照实物照片和渲染审核')
+    : d.review_state === 'review' ? (r.state === 'reopened' ? `${r.by} 于 ${fmtTime(r.at)} 撤回了上次结论，等重新审核`
+      : r.state ? '模型在上次审核后重建过，需要重新审核' : '模型已建好，等管理员对照实物照片和渲染审核')
     : !built ? '还没有建好的模型：按建模 prompt 建模并跑 check_object.py 后进入待审核'
     : `${r.by} 于 ${fmtTime(r.at)} 退回：按意见改好模型、重跑 check_object.py 后回到待审核`;
   const history = [...(r.history || [])].reverse();
   return sec(`${ic('eye')}审核`, `<div class="review-head">${st(s, label)}<span class="small">${esc(why)}</span><span class="sp"></span>
       <span class="small muted">重建负责人 ${esc(memberName(d.owner) || '未指派')}</span></div>
     ${r.note && d.review_state !== 'review' ? `<blockquote class="review-note">${esc(r.note)}</blockquote>` : ''}
-    ${ME?.admin ? `<div class="form" style="margin-top:12px">
+    ${!ME?.admin ? '<p class="hint">审核由管理员完成。</p>'
+    : !built ? ''
+    : d.review_state !== 'review' ? `<div style="margin-top:12px"><button class="btn" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'reopen')">
+        ${ic('rewind')}${d.review_state === 'done' ? '撤回通过，改回待审核' : '撤回退回，改回待审核'}</button></div>`
+    : `<div class="form" style="margin-top:12px">
       <label for="rv-note">审核意见</label><div class="ctl"><textarea id="rv-note" aria-describedby="rv-err" placeholder="退回时必填：哪里和实物不符、要怎么改"></textarea></div>
       <span></span><div class="ctl"><p id="rv-err" class="field-error" role="alert"></p></div>
       <span></span><div class="ctl">
-        <button class="btn btn-ok" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'approve')" ${built ? '' : 'disabled title="还没有建好的模型"'}>${ic('check')}通过，标为完备</button>
-        <button class="btn" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'reject')" ${built ? '' : 'disabled title="还没有建好的模型"'}>${ic('x')}退回重建</button></div></div>`
-    : '<p class="hint">审核由管理员完成。</p>'}
-    ${history.length ? `<ol class="review-log">${history.map((h) => `<li>${st(h.state === 'approved' ? 'ok' : 'bad', h.state === 'approved' ? '通过' : '退回')}
+        <button class="btn btn-ok" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'approve')">${ic('check')}通过，标为完备</button>
+        <button class="btn" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'reject')">${ic('x')}退回重建</button></div></div>`}
+    ${history.length ? `<ol class="review-log">${history.map((h) => `<li>${st(...(REVIEW_LOG[h.state] || REVIEW_LOG.rejected))}
       <span class="small">${esc(h.by)} · ${fmtTime(h.at)}${h.model ? ` · 模型 ${esc(h.model)}` : ''}</span>${h.note ? `<div class="small muted">${esc(h.note)}</div>` : ''}</li>`).join('')}</ol>` : ''}`);
 }
+function pickVariant(drawerId, id) { UI.vpick[drawerId] = id; render(); }
+const REVIEW_LOG = {
+approved: ['ok', '通过'], rejected: ['bad', '退回'], reopened: ['warn', '撤回']};
 async function reviewObject(id, action) {
-  const note = $('#rv-note').value.trim();
+  if (action === 'reopen' && !confirm('撤回这次审核结论，物体改回待审核？')) return;
+  const note = $('#rv-note')?.value.trim() || '';
   if (action === 'reject' && !note) {
     $('#rv-err').textContent = '退回要写明原因';
     $('#rv-note').setAttribute('aria-invalid', 'true');
     return $('#rv-note').focus();
   }
-  if (await save('object', id, {review_action: action, review_note: note})) toast(action === 'approve' ? '已通过审核，物体标为完备' : '已退回重建');
+  if (await save('object', id, {review_action: action, review_note: note})) toast({approve: '已通过审核，物体标为完备', reject: '已退回重建', reopen: '已撤回，物体改回待审核'}[action]);
+
 }
 function drawerLibraries() {
   const objs = live(S.object);
@@ -1879,10 +1894,12 @@ function modelingPanel(d) {
 }
 
 function drawerObject(d) {
-  const a = d.auto, c = dimCheck(d), rs = evalStages(OBJ_STAGES, d), photos = a.photos || [], renders = a.renders || [];
-  const variants = variantsOf(d.id), parent = baseOf(d);
+  const a = d.auto, c = dimCheck(d), rs = evalStages(OBJ_STAGES, d), photos = a.photos || [];
+  const parent = baseOf(d), root = parent || d, family = [root, ...variantsOf(root.id)];
+  // the render shown under 仿真渲染: this object, or a sibling variant picked below it (previewed in place)
+  const shown = family.find((v) => v.id === UI.vpick[d.id]) || d, renders = shown.auto.renders || [];
   const brief = modelingPanel(d);
-  GAL[`obj-renders-${d.id}`] = renders;
+  GAL[`obj-renders-${shown.id}`] = renders;
   const hero = (key, list, emptyText) => (list.length
     ? `<button class="hero" type="button" data-lb="${esc(key)}" data-i="0" aria-label="放大查看"><img src="${file(list[0])}" alt=""></button>`
     : `<div class="hero empty-hero">${ic('image', 'ic-lg')}${emptyText}</div>`);
@@ -1895,9 +1912,14 @@ function drawerObject(d) {
         <label class="btn upload" title="jpg / png / webp，单张 ≤ 25 MB">${ic('upload')}上传<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-id="${esc(d.id)}" onchange="uploadPhotos(this)" aria-label="上传实物照片"></label></figcaption>
         ${hero(`obj-photos-${d.id}`, photos, hasPhotoReference(d) ? '实物照片已在对话提供，原图尚未关联到此登记。' : '尚未关联实物照片，可上传或填写参考来源。')}
         <div class="strip">${photoStrip(d)}</div></figure>
-      <figure><figcaption>${ic('cube')}仿真渲染 <span class="muted small">${renders.length} 张</span></figcaption>
-        ${hero(`obj-renders-${d.id}`, renders, '还没有渲染图：在 GPU 服务器运行下方「渲染」命令，生成到 real2sim/objects/&lt;id&gt;/preview/')}
-        <div class="strip">${renders.slice(1).map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="obj-renders-${esc(d.id)}" data-i="${i + 1}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${file(p)}" alt=""></button></div>`).join('')}</div></figure></div>`)}
+      <figure><figcaption>${ic('cube')}仿真渲染 <span class="muted small">${shown === d ? '' : `${esc(objName(shown))} · `}${renders.length} 张</span>${shown === d ? ''
+        : `<span class="sp"></span><button class="btn btn-ghost" type="button" data-open="object" data-id="${esc(shown.id)}">${ic('external', 'ic-sm')}打开详情</button>`}</figcaption>
+        ${hero(`obj-renders-${shown.id}`, renders, '还没有渲染图：在 GPU 服务器运行下方「渲染」命令，生成到 real2sim/objects/&lt;id&gt;/preview/')}
+        <div class="strip">${renders.slice(1).map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="obj-renders-${esc(shown.id)}" data-i="${i + 1}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${file(p)}" alt=""></button></div>`).join('')}</div>
+        ${family.length > 1 ? `<div class="vpick" role="group" aria-label="切换预览的变体（${family.length - 1} 个变体）">${family.map((v) => `<button class="vcard" type="button"
+          aria-pressed="${v.id === shown.id}" data-d="${esc(d.id)}" data-v="${esc(v.id)}" onclick="pickVariant(this.dataset.d, this.dataset.v)" title="${esc(v.id)}">
+          ${objMedia(v, true)}<span><b>${v === root ? '本体' : `变体 ${Number(v.id.split('/').pop())}`}</b><span class="small muted">${esc(objName(v))}</span></span>
+</button>`).join('')}</div>` : ''}</figure></div>`)}
     ${sec('流程', `${progress(rs)}<div style="height:10px"></div>${stageList(rs)}`)}
     ${sec('基本信息', `<div class="form">
       ${row('名称', 'name', inp(d, 'name', 'text', `placeholder="${esc(a.name || '')}"`))}
@@ -1918,8 +1940,7 @@ function drawerObject(d) {
         ${c.map((x) => `<tr><td>${esc(x.name)}</td><td class="num">${x.real}</td><td class="num">${x.sim == null ? '—' : x.sim.toFixed(1)}</td>
           <td class="num">${x.err == null ? '—' : x.err.toFixed(1)}</td><td>${x.sim == null ? st('todo', '待核对') : st(x.ok ? 'ok' : 'bad', x.ok ? '合格' : '超差')}</td></tr>`).join('')}</tbody></table>` : ''}
       <p class="hint">尺寸文本里的每个「名称 数值」会和建好的模型 metadata.json 里同名的 measurements_mm 自动比对；仿真包围盒 ${mm(a.size, 1)} mm 可作参考。判据：每个尺寸误差 &lt; 2 mm 或 2%；质量差 ≤ 5 g。</p>`)}
-    ${variants.length ? sec(`${ic('grid')}泛化变体`, `<div class="gallery" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))">${variants.map((v) => `<button class="vcard" type="button" data-open="object" data-id="${esc(v.id)}" aria-label="打开变体 ${esc(v.id)}">
-      ${objMedia(v, true)}<span><b>${esc(objName(v))}</b><span class="mono small muted">${esc(v.id)}</span></span></button>`).join('')}</div>`, ` <span class="muted small">${variants.length} 个 · metadata.json variant_of</span>`) : ''}
+
     ${d.twin ? sec('泛化', `<div class="form">
       ${row('运行时换色', 'gen.rt_color', inp(d, 'gen.rt_color', 'checkbox'), '仿真按布局随机换色，不建新资产')}
       ${row('运行时缩放 ±%', 'gen.rt_scale', inp(d, 'gen.rt_scale', 'number', 'min="0" max="50" step="1" style="flex:0 0 110px"'), '整体等比缩放的范围，0 表示不缩放')}
@@ -3287,6 +3308,8 @@ function discardDraft(kind) {
 function openDrawer(kind, id, trigger) {
   if (UI.drawer && (UI.drawer.kind !== kind || UI.drawer.id !== id)) stashDraft();
   const wasOpen = Boolean(UI.drawer);
+  if (UI.drawer?.id !== id) delete UI.vpick[id];  // a freshly opened object shows its own render
+
   UI.drawer = {kind, id};
   if (!wasOpen) UI.drawerRet = trigger || document.activeElement;
   UI.drawerFocus = true;
