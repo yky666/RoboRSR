@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-28
-本会话分支：`chongzheng/platform-variant-twins`（worktree `../RoboDojo-variant-twins`）：自建孪生搬到独立的 `Object/Real2Sim` 物体库（代码、共享库都已搬），见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
+本会话分支：`chongzheng/platform-variant-counts`（worktree `../RoboDojo-variant-counts`）：平台 Real2Sim 审核计数注明含变体，按状态筛选时不再漏掉变体，见「最近任务」第一节。之前：`chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库（第二节，已合并）。再之前 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,13 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 数采平台：Real2Sim 审核计数注明含变体，筛选时变体不再漏显示（2026-10-28，`chongzheng/platform-variant-counts`）
+
+- **用户问题**：Real2Sim 分区显示「全部 260 · 待重建 6 · 待审核 244 · 完备 10」，点开待审核只有 48 张卡、完备 9 张。部署机实时数据核对：计数本身对（6 + 244 + 10 = 260），差额都是泛化变体——计数含变体，卡片视图只给本体出卡、变体挂在本体卡上（待审核 196 个变体、完备 1 个，即 `measuring_cup/00000`，它的 `variant_of` 是 `00001`）。真 bug：按状态筛选时，本体不在筛选结果里的变体完全看不到（待审核里 49 个，本体是完备的 metal_cup、plastic_bottle 00000/00006、ceramic_cup、plastic_box、plastic_cup/00001、plastic_mug、measuring_cup/00001，和待重建的 water_pitcher）。
+- **改动**（只有 `index.html`）：分段筛选按钮显示「待审核 244（本体 48 + 变体 196）」（`tally()`）；卡片视图改用 `cardDocs()`：变体只在本体也在同一列表里时才挂到本体卡上，否则单独出卡并标「变体，本体 …」；「全选本组」用同一规则。分区标题上的状态标签仍只显示总数。
+- **验证**：`node --check` 页面脚本；用部署机实时物体数据（管理员临时会话拉取，用完 `end_session`）跑页面里的 `libOf`/`cardDocs`/`tally`：待审核 97 张卡（48 本体 + 49 单独的变体），加上本体卡上的变体共 244/244 可见，完备 10/10、待重建 6/6；`test_server.py` 13 passed（uvx pytest），`git diff --check`、任务清单检查通过。本机没 pytest 等依赖，`check.sh` 其余单测没跑（没改 Python）；没开浏览器看。
+- **未部署**：部署机 `/root/RoboDojo` 的 `index.html` 有别的会话未提交的改动，没动。
 
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 
