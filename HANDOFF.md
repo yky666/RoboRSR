@@ -1,7 +1,7 @@
 # Project Handoff
 
-更新时间：2026-10-28
-本会话分支：`chongzheng/platform-banzhi-flywheel`（worktree `../RoboDojo-banzhi-flywheel`，基于下面的 `platform-ui-refresh` 907ddd2）：平台加 BanzhiFlywheel 产品顶栏和「数据集」设计稿，见「最近任务」第一节；只提交在本地，没推送、没部署。它的基础 `chongzheng/platform-ui-refresh`（worktree `../RoboDojo-platform-ui`）把数采平台换成 RoboFlywheel 式黑白极简界面（第二节），同样未推送。上一会话 `chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库（第二节，已合并为 PR #35/#37）。下行保留主线历史。
+更新时间：2026-10-29
+本会话分支：`chongzheng/platform-banzhi-flywheel`（worktree `../RoboDojo-banzhi-flywheel`）：数采平台改名 BanzhiFlywheel，分「仿真平台 / 数据集」两个板块，加公开数据集目录和日间 / 夜间主题（「最近任务」第一节，连同第二节的黑白改版）。2026-10-29 rebase 到 `806f4e6` 后快进推 `main`（`65abd16` 为代码，其后一个提交只改本文件），00:05 部署到 `5090-2`。之前：`chongzheng/merge-open-prs-1028b` 把 #36、#38–#43 合进 `main` 并部署。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -32,14 +32,14 @@
 - **数据**：所有数据集登记在 `scripts/datagen/registry.json`。目前有 2 份办公室量杯全量倒豆数据，各 100 条，LeRobot v3.0，都是按旧的 legacy 格式导出的：
   - 固定朝向的一份，已上传 ModelScope 私有仓库；
   - 随机左右手、随机朝向、大范围位置的一份，也已上传 ModelScope 私有仓库（单独的仓库）。
-- **数采平台** `src/real2sim_platform/`：部署在 `5090-2`，经阿里云反向隧道对外访问。场景卡片封面是 RTX 渲染图，抽屉里有 3D 预览（见「最近历史」10-21）。
+- **数采平台** `src/real2sim_platform/`（页面名 BanzhiFlywheel，分「仿真平台」和「数据集」两个板块）：部署在 `5090-2`，经阿里云反向隧道对外访问。场景卡片封面是 RTX 渲染图，抽屉里有 3D 预览（见「最近历史」10-21）。
 - **服务器**：只用 `5090-2`（8×5090）。
   - 共享资产库：`/data/robodojo-assets/Assets`（10-20 整体迁来，39 GB）。改它要先征得同意，备份放 `/data/robodojo-assets/backups/`。物体分两个库：`Object/RoboDojo/` 是官方的，`Object/Real2Sim/` 是自建孪生（10-28 起；RoboDojo 下留有指向它的软链接，见「最近任务」第一节）。运行目录的 `Assets/` 覆盖目录里，不改的部分直接从它软链接或拷贝。数采平台现在读的还是手动刷新的元数据镜像 `/root/RoboDojo_assets/Assets`，不是这个库。
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
 
-### BanzhiFlywheel 产品顶栏 + 公开数据集页设计稿（2026-10-28，`chongzheng/platform-banzhi-flywheel`，未推送、未部署）
+### BanzhiFlywheel 产品顶栏 + 公开数据集页（2026-10-28 至 10-29，`chongzheng/platform-banzhi-flywheel`，已进 `main` 并部署）
 
 - **起因**（用户）：整个平台叫 BanzhiFlywheel（纯文字 logo），现有平台作为「仿真平台」，并列「数据集」板块；先出设计稿，不替换现在的平台。后续要求：不要大块黑色、顶栏扁平、背景更白、日间 / 夜间 / 跟随系统切换、下拉框学 RoboFlywheel。**数据集板块收录的是外部公开发布的数据集（人工录入），不是我们自产的**；只做商业零售、家居服务两类室内场景。
 - **改动**（只动 `src/real2sim_platform/index.html`，服务端和接口不变）：
@@ -49,9 +49,10 @@
   - 数据集页 `#datasets`：页头 4 个统计；左侧分面筛选 `DS_FACETS`（数据类型 真机 / 仿真 / Ego、Episode 对数双滑块、应用领域、室内空间、机器人形态、操作类型、本体、技能、格式、许可、发布平台、本地副本），组内或、组间且，计数动态；右侧顶栏：数量、重置、说明、搜索、排序下拉（推荐 / 规模 / 体量 / 名称）、卡片 / 列表视图切换。卡片仿 RoboFlywheel（图标 + 类型角标、名称、机构、分类行、简介、Episode / 时长、许可和体量）；抽屉有分类、来源链接和本地副本。重新渲染时保留筛选栏滚动位置，选项有固定 id 以保住焦点。
   - **数据**：常量 `DATASETS` 30 条，从用户的 Notion「OSS /mnt/data 数据清单」（公开页面，浏览器读取）挑出与室内服务相关的公开数据集，排除自采 G1-D、转换中间产物和团队上传的 failure 数据；宇树按 G1 WBT 全身遥操作（59 个任务）和 G1 Dex1 桌面（94 个任务）两条汇总。Episode / 时长 / 许可只填了核对过的：AgiBot World Beta 和宇树取自 HF 卡片，RoboMIND / RoboMIND 2.0 / DROID / RoboCOIN / InternData-M1 取自 RoboFlywheel 页面，其余来自 Notion 备注或留空。体量和本地副本来自 Notion。**仓库是公开的，所以没写 Notion 里的本地路径、服务器名和运维备注。** 领域 / 空间 / 技能等分类是初稿。
 - **验证**：本机临时库（`/tmp/bzf/`，账号 `preview`）起 `server.py --port 8799`，浏览器 1440 px 下看了数据集页（日间、夜间、下拉展开、筛选后侧栏滚动保持）、仿真平台场景页夜间；早先在 390 px 看过顶栏。`git diff --check` 通过。没跑 `check.sh` 和 `test_server.py`（没动服务端）。Notion 连接器授权后没加载出工具，改用公开页面读取。
-- **剩余**：(1) 数据集目录要转正：改成服务端读的数据文件（如 `real2sim/datasets.json`）或接 Notion，并补齐空缺的 Episode / 时长 / 许可、确认分类；(2) 手机宽度下筛选栏堆在列表上方，可改成抽屉；(3) 先合并 `platform-ui-refresh`，再推送本分支、开 PR、合并后按 `.agent/ops.local.md` 重启 `5090-2` 的平台。
+- **合并与部署**（10-29 00:0x，用户要求合并到 `5090-2` 的部署并推 `main`，不影响仿真平台现有资产）：五个提交 rebase 到 `origin/main@806f4e6`，冲突只有 `index.html` 的大预览样式（保留 #36 的居中裁剪、用新圆角）和 `HANDOFF.md`（两边的节都留）；main 上的变体跟随本体、场景中文名等函数都在。`bash scripts/check.sh`（uv 临时环境）82 passed、1 skipped；页面脚本 `node --check`；本机浏览器 10 个页面无 JS 报错。部署机 `806f4e6` → `65abd16`（stash → ff → pop，无冲突）：另一个会话 00:01 在部署机改的 `index.html` 一行（评测页默认筛选「全部」）和 `HANDOFF.md` 追加都保留，其余 30 个别人的改动逐字节不变；只重启了平台进程（00:05:13 起），tmux 会话和隧道没动；数据库、资产库镜像、预览图都没碰（数据库在线备份在部署机 `.cache/ff-main-20261029-000442/`，回滚方法见本机 `.agent/ops.local.md`）。部署验证：`test_server.py` 13 passed；本机和公网首页 200、未登录 `/api/info` 401；管理员临时会话：场景 7、物体 315、任务 65、本体 5、评测 17、研究资产 9、回合 507，`assets_ok`。部署机停在 `65abd16`，没为本文件再快进。
+- **剩余**：(1) 数据集目录要转正：改成服务端读的数据文件（如 `real2sim/datasets.json`）或接 Notion，并补齐空缺的 Episode / 时长 / 许可、确认分类；(2) 手机宽度下筛选栏堆在列表上方，可改成抽屉；(3) 登录页没有主题切换（跟随上次的选择）。
 
-### 数采平台界面改为 RoboFlywheel 风格（2026-10-28，`chongzheng/platform-ui-refresh`，未推送、未部署）
+### 数采平台界面改为 RoboFlywheel 风格（2026-10-28，`chongzheng/platform-ui-refresh`，随上一节一起进 `main` 并部署）
 
 - **起因**（用户）：喜欢 [roboflywheel.com/datasets](https://roboflywheel.com/datasets) 的风格，平台以后也要做类似的数据集页；用 UI UX Pro Max 技能优化现在的数采平台。
 - **改动**（只动 `src/real2sim_platform/index.html`，功能和接口不变）：
