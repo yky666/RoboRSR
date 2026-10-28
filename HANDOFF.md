@@ -1,7 +1,7 @@
 # Project Handoff
 
-更新时间：2026-10-27
-本会话分支：`chongzheng/merge-open-prs`（worktree `../RoboDojo-merge-prs`）：深圳实验室装共享库，6 个开着的 PR 合进 `main`，见「最近任务」第一节。上一会话 `chongzheng/scene-shenzhen-lab-room` 把深圳实验室补成整层房间（第二节）。下行保留主线历史。
+更新时间：2026-10-28
+本会话分支：`chongzheng/objects-plastic-mug`（worktree `../RoboDojo-plastic-mug`）：塑料马克杯 `plastic_mug` 补 `measurements_mm`、加 5 个泛化变体，见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs`：深圳实验室装共享库，6 个开着的 PR 合进 `main`（第二节）。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,14 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 塑料马克杯 `plastic_mug` 完善 + 5 个泛化变体（2026-10-28，`chongzheng/objects-plastic-mug`）
+
+- **用户要求**：完善 `plastic_mug`，增加泛化，然后跑 `check_object`。
+- **完善**（`scripts/objects/make_plastic_cups.py`，几何未改）：`metadata.json` 补 `measurements_mm`（键与平台登记一致：总长（含把手）/ 外径 / 高，从网格量，外径只取杯身）= 119.0 / 84.0 / 100.0，与实测误差 0；去掉不生效的 `physics.friction`（量杯同样去掉；运行时本来就用默认 0.6 / 1.5，行为不变）；`metadata.json` 改为 `ensure_ascii=False`。
+- **泛化**：登记 `spec.json` 补 `generalization`（count 5，颜色 / 材质 / 尺寸 / 形状可变，`rt_color`、`rt_scale` ±5%），由 agent 代写。`MUG_VARIANTS` 生成 `plastic_mug/00001–00005`（`variant_of` 00000，全部估计）：天蓝儿童杯 80 mm、粉色高身锥形杯 120 mm、藏青陶瓷咖啡杯（壁厚 4 mm、圆环把手、289 g）、烟棕半透明杯（着色 OmniSurface）、薄荷绿圆角方杯（超椭圆截面 SQ=4）。质量 = 网格体积 × 密度（PP 0.9、陶瓷 2.3）。杯身宽 72–84 mm，276–490 ml。`build_mug(g)` 参数化，`plastic_mug_shape.py` 仍只描述 00000（任务杯腔判据不变）。
+- **验证**（`5090-2:/data/robodojo-runs/plastic-mug-20261028-102627`，GPU 4）：生成 + 自检（凸包不侵入杯腔）通过；`check_object.py` 6 件马克杯 + 2 件量杯全部 OK（倾角 0°、z 误差 0）；渲染图在本机 `real2sim/objects/Rigid/plastic_mug/0000{0..5}/preview/`。ruff 0.11.7 通过；单测 78 passed，1 failed 是运行目录没同步场景照片（`test_scene_specs_are_complete_and_read_the_model`），与本改动无关。没跑 `check_cup_beans.py`（只覆盖 00000，00000 几何没变）。
+- **没做**：预览没同步到部署机（写部署机被权限拦下，等用户确认）；没装共享库（00000 本来也没装）；`RANDOMIZE` 没在任何任务打开；变体没进任何任务布局。
 
 ### 深圳实验室装共享库 + 合并全部开着的 PR（2026-10-27，`chongzheng/merge-open-prs`）
 
@@ -707,6 +715,7 @@
 
 ## 最近历史
 
+- 2026-10-28：塑料马克杯 `plastic_mug` 补 `measurements_mm`（误差 0），新增 5 个泛化变体 `00001–00005`，`check_object` 全部 OK。
 - 2026-10-27：深圳实验室（整层房间版、574 个评测布局）装进 `5090-2` 共享库；本仓库 6 个开着的 PR（#24、#25、#26、#28、#29、#30）合进 `main`，G1-D 夹爪默认改为 55 N / 3.6e4 并限速 0.064 m/s。
 - 2026-10-27：深圳实验室场景按 8 张全景照片补成整层房间（角柱、吊顶 + 穿孔铝板天花和灯条、工位、升降桌、货架、椅子、电梯厅栏杆闸机），`5090-2` 上 RTX 渲染和量杯脚本演示通过。
 - 2026-10-24：RSI 导入 ManiTwin 干扰物 390 个（尺寸去重、地面和桌面两道稳定性筛查）、Poly Haven 室内 HDR 40 张；T0 改为统计三套官方评测集（seed 0/1/2），材质成为新缺口（504 种里 494 种被评测用掉）。

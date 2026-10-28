@@ -2,6 +2,8 @@
 """Procedural plastic cups from the 2026-10-17 desk photos as RoboDojo `Rigid` assets.
 
 - plastic_mug/00000: white PP mug, straight round body (measured), flat D-shaped strap handle on +X.
+- plastic_mug/00001-00005: generalization variants of 00000 (not measured; colour, material, size and shape differ):
+  kids cup, tall tapered cup, ceramic coffee mug, smoky translucent cup, rounded-square cup (MUG_VARIANTS).
 - measuring_cup/00000, 00001: milky translucent PP measuring cups (400 ml / 500 ml graduations), 14 / 17 cm tall:
   chamfered-square bottom widening to a rounded-square mouth, snap-lid band with a flange and a small hanging tab.
 
@@ -9,7 +11,7 @@ Mug and measuring-cup dimensions and masses are measured (measuring cups: measur
 
 Usage:
     python scripts/objects/make_plastic_cups.py [RIGID_DIR]    # default Assets/Object/RoboDojo/Rigid
-    python scripts/objects/check_object.py Assets/Object/RoboDojo/Rigid/{plastic_mug/00000,measuring_cup/0000{0,1}}
+    python scripts/objects/check_object.py Assets/Object/RoboDojo/Rigid/{plastic_mug/0000{0..5},measuring_cup/0000{0,1}}
 After adding to Assets, run Assets/Object/RoboDojo/Rigid/format.py to refresh uuid_map.json.
 Writes RIGID_DIR/<category>/<index>/{object.usdz, metadata.json, description.json}. Needs what make_pitcher.py needs.
 
@@ -44,6 +46,78 @@ BOTTOM_SIDES = 24  # bottom slab polygon: PhysX GPU convexes (particle contacts)
 
 # plastic mug: dimensions in plastic_mug_shape.py (measured)
 WHITE_PP = (0.90, 0.89, 0.85)
+# generalization variants 00001-00005: overrides of MUG (SQ: section superellipse exponent, 2 = round), all estimated;
+# mass = DENSITY (kg/m^3) x mesh volume; LOOK picks the material: (rgb, roughness) opaque, or "clear" with a tint
+PP, CERAMIC = 900.0, 2300.0
+MUG_VARIANTS = [
+    dict(
+        H=0.080, R0=0.036, R1=0.036, HANDLE_TOP=0.064, HANDLE_BOT=0.016, HANDLE_OUT=0.028, BEND=0.012, HANDLE_W=0.011,
+        DENSITY=PP, LOOK=((0.10, 0.36, 0.78), 0.45),
+        WORDS=dict(
+            color=["sky blue", "light blue", "pastel blue"], material=["plastic", "polypropylene", "matte plastic"],
+            size=["small", "about 8 cm tall", "child-sized"], name=["kids cup", "small plastic mug", "children's mug"],
+            shape=["short round body", "small rounded handle", "open top"],
+            function=["drinking milk", "rinsing after brushing teeth", "holding beans"],
+            look="small sky blue plastic cup for children with a rounded handle",
+        ),
+    ),
+    dict(
+        H=0.120, R0=0.035, R1=0.042, HANDLE_TOP=0.102, HANDLE_BOT=0.032, HANDLE_OUT=0.030, BEND=0.006,
+        DENSITY=PP, LOOK=((0.80, 0.10, 0.18), 0.30),
+        WORDS=dict(
+            color=["coral pink", "rose red", "glossy pink"], material=["plastic", "polypropylene", "glossy plastic"],
+            size=["tall", "about 12 cm tall", "large capacity"],
+            name=["tall mug", "plastic tumbler with handle", "pink mug"],
+            shape=["tapered body widening to the rim", "square-cornered handle", "open top"],
+            function=["drinking juice", "carrying a drink", "holding beans"],
+            look="tall pink plastic mug that widens towards the rim",
+        ),
+    ),
+    dict(
+        H=0.095, R0=0.041, R1=0.041, T_WALL=0.004, T_BOTTOM=0.006, FILLET=0.005, HANDLE_TOP=0.078, HANDLE_BOT=0.022,
+        HANDLE_OUT=0.030, BEND=0.020, HANDLE_W=0.010, HANDLE_T=0.008, DENSITY=CERAMIC,
+        LOOK=((0.010, 0.025, 0.10), 0.12),
+        WORDS=dict(
+            color=["navy blue", "dark blue", "glazed blue"], material=["ceramic", "glazed stoneware", "porcelain"],
+            size=["standard mug size", "about 9.5 cm tall", "fits in one hand"],
+            name=["coffee mug", "ceramic mug", "navy mug"],
+            shape=["straight thick-walled body", "rounded loop handle", "open top"],
+            function=["drinking coffee", "drinking tea", "holding beans"],
+            look="glossy navy blue ceramic coffee mug with a thick wall and a rounded handle",
+        ),
+    ),
+    dict(
+        H=0.105, R0=0.040, R1=0.040, HANDLE_TOP=0.088, HANDLE_BOT=0.024, HANDLE_OUT=0.032, BEND=0.014,
+        DENSITY=PP, LOOK=("clear", (0.45, 0.33, 0.22)),
+        WORDS=dict(
+            color=["smoky brown", "translucent", "tinted"], material=["plastic", "translucent polypropylene", "PP"],
+            size=["about 10 cm tall", "standard mug size", "fits in one hand"],
+            name=["translucent mug", "smoky plastic cup", "clear mug"],
+            shape=["straight round body", "D-shaped handle", "open top"],
+            function=["drinking water", "showing what is inside", "holding beans"],
+            look="smoky translucent plastic mug through which the contents show",
+        ),
+    ),
+    dict(
+        SQ=4.0, H=0.078, R0=0.040, R1=0.040, FILLET=0.004, HANDLE_TOP=0.062, HANDLE_BOT=0.018, HANDLE_OUT=0.030,
+        BEND=0.010, HANDLE_W=0.016, DENSITY=PP, LOOK=((0.22, 0.62, 0.42), 0.50),
+        WORDS=dict(
+            color=["mint green", "pale green", "matte green"], material=["plastic", "polypropylene", "matte plastic"],
+            size=["short and wide", "about 8 cm tall", "fits in one hand"],
+            name=["square mug", "plastic cup", "mint mug"],
+            shape=["rounded-square body", "wide flat handle", "open top"],
+            function=["drinking water", "holding pens", "holding beans"],
+            look="short mint green plastic mug with a rounded-square body",
+        ),
+    ),
+]  # fmt: skip
+MUG_WORDS = dict(
+    color=["white", "off-white", "cream white"], material=["plastic", "polypropylene", "PP"],
+    size=["about 10 cm tall", "standard mug size", "fits in one hand"], name=["plastic mug", "rinse cup", "white mug"],
+    shape=["straight cylindrical body", "flat D-shaped handle", "open top"],
+    function=["drinking water", "rinsing after brushing teeth", "holding beans"],
+    look="plain off-white polypropylene mug with a flat D-shaped handle",
+)  # fmt: skip
 
 CLEAR_PP = (0.94, 0.95, 0.96)
 # milky share of the wall (rest transmits), specular reflection weight, surface roughness (also blurs transmission;
@@ -51,7 +125,6 @@ CLEAR_PP = (0.94, 0.95, 0.96)
 # milky 0.25: whitish like the photos in the bright counter scene, beans still visible through the wall (beans greyer
 # in check_cup_beans.py's dim grey-floor scene)
 CLEAR_MIX = dict(milky=0.25, reflection=0.1, roughness=0.3)
-FRICTION = 0.5
 
 
 def unit_section(sq):
@@ -127,9 +200,8 @@ def cavity_probe(inner, z0, z1):
     )
 
 
-def build_mug():
-    g = MUG
-    sec = unit_section(2.0)
+def build_mug(g=MUG):
+    sec = unit_section(g.get("SQ", 2.0))
 
     def outer(z):
         return g["R0"] + (g["R1"] - g["R0"]) * z / g["H"]
@@ -167,7 +239,8 @@ def build_mug():
     ml = volume_ml(lambda z: inner(z) * sec, TB, H)
     return dict(
         pts=pts, faces=faces, normals=normals, hulls=hulls, probe=cavity_probe(lambda z: inner(z) * sec, TB, H), ml=ml,
-        contact_r=g["R0"] - g["FILLET"], grip=np.array([x_out, 0.0, (zt + zb) / 2]),
+        contact_r=g["R0"] - g["FILLET"], grip=np.array([x_out, 0.0, (zt + zb) / 2]), n_body=len(body[0]),
+        volume=mp.signed_volume(*body) + mp.signed_volume(h_pts, h_faces),
     )  # fmt: skip
 
 
@@ -281,19 +354,19 @@ def add_collision(st, hulls):
         UsdPhysics.MeshCollisionAPI.Apply(prim).CreateApproximationAttr(UsdPhysics.Tokens.convexHull)
 
 
-def white_pp(st):
+def white_pp(st, rgb=WHITE_PP, roughness=0.42):
     return mp.add_material(
         st,
         "/root/_materials/WhitePlastic",
         "OmniPBR",
-        {"diffuse_color_constant": WHITE_PP, "reflection_roughness_constant": 0.42, "metallic_constant": 0.0},
-        WHITE_PP,
+        {"diffuse_color_constant": rgb, "reflection_roughness_constant": roughness, "metallic_constant": 0.0},
+        rgb,
         1.0,
-        0.42,
+        roughness,
     )
 
 
-def clear_pp(st):
+def clear_pp(st, rgb=CLEAR_PP):
     """Hazy translucent PP: rough transmission layered over a white diffuse base. OmniSurface weights are layered
     (diffuse gets 1 - transmission of the energy, times its own weight), so the diffuse weight stays 1 and the milky
     share is set by the transmission weight; a diffuse weight below 1 loses energy and greys the wall. OmniGlass
@@ -304,15 +377,16 @@ def clear_pp(st):
         "OmniSurface",
         {
             "diffuse_reflection_weight": 1.0,
-            "diffuse_reflection_color": CLEAR_PP,
+            "diffuse_reflection_color": rgb,
             "enable_specular_transmission": True,
+            "specular_transmission_color": rgb,
             "specular_transmission_weight": 1.0 - CLEAR_MIX["milky"],
             "specular_reflection_weight": CLEAR_MIX["reflection"],
             "specular_reflection_roughness": CLEAR_MIX["roughness"],
             "specular_reflection_ior": 1.49,
             "thin_walled": False,
         },
-        CLEAR_PP,
+        rgb,
         0.5,
         CLEAR_MIX["roughness"],
     )
@@ -331,7 +405,7 @@ def metadata(uid, c, mass, shift):
     contact = {"center": mp.r4((*shift[:2], lo[2], 1, 0, 0, 0)), "radius": round(c["contact_r"], 4)}
     return {
         "uuid": uid,
-        "physics": {"mass": mass, "friction": FRICTION, "size": mp.r4(ext)},
+        "physics": {"mass": mass, "size": mp.r4(ext)},  # friction unmeasured: runtime defaults
         "geometry": {
             "faces": len(c["faces"]),
             "vertices": len(pts),
@@ -358,21 +432,16 @@ def metadata(uid, c, mass, shift):
     }
 
 
-def mug_description(uid, ml):
-    caption = {
-        "color": ["white", "off-white", "cream white"],
-        "material": ["plastic", "polypropylene", "PP"],
-        "size": [f"holds about {ml:.0f} ml", "about 10 cm tall", "fits in one hand"],
-        "name": ["plastic mug", "rinse cup", "white mug"],
-        "shape": ["straight cylindrical body", "flat D-shaped handle", "open top"],
-        "function": ["drinking water", "rinsing after brushing teeth", "holding beans"],
-    }
+def mug_description(uid, ml, words):
+    caption = {k: words[k] for k in ("color", "material", "size", "name", "shape", "function")}
+    caption["size"] = [f"holds about {ml:.0f} ml", *caption["size"][:2]]
+    name, color = words["name"][0], words["color"][0]
     desc = [
-        "white plastic mug with a flat D-shaped handle",
-        f"plain off-white polypropylene cup with a handle, holds about {ml:.0f} ml",
-        "light plastic rinse mug grasped by its handle",
-        "round white plastic cup with straight sides",
-        "matte white mug made of plastic",
+        words["look"],
+        f"{color} {name} with a handle, holds about {ml:.0f} ml",
+        f"{words['material'][0]} {name} grasped by its handle",
+        f"{name} with a {words['shape'][0]}",
+        f"{color} {words['material'][-1]} {name} that can hold beans",
     ]
     return {"uuid": uid, "caption": caption, "description": desc}
 
@@ -396,26 +465,57 @@ def measuring_description(uid, mark, ml, H):
     return {"uuid": uid, "caption": caption, "description": desc}
 
 
-def save(rigid_dir, category, idx, c, material, mass, desc_fn):
+def save(rigid_dir, category, idx, c, material, mass, desc_fn, extra=None):
     shift = -(c["pts"].min(0) + c["pts"].max(0)) / 2
     c = dict(c, pts=c["pts"] + shift, hulls=[h + shift for h in c["hulls"]])
     d = Path(rigid_dir) / category / f"{idx:05d}"
     d.mkdir(parents=True, exist_ok=True)
     uid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"robodojo/rigid/{category}/{idx}"))
     write_usdz(d / "object.usdz", c, material)
-    meta = metadata(uid, c, mass, shift)
-    (d / "metadata.json").write_text(json.dumps(meta, indent=4))
+    meta = metadata(uid, c, mass, shift) | (extra(c) if extra else {})
+    (d / "metadata.json").write_text(json.dumps(meta, indent=4, ensure_ascii=False))
     (d / "description.json").write_text(json.dumps(desc_fn(uid), indent=4))
     return d, meta
 
 
+def mug_measurements(c):
+    """spec dimensions_mm of 00000 measured on the mesh: length with the handle, body outer diameter, height."""
+    body = c["pts"][: c["n_body"]]
+    return {
+        "measurements_mm": {
+            "总长（含把手）": round(float(np.ptp(c["pts"][:, 0])) * 1000, 1),
+            "外径": round(float(np.ptp(body[:, 1])) * 1000, 1),
+            "高": round(float(np.ptp(c["pts"][:, 2])) * 1000, 1),
+        }
+    }
+
+
+def mug_material(look):
+    if look[0] == "clear":
+        return lambda st: clear_pp(st, look[1])
+    return lambda st: white_pp(st, *look)
+
+
 def main(rigid_dir):
-    mug = build_mug()
-    self_check(mug)
-    lo, hi = mug["pts"].min(0), mug["pts"].max(0)
-    assert np.allclose(-(lo + hi) / 2, plastic_mug_shape.origin_shift(), atol=2e-4), "bbox differs from origin_shift()"
-    d, meta = save(rigid_dir, "plastic_mug", 0, mug, white_pp, MUG["MASS"], lambda u: mug_description(u, mug["ml"]))
-    print(f"{d}: {mug['ml']:.0f} ml, size {meta['physics']['size']}, {len(mug['hulls'])} collision hulls")
+    for idx, over in enumerate([{}] + MUG_VARIANTS):
+        g = {**MUG, **over}
+        mug = build_mug(g)
+        self_check(mug)
+        if idx == 0:
+            lo, hi = mug["pts"].min(0), mug["pts"].max(0)
+            assert np.allclose(-(lo + hi) / 2, plastic_mug_shape.origin_shift(), atol=2e-4), "bbox != origin_shift()"
+            mass, material, extra = MUG["MASS"], white_pp, mug_measurements
+        else:
+            mass = round(g["DENSITY"] * mug["volume"], 4)
+            material, extra = mug_material(g["LOOK"]), lambda c: {"variant_of": "Rigid/plastic_mug/00000"}
+        words = g.get("WORDS", MUG_WORDS)
+        d, meta = save(
+            rigid_dir, "plastic_mug", idx, mug, material, mass, lambda u: mug_description(u, mug["ml"], words), extra
+        )
+        print(
+            f"{d}: {mug['ml']:.0f} ml, mass {mass} kg (PP-density estimate {PP * mug['volume'] * 1000:.0f} g), "
+            f"size {meta['physics']['size']}, {len(mug['hulls'])} collision hulls, {meta.get('measurements_mm', '')}"
+        )
 
     for idx, (H, mark, mass) in enumerate(shape.MEASURING):
         c = build_measuring_cup(H)
