@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-28
-本会话分支：`chongzheng/platform-variant-twins`（worktree `../RoboDojo-variant-twins`）：自建孪生搬到独立的 `Object/Real2Sim` 物体库（代码、共享库都已搬），见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
+本会话分支：`chongzheng/objects-measuring-cup-variant`（worktree `../RoboDojo-mcup`）：两只量杯在平台上合成本体 + 变体并标为完备，见「最近任务」第一节。上一会话 `chongzheng/platform-variant-twins`：自建孪生搬到独立的 `Object/Real2Sim` 物体库。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,13 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 量杯合成本体 + 变体并标为完备（2026-10-28 11:3x，`chongzheng/objects-measuring-cup-variant`）
+
+- 用户要求：两只 `measuring_cup` 已按实测尺寸建好，高的作本体、矮的作变体，改成完备，负责人种政。
+- 本体 `Rigid/measuring_cup/00001`（500 ml，高 170 mm，60 g），变体 `00000`（400 ml，高 140 mm，40 g）。`make_plastic_cups.py` 给 00000 的 metadata 写 `variant_of: Rigid/measuring_cup/00001`；几何、质量没改，已有模型没有重新生成（共享库仍未装量杯，`ASSETS.md` 不变）。
+- 检查：`5090-2:/data/robodojo-runs/measuring-cup-check-20261028`（GPU 4），模型取自 `office-beans-random-20261019` 的 10-19 版本（数据集用的同一份；00000 的副本补了 `variant_of`），`check_object.py` 两只 OK：z=0.070/0.085 m（等于期望）、倾角 0°。在同一目录用新生成器重跑到 `gen/`：00000 带 `variant_of`，质量、尺寸和 10-19 版一致（旧版多一个不生效的 `friction` 键）。本机 `check.sh` 的 ruff 通过；pytest 在隔离目录因没拷 LFS 网格大量失败，与本改动无关，没在完整仓库补跑。
+- 平台（部署机，没改平台代码）：`check.json` 和新 `sim.png` 放进 `real2sim/objects/Rigid/measuring_cup/0000{0,1}/preview/`，旧文件和数据库在线备份在 `.cache/mcup-20261028/`。用种政临时会话经 API：扫描；两只都写负责人 `chongzheng`、名称、材质颜色、实测尺寸和质量（尺寸、质量依据都选「实测」）；审核通过。结果两只 `built`、`review_state=done`，00000 的 `variant_of` 指向 00001。没有点「确认建模 prompt」。
 
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 

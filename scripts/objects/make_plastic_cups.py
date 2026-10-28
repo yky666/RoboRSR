@@ -522,9 +522,10 @@ def main(rigid_dir):
         lo, hi = c["pts"].min(0), c["pts"].max(0)
         assert np.allclose(-(lo + hi) / 2, shape.origin_shift(H), atol=1e-6), "bbox differs from origin_shift()"
         z = fill_height(c, mark)
-        d, meta = save(
-            rigid_dir, "measuring_cup", idx, c, clear_pp, mass, lambda u: measuring_description(u, mark, c["ml"], H)
-        )
+        # the tall 500 ml cup (00001) is the base; the short 400 ml one is its height variant
+        extra = (lambda c: {"variant_of": "Rigid/measuring_cup/00001"}) if idx == 0 else None
+        desc = lambda u: measuring_description(u, mark, c["ml"], H)  # noqa: E731
+        d, meta = save(rigid_dir, "measuring_cup", idx, c, clear_pp, mass, desc, extra)
         print(
             f"{d}: {c['ml']:.0f} ml brim, {mark} ml at z={z * 1000:.0f} mm ({z / H:.0%} of height), "
             f"size {meta['physics']['size']}, {len(c['hulls'])} collision hulls"
