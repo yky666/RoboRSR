@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-28
-本会话分支：`chongzheng/merge-open-prs-1028b`（worktree `../RoboDojo-merge-1028b`）：把开着的 #36、#38–#43 合进 `main` 并部署数采平台，见「最近任务」第一节，之后七节是这些 PR 各自的记录（量杯变体、冷水壶变体、建模 prompt v2、审核计数等）。再之前：`chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库；`chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署。下行保留主线历史。
+本会话分支：`chongzheng/platform-banzhi-flywheel`（worktree `../RoboDojo-banzhi-flywheel`，基于下面的 `platform-ui-refresh` 907ddd2）：平台加 BanzhiFlywheel 产品顶栏和「数据集」设计稿，见「最近任务」第一节；只提交在本地，没推送、没部署。它的基础 `chongzheng/platform-ui-refresh`（worktree `../RoboDojo-platform-ui`）把数采平台换成 RoboFlywheel 式黑白极简界面（第二节），同样未推送。上一会话 `chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库（第二节，已合并为 PR #35/#37）。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,15 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### BanzhiFlywheel 产品顶栏 + 数据集页设计稿（2026-10-28，`chongzheng/platform-banzhi-flywheel`，未推送、未部署）
+
+- **起因**（用户）：整个平台叫 BanzhiFlywheel（纯文字 logo），现有平台作为「仿真平台」，并列一个「数据集」板块；先出设计稿，不替换现在的平台。之后用户要求：不要大块黑色，顶栏更扁平。
+- **改动**（只动 `src/real2sim_platform/index.html`，服务端和接口不变）：
+  - 顶部新增白底产品栏 `.gbar`（52 px）：纯文字字标 `.wordmark`（粗体 Banzhi + 细体 Flywheel + 蓝色圆点，无图形）、文字标签「仿真平台 / 数据集」（当前项 2 px 下划线）、用户菜单。原来的横向导航降为仿真平台的二级导航 `.side`（56 px，浅灰底，粘在产品栏下面），数据集页隐藏它（`.app.no-sub`）。`--top` = 两栏高度之和，QA 面板的 sticky 偏移随之调整。登录卡片也换成字标。
+  - 数据集页 `#datasets`（`viewDatasets` / `drawerDataset`）：浅色页头 + 4 个统计块（已发布数、Episode、帧数、总时长，只计 released）、状态分段筛选、搜索、卡片（封面取平台里对应场景的渲染图或照片，标签、Episode / 帧数 / 时长、格式和发布位置），点开抽屉看采集设置、验收、位置和下载命令。**数据是 `scripts/datagen/registry.json` 5 条记录的手抄中文快照（常量 `DATASETS`）**，页面底部有「设计预览」提示。
+- **验证**：本机临时库（`/tmp/bzf/`，账号 `preview`）起 `server.py --port 8799`，浏览器在 1440 和 390 px 下看了数据集页、场景页、总览和数据集抽屉，无横向溢出；`git diff --check` 通过。没跑 `check.sh` 和 `test_server.py`（没动服务端）。
+- **剩余**：要转正需 (1) 服务端加 `/api/datasets` 读 registry.json，删掉前端快照；(2) registry 没有体积和许可证字段，卡片暂不显示；(3) 先合并 `platform-ui-refresh`，再推送本分支、开 PR、合并后按 `.agent/ops.local.md` 重启 `5090-2` 的平台。
 
 ### 数采平台界面改为 RoboFlywheel 风格（2026-10-28，`chongzheng/platform-ui-refresh`，未推送、未部署）
 
