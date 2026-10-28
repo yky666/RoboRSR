@@ -52,6 +52,14 @@
 - **验证**：本机 `test_server.py` 13 passed（新增 `test_object_review_and_libraries`：没模型不能通过、成员 403、退回必须写原因、重建后回到待审核、库的增删与校验）；`ruff 0.11.7` 检查 `server.py`、`node --check` 页面脚本。浏览器（本机，生产库副本 + 临时管理员）：分区折叠和记忆、加 YCB 库、空原因被拦、退回、通过、移入 YCB、手机宽度无横向滚动。`5090-2` 上同样 13 passed，重启后未登录 401，管理员会话下 Real2Sim 48 件：待审核 41、待重建 7，自定义库 0。
 - **剩余**：已有 41 件建好的 Real2Sim 物体全部是待审核，要管理员逐个过。公开库的物体目前只能先登记、再手动移进库；按库目录自动扫描（如 `Assets/Object/<库>/`）没做，等真有第二个库的文件再加。第一个提交顺手按 ruff 格式化了 `test_server.py`（原有一处 E501）。
 
+### 塑料马克杯 `plastic_mug` 完善 + 5 个泛化变体（2026-10-28，`chongzheng/objects-plastic-mug`）
+
+- **用户要求**：完善 `plastic_mug`，增加泛化，然后跑 `check_object`。
+- **完善**（`scripts/objects/make_plastic_cups.py`，几何未改）：`metadata.json` 补 `measurements_mm`（键与平台登记一致：总长（含把手）/ 外径 / 高，从网格量，外径只取杯身）= 119.0 / 84.0 / 100.0，与实测误差 0；去掉不生效的 `physics.friction`（量杯同样去掉；运行时本来就用默认 0.6 / 1.5，行为不变）；`metadata.json` 改为 `ensure_ascii=False`。
+- **泛化**：登记 `spec.json` 补 `generalization`（count 5，颜色 / 材质 / 尺寸 / 形状可变，`rt_color`、`rt_scale` ±5%），由 agent 代写。`MUG_VARIANTS` 生成 `plastic_mug/00001–00005`（`variant_of` 00000，全部估计）：天蓝儿童杯 80 mm、粉色高身锥形杯 120 mm、藏青陶瓷咖啡杯（壁厚 4 mm、圆环把手、289 g）、烟棕半透明杯（着色 OmniSurface）、薄荷绿圆角方杯（超椭圆截面 SQ=4）。质量 = 网格体积 × 密度（PP 0.9、陶瓷 2.3）。杯身宽 72–84 mm，276–490 ml。`build_mug(g)` 参数化，`plastic_mug_shape.py` 仍只描述 00000（任务杯腔判据不变）。
+- **验证**（`5090-2:/data/robodojo-runs/plastic-mug-20261028-102627`，GPU 4）：生成 + 自检（凸包不侵入杯腔）通过；`check_object.py` 6 件马克杯 + 2 件量杯全部 OK（倾角 0°、z 误差 0）；渲染图在本机 `real2sim/objects/Rigid/plastic_mug/0000{0..5}/preview/`。ruff 0.11.7 通过；单测 78 passed，1 failed 是运行目录没同步场景照片（`test_scene_specs_are_complete_and_read_the_model`），与本改动无关。没跑 `check_cup_beans.py`（只覆盖 00000，00000 几何没变）。
+- **没做**：预览没同步到部署机（写部署机被权限拦下，等用户确认）；没装共享库（00000 本来也没装）；`RANDOMIZE` 没在任何任务打开；变体没进任何任务布局。
+
 ### 深圳实验室装共享库 + 合并全部开着的 PR（2026-10-27，`chongzheng/merge-open-prs`）
 
 - **用户要求**：深圳实验室装进共享资产库；处理本仓库（`origin` Zheng-Chong/RoboRSR）所有 PR 并合并。`gh` 没设默认仓库时会列出 upstream（RoboDojo 官方）的 10 个外部 PR，那些不是本仓库的，没动。
@@ -721,6 +729,7 @@
 
 ## 最近历史
 
+- 2026-10-28：塑料马克杯 `plastic_mug` 补 `measurements_mm`（误差 0），新增 5 个泛化变体 `00001–00005`，`check_object` 全部 OK。
 - 2026-10-27：深圳实验室（整层房间版、574 个评测布局）装进 `5090-2` 共享库；本仓库 6 个开着的 PR（#24、#25、#26、#28、#29、#30）合进 `main`，G1-D 夹爪默认改为 55 N / 3.6e4 并限速 0.064 m/s。
 - 2026-10-27：深圳实验室场景按 8 张全景照片补成整层房间（角柱、吊顶 + 穿孔铝板天花和灯条、工位、升降桌、货架、椅子、电梯厅栏杆闸机），`5090-2` 上 RTX 渲染和量杯脚本演示通过。
 - 2026-10-24：RSI 导入 ManiTwin 干扰物 390 个（尺寸去重、地面和桌面两道稳定性筛查）、Poly Haven 室内 HDR 40 张；T0 改为统计三套官方评测集（seed 0/1/2），材质成为新缺口（504 种里 494 种被评测用掉）。
