@@ -4,14 +4,14 @@ import hashlib
 import json
 import math
 
-FAMILIES = {"cloth", "garment", "rope", "bag"}
+FAMILIES = {"cloth", "garment", "rope", "bag", "soft_body"}
 MEASUREMENTS = {"thickness_mm", "areal_density_g_m2", "diameter_mm", "linear_density_g_m"}
 COMMON_CHECKS = (
     "geometry_mass",
     "deformation",
     "contact",
     "self_collision",
-    "reset_replay",
+    "reset_state",
     "shutdown",
     "material_fit",
 )
@@ -24,7 +24,7 @@ def validate(profile):
     if not isinstance(profile, dict):
         return "柔性建模信息必须是对象"
     if profile.get("family", "") not in (*FAMILIES, ""):
-        return "柔性类别必须是布料、衣服、绳子或布袋"
+        return "柔性类别必须是布料、衣服、绳子、布袋或体积软体"
     if profile.get("backend", "") not in ("", "auto", "physx", "newton"):
         return "柔性后端必须是 auto、physx 或 newton"
     for key in ("rest_state", "structure", "test_data"):
@@ -93,6 +93,7 @@ def acceptance(profile, report, mesh_sha256, mass_g=None, dimensions_mm=None):
         "status": status,
         "family": profile["family"],
         "checks": rows,
+        "diagnostics": report.get("diagnostics", {}),
         "mesh_matches": identity_ok,
         "registration_matches": registration_ok,
         "registration_sha256": registration_sha256,

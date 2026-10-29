@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-30
-本会话分支：`chongzheng/platform-isolation`（worktree `../RoboDojo-platform-isolation`，基于 `origin/main@a23b9c2`）：数采平台和 `5090-2` 上的工作区隔离，PR #50 已合并，10-30 00:23 线上已切换（「最近任务」第一节）。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
+此前会话分支：`chongzheng/platform-isolation`（worktree `../RoboDojo-platform-isolation`，基于 `origin/main@a23b9c2`）：数采平台和 `5090-2` 上的工作区隔离，PR #50 已合并，10-30 00:23 线上已切换（「最近任务」第一节）。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -39,6 +39,16 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 柔性物体生成与物理检查（2026-10-30，`yky666/objects-deformable-generation-checks`）
+
+- 在最新主线上补充可选 Newton/Genie 进程桥、矩形布片与规则软块候选生成器、物理检查及RTX轨迹渲染；没有替换生产 SceneManager 或机器人任务。
+- 沿用平台登记与确认后的 prompt；增加体积软体类别。柔性提示词独立升级为 `real-object-v3-deformable-v2`，只使柔性旧确认失效；刚体确认版本保持。
+- `reset_state` 检查初始位置/速度恢复；重放偏差改为 `diagnostics.replay`，不设通用1 mm门槛，平台独立展示。不宣称已修复此前 PhysX 表面接触分叉。
+- 新演示：布片固定边下垂到球面；自由球撞击3 kPa候选软块。形变RMS峰值47.588/4.626 mm；软块最小J=0.6794，无翻转；接触关闭对照有差异，未检出溢出，60帧重放偏差0。
+- 检查：scripts/check.sh 92 passed、4 skipped、82 subtests；独立Newton环境8项生成/桥接测试通过。原始报告与视频保留在隔离运行目录，预览通过r2s publish发布；生成结果不入Git或共享库。
+- 入口：`real2sim/prototypes/deformable_assets/README.md`、`VALIDATION.md`。材料标定、完整自交/接缝和机器人操作仍待完成；agent仍需专门构建衣服/袋子/绳索拓扑，不能把原型计入已验收实物资产。
+
 
 ### 数采平台和 `5090-2` 工作区隔离（2026-10-29 23:xx 至 10-30 00:2x，`chongzheng/platform-isolation`，[PR #50](https://github.com/Zheng-Chong/RoboRSR/pull/50) 已合并，线上已切换）
 
