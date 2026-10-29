@@ -313,6 +313,7 @@ def scan_scenes():
                 "configs": [],
                 "rooms": [],
                 "built": entry.is_file(),
+                "model_version": file_version(entry) if entry.is_file() else None,
                 "registered": True,
                 "scripts": [],
                 "docs": sorted(str(p) for p in d.glob("*.md")),
@@ -341,6 +342,7 @@ def scan_scenes():
             "configs": configs.get(d.name, []),
             "rooms": rooms,
             "built": bool(rooms) and (d / "usd" / "scene.usda").exists(),
+            "model_version": scene_model_version(d / "usd" / "scene.usda") if rooms else None,
             "scripts": sorted(p.name for p in d.glob("*.py")),
             "docs": sorted(str(p) for p in d.glob("*.md")),
             "photos": images(d / "reference"),
@@ -653,8 +655,25 @@ def scan_objects(assets, tasks, keep):
 
 
 def model_signature(auto):
-    """Which built model a review verdict is about: a rebuild (new check.json time) asks for a new review."""
+    """Which built model a review verdict is about: a rebuild asks for a new review. Scenes carry the scan's
+    model_version; objects the time of their check.json (or the shared library)."""
+    if auto.get("model_version"):
+        return auto["model_version"]
     return (auto.get("check") or {}).get("checked_at") or ("library" if auto.get("in_library") else "")
+
+
+def scene_model_version(usd):
+    """Content hash of a twin's scene.usda: a stash/pop on the deploy checkout rewrites mtimes, not content."""
+    return "sha1:" + hashlib.sha1(usd.read_bytes()).hexdigest()[:16] if usd.is_file() else None
+
+
+def file_version(path):
+    """Size and mtime of an imported scene's entry file (often a large .usdc kept outside the repo)."""
+    try:
+        st = Path(path).stat()
+    except (OSError, TypeError):
+        return None
+    return f"{st.st_size:x}-{st.st_mtime_ns:x}"
 
 
 def review_state(doc):
@@ -679,6 +698,17 @@ def variant_base(doc, find):
     """The base object a generalization variant belongs to (`find(id)` looks it up), or None."""
     base_id = (doc.get("auto") or {}).get("variant_of")
     return find(base_id) if base_id and base_id != doc.get("id") else None
+
+
+def scene_source(doc, find):
+    """The scene a variant (e.g. a benchmark tabletop setup) belongs to (`find(id)` looks it up), or None."""
+    source_id = (doc.get("auto") or {}).get("source_scene")
+    return find(source_id) if source_id and source_id != doc.get("id") else None
+
+
+def public_scene(doc, source=None):
+    """A scene variant is not reviewed on its own: it carries its source scene's review state."""
+    return {**doc, "review_state": review_state(source or doc)}
 
 
 def public_object(doc, base=None):
@@ -1267,6 +1297,9 @@ class Handler(BaseHTTPRequestHandler):
             if kind == "object":
                 by_id = {d["id"]: d for d in self.store.list(kind)}
                 docs = [public_object(d, variant_base(d, by_id.get)) for d in docs]
+            if kind == "scene":
+                by_id = {d["id"]: d for d in self.store.list(kind)}
+                docs = [public_scene(d, scene_source(d, by_id.get)) for d in docs]
             self.send_json(docs)
         elif url.path == "/file" and servable(query.get("path", ""), self.roots):
             path = Path(query["path"]).resolve()
@@ -1325,6 +1358,39 @@ class Handler(BaseHTTPRequestHandler):
                     self.store._put("object", doc)
                     write_spec(doc)
         self.send_json({"path": str(path)})
+
+    def verdict(self, current, fields, follows=None):
+        """Turn review_action/review_note in `fields` into a stored review entry (admins only). Replies and returns
+        True on a refusal; `follows` is the refusal text when the record follows another one's review."""
+        action, note = fields.pop("review_action", None), str(fields.pop("review_note", "") or "").strip()
+        if not action:
+            return False
+        refusal = None
+        if not self.user["admin"]:
+            refusal = ("只有管理员可以审核", 403)
+        elif action not in ("approve", "reject", "reopen"):
+            refusal = ("审核结论只能是通过、退回或撤回", 400)
+        elif follows:
+            refusal = (follows, 409)
+        elif action == "reopen" and review_state(current) == "review":
+            refusal = ("已经是待审核", 409)
+        elif action == "reject" and not note:
+            refusal = ("退回重建要写明原因", 400)
+        elif action != "reject" and not current["auto"].get("built"):
+            refusal = ("还没有建好的模型，不能审核", 409)
+        if refusal:
+            self.send_json({"error": refusal[0]}, refusal[1])
+            return True
+        entry = {
+            "state": {"approve": "approved", "reject": "rejected", "reopen": "reopened"}[action],
+            "by": self.user["name"],
+            "at": time.time(),
+            "note": note,
+            "model": model_signature(current["auto"]),
+        }
+        history = (current.get("review") or {}).get("history", []) + [entry]
+        fields["review"] = {**entry, "history": history[-20:]}
+        return False
 
     def do_PUT(self):
         if urlparse(self.path).path == "/api/users":
@@ -1388,31 +1454,9 @@ class Handler(BaseHTTPRequestHandler):
             library = fields.get("library")
             if library and library not in BUILTIN_LIBRARIES and not self.store.get("library", library):
                 return self.send_json({"error": f"没有资产库 {library}"}, 400)
-            action, note = fields.pop("review_action", None), str(fields.pop("review_note", "") or "").strip()
-            if action:
-                if not self.user["admin"]:
-                    return self.send_json({"error": "只有管理员可以审核物体"}, 403)
-                if action not in ("approve", "reject", "reopen"):
-                    return self.send_json({"error": "审核结论只能是通过、退回或撤回"}, 400)
-                base = variant_base(current, lambda i: self.store.get("object", i))
-                if base:
-                    return self.send_json({"error": f"变体跟随本体 {base['id']} 审核，请审核本体"}, 409)
-                if action == "reopen" and review_state(current) == "review":
-                    return self.send_json({"error": "已经是待审核"}, 409)
-                if action == "reject" and not note:
-                    return self.send_json({"error": "退回重建要写明原因"}, 400)
-                if action != "reject" and not current["auto"].get("built"):
-                    return self.send_json({"error": "还没有建好的模型，不能审核"}, 409)
-
-                entry = {
-                    "state": {"approve": "approved", "reject": "rejected", "reopen": "reopened"}[action],
-                    "by": self.user["name"],
-                    "at": time.time(),
-                    "note": note,
-                    "model": model_signature(current["auto"]),
-                }
-                history = (current.get("review") or {}).get("history", []) + [entry]
-                fields["review"] = {**entry, "history": history[-20:]}
+            base = variant_base(current, lambda i: self.store.get("object", i))
+            if self.verdict(current, fields, base and f"变体跟随本体 {base['id']} 审核，请审核本体"):
+                return
             if confirming:
                 try:
                     fields["modeling_confirmation"] = object_registration.confirm(
@@ -1420,6 +1464,17 @@ class Handler(BaseHTTPRequestHandler):
                     )
                 except ValueError as exc:
                     return self.send_json({"error": str(exc)}, 400)
+        if kind == "scene":
+            fields.pop("review", None)  # written by verdict(), by admins only
+        if kind == "scene" and "review_action" in fields:  # a verdict lives in the store only: no repo file rewritten
+            if set(fields) - {"review_action", "review_note"}:
+                return self.send_json({"error": "审核请求只能带审核结论和意见"}, 400)
+            current = self.store.get(kind, id_) or {"id": id_, "auto": {}}
+            source = scene_source(current, lambda i: self.store.get("scene", i))
+            if self.verdict(current, fields, source and f"工况变体跟随场景 {source['id']} 审核，请审核源场景"):
+                return
+            doc = self.store.update(kind, id_, fields, by=self.user["name"])
+            return self.send_json(public_scene(doc, scene_source(doc, lambda i: self.store.get("scene", i))))
         doc = self.store.update(kind, id_, fields, by=self.user["name"])
         if kind == "object":
             write_spec(doc)
@@ -1435,6 +1490,8 @@ class Handler(BaseHTTPRequestHandler):
             write_eval_request(doc, {u["username"]: u["name"] for u in self.store.users()})
         if kind == "object":
             doc = public_object(doc, variant_base(doc, lambda i: self.store.get("object", i)))
+        if kind == "scene":
+            doc = public_scene(doc, scene_source(doc, lambda i: self.store.get("scene", i)))
         self.send_json(doc)
 
     def do_DELETE(self):

@@ -40,6 +40,15 @@
 
 ## 最近任务
 
+### 场景也有「待重建 → 待审核 → 完备」审核（2026-10-29 22:xx，`chongzheng/platform-scene-review`）
+
+- **用户要求**：场景重建加一个和物体资产一样的审核机制。
+- **服务端**：扫描给场景加 `auto.model_version`（孪生场景取 `usd/scene.usda` 的内容哈希，部署机 stash/pop 只改 mtime 不算重建；导入的场景取入口文件的大小 + mtime），`model_signature` 优先用它，所以 `review_state` 物体、场景共用。物体那段审核抽成 `Handler.verdict()`，场景复用：管理员才能审，退回要写原因，可撤回；工况变体（`source_scene` 指向已有场景）跟随源场景、单独审返回 409；场景列表和保存返回带 `review_state`。**场景审核只写平台数据库，不调用 `write_registration`**（它会在没标登记时删掉 `registration.json`），审核请求只能带审核字段。`test_scene_review` 覆盖上面各条和「只改 mtime 不算重建」。
+- **前端**：`reviewPanel(d, kind)`、`reviewRecord(kind, id, action)` 物体和场景共用（文案按 `REVIEW_TEXT`）；场景页加「全部 / 待重建 / 待审核 / 完备」分段筛选和卡片状态，详情里有审核区（变体只写跟随源场景），管理员的「场景重建」导航有待审核角标。RoboDojo 自带基准场景不参与。
+- **上线后**：已建好的孪生场景第一次都会是「待审核」，要管理员逐个审一遍。
+- **验证**：`bash scripts/check.sh` 通过；本机浏览器走通退回（无原因被拦）→ 撤回 → 通过，角标随之减少，仓库文件没被改动。
+
+
 ### 场景工况变体并入源场景；3D 预览的 WebGL 提示（2026-10-29 22:xx）
 
 - **起因**（用户）：场景页多了「茶水间吧台 / 办公室升降桌 · Benchmark桌面工况」两张卡；3D 预览报「Error creating WebGL context」却提示网络。

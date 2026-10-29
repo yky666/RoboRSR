@@ -1081,7 +1081,7 @@ function segSlide(before) {
 window.addEventListener('resize', () => segSlide());
 // guests read everything and change nothing: the server refuses their writes, and here the controls that would try
 // are hidden (actions, uploads, bulk ticks) or locked (record fields stay readable and copyable)
-const GUEST_HIDE = /^(setQA|reviewObject|bulk\w+|save\w+|remove\w+|delete\w+|gen\w+|unregisterTask|toggleTag|sync|setReal|resetPassword|openNew\w+|confirmObjectModeling|addExtra|addBuiltScenes|discardDraft)\(/;
+const GUEST_HIDE = /^(setQA|reviewRecord|bulk\w+|save\w+|remove\w+|delete\w+|gen\w+|unregisterTask|toggleTag|sync|setReal|resetPassword|openNew\w+|confirmObjectModeling|addExtra|addBuiltScenes|discardDraft)\(/;
 function guestLock(root) {
   if (!ME?.guest || !root) return;
   root.querySelectorAll('button[onclick]').forEach((b) => { if (GUEST_HIDE.test(b.getAttribute('onclick'))) b.hidden = true; });
@@ -1136,6 +1136,7 @@ function renderNav() {
   ];
   $('#nav').innerHTML = items.map(([tab, label, icon, n]) => `<a class="nav-item" href="#${tab}" ${UI.tab === tab ? 'aria-current="page"' : ''}>${ic(icon, 'ic-lg')}<span>${label}</span>${
     tab === 'qa' ? (n ? `<span class="badge" title="待审回合">${n}</span>` : '')
+    : tab === 'scenes' && ME?.admin && scenesToReview() ? `<span class="badge" title="${n} 个场景，${scenesToReview()} 个待审核">${scenesToReview()}</span>`
     : tab === 'objects' && ME?.admin && toReview() ? `<span class="badge" title="${n} 件物体，${toReview()} 件待审核">${toReview()}</span>`
     : (n !== '' ? `<span class="count">${n}</span>` : '')}</a>`).join('');
   $('#sync-btn').innerHTML = UI.syncing ? `${ic('refresh', 'spin')}同步中…` : `${ic('refresh')}同步项目数据`;
@@ -1649,6 +1650,8 @@ const isBench = (d) => d.auto?.source === 'robodojo';  // the benchmark's own en
 const sceneSource = (d) => (d.auto.source_scene && d.auto.source_scene !== d.id ? S.scene.find((x) => x.id === d.auto.source_scene) : null);
 const sceneVariants = (d) => live(S.scene).filter((x) => sceneSource(x) === d);
 const twinScenes = () => live(S.scene).filter((d) => !isBench(d) && !sceneSource(d));
+const sceneState = (d) => (sceneSource(d) || d).review_state;
+const scenesToReview = () => twinScenes().filter((d) => d.review_state === 'review').length;
 const sceneDims = (d) => {
   const a = d.auto, r = d.reg || {};
   if (a.source === 'imported_simulation') return `${a.engine} · ${a.status}`;
@@ -1674,7 +1677,7 @@ const sceneDatalists = () => `<datalist id="dl-scene-types">${SCENE_TYPES.map((t
   <datalist id="dl-supports">${SUPPORTS.map((t) => `<option value="${esc(t)}">`).join('')}</datalist>`;
 const g1dTasks = () => live(S.task).filter((t) => t.auto.dimension === 'custom').map((t) => t.id).sort();
 function viewScenes() {
-  const twins = twinScenes(), bench = S.scene.filter(isBench).sort((x, y) => (y.auto.tasks?.length || 0) - (x.auto.tasks?.length || 0));
+  const all = twinScenes(), f = UI.sceneStatus || '', twins = f ? all.filter((d) => d.review_state === f) : all, bench = S.scene.filter(isBench).sort((x, y) => (y.auto.tasks?.length || 0) - (x.auto.tasks?.length || 0));
   const benchHtml = bench.map((d) => {
     const a = d.auto, cover = sceneImage(d);
     return `<article class="card mcard" data-open="scene" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开场景 ${esc(d.id)}">
@@ -1689,15 +1692,22 @@ function viewScenes() {
     return `<article class="card mcard" data-open="scene" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开场景 ${esc(d.id)}">
       <div class="media r169">${cover ? `<img loading="lazy" decoding="async" src="${small(cover, 640)}" alt="">` : ic('image', 'ic-lg')}
         <div class="pills">${a.engine ? `<span class="pill">${esc(a.engine)}</span>` : ''}${(a.configs || []).map((c) => `<span class="pill">${esc(c)}</span>`).join('')}${a.model ? `<span class="pill" title="可在详情里 3D 预览">${ic('cube', 'ic-sm')}3D</span>` : ''}${sceneVariants(d).length ? `<span class="pill" title="${esc(sceneVariants(d).map(sceneName).join('、'))}">+${sceneVariants(d).length} 工况</span>` : ''}</div></div>
-      <div class="mcard-b"><div class="mcard-t"><b>${esc(sceneName(d))}</b>${d.registered ? '<span class="tag info">已登记</span>' : ''}${missingBadge(d)}</div>
+      <div class="mcard-b"><div class="mcard-t"><b>${esc(sceneName(d))}</b>${REVIEW[d.review_state] ? st(...REVIEW[d.review_state]) : ''}${d.registered ? '<span class="tag info">已登记</span>' : ''}${missingBadge(d)}</div>
         ${sceneName(d) !== d.id ? `<div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>` : ''}
         <div class="small muted">${esc(sceneDims(d))}</div>
         ${stats([['照片', a.photos?.length || 0], ['预览', a.previews?.length || 0], ['env 配置', a.configs?.length || 0]])}
         ${progress(rs)}${stageChips(rs)}</div></article>`;
   }).join('');
-  return `<div class="page">${pageHead('场景重建', `real2sim/scenes/ 下 ${twins.length} 个孪生场景 · 目标 7 个（3 个孪生 + 2 个训练用泛化 + 2 个保留）。新场景先登记：至少 ${MIN_SCENE_PHOTOS} 张照片加卷尺实测`,
+  const counts = Object.fromEntries(Object.keys(REVIEW).map((k) => [k, all.filter((d) => d.review_state === k).length]));
+  const statusBar = `<div class="toolbar lib-status"><div class="segctl" role="group" aria-label="按审核状态查看场景">
+      ${[['', '全部', all.length], ...Object.entries(REVIEW).map(([k, [, label]]) => [k, label, counts[k]])].map(([k, label, c]) => `<button type="button"
+        aria-pressed="${f === k}" onclick="UI.sceneStatus = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
+      <span class="muted small">${ME?.admin ? '待审核的场景在详情里给出结论' : '审核由管理员完成'}；场景模型重建后自动回到待审核；工况变体跟随源场景</span></div>`;
+  return `<div class="page">${pageHead('场景重建', `real2sim/scenes/ 下 ${all.length} 个孪生场景 · 目标 7 个（3 个孪生 + 2 个训练用泛化 + 2 个保留）。新场景先登记：至少 ${MIN_SCENE_PHOTOS} 张照片加卷尺实测`,
     `<button class="btn btn-primary" type="button" onclick="openNewScene(this)">${ic('plus')}登记场景</button>`)}
-    ${twins.length ? `<div class="grid scene-grid">${cardsHtml}</div>` : `<div class="card">${empty('scan', '还没有场景', '点「登记场景」新建，或在 real2sim/scenes/ 下建场景目录后点「同步项目数据」')}</div>`}
+    ${all.length ? statusBar : ''}
+    ${twins.length ? `<div class="grid scene-grid">${cardsHtml}</div>` : all.length ? `<div class="card">${empty('search', '没有这个状态的场景', '换一个审核状态看看')}</div>`
+      : `<div class="card">${empty('scan', '还没有场景', '点「登记场景」新建，或在 real2sim/scenes/ 下建场景目录后点「同步项目数据」')}</div>`}
     ${bench.length ? `<h2 class="section-title">${ic('layers')}RoboDojo 基准场景 <span class="muted small">env_cfg/scene/ · 任务按 _task.yml 的 scene_config 选用，不是真实场景孪生</span></h2>
       <div class="grid scene-grid">${benchHtml}</div>` : ''}</div>`;
 }
@@ -1902,7 +1912,7 @@ function drawerScene(d) {
   const tie = src ? sec(`${ic('layers')}所属场景`, `<p>${link('scene', src.id, sceneName(src))} 的工况变体，不单独计入孪生场景。</p>`)
     : variants.length ? sec(`${ic('layers')}工况变体 <span class="muted small">${variants.length} 个</span>`, `<div class="ra-list">${variants.map((v) =>
       `<p>${link('scene', v.id, sceneName(v))} <span class="small muted">${esc(v.auto.engine || '')} · ${esc(v.auto.status || '')}</span></p>`).join('')}</div>`) : '';
-  return {...view, body: sceneNameSec(d) + tie + view.body};
+  return {...view, body: sceneNameSec(d) + tie + (isBench(d) ? '' : reviewPanel(d, 'scene')) + view.body};
 }
 function sceneDrawerView(d) {
   if (d.auto.source === 'imported_simulation') return drawerImportedScene(d);
@@ -2467,45 +2477,53 @@ function viewObjects() {
         <button type="button" aria-pressed="${f.view === 'table'}" onclick="setObjView('table')">${ic('table', 'ic-sm')} 列表</button></div></div>
     ${objBulkBar()}${libraries().map((lib) => libSection(lib, docs.filter((d) => libOf(d) === lib.id))).join('')}</div>`;
 }
-function reviewPanel(d) {
-  const base = baseOf(d);
-  if (base) return sec(`${ic('eye')}审核`, `<div class="review-head">${reviewChip(d)}<span class="small">泛化变体不单独审核，跟随本体
-    ${link('object', base.id, objName(base))}</span></div>`);
+// review copy per kind: what a reviewer compares against, how a missing model gets built, how a rejection gets fixed
+const REVIEW_TEXT = {
+  object: {follow: '泛化变体不单独审核，跟随本体', against: '实物照片和渲染', build: '按建模 prompt 建模并跑 check_object.py', fix: '改好模型、重跑 check_object.py',
+    mismatch: '哪里和实物不符', unit: '物体'},
+  scene: {follow: '工况变体不单独审核，跟随场景', against: '现场照片、叠图和渲染', build: '按 real2sim/scenes/SKILL.md 建模（USD、build_asset.py 的 SCENES 和 env 配置）',
+    fix: '改好场景、重新导出 USD 并跑离线检查', mismatch: '哪里和现场不符（尺寸、桌沿、灯光、家具）', unit: '场景'},
+};
+function reviewPanel(d, kind = 'object') {
+  const t = REVIEW_TEXT[kind], base = kind === 'object' ? baseOf(d) : sceneSource(d);
+  if (base) return sec(`${ic('eye')}审核`, `<div class="review-head">${st(...(REVIEW[base.review_state] || REVIEW.rebuild))}<span class="small">${t.follow}
+    ${link(kind, base.id, kind === 'object' ? objName(base) : sceneName(base))}</span></div>`);
   const r = d.review || {}, [s, label] = REVIEW[d.review_state] || REVIEW.rebuild, built = d.auto.built;
   const why = d.review_state === 'done' ? `${r.by} 于 ${fmtTime(r.at)} 审核通过`
     : d.review_state === 'review' ? (r.state === 'reopened' ? `${r.by} 于 ${fmtTime(r.at)} 撤回了上次结论，等重新审核`
-      : r.state ? '模型在上次审核后重建过，需要重新审核' : '模型已建好，等管理员对照实物照片和渲染审核')
-    : !built ? '还没有建好的模型：按建模 prompt 建模并跑 check_object.py 后进入待审核'
-    : `${r.by} 于 ${fmtTime(r.at)} 退回：按意见改好模型、重跑 check_object.py 后回到待审核`;
+      : r.state ? '模型在上次审核后重建过，需要重新审核' : `模型已建好，等管理员对照${t.against}审核`)
+    : !built ? `还没有建好的模型：${t.build}后进入待审核`
+    : `${r.by} 于 ${fmtTime(r.at)} 退回：按意见${t.fix}后回到待审核`;
   const history = [...(r.history || [])].reverse();
   return sec(`${ic('eye')}审核`, `<div class="review-head">${st(s, label)}<span class="small">${esc(why)}</span><span class="sp"></span>
-      <span class="small muted">重建负责人 ${esc(memberName(d.owner) || '未指派')}</span></div>
+      ${kind === 'object' || d.owner ? `<span class="small muted">重建负责人 ${esc(memberName(d.owner) || '未指派')}</span>` : ''}</div>
     ${r.note && d.review_state !== 'review' ? `<blockquote class="review-note">${esc(r.note)}</blockquote>` : ''}
     ${!ME?.admin ? '<p class="hint">审核由管理员完成。</p>'
     : !built ? ''
-    : d.review_state !== 'review' ? `<div style="margin-top:12px"><button class="btn" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'reopen')">
+    : d.review_state !== 'review' ? `<div style="margin-top:12px"><button class="btn" type="button" data-id="${esc(d.id)}" onclick="reviewRecord('${kind}', this.dataset.id, 'reopen')">
         ${ic('rewind')}${d.review_state === 'done' ? '撤回通过，改回待审核' : '撤回退回，改回待审核'}</button></div>`
     : `<div class="form" style="margin-top:12px">
-      <label for="rv-note">审核意见</label><div class="ctl"><textarea id="rv-note" aria-describedby="rv-err" placeholder="退回时必填：哪里和实物不符、要怎么改"></textarea></div>
+      <label for="rv-note">审核意见</label><div class="ctl"><textarea id="rv-note" aria-describedby="rv-err" placeholder="退回时必填：${t.mismatch}、要怎么改"></textarea></div>
       <span></span><div class="ctl"><p id="rv-err" class="field-error" role="alert"></p></div>
       <span></span><div class="ctl">
-        <button class="btn btn-ok" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'approve')">${ic('check')}通过，标为完备</button>
-        <button class="btn" type="button" data-id="${esc(d.id)}" onclick="reviewObject(this.dataset.id, 'reject')">${ic('x')}退回重建</button></div></div>`}
+        <button class="btn btn-ok" type="button" data-id="${esc(d.id)}" onclick="reviewRecord('${kind}', this.dataset.id, 'approve')">${ic('check')}通过，标为完备</button>
+        <button class="btn" type="button" data-id="${esc(d.id)}" onclick="reviewRecord('${kind}', this.dataset.id, 'reject')">${ic('x')}退回重建</button></div></div>`}
     ${history.length ? `<ol class="review-log">${history.map((h) => `<li>${st(...(REVIEW_LOG[h.state] || REVIEW_LOG.rejected))}
       <span class="small">${esc(h.by)} · ${fmtTime(h.at)}${h.model ? ` · 模型 ${esc(h.model)}` : ''}</span>${h.note ? `<div class="small muted">${esc(h.note)}</div>` : ''}</li>`).join('')}</ol>` : ''}`);
 }
 function pickVariant(drawerId, id) { UI.vpick[drawerId] = id; render(); }
 const REVIEW_LOG = {
 approved: ['ok', '通过'], rejected: ['bad', '退回'], reopened: ['warn', '撤回']};
-async function reviewObject(id, action) {
-  if (action === 'reopen' && !confirm('撤回这次审核结论，物体改回待审核？')) return;
+async function reviewRecord(kind, id, action) {
+  const unit = REVIEW_TEXT[kind].unit;
+  if (action === 'reopen' && !confirm(`撤回这次审核结论，${unit}改回待审核？`)) return;
   const note = $('#rv-note')?.value.trim() || '';
   if (action === 'reject' && !note) {
     $('#rv-err').textContent = '退回要写明原因';
     $('#rv-note').setAttribute('aria-invalid', 'true');
     return $('#rv-note').focus();
   }
-  if (await save('object', id, {review_action: action, review_note: note})) toast({approve: '已通过审核，物体标为完备', reject: '已退回重建', reopen: '已撤回，物体改回待审核'}[action]);
+  if (await save(kind, id, {review_action: action, review_note: note})) toast({approve: `已通过审核，${unit}标为完备`, reject: '已退回重建', reopen: `已撤回，${unit}改回待审核`}[action]);
 
 }
 function drawerLibraries() {

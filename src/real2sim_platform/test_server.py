@@ -8,6 +8,7 @@ import gzip
 import http.client
 from http.server import ThreadingHTTPServer
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -700,6 +701,52 @@ def test_physical_source_does_not_require_measurements(tmp_path, monkeypatch):
     assert saved["estimated_dimensions_mm"] == {"X": 356} and saved["estimated_mass_g"] == 450
     assert "mass_g" not in saved and "dimensions_mm" not in saved
     assert not registration.physical_origin({**doc, "twin": False})
+
+
+def test_scene_review(tmp_path, monkeypatch):
+    monkeypatch.setattr(server.build_asset, "SCENES_DIR", tmp_path / "scenes")
+    usd = tmp_path / "scene.usda"
+    usd.write_text("#usda 1.0\n")
+    version = server.scene_model_version(usd)
+    os.utime(usd, (1, 1))  # a stash/pop on the deploy checkout only touches mtimes: not a rebuild
+    assert server.scene_model_version(usd) == version and server.scene_model_version(tmp_path / "none") is None
+    store = server.Store(tmp_path / "db.sqlite3")
+    store.add_user("boss", "password1", "管理员", admin=True)
+    store.add_user("bob", "password1", "成员")
+    sid, var = "real_scene9_test", "g1d_bench_test"
+    store.sync("scene", {sid: {"built": False}, var: {"built": True, "source_scene": sid, "model_version": "v"}})
+    server.Handler.store, server.Handler.scan_args, server.Handler.roots = store, (tmp_path, [tmp_path]), [tmp_path]
+    server.Handler.failures, server.FAIL_DELAY = {}, 0
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+
+    def call(user, method, path, body=None):
+        cookie = {"Cookie": f"{server.COOKIE}={store.open_session(user)}"}
+        conn = http.client.HTTPConnection("127.0.0.1", httpd.server_port)
+        conn.request(method, path, json.dumps(body) if body is not None else None, cookie)
+        resp = conn.getresponse()
+        return resp.status, json.loads(resp.read() or "null")
+
+    scene = f"/api/items?kind=scene&id={sid}"
+    try:
+        assert call("boss", "PUT", scene, {"review_action": "approve"})[0] == 409  # no model yet
+        store.sync("scene", {sid: {"built": True, "model_version": version}, var: store.get("scene", var)["auto"]})
+        assert call("bob", "PUT", scene, {"review_action": "approve"})[0] == 403  # admins only
+        assert call("bob", "PUT", scene, {"review": {"state": "approved"}})[1]["review_state"] == "review"  # ignored
+        assert call("boss", "PUT", scene, {"review_action": "reject"})[0] == 400  # a reason is required
+        assert call("boss", "PUT", scene, {"review_action": "approve", "reg": {}})[0] == 400  # review fields only
+        status, doc = call("boss", "PUT", scene, {"review_action": "reject", "review_note": "桌沿偏 3 cm"})
+        assert status == 200 and doc["review_state"] == "rebuild" and doc["review"]["by"] == "管理员"
+        assert call("boss", "PUT", scene, {"review_action": "reopen"})[1]["review_state"] == "review"
+        assert call("boss", "PUT", f"/api/items?kind=scene&id={var}", {"review_action": "approve"})[0] == 409
+        assert call("boss", "PUT", scene, {"review_action": "approve"})[1]["review_state"] == "done"
+        listed = {d["id"]: d["review_state"] for d in call("bob", "GET", "/api/items?kind=scene")[1]}
+        assert listed == {sid: "done", var: "done"}  # the variant follows its source scene
+        store.sync("scene", {sid: {"built": True, "model_version": "sha1:other"}, var: store.get("scene", var)["auto"]})
+        assert server.review_state(store.get("scene", sid)) == "review"  # rebuilt: review again
+        assert not (tmp_path / "scenes").exists()  # verdicts never touch the scene folder (registration.json)
+    finally:
+        httpd.shutdown()
 
 
 def test_object_review_and_libraries(tmp_path, monkeypatch):
