@@ -216,10 +216,10 @@
    "ok": true,
    "detail": {
     "pairs": [],
-    "min_clearance_m": 0.476,
+    "min_clearance_m": 0.055,
     "nearest": [
      "/World/Table/Colliders/top",
-     "/World/Background/Colliders/Chair_west_b"
+     "/World/Background/Colliders/DeskEast_top"
     ]
    }
   },

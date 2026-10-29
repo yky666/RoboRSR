@@ -94,6 +94,11 @@ LAYOUT = dict(
                     "high-back chair with chrome arms and base by the plant (v0260, v0300, p4)"),
 )
 
+# LAYOUT is in the photo-measured room frame; the room (walls, furniture, window fills) is placed at ROOM_SHIFT in the
+# scene frame so the task table, which stays at the origin with the robot and every layout, abuts the east desk that
+# was moved against the E wall (2026-10-29 request).
+ROOM_SHIFT = np.array([-0.84, 0.0, 0.0])
+
 SUN_TO = np.array([-0.166, 0.732, 0.660])
 
 # Uniform correction of the SfM metric scale (1.0 = 0.151 m per SfM unit). Set via --scale-correction
@@ -259,8 +264,9 @@ def cup_wall_colliders(H, rt, rb, wall, n=12):
 
 # ----------------------------------------------------------------------------- USD helpers
 class Layer:
-    def __init__(self, path, root):
+    def __init__(self, path, root, offset=(0.0, 0.0, 0.0)):
         self.path = path
+        self.offset = np.asarray(offset, float)
         self.stage = Usd.Stage.CreateNew(str(path))
         UsdGeom.SetStageUpAxis(self.stage, UsdGeom.Tokens.z)
         UsdGeom.SetStageMetersPerUnit(self.stage, 1.0)
@@ -323,7 +329,7 @@ class Layer:
         if smooth:
             m.merge_vertices()
         um = UsdGeom.Mesh.Define(self.stage, f"{self.rootpath}/{path}")
-        pts = (m.vertices * SCALE).astype(np.float32)
+        pts = ((m.vertices + self.offset) * SCALE).astype(np.float32)
         um.CreatePointsAttr(Vt.Vec3fArray.FromNumpy(pts))
         um.CreateFaceVertexCountsAttr(Vt.IntArray([3] * len(m.faces)))
         um.CreateFaceVertexIndicesAttr(Vt.IntArray(m.faces.reshape(-1).tolist()))
@@ -841,7 +847,7 @@ def add_lights(L):
         rl.CreateIntensityAttr(inten)
         rl.CreateColorAttr(Gf.Vec3f(0.92, 0.96, 1.0))
         xf = UsdGeom.Xformable(rl)
-        xf.AddTranslateOp().Set(Gf.Vec3d(*(float(v) * SCALE for v in pos)))
+        xf.AddTranslateOp().Set(Gf.Vec3d(*(float(v) * SCALE for v in np.add(pos, ROOM_SHIFT))))
         xf.AddRotateXYZOp().Set(Gf.Vec3f(*rotxyz))
     for i, (cx, cy) in enumerate([(-1.2, 0.0), (1.0, 0.0)]):
         rl = UsdLux.RectLight.Define(L.stage, f"{L.rootpath}/CeilingPanel_{i}")
@@ -879,7 +885,7 @@ def main():
         shutil.rmtree(OUT)
     (OUT / "objects").mkdir(parents=True)
     build_textures()
-    bg = Layer(OUT / "background.usda", "Background")
+    bg = Layer(OUT / "background.usda", "Background", offset=ROOM_SHIFT)
     add_room(bg)
     add_furniture(bg)
     bg.save()
@@ -914,6 +920,7 @@ def main():
         frame="Z-up, meters; origin on floor under task-table center; +X along table length; +Y from robot side toward sofa/window",
         scale_correction=SCALE, meters_per_sfm_unit=0.151 * SCALE,
         table=scaled_params()[0], objects=scaled_params()[1], layout_unscaled=LAYOUT, sun_direction_to_sun=SUN_TO.tolist(),
+        room_shift_unscaled=ROOM_SHIFT.tolist(),  # scene position = layout_unscaled position + room_shift_unscaled
         layers=dict(scene="scene.usda", background="background.usda", table="table.usda", lights="lights.usda",
                     objects={n: f"objects/{n}.usda" for n in OBJECTS}),
     )

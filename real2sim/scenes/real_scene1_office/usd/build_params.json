@@ -283,6 +283,11 @@
   0.732,
   0.66
  ],
+ "room_shift_unscaled": [
+  -0.84,
+  0.0,
+  0.0
+ ],
  "layers": {
   "scene": "scene.usda",
   "background": "background.usda",

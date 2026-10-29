@@ -194,16 +194,16 @@
  },
  "files": {
   "usd/background.usda": {
-   "bytes": 6123623,
-   "sha256": "ee22266e0dc033342d48b41934b628357ca009efc5daf0f77de88a4fbfc0ba85"
+   "bytes": 6141636,
+   "sha256": "70e018ca799bbe7d53008830acd3f420f7e0cd3222345d5ce837dd82ee1edb39"
   },
   "usd/build_params.json": {
-   "bytes": 7039,
-   "sha256": "4c1ffd890ec3d704e14da06079652468286c2b98f8e6f56e0a06c0f0bbd4fc08"
+   "bytes": 7091,
+   "sha256": "937efcbb0cb7d7ff4afb567140842c5e227fdd8cd62d19b01d3e788f37a82d35"
   },
   "usd/lights.usda": {
-   "bytes": 1871,
-   "sha256": "e02dcce5cb2dfd64b8af06b460e3ef4f21b5608b1a931af118252b0fdfc19722"
+   "bytes": 1872,
+   "sha256": "bc1e63e44f922f948f8f3d91ad2dd7437cd2e62a2a3af9eba1deed0cfb250c27"
   },
   "usd/objects/blue_cup_a.usda": {
    "bytes": 56771,
