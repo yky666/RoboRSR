@@ -34,12 +34,15 @@ class Func_Parser:
             "Rigid",
             "Articulation",
             "Garment",
+            "Dynamic",
         ]
         for env_idx in range(self.num_envs):
             if not self.env.success[env_idx]:
                 continue
             for type in types:
                 for obj in self.layout_manager.get_layout_records(env_idx, type):
+                    if type == "Dynamic" and obj.get("physics", {}).get("type") != "deformable":
+                        continue  # of the Dynamic objects only deformables report a pose
                     inst_name = obj["inst_name"]
                     pos, rot = self.layout_manager.get_instance_pose(inst_name=inst_name, env_idx=env_idx)
                     pose = np.concatenate([pos, rot])

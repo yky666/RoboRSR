@@ -425,7 +425,7 @@ class LayoutManager:
             return (None, None)
         instance_type = self.instance_type_by_env[env_idx].get(inst_name, None)
         obj = self.get_scene_object(env_idx, inst_name)
-        if instance_type in ["rigid", "articulation"]:
+        if instance_type in ["rigid", "articulation"] or getattr(obj, "physics_type", None) == "deformable":
             pos, rot, device = obj._get_object_transform()
             if not relative:
                 env_pos = deepcopy(self.scene_manager.env_origins[env_idx]).to(device)

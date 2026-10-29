@@ -1,7 +1,7 @@
 # Project Handoff
 
-更新时间：2026-10-28
-本会话分支：`chongzheng/platform-variant-twins`（worktree `../RoboDojo-variant-twins`）：自建孪生搬到独立的 `Object/Real2Sim` 物体库（代码、共享库都已搬），见「最近任务」第一节。上一会话 `chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main` 并部署数采平台（第二节），之后几节是这 4 个 PR 各自的记录。下行保留主线历史。
+更新时间：2026-10-29
+本会话分支：`z/platform-deformable-objects`（worktree `5090-2:/data/robodojo-runs/paper_cup_fem-20261029-135413/wt`，只在本地提交、未推送）：新的场景物体类型 `deformable`（PhysX FEM 体软体）和可形变纸杯 `Dynamic/paper_cup/00000`，G1-D 抓取试验，见「最近任务」第一节。之前：`chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库（第二节），`chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main`（第三节）。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -38,6 +38,26 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 场景物体类型 `deformable` + 可形变纸杯 + G1-D 抓取试验（2026-10-29，`z/platform-deformable-objects`，未推送）
+
+- **用户要求**：纸杯 `Clutter/paper_cup/00000` 做一个可形变版本并做形变测试（刚体版另一会话在做）；不用 soft_block 原型的写法，只用 IsaacLab / Isaac Sim 官方接口；接入平台成新类型 `deformable`，再试 G1-D 夹爪抓取。
+- **后端**：IsaacLab 0.54.3 的 `isaaclab.assets.DeformableObject`（旧版 `PhysxSchema.PhysxDeformableBodyAPI`，FEM 体软体，只能 GPU 管线）。Isaac Sim 5.1 的新版面软体（`/persistent/physics/enableDeformableBeta`，有 `surfaceBendStiffness`）能加载、能步进，但按 0.35 mm / 4 GPa 纸板在重力下塌成布（117 → 17–25 mm，bend 0 / 0.01 / 1 / 100 都一样），IsaacLab 也没有封装，没用。
+- **资产**（`scripts/objects/make_paper_cup_fem.py` → `Assets/Object/Real2Sim/Dynamic/paper_cup/00000`，共享库没装）：实测外形 87.9 / 60.5 / 136.0 mm 的闭合回转薄壁体，含 3.5 mm 卷边、9 mm 内凹杯底和裙边；外黑内白（两个 GeomSubset）。等效壁厚 3 mm，E = 19 MPa（按弯曲刚度等效是 6.35 MPa，FEM 在 120 次迭代下欠收敛、挤压偏软，取约 3 倍；未标定），泊松 0.3，22 g，六面体分辨率 28（4585 节点）。网格由 PhysX 按官方 schema 自己剖分。`metadata.json` 有 `measurements_mm`（开口外径 / 底部直径 / 高度）和刚体同格式的 `oriented_bbox`。
+- **独立形变测试**（`scripts/objects/check_paper_cup_fem.py`，1/300 s，GPU）：落地高度 −1.0 mm（欠收敛，物理上应约为 0）、口径 +0.04 mm；中部两块板夹 20 mm 保持 0.73 N；松开后截面残差 0.006 mm（线弹性，不会像真纸杯那样留折痕）；重置后第二回合力 0.7305 / 0.7301 N；18.5 ms / 物理步。
+- **平台**：
+  - `env/scene_manager/objects/deformable.py`：包 IsaacLab `DeformableObject`（`UsdFileCfg`，资产自带 FEM schema 和材质）；登记进 `sim.scene.deformable_objects`，由 `DirectRLEnv.sim_step` 每步 `write_data_to_sim` / `update`。摆放、重置、移出画面都写节点状态（`write_nodal_state_to_sim`）；给布局和脚本专家的位姿是节点对静止形状的刚体拟合（Kabsch）。仿真设备不是 CUDA 时报错，运行中改 scale 报错。布局 `physics` 里可写 `dynamic_friction` 和 `deformable_body`（`PhysxDeformableBodyAPI` 属性）覆盖。
+  - `SceneManager`：`physics: {type: deformable}` 进 `_rigid_and_dynamic_objects`，和刚体一样只在仿真开始前创建一次；CUDA 下每次重置不再重建。`get_objects(object_type="deformable")` 可查。
+  - `LayoutManager.get_instance_pose` 认 deformable；`Func_Parser.init_state` 记录 Dynamic 下 deformable 物体的初始位姿（`is_lift` 等要用）。
+  - 坑：写 `write_nodal_kinematic_target_to_sim`（哪怕所有标志都是 1.0 = 自由）以后，软体在 G1-D 环境里整个冻住、像静止墙一样挡住手指，所以不用运动学目标；移出画面的软体在 100 m 外自由下落，下次 `apply_saved_pose` 重写。
+- **G1-D 抓取**（`scripts/objects/grasp_paper_cup_fem.py`，脚本专家的 `cup_grasp` 侧抓，夹爪中心在杯底以上 45 mm，此处直径 ≈ 69 mm，95 mm 全开放得下；布局是 `g1d_general_pickup_0` 去掉物体、目标换成纸杯）：
+  - G1-D 配置都是 CPU 管线，FEM 必须 GPU；试验用了不入库的 `env_cfg/g1d_gpu.yml` + `sim/g1d_gpu_sim_config.yml`（`device: cuda:0`、1 个环境）。
+  - 全闭合（指令 0，55 N 上限）：抬起 74.7 mm（手 99.2 mm，滑 24.5 mm），保持到结束，但夹持处截面 68.8 → 22.9 mm、杯身倾约 29°、单元雅可比变负（−1.43，单元翻转）；`is_lift` 没判成功。
+  - 夹到 50 mm 间隙：第 177 步 `is_lift` 判成功，随后杯子在指间转出（倾约 86°）掉回桌面。
+  - 指垫 `gripper_force` 传感器对软体接触一直是 0（ContactSensor 看不到 FEM 接触）。
+  - 全场景（相机）GPU 管线约 0.28–0.29 s / 动作（30 Hz 动作，约 0.12 倍实时）。
+- **回归**（隔离目录 `base` = `gh/main` 原样 vs 本分支，Assets 为共享库软链接叠加层）：`g1d_general_pickup` seed 0 两边 success 1.0，抓取日志一致；`check.sh` 的单测两边唯一失败都是 aurora LFS 网格（工作树里缺的 LFS 文件更多），任务清单检查通过。服务器只有 ruff 0.17.1（check.sh 要 0.11.7），改动文件用 0.17.1 检查、格式化通过。
+- **待用户决定**：G1-D 任务是否切 GPU 管线（会改变所有刚体接触，现有数据都是 CPU 管线）；材料是否做实测（压缩力—位移），以及是否换成能处理大变形 / 折痕的模型；夹爪力传感器要不要支持软体；共享库是否安装。
 
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 

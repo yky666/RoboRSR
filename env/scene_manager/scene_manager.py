@@ -13,6 +13,7 @@ from env.global_configs import *
 from env.scene_manager.layout_manager import LayoutManager
 from env.scene_manager.objects.articulation import ArticulationObject
 from env.scene_manager.objects.background import Background
+from env.scene_manager.objects.deformable import DeformableObject
 from env.scene_manager.objects.dynamic import DynamicObject
 from env.scene_manager.objects.fluid import FluidObject
 from env.scene_manager.objects.garment import GarmentObject
@@ -239,7 +240,8 @@ class SceneManager:
             self.relocate_stale_objects(env_id, ["rigid", "articulation"])
             # Clear existing objects (based on exclude_types)
             self.clear_scene_objects(env_id, exclude_types=["rigid", "articulation"])
-            self.spawn_scene_objects(env_id, exclude_types=["rigid", "articulation"])
+            # deformables are kept like rigid bodies: FEM bodies cannot be added once the simulation has started
+            self.spawn_scene_objects(env_id, exclude_types=["rigid", "articulation", "deformable"])
         else:
             self.relocate_stale_objects(env_id, ["articulation"])
             # Clear existing objects (based on exclude_types)
@@ -365,7 +367,7 @@ class SceneManager:
         # Store in hierarchy: environment -> object key -> object
         if isinstance(obj, RigidObject):
             self._rigid_and_dynamic_objects[env_id][obj_key] = obj
-        elif isinstance(obj, DynamicObject):
+        elif isinstance(obj, (DynamicObject, DeformableObject)):
             self._rigid_and_dynamic_objects[env_id][obj_key] = obj
         elif isinstance(obj, ArticulationObject):
             self._articulation_objects[env_id][obj_key] = obj
@@ -530,7 +532,7 @@ class SceneManager:
         """Create object based on its type.
 
         Args:
-            obj_type: Object type (rigid, dynamic, geometry, garment, fluid, articulation)
+            obj_type: Object type (rigid, dynamic, deformable, geometry, garment, fluid, articulation)
             prim_path: Prim path for the object
             usd_path: USD file path (if applicable)
             primitive_type: Primitive type name (if applicable)
@@ -558,6 +560,12 @@ class SceneManager:
         elif obj_type == "dynamic":
             return DynamicObject(
                 env_origin=self.sim.scene.env_origins[env_id],
+                **{k: v for k, v in base_args.items() if k != "primitive_type"},
+            )
+        elif obj_type == "deformable":
+            return DeformableObject(
+                env_origin=self.sim.scene.env_origins[env_id],
+                scene=self.sim.scene,
                 **{k: v for k, v in base_args.items() if k != "primitive_type"},
             )
         elif obj_type == "geometry":
@@ -776,6 +784,7 @@ class SceneManager:
         all_collections = {
             "rigid": self._rigid_and_dynamic_objects,
             "dynamic": self._rigid_and_dynamic_objects,
+            "deformable": self._rigid_and_dynamic_objects,
             "articulation": self._articulation_objects,
             "garment": self._garment_objects,
             "geometry": self._geometry_objects,
