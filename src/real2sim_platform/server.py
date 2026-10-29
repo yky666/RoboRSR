@@ -205,11 +205,7 @@ class Store:
                 "WHERE s.token = ? AND s.expires > ?",
                 (token_key(token), time.time()),
             ).fetchone()
-        return (
-            {"username": row[0], "name": row[1] or row[0], "admin": bool(row[2]), "guest": bool(row[3])}
-            if row
-            else None
-        )
+        return {"username": row[0], "name": row[1] or row[0], "admin": bool(row[2]), "guest": bool(row[3])} if row else None
 
     def end_session(self, token):
         with self.lock, self.db:
@@ -1114,10 +1110,6 @@ class Handler(BaseHTTPRequestHandler):
     store, scan_args, roots, info = None, (), [], {}
     failures = {}  # username -> recent failed login times
     PUBLIC = {"/", "/api/login"}  # the page itself carries no data; it shows the sign-in form until /api/me answers
-    GUEST_WRITES = {
-        "/api/logout",
-        "/api/password",
-    }  # all a guest may send besides reads: their own session and password
     protocol_version = "HTTP/1.1"  # keep-alive: a page of images or a video reuses connections through the tunnel
     timeout = 60  # idle keep-alive connections end after a minute
 
@@ -1134,11 +1126,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             return False
         self.user = self.store.session_user(self.cookie())
-        path = urlparse(self.path).path
-        if self.user and self.user["guest"] and self.command not in ("GET", "HEAD") and path not in self.GUEST_WRITES:
-            self.send_json({"error": "访客账号只能查看，不能修改"}, 403, close=True)
-            return False
-        if self.user or path in self.PUBLIC:
+        if self.user or urlparse(self.path).path in self.PUBLIC:
             return True
         self.send_json({"error": "请先登录"}, 401, close=True)
         return False
@@ -1192,22 +1180,17 @@ class Handler(BaseHTTPRequestHandler):
         name = str(data.get("name") or "").strip()[:32] or None
         password = str(data.get("password") or "") or None
         admin = None if data.get("admin") is None else bool(data["admin"])
-        guest = None
-        if (role := data.get("role")) is not None:
-            if role not in ("admin", "member", "guest"):
-                return fail("角色只能是管理员、成员或访客")
-            admin, guest = role == "admin", role == "guest"
         if (password and len(password) < 8) or (method == "POST" and not password):
             return fail("密码至少 8 位")
         if method == "POST":
             if not USERNAME.fullmatch(username):
                 return fail("用户名为 1–32 位字母、数字或 _ . -")
-            if not self.store.add_user(username, password, name, bool(admin), bool(guest)):
+            if not self.store.add_user(username, password, name, bool(admin)):
                 return fail(f"用户名 {username} 已存在", 409)
         elif username == self.user["username"] and (method == "DELETE" or admin is False):
             return fail("不能删除自己，也不能取消自己的管理员权限")
         elif method == "PUT":
-            if not self.store.edit_user(username, name, password, admin, guest):
+            if not self.store.edit_user(username, name, password, admin):
                 return fail(f"没有账号 {username}", 404)
         elif not self.store.remove_user(username):
             return fail(f"没有账号 {username}", 404)

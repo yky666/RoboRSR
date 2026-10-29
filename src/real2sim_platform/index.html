@@ -311,6 +311,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 /* datasets */
 .ds-hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: end; gap: 32px; margin-bottom: 24px; padding: 8px 0 28px; border-bottom: 1px solid var(--border); }
 .ds-eyebrow { color: var(--muted); font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.ds-demo { display: inline-flex; align-items: center; gap: 4px; margin-left: 12px; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text); font-size: 13px; font-weight: 600; letter-spacing: 0; vertical-align: middle; }
 .ds-hero h1 { margin: 10px 0 0; font-size: 34px; font-weight: 700; line-height: 1.15; letter-spacing: -.03em; }
 .ds-hero p { max-width: 580px; margin: 12px 0 0; color: var(--muted); line-height: 1.75; }
 .ds-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
@@ -364,7 +365,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .ds-meta { overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 /* datasets: facet sidebar + results */
 .ds-layout { display: grid; grid-template-columns: 252px minmax(0, 1fr); align-items: start; gap: 32px; }
-.ds-side { position: sticky; top: calc(var(--gbar) + 16px); max-height: calc(100vh - var(--gbar) - 32px); margin: -4px 0 0 -8px; padding: 0 8px 24px; overflow-y: auto; scrollbar-width: thin; }
+.ds-side { position: sticky; top: calc(var(--gbar) + 16px); max-height: calc(100vh - var(--gbar) - 32px); margin: -4px 0 0 -8px; padding: 0 8px 24px; overflow-y: auto; }
 .fgroup { padding: 4px 0 12px; border-bottom: 1px solid var(--border); }
 .fgroup + .fgroup { margin-top: 8px; }
 .fgroup > summary { display: flex; align-items: center; gap: 8px; min-height: 36px; font-size: 13px; font-weight: 650; list-style: none; cursor: pointer; }
@@ -1451,7 +1452,7 @@ function viewDatasets() {
   const views = [['grid', '卡片视图', 'grid'], ['list', '列表视图', 'list']].map(([k, label, icon]) =>
     `<button type="button" class="btn btn-icon btn-ghost" aria-pressed="${f.view === k}" aria-label="${label}" title="${label}" onclick="UI.ds.view = '${k}'; render()">${ic(icon)}</button>`).join('');
   return `<div class="page">
-    <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>公开具身数据集</h1>
+    <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>公开具身数据集<span class="ds-demo" title="页面内容为人工整理的示例，没有接入实际业务">${ic('alert', 'ic-sm')}仅作示意，未支撑实际业务</span></h1>
       <p>人工整理的公开机器人操作数据集，聚焦商业零售与家居服务两类室内场景；数字以发布方公布为准，「本地副本」来自团队的 OSS 数据盘点。</p></div>
       <div class="ds-kpis"><div><span>收录数据集</span><b>${DATASETS.length}</b></div><div><span>已知 Episode 合计</span><b>${Math.round(sum('episodes') / 1e4).toLocaleString()}<small>万+</small></b></div>
         <div><span>已知时长合计</span><b>${Math.round(sum('hours')).toLocaleString()}<small>h</small></b></div><div><span>已下载到本地</span><b>${DATASETS.filter((d) => d.f.local[0] !== 'none').length}<small>/ ${DATASETS.length}</small></b></div></div></section>
@@ -1464,7 +1465,7 @@ function viewDatasets() {
         ${active.length ? `<div class="ds-active">${active.map(([label, undo]) => `<button type="button" class="tag ds-x" onclick="${undo}" aria-label="移除筛选 ${esc(label)}">${esc(label)}${ic('close', 'ic-sm')}</button>`).join('')}</div>` : ''}
         ${!shown.length ? `<div class="card">${empty('database', '没有匹配的数据集', '放宽筛选条件，或点「重置」')}</div>`
           : f.view === 'list' ? dsTable(shown) : `<div class="grid ds-grid">${shown.map(dsCard).join('')}</div>`}
-        <p class="hint" style="margin-top:20px">设计预览：目录由人工录入，分类标签为初稿；Episode 和时长空缺的待补，部分取自 RoboFlywheel 的统计。</p></section></div></div>`;
+        <p class="hint" style="margin-top:20px">仅作示意，未支撑实际业务：目录由人工录入，分类标签为初稿；Episode 和时长空缺的待补，部分取自 RoboFlywheel 的统计。</p></section></div></div>`;
 }
 function drawerDataset(d) {
   const host = d.url.includes('huggingface') ? 'Hugging Face' : 'ModelScope';
