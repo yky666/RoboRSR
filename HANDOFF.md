@@ -40,6 +40,14 @@
 
 ## 最近任务
 
+### 部署机上的平台未提交工作收进 `main`（2026-10-29 17:0x，`chongzheng/platform-inventory-materials`）
+
+- **起因**（用户）：另一个 Codex 会话在 `5090-2` 部署目录里直接改平台（VS Code 远程，16:35 停），一直没提交；用户让我接管并整理进 `main`。
+- **收进来的**（平台代码以部署机当时的文件为准，它最新）：数据集本地盘点（`index.html` 的 `applyDatasetInventory`，运行时经 `/file` 读不入库的 `output/dataset_inventory.json`，说明见 `src/real2sim_platform/DATASET_INVENTORY.md`）；材质按表面和场景限定（`scripts/scenes/appearance.py`、新文件 `real2sim/materials/surface_pools.json`、`server.py`）；柔性物体登记与验收契约（新文件 `src/real2sim_platform/deformables.py`、`object_registration.py` 的柔性专用验收段、建模协议 `real2sim/prototypes/softmimicgen/DEFORMABLE_MODELING.md`）；以及本会话加的数值单位换算（`fmtCount` 万/亿、`fmtHours`、`fmtGB` MB–PB，三位有效数字，精确值在悬停提示和抽屉里）。
+- **从分支补的**：`codex/surface-material-pools` 的测试改动（`scripts/scenes/test_appearance.py`、`test_server.py`，部署机缺这两份才有 5 项失败）和 `real2sim/scenes/SKILL.md` 说明；`codex/sync-dataset-inventory` 的 `DATASET_INVENTORY.md`、`test_dataset_catalog.cjs`（加了单位换算断言，接进 `check.sh`，没有 node 时跳过）。新增 `test_deformables.py`（校验、失败即关闭的验收）。这两个分支的内容都已在这里，可以删；`z/platform-deformable-objects` 改的是仿真运行时（`env/scene_manager` 的 IsaacLab FEM 柔性物体），**没收**，等作者确认。
+- **验证**：`bash scripts/check.sh` 90 passed、1 skipped（退出码 0）；`node test_dataset_catalog.cjs output/dataset_inventory.json` 用线上完整盘点（99 组、281 条）通过；ruff 只改了格式和两行过长的 prompt 文本。
+
+
 ### 办公室场景布局精简（2026-10-29 13:xx–14:3x，`chongzheng/scene-office-layout`，`f3da0c7` 已进 `main`、已部署、已装共享库）
 
 - **用户要求**（看平台 3D 预览的俯视图）：不要窗外背景；东侧那张橙色办公桌（俯视图上方）靠墙；西南角两张桌子只留一张。

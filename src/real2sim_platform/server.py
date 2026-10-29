@@ -54,6 +54,7 @@ sys.path.append(str(ROOT))
 import appearance  # a scene's surface materials and desk height -> layouts
 import build_asset  # SCENES: env config -> real2sim scene
 import catalog_policy
+import deformables
 import object_registration
 import rsi_profile  # an upstream task's randomization profile -> scripts/datagen/x5_layouts.py
 import task_inventory
@@ -375,6 +376,10 @@ def material_library():
         thumb = appearance.LIBRARY.parent / "preview" / f"{e['id'].replace('/', '__')}.jpg"
         e["thumb"] = str(thumb) if thumb.is_file() else None
         e["roles"] = [role for role in appearance.ROLES if appearance.fits(e, role)]
+        e["scene_roles"] = {
+            scene: [role for role in appearance.ROLES if appearance.fits(e, role, scene)]
+            for scene in appearance.SURFACE_POOLS["scenes"]
+        }
     return entries
 
 
@@ -393,7 +398,9 @@ def write_appearance(scene, settings):
     picked = [(r, fixed.get(r)) for r in appearance.ROLES] + [
         (r, m) for r in appearance.ROLES for m in pools.get(r) or []
     ]
-    unfit = [f"{m}（{r}）" for r, m in picked if m and m != appearance.ORIGINAL and not appearance.fits(library[m], r)]
+    unfit = [
+        f"{m}（{r}）" for r, m in picked if m and m != appearance.ORIGINAL and not appearance.fits(library[m], r, scene)
+    ]
     if unfit:
         return f"材质不适合这类表面：{'、'.join(unfit)}"
     span = pools.get("table_top_z") or []
@@ -465,7 +472,7 @@ def scan_benchmark_scenes(tasks):
     return found
 
 
-def config_objects(path, sections=("Rigid", "Fluid", "Garment", "Articulation")):
+def config_objects(path, sections=("Rigid", "Fluid", "Garment", "Articulation", "Dynamic")):
     """{asset id: labels} of a task yml's object groups, e.g. {"Rigid/plastic_cup/00000": ["source_cup"]}."""
     # ponytail: line reader for the flat task-config layout (PyYAML only exists in the sim env); yaml.safe_load if
     # configs ever use nested flow lists or anchors
@@ -531,6 +538,12 @@ def write_randomization(task, profile, assets, pools=None):
         return "pool 只能是 train（数据方）或 exam（评测方）"
     if error := rsi_profile.check(profile, rsi_profile.options(assets, pool, pools)):
         return error
+    library = {entry["id"]: entry for entry in material_library()}
+    for key, role in (("tables", "tabletop"), ("grounds", "floor"), ("walls", "wall")):
+        for mid in profile.get(key) or []:
+            entry = library.get(f"mdl/{mid}")
+            if not entry or not appearance.fits(entry, role):
+                return f"材质不适合这类表面：{mid}（{role}）"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(profile, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return None
@@ -590,6 +603,9 @@ def scan_objects(assets, tasks, keep):
         registration = load_json(OBJECTS_DIR / oid / "spec.json") or {}
         # check_object.py --image-dir result, synced with the renders: a built asset, maybe not installed yet
         check = load_json(OBJECTS_DIR / oid / "preview" / "check.json") or {}
+        flexible_check = load_json(OBJECTS_DIR / oid / "preview" / "deformable_check.json") or {}
+        object_spec = load_json(OBJECTS_DIR / oid / "spec.json") or {}
+        flexible_profile = object_spec.get("deformable")
         names = ((load_json(d / "description.json") or {}).get("caption") or {}).get("name") or [None]
         library = d.parent.parent.parent.name if d.exists() else None  # Real2Sim, RoboDojo, or None: not built yet
         pattern = re.compile(rf"Rigid/{category}\b|\"{category}\"")
@@ -611,6 +627,15 @@ def scan_objects(assets, tasks, keep):
             "name": names[0],
             "built": meta is not None or bool(check),
             "check": check,
+            "deformable_check": flexible_check,
+            "deformable_acceptance": deformables.acceptance(
+                flexible_profile,
+                flexible_check,
+                ((meta or {}).get("deformable") or {}).get("mesh_sha256"),
+                object_spec.get("mass_g"),
+                object_spec.get("dimensions_mm"),
+            ),
+            "deformable_mesh_sha256": ((meta or {}).get("deformable") or {}).get("mesh_sha256"),
             "mass": physics.get("mass", check.get("mass_kg")),
             "size": physics.get("size")
             or ((meta or {}).get("geometry", {}).get("aligned_bbox") or {}).get("extents")
@@ -733,6 +758,7 @@ def write_spec(doc):
         "features": doc.get("features"),
         "requirements": doc.get("requirements"),
         "notes": doc.get("notes"),
+        "deformable": doc.get("deformable"),
         # randomized per layout, no new asset: "rt_color" (bool), "rt_scale" (+-percent); variant assets to build next
         # to the twin: {"count", "color"/"material"/"size"/"shape": may vary, "requirements"}
         "generalization": {k: v for k, v in (doc.get("gen") or {}).items() if v not in (None, "", False, 0)},
@@ -1313,6 +1339,9 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(fields["name"], str) or len(fields["name"].strip()) > 60:
                 return self.send_json({"error": "名称最多 60 个字"}, 400)
             return self.send_json(self.store.update(kind, id_, {"name": fields["name"].strip()}, by=self.user["name"]))
+        if kind == "object" and "deformable" in fields:
+            if error := deformables.validate(fields["deformable"]):
+                return self.send_json({"error": error}, 400)
         if kind == "scene" and "appearance" in fields:
             if not SCENE_ID.fullmatch(id_) or not isinstance(fields["appearance"], dict):
                 return self.send_error(400)
@@ -1394,6 +1423,8 @@ class Handler(BaseHTTPRequestHandler):
         doc = self.store.update(kind, id_, fields, by=self.user["name"])
         if kind == "object":
             write_spec(doc)
+            if {"deformable", "real_mass", "dimensions"} & fields.keys():
+                doc = self.store.set_auto(kind, id_, "deformable_acceptance", None)
         elif kind == "scene" and SCENE_ID.fullmatch(id_):
             write_registration(doc)
         elif kind == "task":

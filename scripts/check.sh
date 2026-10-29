@@ -16,6 +16,7 @@ if [ -n "$files" ]; then
 fi
 git diff --check "$base"
 python -m pytest -q scripts/datagen scripts/scenes scripts/objects/test_manitwin.py scripts/objects/test_gso.py scripts/objects/test_object_names.py scripts/g1d/test_office_beans.py scripts/g1d/test_g1d_body.py scripts/g1d/test_randomize.py \
-    src/real2sim_platform/test_server.py scripts/g1d/test_aurora_integration.py scripts/g1d/xense_gripper
+    src/real2sim_platform/test_server.py src/real2sim_platform/test_deformables.py scripts/g1d/test_aurora_integration.py scripts/g1d/xense_gripper
 python scripts/internal/task_inventory.py --format json --check >/dev/null
+if command -v node >/dev/null; then node src/real2sim_platform/test_dataset_catalog.cjs >/dev/null; fi  # page-side dataset catalog
 echo "checks passed"

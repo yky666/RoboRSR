@@ -483,6 +483,11 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .hero { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; padding: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-2); color: var(--muted); cursor: zoom-in; }
 /* pinned to the 4:3 box: in the grid a tall photo would size the row and be cut at the bottom (a top crop) */
 .hero img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+/* Object previews must show the whole item even when the source image is square or portrait. */
+.obj-media > img:not(.inset), .obj-chip img, [data-lb^="obj-"] > img, .vpick .gthumb img { object-fit: contain; }
+.media.obj-media > img:not(.inset) { position: absolute; inset: 0; }
+.obj-media, [data-lb^="obj-renders-"] { background: #fff; }
+[data-lb^="obj-"]:hover > img, .vpick .gthumb:hover img { transform: none; }
 .hero.empty-hero { gap: 6px; padding: 16px; cursor: default; font-size: 12px; text-align: center; }
 .strip { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; }
 .strip .item { position: relative; flex: none; }
@@ -889,6 +894,12 @@ const OBJ_STAGES = [
     return over.length || dm > 5 ? bad(text) : done.length < c.length ? todo(text) : ok(text);
   }],
   ['physics', '物理检验', (d) => {
+    if (d.deformable?.family) {
+      const a = d.auto.deformable_acceptance;
+      if (!a || a.family !== d.deformable.family) return todo('柔性专用验收待同步，刚体检查不能替代');
+      if (a.status === 'fail') return bad('柔性专用检查有失败项');
+      return a.status === 'pass' ? ok('柔性几何、材料与运行证据通过') : todo('柔性证据、材料标定或版本核对未完成');
+    }
     const v = PHYS.map(([k]) => physState(d, k));
     if (v.includes('fail')) return bad(`${v.filter((x) => x === 'fail').length} 项不通过`);
     const done = v.filter((x) => x === 'pass' || x === 'na').length;
@@ -1205,162 +1216,193 @@ function drawerPrototype(d) {
       <p class="hint">研究资产保留已有模型与验证记录；当前不作为完整本体或任务登记的新候选。</p>`};
 }
 
-// ---------- datasets: public datasets entered by hand (numbers from the publishers or RoboFlywheel; local copy from the OSS inventory) ----------
-const DATASETS = [
+// ---------- datasets: public catalog with local-copy inventory; publisher descriptions keep their original scope ----------
+let DS_INVENTORY_DATE = '2026-10-29', DS_INVENTORY = null, DS_INVENTORY_ERROR = '';
+let DATASETS = [
   {id: 'agibot-world-beta', name: 'AgiBot World Beta', org: '智元机器人 AgiBot', url: 'https://huggingface.co/datasets/agibot-world/AgiBotWorld-Beta',
-    episodes: 1000000, epText: '100 万+', hours: 2976.4, size: '45 TB', tb: 45,
+    episodes: null, hours: null, size: "49,561.637 GB", tb: 49.561637004,
+    inventoryNote: "原始 tar 仓库的逻辑体量；尚未逐包核算完整回合和时长。另有转换副本 153,394 条、2,521.364 h，仅为已转换子集，与原始包重叠。",
     desc: '100 台机器人在 100 多个真实场景采集，覆盖家居、零售、餐饮、办公、工业 5 个领域、200 多类任务和 87 种原子技能，含视觉触觉、灵巧手和移动双臂数据。',
     f: {source: ['real'], domain: ['commercial', 'home'], space: ['store', 'cafe', 'office', 'kitchen', 'living'], form: ['wheeled_humanoid'], robot: ['agibot'], manip: ['tabletop', 'mobile'],
       skill: ['pick_place', 'organize', 'deformable', 'articulated', 'wipe'], format: ['hdf5', 'lerobot3'], license: ['ccbyncsa'], platform: ['hf'], local: ['partial']}},
   {id: 'unitree-g1-wbt', name: 'Unitree G1 WBT 全身遥操作系列', org: '宇树科技 Unitree', url: 'https://huggingface.co/unitreerobotics',
-    episodes: null, hours: null, size: '约 774 GB · 59 个任务', tb: 0.76,
+    episodes: 13816, hours: 132.445805, size: "831.281 GB", tb: 0.831280572,
+    inventoryNote: "59 个本地任务仓库，按逐条 episode 清单汇总 length/fps，每集只计一次，不乘相机数；系列合计未作跨任务去重。",
     desc: 'G1 人形全身遥操作，配 Brainco / Inspire 灵巧手：铺床、收衣服放进洗衣机、碗碟放进洗碗机、饮料放进冰箱、整理超市货架、收拾客厅拖鞋等家务与零售任务。',
     f: {source: ['real'], domain: ['home', 'commercial'], space: ['bedroom', 'living', 'kitchen', 'bathroom', 'store'], form: ['legged_humanoid'], robot: ['unitree_g1'], manip: ['whole_body', 'mobile'],
       skill: ['pick_place', 'organize', 'deformable', 'articulated'], format: [], license: ['unknown'], platform: ['ms', 'hf'], local: ['complete']}},
   {id: 'unitree-g1-dex1', name: 'Unitree G1 Dex1 桌面操作系列', org: '宇树科技 Unitree', url: 'https://huggingface.co/unitreerobotics',
-    episodes: null, hours: null, size: '约 1.7 TB · 94 个任务', tb: 1.7,
+    episodes: 61228, hours: 355.252726, size: "1,827.562 GB", tb: 1.827562156926,
+    inventoryNote: "94 个登记条目中，86 份有轨迹清单，另外 8 份为空目录或仅元数据。数字汇总有轨迹的本地表示；不同分辨率和衍生版本可能同源，未去重，系列副本不完整。",
     desc: 'G1 上身加 Dex1 两指夹爪，每个任务一个仓库（如叠毛巾 200 条、30 fps、4 路相机）：叠衣物、收纳餐具和调料、整理书架文具、擦桌子、放食物进烤箱、水果分拣等。',
     f: {source: ['real', 'sim'], domain: ['home', 'commercial'], space: ['kitchen', 'living', 'bedroom', 'office', 'store', 'bathroom'], form: ['legged_humanoid'], robot: ['unitree_g1'], manip: ['tabletop'],
-      skill: ['pick_place', 'organize', 'deformable', 'wipe', 'assembly', 'pour'], format: ['lerobot21'], license: ['apache'], platform: ['ms', 'hf'], local: ['complete']}},
+      skill: ['pick_place', 'organize', 'deformable', 'wipe', 'assembly', 'pour'], format: ['lerobot21'], license: ['apache'], platform: ['ms', 'hf'], local: ['partial']}},
   {id: 'robomind-2', name: 'RoboMIND 2.0', org: '北京人形机器人创新中心 X-Humanoid', url: 'https://www.modelscope.cn/collections/X-Humanoid/RoboMIND20',
-    episodes: 230630, hours: 1341, size: '约 91 TB · 9 个子集', tb: 91,
+    episodes: 214783, hours: null, size: "92,302.057 GB", tb: 92.302056595,
+    inventoryNote: "仅汇总本地 9 个平台/分卷（含 Ark、Franka 仿真），不含主仓库索引样本和派生版本。按 HDF5 轨迹文件计数；Tianyi-mobile 未计入，统一采样率未核实，时长待补。",
     desc: '多本体真机操作数据：Franka、UR5、AgileX 双臂、天工 / 天轶人形等平台，另有 Franka 仿真子集；任务含餐厅摆放餐具、厨房备菜、抓取放置等。',
     f: {source: ['real', 'sim'], domain: ['commercial', 'home'], space: ['cafe', 'kitchen'], form: ['single_arm', 'dual_arm', 'wheeled_humanoid'], robot: ['franka', 'ur5', 'agilex', 'tiangong'], manip: ['tabletop', 'mobile'],
       skill: ['pick_place', 'organize'], format: [], license: ['apache'], platform: ['ms'], local: ['partial']}},
   {id: 'galaxea-open-world', name: 'Galaxea Open-World Dataset', org: '星海图 Galaxea AI', url: 'https://www.modelscope.cn/datasets/Galaxea/Galaxea-Open-World-Dataset',
-    episodes: null, hours: null, size: '4.7 TB', tb: 4.7,
+    episodes: null, hours: null, size: "5,094.377 GB", tb: 5.09437665,
+    inventoryNote: "原始压缩包仓库体量，完整轨迹数和时长尚未逐包核算。另有桌面筛选转换子集 6,147 条、93.574 h、515.089 GB，不能当作原仓库全量。",
     desc: '全部在真实的居住与工作环境中采集，统一使用 Galaxea R1 双臂全身本体并带子任务级语言标注，约 10 万条轨迹，用于训练 G0 双系统 VLA 模型。',
     f: {source: ['real'], domain: ['home', 'commercial'], space: ['living', 'kitchen', 'bedroom', 'office', 'store'], form: ['wheeled_humanoid'], robot: ['galaxea'], manip: ['mobile', 'whole_body'],
       skill: ['pick_place', 'organize', 'articulated'], format: ['lerobot'], license: ['ccbyncsa'], platform: ['ms', 'hf'], local: ['complete']}},
   {id: 'geniesim-3', name: 'Genie Sim 3.0 Dataset', org: '智元机器人 AgiBot', url: 'https://modelscope.cn/datasets/agibot_world/GenieSim3.0-Dataset',
-    episodes: null, hours: null, size: '39 TB', tb: 39,
+    episodes: null, hours: null, size: "42,567.430 GB", tb: 42.567430435,
+    inventoryNote: "原始仓库体量包含压缩数据和 checkpoint，完整回合数与时长尚未逐包核算。另有 63 任务的已展开子集 90,703 条、164.280 h、783.500 GB；缺 2 个任务，子集数据含未物理删除的质检排除项。",
     desc: 'Genie Sim 3.0 仿真平台生成的大规模操作数据，LeRobot 格式，含整理工作台、拉抽屉等任务。',
     f: {source: ['sim'], domain: ['commercial', 'home'], space: ['office'], form: ['wheeled_humanoid'], robot: ['agibot'], manip: ['tabletop', 'mobile'],
-      skill: ['pick_place', 'organize', 'articulated'], format: ['lerobot'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+      skill: ['pick_place', 'organize', 'articulated'], format: ['lerobot'], license: ['unknown'], platform: ['ms'], local: ['partial']}},
   {id: 'agibot-world-2026', name: 'AgiBot World 2026', org: '智元机器人 AgiBot', url: 'https://www.modelscope.cn/datasets/agibot-world/AgiBotWorld2026',
-    episodes: null, hours: null, size: '8.6 TB', tb: 8.6,
+    episodes: null, hours: null, size: "9,362.365 GB", tb: 9.362364587,
+    inventoryNote: "本地压缩/分片文件逻辑体量；尚未逐包核算完整 Episode 与时长。",
     desc: 'AgiBot World 的 2026 版本，分模仿学习（ImitationLearning）、富交互（RichInteraction）和仿真三部分。',
     f: {source: ['real', 'sim'], domain: ['commercial', 'home'], space: [], form: ['wheeled_humanoid'], robot: ['agibot'], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'droid', name: 'DROID', org: 'Stanford · UC Berkeley 等', url: 'https://www.modelscope.cn/datasets/nvidia/Cosmos3-DROID',
-    episodes: 95600, hours: 511, size: '707 GB', tb: 0.69,
+    episodes: 71907, hours: 415.050222, size: "758.395 GB", tb: 0.758395288,
+    inventoryNote: "仅 NVIDIA 转换的本地 LeRobot v3 成功/失败副本。逐条 episode 元数据汇总，sum(length/fps)，每条轨迹只计一次，不乘三路相机。",
     desc: '数十名采集者在北美、亚洲、欧洲 564 个真实场景（家庭、办公室等）用 Franka 遥操作采集；这里收录 NVIDIA 转换的 LeRobot v3 版本，含成功与失败轨迹。',
     f: {source: ['real'], domain: ['home', 'commercial'], space: ['office', 'kitchen', 'living'], form: ['single_arm'], robot: ['franka'], manip: ['tabletop'],
       skill: ['pick_place', 'organize', 'articulated'], format: ['lerobot3'], license: ['ccby'], platform: ['ms'], local: ['complete']}},
   {id: 'robocoin', name: 'RoboCOIN', org: '智源研究院 BAAI', url: 'https://www.modelscope.cn/organization/RoboCOIN',
-    episodes: 101576, hours: 704, size: '6.0 TB', tb: 6,
+    episodes: 183018, hours: 1305.774837, size: "6,527.602 GB", tb: 6.527602301555,
+    inventoryNote: "809 个本地子数据集的逐条 episode 清单汇总；条数与帧数均和 info.json 一致。时长按 length/fps 计算，不乘相机数；未逐帧解码验收。",
     desc: '面向双臂协同一体化操作的数据集，跨 15 种机器人本体、16 类场景、421 种任务。',
     f: {source: ['real'], domain: ['home', 'commercial'], space: [], form: ['dual_arm'], robot: ['multi'], manip: ['tabletop'],
       skill: ['pick_place', 'organize', 'deformable'], format: [], license: ['apache'], platform: ['ms'], local: ['complete']}},
   {id: 'robomind', name: 'RoboMIND', org: '北京人形机器人创新中心 X-Humanoid', url: 'https://www.modelscope.cn/datasets/X-Humanoid/RoboMIND',
-    episodes: 107097, hours: 379, size: '12 TB', tb: 12,
+    episodes: null, hours: null, size: "12,278.970 GB", tb: 12.278969805,
+    inventoryNote: "本地仓库混有压缩分片、样例及失败轨迹，完整 Episode 和总时长尚未核实；体量按整个目录计算。",
     desc: '多本体真机操作基准：人工遥操作采集约 10.7 万条演示，479 类任务，跨 Franka、UR5e、AgileX 双臂和人形，含失败案例。',
     f: {source: ['real'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm', 'legged_humanoid'], robot: ['franka', 'ur5', 'agilex', 'tiangong'], manip: ['tabletop'],
       skill: ['pick_place'], format: [], license: ['apache'], platform: ['ms'], local: ['complete']}},
   {id: 'robochallenge-table30', name: 'RoboChallenge Table30 v1 / v2', org: 'RoboChallenge', url: 'https://huggingface.co/datasets/RoboChallenge/Table30v2',
-    episodes: null, hours: null, size: '约 1.6 TB', tb: 1.6,
+    episodes: null, hours: null, size: "1,748.121 GB", tb: 1.748121105,
+    inventoryNote: "只合计 v1、v2 两个原始压缩仓库的体量；未把双臂子集数冒充全仓总数。另有 v2 双臂转换子集 22,596 条、280.315 h；原始录制时间戳跨度合计 289.495 h，二者口径不同。",
     desc: 'RoboChallenge 真机评测的 30 个桌面任务数据，v2 增加双臂版本。',
     f: {source: ['real'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm'], robot: ['multi'], manip: ['tabletop'],
       skill: ['pick_place', 'organize'], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
   {id: 'gm-100', name: 'GM-100', org: 'Robbyant', url: 'https://www.modelscope.cn/datasets/robbyant/gm100',
-    episodes: null, hours: null, size: '1.5 TB', tb: 1.5,
+    episodes: null, hours: null, size: "1,614.815 GB", tb: 1.61481534,
+    inventoryNote: "本地为压缩包；完整 Episode 和时长未逐包核算。",
     desc: '多本体基准：AgiBot G1、AgileX、Galaxea R1 Pro 三个平台，LeRobot v2.1 格式。',
     f: {source: ['real'], domain: [], space: [], form: ['wheeled_humanoid', 'dual_arm'], robot: ['agibot', 'agilex', 'galaxea'], manip: ['tabletop'],
       skill: [], format: ['lerobot21'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'molmoact2-yam', name: 'MolmoAct2 BimanualYAM', org: 'Allen Institute for AI', url: 'https://huggingface.co/datasets/allenai/MolmoAct2-BimanualYAM-Dataset',
-    episodes: 32246, hours: 720, size: '约 2.35 TB', tb: 2.35,
+    episodes: null, hours: null, size: "未测（未下载）", tb: 0,
+    inventoryNote: "尚无可核验的本地副本；本地 Episode、时长和体量留空。",
     desc: 'YAM 双臂真机数据，约 3.2 万条、720 小时，用于 MolmoAct2 训练。',
     f: {source: ['real'], domain: [], space: [], form: ['dual_arm'], robot: ['yam'], manip: ['tabletop'],
       skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['none']}},
   {id: 'gr00t-teleop-gr1', name: 'GR00T Teleop GR1', org: 'NVIDIA', url: 'https://www.modelscope.cn/datasets/nv-community/PhysicalAI-Robotics-GR00T-Teleop-GR1',
-    episodes: null, hours: null, size: '70 GB', tb: 0.07,
+    episodes: 24283, hours: 104.911236, size: "74.327 GB", tb: 0.074326671,
+    inventoryNote: "本地 13 个 LeRobot 子集，逐条 episode 清单汇总 length/fps；不乘相机数，未逐帧解码验收。",
     desc: 'NVIDIA PhysicalAI 发布的 Fourier GR1 人形遥操作数据。',
     f: {source: ['real'], domain: [], space: [], form: ['legged_humanoid'], robot: ['fourier_gr1'], manip: ['tabletop'],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'humanoid-everyday', name: 'Humanoid Everyday', org: 'USC PSI Lab', url: 'https://huggingface.co/datasets/USC-PSI-Lab/humanoid-everyday',
-    episodes: null, hours: null, size: '约 1 TB', tb: 1,
+    episodes: null, hours: null, size: "未测（未下载）", tb: 0,
+    inventoryNote: "尚无可核验的本地副本；本地 Episode、时长和体量留空。",
     desc: '人形机器人日常任务数据集。',
     f: {source: ['real'], domain: ['home'], space: [], form: ['legged_humanoid'], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['none']}},
   {id: 'biplay', name: 'BiPlay', org: 'UC Berkeley', url: 'https://huggingface.co/datasets/oier-mees/BiPlay',
-    episodes: 7023, hours: 9.7, size: '313 GB', tb: 0.31,
+    episodes: null, hours: null, size: "335.262 GB", tb: 0.335262242,
+    inventoryNote: "本地混有多个 TFDS 子集和 HDF5 表示，尚未可靠核算去重总量；Episode、时长留空，体量计整个目录。",
     desc: 'ALOHA 双臂桌面自由玩耍数据，约 9.7 小时、7023 个片段。',
     f: {source: ['real'], domain: ['home'], space: [], form: ['dual_arm'], robot: ['agilex'], manip: ['tabletop'],
       skill: ['pick_place'], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
   {id: 'maniparena', name: 'ManipArena', org: 'ManipArena', url: 'https://huggingface.co/datasets/ManipArena/maniparena-dataset',
-    episodes: 10800, epText: '约 1.08 万', hours: null, size: '236 GB', tb: 0.23,
+    episodes: 12474, hours: 205.083458, size: "252.970 GB", tb: 0.252969918,
+    inventoryNote: "本地 episode 清单汇总 length/fps；不乘相机数，未逐帧解码验收。",
     desc: '固定和移动双臂的真机操作数据，约 1.08 万条。',
     f: {source: ['real'], domain: [], space: [], form: ['dual_arm'], robot: [], manip: ['tabletop', 'mobile'],
       skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
   {id: 'tacverse', name: 'TacVerse Open Data', org: 'Xense Robotics', url: 'https://www.modelscope.cn/datasets/XenseRobotics/TacVerse-Opendata',
-    episodes: null, hours: null, size: '135 GB', tb: 0.13,
+    episodes: 17690, hours: 370.166407, size: "144.412 GB", tb: 0.144412291,
+    inventoryNote: "122 个本地子数据集，episode 清单汇总 length/fps。副本接近完备，仍有上游问题视频；元数据条目数不是完整可训练回合验收数。",
     desc: '带视触觉传感的真机操作数据。',
     f: {source: ['real'], domain: [], space: [], form: [], robot: [], manip: ['tabletop'],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['partial']}},
   {id: 'realomni-10kh', name: '10Kh RealOmni Open Data', org: '简智新创 GenRobot', url: 'https://modelscope.cn/datasets/GenRobot.AI/10Kh-RealOmin-OpenData',
-    episodes: null, hours: null, size: '6.3 TB', tb: 6.3,
+    episodes: null, hours: null, size: "6,927.942 GB", tb: 6.92794202,
+    inventoryNote: "本地目录逻辑体量已核实；压缩分片尚未逐包展开核算完整 Episode 与时长。",
     desc: 'GenRobot 开源的真实场景操作数据（名称标注万小时级）。',
     f: {source: ['real'], domain: [], space: [], form: [], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'hy-embodied-vla', name: 'Hy-Embodied 0.5 VLA Data', org: '腾讯 Tencent', url: 'https://www.modelscope.cn/datasets/tencent/Hy-Embodied-0.5-VLA-Data',
-    episodes: null, hours: null, size: '19 TB', tb: 19,
+    episodes: 250304, hours: 2162.96587, size: "20,566.129 GB", tb: 20.566129284,
+    inventoryNote: "22 个本地表的逐条 episode 元数据汇总，按 length/fps 计算时长；数据含 Lance 格式，未逐帧解码验收。",
     desc: '腾讯混元具身 0.5 的 VLA 训练数据。',
     f: {source: ['real'], domain: [], space: [], form: [], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'interndata-a1', name: 'InternData-A1', org: '上海人工智能实验室 InternRobotics', url: 'https://www.modelscope.cn/datasets/InternRobotics/InternData-A1',
-    episodes: null, hours: null, size: '6.5 TB', tb: 6.5,
+    episodes: null, hours: null, size: "7,048.026 GB", tb: 7.048025965,
+    inventoryNote: "原始混合仓库体量，完整 Episode 与总时长未核实。另有仿真 LeRobot v3 表示 417,217 条、2,812.311 h、1,681.357 GB，为已展开的表示/子集，含尚未物理删除的质检排除项。",
     desc: '以仿真为主、混合真机的操作数据，覆盖 Franka、Genie-1、Lift2、Split-ALOHA 等本体。',
     f: {source: ['sim', 'real'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm', 'wheeled_humanoid'], robot: ['franka', 'agibot', 'agilex'], manip: ['tabletop'],
       skill: ['pick_place'], format: ['lerobot3'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'interndata-m1', name: 'InternData-M1', org: '上海人工智能实验室 InternRobotics', url: 'https://www.modelscope.cn/datasets/InternRobotics/InternData-M1',
-    episodes: 508511, hours: 1839, size: '5.6 TB', tb: 5.6,
+    episodes: 473594, hours: 1675.527269, size: "6,112.359 GB", tb: 6.112359021,
+    inventoryNote: "本地 info.json 声明：Franka 244,426 条，robotiq/1-1_random 版本 229,168 条，均 30 fps。合计是两种表示的条目数，可能对应同源演示，不能视为独立采集条数；tar 未逐包解码。",
     desc: '仿真引擎批量生成的抓取放置数据，支撑 InternVLA-M1 空间引导操作模型，用于提升未见物体上的泛化。',
     f: {source: ['sim'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm'], robot: ['franka'], manip: ['tabletop'],
       skill: ['pick_place'], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'robotwin-2', name: 'RoboTwin 2.0', org: 'RoboTwin 团队', url: 'https://www.modelscope.cn/datasets/TianxingChen/RoboTwin2.0',
-    episodes: null, hours: null, size: '509 GB', tb: 0.5,
+    episodes: 27500, hours: null, size: "545.882 GB", tb: 0.545881668,
+    inventoryNote: "本地 HDF5 轨迹逐文件计数；未确认统一采样率，总时长留空。另有统一 LeRobot 副本同为 27,500 条、56.251 h、79.475 GB，与原始数据重叠。",
     desc: '50 个双臂桌面任务，每个任务有干净场景 50 条和域随机化 500 条两个版本。',
     f: {source: ['sim'], domain: ['home'], space: [], form: ['dual_arm'], robot: ['multi'], manip: ['tabletop'],
       skill: ['pick_place', 'organize', 'articulated'], format: ['hdf5'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'robocasa', name: 'RoboCasa', org: 'UT Austin 等', url: 'https://huggingface.co/datasets/haosulab/RoboCasa',
-    episodes: null, hours: null, size: '3.5 GB', tb: 0.0035,
+    episodes: null, hours: null, size: "3.732 GB", tb: 0.003732425,
+    inventoryNote: "本地 ZIP 仓库体量；尚无可靠的完整 Episode 与时长统计。",
     desc: '大规模厨房仿真环境中的日常任务演示，如开关柜门、取放物品。',
     f: {source: ['sim'], domain: ['home'], space: ['kitchen'], form: ['single_arm'], robot: ['franka'], manip: ['mobile'],
       skill: ['pick_place', 'articulated'], format: ['hdf5'], license: ['unknown'], platform: ['hf'], local: ['complete']}},
   {id: 'libero', name: 'LIBERO', org: 'UT Austin', url: 'https://www.modelscope.cn/datasets/nvidia/LIBERO_LeRobot_v3',
-    episodes: null, hours: null, size: '4.2 GB', tb: 0.0042,
+    episodes: 5614, hours: 11.704361, size: "4.458 GB", tb: 0.004457681,
+    inventoryNote: "只统计本地 NVIDIA LeRobot v3 的 5 个子集，逐条 episode 清单汇总 length/fps，不与其他 LIBERO 版本相加。",
     desc: '家居场景的终身学习操作基准，含 libero_10 / 90 / goal / object / spatial 五个子集；这里是 NVIDIA 转换的 LeRobot v3 版本。',
     f: {source: ['sim'], domain: ['home'], space: ['kitchen', 'living'], form: ['single_arm'], robot: ['franka'], manip: ['tabletop'],
       skill: ['pick_place', 'articulated'], format: ['lerobot3'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'dexmimicgen', name: 'DexMimicGen', org: 'NVIDIA 等', url: 'https://huggingface.co/datasets/MimicGen/dexmimicgen_datasets',
-    episodes: null, hours: null, size: '约 60 GB', tb: 0.06,
+    episodes: null, hours: null, size: "未测（未下载）", tb: 0,
+    inventoryNote: "尚无可核验的本地副本；本地 Episode、时长和体量留空。",
     desc: '用 MimicGen 自动扩增的双臂与人形灵巧操作仿真数据。',
     f: {source: ['sim'], domain: [], space: [], form: ['legged_humanoid', 'dual_arm'], robot: ['fourier_gr1'], manip: ['tabletop'],
       skill: [], format: ['hdf5'], license: ['unknown'], platform: ['hf'], local: ['none']}},
   {id: 'egomimic', name: 'EgoMimic', org: 'Georgia Tech', url: 'https://huggingface.co/datasets/gatech/EgoMimic',
-    episodes: null, hours: null, size: '226 GB', tb: 0.22,
+    episodes: 157, hours: null, size: "242.644 GB", tb: 0.242644486,
+    inventoryNote: "逐个打开全部 6 个 HDF5，统计 data/demo_* 共 157 段、70,368 samples；human/robot 均计入，未做配对去重，统一采样率未核实。",
     desc: '第一视角人类示范和机器人数据配对，用于从人到机器人的迁移学习。',
     f: {source: ['ego', 'real'], domain: ['home'], space: [], form: ['human', 'dual_arm'], robot: [], manip: ['tabletop'],
       skill: ['pick_place'], format: ['hdf5'], license: ['unknown'], platform: ['hf'], local: ['complete']}},
   {id: 'omniworld-epic-kitchens', name: 'OmniWorld · EPIC-KITCHENS', org: 'InternRobotics 整理', url: 'https://www.modelscope.cn/datasets/InternRobotics/OmniWorld',
-    episodes: null, hours: null, size: '225 GB', tb: 0.22,
+    episodes: null, hours: null, size: "240.700 GB", tb: 0.240699675,
+    inventoryNote: "仅本地 OmniWorld 的 EPIC-KITCHENS 压缩子集，非 OmniWorld 全仓；完整 Episode 与时长尚未逐包核算。",
     desc: '家庭厨房的第一视角视频（EPIC-KITCHENS），由 OmniWorld 统一整理。',
     f: {source: ['ego'], domain: ['home'], space: ['kitchen'], form: ['human'], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'ace-data-0', name: 'ACE-Data-0', org: 'ACE Robotics', url: 'https://www.modelscope.cn/datasets/ACERobotics/ACE-Data-0',
-    episodes: null, hours: null, size: '846 GB', tb: 0.83,
+    episodes: 831, hours: 28.078611, size: "907.447 GB", tb: 0.907446533,
+    inventoryNote: "本地 12 个 LeRobot 子集，逐条 episode 清单汇总 length/fps，不乘相机数。",
     desc: '人类示范数据。',
     f: {source: ['ego'], domain: [], space: [], form: ['human'], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'vitra-1m', name: 'VITRA-1M', org: 'VITRA', url: 'https://huggingface.co/datasets/VITRA-VLA/VITRA-1M',
-    episodes: null, hours: null, size: '约 85 GB', tb: 0.08,
+    episodes: null, hours: null, size: "91.554 GB", tb: 0.091553735,
+    inventoryNote: "本地为标注和压缩数据，原始 Ego4D/EPIC 视频需另配；完整 Episode 与时长尚未可靠核算。",
     desc: '人手操作视频数据，用于 VLA 预训练。',
     f: {source: ['ego'], domain: [], space: [], form: ['human'], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
 ];
 // facets: [key, title, look, options]; a dataset matches a facet when any of its values is picked (OR within, AND across)
 const DS_FACETS = [
-  ['source', '数据类型', 'chips', [['real', '真机采集'], ['sim', '仿真生成'], ['ego', 'Ego · 人类示范']]],
+  ['source', '数据类型', 'chips', [['real', '真机采集'], ['sim', '仿真生成'], ['ego', 'Ego · 人类示范'], ['mixed', '真实 + 仿真'], ['asset', '资产'], ['unknown', '待确认']]],
   ['domain', '应用领域', 'list', [['commercial', '商业 / 零售'], ['home', '家居服务']]],
   ['space', '室内空间', 'list', [['store', '门店 / 商超'], ['cafe', '餐饮'], ['office', '办公'], ['kitchen', '厨房'], ['living', '客厅'], ['bedroom', '卧室'], ['bathroom', '卫浴']]],
   ['form', '机器人形态', 'list', [['wheeled_humanoid', '轮式人形'], ['legged_humanoid', '足式人形'], ['dual_arm', '双臂'], ['single_arm', '单臂'], ['human', '人手（无机器人）']]],
@@ -1374,28 +1416,80 @@ const DS_FACETS = [
   ['local', '本地副本', 'list', [['complete', '已下载'], ['partial', '部分下载'], ['none', '未下载']]],
 ];
 const DS_LABEL = Object.fromEntries(DS_FACETS.map(([k, , , opts]) => [k, Object.fromEntries(opts)]));
-const DS_SRC_IC = {real: 'bot', sim: 'cube', ego: 'eye'};
+const DS_SRC_IC = {real: 'bot', sim: 'cube', ego: 'eye', mixed: 'bot', asset: 'cube', unknown: 'database'};
 const DS_SORT = [['rec', '推荐'], ['episodes', '规模'], ['size', '体量'], ['name', '名称']];
 const dsLabels = (d, k) => (d.f[k] || []).map((v) => DS_LABEL[k][v]);
-const dsEpText = (d) => d.epText || (d.episodes ? d.episodes.toLocaleString() : '—');
-const dsHoursText = (d) => (d.hours ? `${d.hours.toLocaleString()} h` : '—');
+// shown with three significant digits in a fitting unit; the exact figures stay in the records and in tooltips
+const sig3 = (v) => v.toLocaleString(undefined, {maximumFractionDigits: v >= 100 ? 0 : v >= 10 ? 1 : 2});
+const fmtCount = (n) => (n == null ? '—' : n >= 1e8 ? `${sig3(n / 1e8)} 亿` : n >= 1e4 ? `${sig3(n / 1e4)} 万` : n.toLocaleString());
+const fmtHours = (h) => (h == null ? '—' : h > 0 && h < 1 ? `${Math.max(1, Math.round(h * 60))} 分钟` : `${sig3(h)} h`);
+const fmtGB = (gb) => (gb == null ? '—' : gb >= 1e6 ? `${sig3(gb / 1e6)} PB` : gb >= 1e3 ? `${sig3(gb / 1e3)} TB` : gb >= 1 ? `${sig3(gb)} GB` : `${sig3(gb * 1e3)} MB`);
+const exact = (v, unit = '') => (v == null ? '' : `${v.toLocaleString(undefined, {maximumFractionDigits: 3})}${unit}`);
+const dsEpText = (d) => d.epText || fmtCount(d.episodes);
+const dsHoursText = (d) => fmtHours(d.hours);
+const kpiUnit = (text) => text.replace(/ ([^\d\s,.]+)$/, '<small>$1</small>');
+const dsSizeText = (d) => (d.tb > 0 ? fmtGB(d.tb * 1000) : (d.size || '—').split(' · ')[0]);
+const dsExact = (d) => [d.episodes != null && `${exact(d.episodes)} Episode`, d.hours != null && exact(d.hours, ' h'), d.tb > 0 && exact(d.tb * 1000, ' GB')].filter(Boolean).join(' · ');
+// Runtime inventory stays on the authenticated server; private records never enter the public source tree.
+function applyDatasetInventory(snapshot) {
+  const invalid = () => { throw new Error('数据盘点文件格式或覆盖数量不完整'); };
+  if (snapshot.schemaVersion !== 1 || !Array.isArray(snapshot.groups) || !snapshot.groups.length ||
+      !Number.isInteger(snapshot.recordCount) || !/^\d{4}-\d{2}-\d{2}$/.test(snapshot.date)) invalid();
+  const templates = new Map(DATASETS.map((d) => [d.id, d])), ids = new Set(), records = new Set();
+  const numeric = (v) => v === null || (Number.isFinite(v) && v >= 0);
+  const total = (rows, key) => rows.some((v) => v[key] !== null) ? rows.reduce((s, v) => s + (v[key] || 0), 0) : null;
+  const catalog = snapshot.groups.map((g) => {
+    if (!/^[a-z0-9-]+$/.test(g.id) || ids.has(g.id) || !g.name || !Array.isArray(g.versions) || !g.versions.length) invalid();
+    ids.add(g.id);
+    for (const v of g.versions) {
+      if (!v.id || records.has(v.id) || !v.name || !['real', 'sim', 'ego', 'mixed', 'asset', 'unknown'].includes(v.source) ||
+          !['episodes', 'hours', 'gb', 'selectedEpisodes', 'selectedHours'].every((k) => numeric(v[k])) ||
+          (['ego', 'asset'].includes(v.source) && v.selectedEpisodes !== null) ||
+          (v.url && !/^https:\/\/(www\.)?(huggingface\.co|modelscope\.cn)\//.test(v.url))) invalid();
+      records.add(v.id);
+    }
+    const base = templates.get(g.templateId), versions = g.versions, gb = total(versions, 'gb');
+    const sources = [...new Set(versions.map((v) => v.source))];
+    const urls = versions.map((v) => v.url).filter(Boolean), url = base?.url || urls[0] || '';
+    const local = versions.every((v) => v.state === '未下载') ? 'none' : versions.every((v) => v.state === '已完备') ? 'complete' : 'partial';
+    return {...base, id: g.id, name: base?.name || g.name, org: base?.org || (url ? new URL(url).pathname.split('/')[2] || '来源见版本明细' : '本地盘点'), url,
+      desc: base?.desc || `${versions.length} 条本地盘点记录；数据类型与完整性见版本明细，尚未核实的分类和许可保留为空。`,
+      f: {...Object.fromEntries(DS_FACETS.map(([k]) => [k, []])), ...base?.f,
+        source: base?.f.source || sources, license: base?.f.license || ['unknown'], local: [local],
+        platform: [...new Set(urls.map((u) => u.includes('huggingface.co') ? 'hf' : 'ms'))]},
+      episodes: total(versions, 'selectedEpisodes'), hours: total(versions, 'selectedHours'), tb: (gb || 0) / 1000,
+      size: gb === null ? '—' : `${gb.toLocaleString(undefined, {maximumFractionDigits: 3})} GB`, versions,
+      inventoryNote: '按版本明细中的「计入口径」汇总已知部分；未选择的同源副本不重复累计，未知值不作零。目录体量保留全部副本，可能重叠。'};
+  });
+  if (records.size !== snapshot.recordCount) invalid();
+  DATASETS = catalog;
+  DS_INVENTORY = snapshot;
+  DS_INVENTORY_DATE = snapshot.date;
+  DS_INVENTORY_ERROR = '';
+}
+async function loadDatasetInventory() {
+  try { applyDatasetInventory(await api(file(`${INFO.root}/output/dataset_inventory.json`), {cache: 'no-cache'})); }
+  catch (err) { DS_INVENTORY_ERROR = `完整盘点未加载：${err.message}。当前仅显示 ${DATASETS.length} 条缓存目录。`; }
+}
 // Episode range on a log scale between the smallest and largest known counts: slider positions 0..100
-const DS_EP = DATASETS.map((d) => d.episodes).filter(Boolean), DS_EP_LO = Math.log(Math.min(...DS_EP)), DS_EP_HI = Math.log(Math.max(...DS_EP));
-const dsEp = (t) => Math.round(Math.exp(DS_EP_LO + (t / 100) * (DS_EP_HI - DS_EP_LO)));
+const dsEp = (t) => {
+  const counts = DATASETS.map((d) => d.episodes).filter((n) => n > 0), lo = Math.log(Math.min(...counts, Infinity)), hi = Math.log(Math.max(...counts, 1));
+  return counts.length ? Math.round(Math.exp(lo + (t / 100) * (hi - lo))) : 0;
+};
 const dsEpFull = () => UI.ds.ep[0] === 0 && UI.ds.ep[1] === 100;
 const dsPick = (k, v) => { const s = UI.ds.pick[k] ||= []; const i = s.indexOf(v); i < 0 ? s.push(v) : s.splice(i, 1); render(); };
 const dsClear = (k) => { if (k) UI.ds.pick[k] = []; else { UI.ds.pick = {}; UI.ds.ep = [0, 100]; UI.ds.q = ''; } render(); };
 function dsMatch(d, skip) {
   const f = UI.ds, q = f.q.trim().toLowerCase();
   if (!dsEpFull() && (!d.episodes || d.episodes < dsEp(f.ep[0]) || d.episodes > dsEp(f.ep[1]))) return false;
-  if (q && !`${d.name} ${d.org} ${d.desc} ${DS_FACETS.flatMap(([k]) => dsLabels(d, k)).join(' ')}`.toLowerCase().includes(q)) return false;
+  if (q && !`${d.name} ${d.org} ${d.desc} ${(d.versions || []).map((v) => v.name).join(' ')} ${DS_FACETS.flatMap(([k]) => dsLabels(d, k)).join(' ')}`.toLowerCase().includes(q)) return false;
   return DS_FACETS.every(([k]) => k === skip || !f.pick[k]?.length || (d.f[k] || []).some((v) => f.pick[k].includes(v)));
 }
 function dsEpInput() {  // live label while dragging; the list re-renders on change, so the thumb being dragged stays in place
   const [a, b] = [...document.querySelectorAll('.range2 input')].map((x) => Number(x.value)), lo = Math.min(a, b), hi = Math.max(a, b);
   $('.range2 .fill').style.cssText = `left:${lo}%;right:${100 - hi}%`;
-  $('#ds-ep-lo').textContent = dsEp(lo).toLocaleString();
-  $('#ds-ep-hi').textContent = dsEp(hi).toLocaleString();
+  $('#ds-ep-lo').textContent = fmtCount(dsEp(lo));
+  $('#ds-ep-hi').textContent = fmtCount(dsEp(hi));
 }
 function dsEpChange() {
   UI.ds.ep = [...document.querySelectorAll('.range2 input')].map((x) => Number(x.value)).sort((x, y) => x - y);
@@ -1420,7 +1514,7 @@ function dsSidebar() {
     <div class="range2"><div class="track"></div><div class="fill" style="left:${f.ep[0]}%;right:${100 - f.ep[1]}%"></div>
       <input id="ds-ep-a" type="range" min="0" max="100" value="${f.ep[0]}" aria-label="Episode 下限" oninput="dsEpInput()" onchange="dsEpChange()">
       <input id="ds-ep-b" type="range" min="0" max="100" value="${f.ep[1]}" aria-label="Episode 上限" oninput="dsEpInput()" onchange="dsEpChange()"></div>
-    <div class="range2-l num"><span id="ds-ep-lo">${dsEp(f.ep[0]).toLocaleString()}</span><span id="ds-ep-hi">${dsEp(f.ep[1]).toLocaleString()}</span></div>
+    <div class="range2-l num"><span id="ds-ep-lo">${fmtCount(dsEp(f.ep[0]))}</span><span id="ds-ep-hi">${fmtCount(dsEp(f.ep[1]))}</span></div>
     <p class="hint" style="margin:6px 0 0">拖动后只显示有 Episode 统计的数据集</p></details>`;
   const [first, ...rest] = DS_FACETS;
   return `<aside class="ds-side" aria-label="筛选数据集">${group(first)}${ep}${rest.map(group).join('')}</aside>`;
@@ -1433,14 +1527,14 @@ function dsCard(d) {
     <div><b class="ds-name">${esc(d.name)}</b><div class="ds-org">${esc(d.org)}</div></div>
     ${meta ? `<div class="ds-meta">${esc(meta)}</div>` : ''}
     <p class="ds-desc">${esc(d.desc)}</p>
-    ${stats([['Episode', dsEpText(d)], ['总时长', dsHoursText(d)]])}
-    <div class="ds-foot"><span>许可 ${esc(dsLabels(d, 'license').join(' / '))}</span><span>${esc(d.size)}</span></div></article>`;
+    ${stats([['已知 Episode', dsEpText(d)], ['已知时长', dsHoursText(d)]])}
+    <div class="ds-foot"><span>许可 ${esc(dsLabels(d, 'license').join(' / '))}</span><span title="${esc(dsExact(d))}">${esc(dsSizeText(d))}</span></div></article>`;
 }
 function dsTable(rows) {
-  return `<div class="table-wrap"><table class="ds-table"><thead><tr><th>数据集</th><th>类型</th><th>形态 / 本体</th><th class="num">Episode</th><th class="num">总时长</th><th class="num">体量</th><th>许可</th><th>本地</th></tr></thead><tbody>
+  return `<div class="table-wrap"><table class="ds-table"><thead><tr><th>数据集</th><th>类型</th><th>形态 / 本体</th><th class="num">已知 Episode</th><th class="num">已知时长</th><th class="num">本地体量</th><th>许可</th><th>本地</th></tr></thead><tbody>
     ${rows.map((d) => `<tr data-open="dataset" data-id="${esc(d.id)}" tabindex="0"><td><div class="t-main">${esc(d.name)}</div><div class="t-sub">${esc(d.org)}</div></td>
       <td><div class="chips">${d.f.source.map(dsSrcBadge).join('')}</div></td><td class="small">${esc([...dsLabels(d, 'form'), ...dsLabels(d, 'robot')].join(' · ') || '—')}</td>
-      <td class="num">${dsEpText(d)}</td><td class="num">${dsHoursText(d)}</td><td class="num nowrap">${esc(d.size.split(' · ')[0])}</td>
+      <td class="num" title="${esc(exact(d.episodes))}">${dsEpText(d)}</td><td class="num" title="${esc(exact(d.hours, ' h'))}">${dsHoursText(d)}</td><td class="num nowrap" title="${esc(d.tb > 0 ? exact(d.tb * 1000, ' GB') : '')}">${esc(dsSizeText(d))}</td>
       <td class="small nowrap">${esc(dsLabels(d, 'license').join(' / '))}</td><td class="small nowrap">${esc(dsLabels(d, 'local').join(''))}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function viewDatasets() {
@@ -1449,36 +1543,43 @@ function viewDatasets() {
   const sum = (k) => DATASETS.reduce((s, d) => s + (d[k] || 0), 0);
   const active = [
     ...DS_FACETS.flatMap(([k, title]) => (f.pick[k] || []).map((v) => [`${title}：${DS_LABEL[k][v]}`, `dsPick('${k}', '${v}')`])),
-    ...(dsEpFull() ? [] : [[`Episode ${dsEp(f.ep[0]).toLocaleString()}–${dsEp(f.ep[1]).toLocaleString()}`, 'UI.ds.ep = [0, 100]; render()']]),
+    ...(dsEpFull() ? [] : [[`Episode ${fmtCount(dsEp(f.ep[0]))}–${fmtCount(dsEp(f.ep[1]))}`, 'UI.ds.ep = [0, 100]; render()']]),
   ];
   const views = [['grid', '卡片视图', 'grid'], ['list', '列表视图', 'list']].map(([k, label, icon]) =>
     `<button type="button" class="btn btn-icon btn-ghost" aria-pressed="${f.view === k}" aria-label="${label}" title="${label}" onclick="UI.ds.view = '${k}'; render()">${ic(icon)}</button>`).join('');
   return `<div class="page">
-    <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>公开具身数据集<span class="ds-demo" title="页面内容为人工整理的示例，没有接入实际业务">${ic('alert', 'ic-sm')}仅作示意，未支撑实际业务</span></h1>
-      <p>人工整理的公开机器人操作数据集，聚焦商业零售与家居服务两类室内场景；数字以发布方公布为准，「本地副本」来自团队的 OSS 数据盘点。</p></div>
-      <div class="ds-kpis"><div><span>收录数据集</span><b>${DATASETS.length}</b></div><div><span>已知 Episode 合计</span><b>${Math.round(sum('episodes') / 1e4).toLocaleString()}<small>万+</small></b></div>
-        <div><span>已知时长合计</span><b>${Math.round(sum('hours')).toLocaleString()}<small>h</small></b></div><div><span>已下载到本地</span><b>${DATASETS.filter((d) => d.f.local[0] !== 'none').length}<small>/ ${DATASETS.length}</small></b></div></div></section>
+    <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>具身数据清单<span class="ds-demo" title="页面内容为人工整理的示例，没有接入实际业务">${ic('alert', 'ic-sm')}仅作示意，未支撑实际业务</span></h1>
+      <p>${DS_INVENTORY ? `完整纳入 ${DS_INVENTORY.recordCount} 条具名盘点记录，按系列归为 ${DATASETS.length} 组，覆盖公开数据、自采数据、视频和资产。` : '公开目录缓存。'}统计更新于 ${DS_INVENTORY_DATE}；每组保留全部版本，汇总只计选定的已知部分。</p></div>
+      <div class="ds-kpis"><div><span>数据集系列</span><b>${DATASETS.length}</b></div><div><span>归组已知 Episode</span><b title="${sum('episodes').toLocaleString()} 条；按版本选择汇总，合集之间仍可能重叠，视频片段另列">${kpiUnit(fmtCount(sum('episodes')))}</b></div>
+        <div><span>归组已知时长</span><b title="${sum('hours').toLocaleString(undefined, {maximumFractionDigits: 3})} h；含部分实测，未完成跨合集内容去重">${kpiUnit(fmtHours(sum('hours')))}</b></div><div><span>有本地副本 / 元数据</span><b>${DATASETS.filter((d) => d.f.local[0] !== 'none').length}<small>/ ${DATASETS.length}</small></b></div></div></section>
+    ${DS_INVENTORY_ERROR ? `<p class="callout">${esc(DS_INVENTORY_ERROR)}</p>` : ''}<p class="hint">${esc(DS_INVENTORY?.method || '缓存目录范围有限，不代表全部本地数据。')}</p>
     <div class="ds-layout">${dsSidebar()}
       <section class="ds-main" aria-label="数据集列表">
         <div class="ds-bar"><h2 class="ds-n">数据集 <span class="num">${shown.length}</span></h2>
           <button type="button" class="btn btn-sm" onclick="dsClear()" ${active.length || f.q ? '' : 'disabled'}>${ic('rotate', 'ic-sm')}重置</button>
-          <span class="ds-note">统一按 LeRobot 数据语义整理，训练接入见 <code>scripts/datagen/CONTRACT.md</code></span><span class="sp"></span>
+          <span class="ds-note">${DS_INVENTORY ? `${DS_INVENTORY.recordCount} 条版本记录均已归组；搜索也匹配版本名称` : '公开目录缓存'}</span><span class="sp"></span>
           ${searchBox('ds-q', f.q, 'UI.ds.q', '搜索数据集')}${dropdown('ds-sort', '排序', DS_SORT, f.sort, (v) => { UI.ds.sort = v; })}<div class="views" role="group" aria-label="视图">${views}</div></div>
         ${active.length ? `<div class="ds-active">${active.map(([label, undo]) => `<button type="button" class="tag ds-x" onclick="${undo}" aria-label="移除筛选 ${esc(label)}">${esc(label)}${ic('close', 'ic-sm')}</button>`).join('')}</div>` : ''}
         ${!shown.length ? `<div class="card">${empty('database', '没有匹配的数据集', '放宽筛选条件，或点「重置」')}</div>`
           : f.view === 'list' ? dsTable(shown) : `<div class="grid ds-grid">${shown.map(dsCard).join('')}</div>`}
-        <p class="hint" style="margin-top:20px">仅作示意，未支撑实际业务：目录由人工录入，分类标签为初稿；Episode 和时长空缺的待补，部分取自 RoboFlywheel 的统计。</p></section></div></div>`;
+        <p class="hint" style="margin-top:20px">仅作示意，未支撑实际业务：分类标签为初稿。本地统计更新于 ${DS_INVENTORY_DATE}，体量按逻辑字节计算（1 GB = 10^9 B），保留全部目录副本，可能重叠。已知时长可能只覆盖子集，空白表示尚未可靠核实；不同合集可能重叠，合计不代表独立演示数；未物理删除的质检排除项仍计入。</p></section></div></div>`;
 }
 function drawerDataset(d) {
   const host = d.url.includes('huggingface') ? 'Hugging Face' : 'ModelScope';
   return {title: d.name, sub: d.org,
-    actions: `<a class="btn" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">${ic('external')}在 ${host} 打开</a>`,
+    actions: d.url ? `<a class="btn" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">${ic('external')}在 ${host} 打开</a>` : '',
     body: `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px">${d.f.source.map(dsSrcBadge).join('')}${dsLabels(d, 'skill').map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
       <p style="margin:0 0 14px;line-height:1.7">${esc(d.desc)}</p>
-      ${stats([['Episode', dsEpText(d)], ['总时长', dsHoursText(d)], ['体量', d.size]])}
+      ${stats([['已知 Episode', dsEpText(d)], ['已知时长', dsHoursText(d)], ['本地体量', dsSizeText(d)]])}
+      ${dsExact(d) ? `<p class="hint" style="margin:6px 0 0">精确值：${esc(dsExact(d))}</p>` : ''}
+      ${sec('本地统计口径 · ' + DS_INVENTORY_DATE, `<p style="line-height:1.7">${esc(d.inventoryNote)}</p>`)}
+      ${d.versions ? sec(`版本与子集 · ${d.versions.length} 条`, d.versions.map((v) => `<details class="card" style="margin:10px 0;padding:12px"><summary><b>${esc(v.name)}</b> · ${esc(v.state || '待确认')}</summary>
+        <p class="small">原记录：${v.episodes === null ? 'Episode 未知' : `<span title="${exact(v.episodes)}">${fmtCount(v.episodes)}</span> ${v.source === 'ego' ? '视频片段' : 'Episode / 条目'}`} · ${v.hours === null ? '完整时长未知' : `<span title="${exact(v.hours, ' h')}">${fmtHours(v.hours)}</span>`} · ${v.gb === null ? '体量未知' : `<span title="${exact(v.gb, ' GB')}">${fmtGB(v.gb)}</span>`}</p>
+        <p class="small">计入口径：${v.selectedEpisodes === null ? 'Episode 不累计 / 未知' : `<span title="${exact(v.selectedEpisodes)}">${fmtCount(v.selectedEpisodes)}</span> Episode`} · ${v.selectedHours === null ? '时长不累计 / 未知' : `<span title="${exact(v.selectedHours, ' h')}">${fmtHours(v.selectedHours)}</span>`}。${esc(v.selectionNote || '采用该记录的已知统计；未知项留空。')}</p>
+        <p class="hint">${esc(v.note)}</p>${v.url ? `<a class="small" href="${esc(v.url)}" target="_blank" rel="noopener noreferrer">查看来源 ${ic('external', 'ic-sm')}</a>` : ''}</details>`).join('')) : ''}
       ${sec(`${ic('layers')}分类`, `<dl class="kv">${DS_FACETS.filter(([k]) => !['source', 'skill', 'local'].includes(k)).map(([k, title]) =>
         `<dt>${title}</dt><dd>${dsLabels(d, k).map((x) => esc(x)).join('、') || '<span class="muted">待补</span>'}</dd>`).join('')}</dl>`)}
-      ${sec(`${ic('database')}获取`, `<dl class="kv"><dt>来源</dt><dd><a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" class="mono small">${esc(d.url.replace(/^https?:\/\/(www\.)?/, ''))}</a></dd>
+      ${sec(`${ic('database')}获取`, `<dl class="kv"><dt>来源</dt><dd>${d.url ? `<a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" class="mono small">${esc(d.url.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '未登记公开来源'}</dd>
         <dt>本地副本</dt><dd>${esc(dsLabels(d, 'local').join(''))}</dd></dl>`)}`};
 }
 
@@ -1737,7 +1838,7 @@ function appearanceSection(d) {
   return sec(`${ic('layers')}外观与桌高`, `${roles}${table}
     <div class="toolbar" style="margin-top:10px"><button class="btn btn-primary" type="button" onclick="saveAppearance('${esc(d.id)}')">${ic('check')}保存外观设置</button>
       <span class="small muted">${d.auto.appearance ? `已写入 ${esc(dir)}/appearance.json` : '还没有设置，场景按重建原样使用'}</span></div>
-    <p class="hint">固定设置在重新生成评测布局（scripts/g1d/build_asset.py）时写进本场景的布局；随机池用于数据生成，见下面命令。材质库 ${MATS.length} 个：场景提取 + 资产库 MDL。</p>
+    <p class="hint">固定设置在重新生成评测布局（scripts/g1d/build_asset.py）时写进本场景的布局；随机池用于数据生成，见下面命令。仅显示适合当前场景和表面的白名单材质：办公室用地毯/木地板与木桌，吧台可用石材/陶瓷，实验台可用涂层/拉丝不锈钢；原材质可保留。</p>
     ${code(`# 把设置写进一批布局（固定设置；--randomize 时有随机池的部分每个布局重新抽取）\npython scripts/scenes/appearance.py ${dir} <布局目录> [--randomize --seed 0]`)}`);
 }
 async function saveAppearance(id) {
@@ -2031,7 +2132,7 @@ const evalEnvCfgs = (d, task) => {  // env configs to evaluate a task in: those 
   return cfgs.filter((c) => allowed.has(c));
 };
 function viewEvals() {
-  const f = UI.evalStatus ?? 'open';
+  const f = UI.evalStatus ?? 'all';
   const docs = live(S.evaluation).filter((d) => f === 'all' || (f === 'open' ? !['done', 'failed', 'cancelled'].includes(d.status) : d.status === f))
     .sort((x, y) => (y._at || 0) - (x._at || 0));
   return `<div class="page">${pageHead('模型评测', '提交外部训练的模型，由评测负责人交给 coding agent 部署到 5090-2 并在仿真里评测；结果回到这里',
@@ -2220,9 +2321,9 @@ const objPath = (d) => `Assets/Object/${d.auto?.library || 'Real2Sim'}/${d.id}`;
 const ownObj = (d) => Boolean(d.auto.generator || twinObj(d));
 function objMedia(d, thumb = false) {
   const a = d.auto, render = a.renders?.[0], photo = a.photos?.[0], main = render || photo;
-  if (thumb) return `<span class="thumb">${main ? `<img loading="lazy" decoding="async" src="${small(main, 320)}" alt="">` : ic('cube')}</span>`;
+  if (thumb) return `<span class="thumb obj-media">${main ? `<img loading="lazy" decoding="async" src="${small(main, 320)}" alt="">` : ic('cube')}</span>`;
   const nv = variantsOf(d.id).length, runtime = runtimeText(d.gen);
-  return `<div class="media r43">${main ? `<img loading="lazy" decoding="async" src="${small(main, 640)}" alt="">` : ic('cube', 'ic-lg')}
+  return `<div class="media r43 obj-media">${main ? `<img loading="lazy" decoding="async" src="${small(main, 640)}" alt="">` : ic('cube', 'ic-lg')}
     ${render && photo ? `<img class="inset" loading="lazy" decoding="async" src="${small(photo, 320)}" alt="实拍">` : ''}
     <div class="pills">${a.photos?.length ? `<span class="pill" title="已归档实物照片">${ic('camera', 'ic-sm')}${a.photos.length}</span>` : hasPhotoReference(d) ? `<span class="pill" title="对话中已提供实物照片，原图待关联">${ic('camera', 'ic-sm')}照片参考</span>` : ''}${render ? `<span class="pill" title="仿真渲染">${ic('cube', 'ic-sm')}渲染</span>` : ''}
       ${nv ? `<span class="pill" title="泛化变体资产">+${nv} 变体</span>` : ''}${runtime ? `<span class="pill" title="仿真里按布局随机，不建新资产">随机 ${esc(runtime)}</span>` : ''}</div></div>`;
@@ -2517,6 +2618,28 @@ function genBrief(d) {  // brief lines for the generalization asked in step 3 of
     '',
   ];
 }
+const FLEX_FAMILIES = {'': '不启用柔性建模', cloth: '布料 / 毛巾', garment: '衣服', rope: '绳子 / 线缆', bag: '布袋 / 薄膜袋'};
+const FLEX_CHECKS = {geometry_mass: '几何与总质量', deformation: '形变响应', contact: '外部接触', self_collision: '自接触与自交', reset_replay: '复位与重放', shutdown: '运行退出', material_fit: '材料实测校准', seams_openings: '缝线与开口', bend_twist: '弯曲与扭转'};
+const FLEX_MEASURES = {thickness_mm: '厚度 (mm)', areal_density_g_m2: '面密度 (g/m²)', diameter_mm: '绳径 (mm)', linear_density_g_m: '线密度 (g/m)'};
+function flexibleFields(d) {
+  const a = d.auto.deformable_acceptance;
+  return sec('柔性建模与材料记录', `<div class="form">
+    ${row('物体种类', 'deformable.family', sel(d, 'deformable.family', FLEX_FAMILIES))}
+    ${row('参考状态', 'deformable.rest_state', area(d, 'deformable.rest_state', 'placeholder="如 无拉力平铺；绳索自然伸直；袋口打开、空袋"'))}
+    ${row('裁片 / 缝线 / 开口', 'deformable.structure', area(d, 'deformable.structure', 'placeholder="经纬方向、裁片边界、缝线连接、袖口/袋口/拉链；绳端连接与截面"'))}
+    ${row('试验记录', 'deformable.test_data', area(d, 'deformable.test_data', 'placeholder="悬垂、经纬拉伸、剪切、摩擦、恢复曲线的文件或记录编号；未测请留空"'))}
+    ${row('候选仿真后端', 'deformable.backend', sel(d, 'deformable.backend', {'': '待评估', auto: '按验收结果选择', physx: 'PhysX', newton: 'Newton'}))}
+    </div><p class="hint">沿用本物体的照片、尺寸和质量。数值来源逐项记录；先填依据，再标为实测。后端偏好不代表已验证。</p>
+    <div class="table-wrap"><table class="plain"><thead><tr><th>测量</th><th>数值</th><th>来源</th><th>依据</th></tr></thead><tbody>
+    ${Object.entries(FLEX_MEASURES).map(([k, label]) => { const f = `deformable.measurements.${k}`; return `<tr><td><label for="${fid(f + '.value')}">${label}</label></td><td>${inp(d, f + '.value', 'number', 'min="0" step="any" aria-label="数值"')}</td><td>${sel(d, f + '.source', {'': '未说明', unmeasured: '待测', estimated: '估计', measured: '实测'}, 'aria-label="来源"')}</td><td>${inp(d, f + '.evidence', 'text', 'placeholder="测量日期 / 记录 / 文件" aria-label="测量依据"')}</td></tr>`; }).join('')}
+    </tbody></table></div>${a ? `<table class="plain"><tbody>${Object.entries(a.checks || {}).map(([k, v]) => `<tr><td>${esc(FLEX_CHECKS[k] || k)}</td><td>${esc({pass: '通过', fail: '失败', pending: '待验收'}[v] || v)}</td></tr>`).join('')}</tbody></table><p class="hint">网格一致：${a.mesh_matches ? '是' : '待核对'}；登记一致：${a.registration_matches ? '是' : '待核对'}；材料标定：${a.material_calibrated ? '已记录' : '未完成'}</p>` : ''}${d.deformable?.family ? `<p class="hint">柔性验收：${esc(a?.status === 'pass' ? '通过' : a?.status === 'fail' ? '有失败项' : '待验收')}。报告使用独立的 deformable_check.json；修改登记后需重新同步核对，已有刚体检查不能使柔性资产自动通过。</p>` : ''}`);
+}
+function flexibleBrief(d) {
+  if (!d.deformable?.family) return [];
+  return ['柔性建模专用要求：', JSON.stringify(d.deformable, null, 2),
+    '按 real2sim/prototypes/softmimicgen/DEFORMABLE_MODELING.md 建模。布/衣/袋保留裁片、开口和接缝；绳使用中心线与截面，单独验证弯曲/扭转。',
+    '刚体 check_object.py 不能作为柔性验收。另写 preview/deformable_check.json，包含网格 SHA、登记指纹和每项检查的状态及证据；材料未标定不得标通过。', ''];
+}
 function modelingBrief(d) { return d.modeling?.prompt || ''; }
 function objDeleteBlocker(d) {
   const a = d.auto, variants = variantsOf(d.id).map((v) => v.id);
@@ -2592,6 +2715,7 @@ function drawerObject(d) {
       ${row('建模方式', 'method', sel(d, 'method', METHODS))}
       ${row('重建负责人', 'owner', sel(d, 'owner', memberOpts(d.owner)), '负责建模的人；退回重建后由他修改')}
       ${row('资产库', 'library', sel(d, 'library', {'': `按来源自动（${libName(autoLib(d))}）`, ...Object.fromEntries(libraries().map((l) => [l.id, l.name]))}), '决定物体页里放在哪一组；Real2Sim 组的物体要经管理员审核')}</div>`)}
+    ${flexibleFields(d)}
     ${sec('实物测量', `<div class="form">
       ${row('材质', 'material', inp(d, 'material', 'text', 'list="dl-materials" placeholder="如 PP 塑料、玻璃"'))}
       ${row('颜色', 'color', inp(d, 'color'))}
@@ -2612,7 +2736,7 @@ function drawerObject(d) {
       <label>允许变化</label><div class="ctl">${Object.entries(GEN_ATTRS).map(([k, t]) => `<label class="check">${inp(d, `gen.${k}`, 'checkbox')}${t}</label>`).join('')}</div>
       ${row('泛化要求', 'gen.requirements', area(d, 'gen.requirements', `placeholder="${GEN_HINT}"`))}</div><p class="hint">${GEN_NOTE}</p>`) : ''}
     ${a.built ? brief : ''}
-    ${sec('物理检验', `<div class="table-wrap"><table class="plain"><tbody>${PHYS.map(([k, label, crit, cmd]) => `<tr><td style="width:110px"><label for="${fid(`checks.${k}`)}">${label}</label></td>
+    ${sec(d.deformable?.family ? '通用观察（不能替代柔性验收）' : '物理检验', `<div class="table-wrap"><table class="plain"><tbody>${PHYS.filter(([k]) => !d.deformable?.family || k !== 'settle').map(([k, label, crit, cmd]) => `<tr><td style="width:110px"><label for="${fid(`checks.${k}`)}">${label}</label></td>
       <td class="small">${crit}${autoPhys(d, k) ? `<div style="margin-top:4px">${st({pass: 'ok', fail: 'bad', na: 'na'}[autoPhys(d, k)] || 'todo', `${k === 'settle' ? '脚本' : 'agent'}：${CHECK_STATES[autoPhys(d, k)] || autoPhys(d, k)}`)}
         <span class="muted">${k === 'settle' ? `倾斜 ${a.check.tilt_deg}°，速度 ${a.check.speed_m_s} m/s，` : esc(a.check.notes?.[k] ? `${a.check.notes[k]}，` : '')}${esc(a.check.checked_at || '')}${d.checks?.[k] ? '；以右侧人工结论为准' : ''}</span></div>` : ''}${cmd(d) ? `<div style="margin-top:6px">${code(cmd(d))}</div>` : ''}</td><td style="width:110px">${sel(d, `checks.${k}`, CHECK_STATES)}</td></tr>`).join('')}</tbody></table></div>`)}
     ${sec('仿真资产', `<dl class="kv"><dt>资产目录</dt><dd class="mono small">${esc(rel(a.dir) || '—')} ${a.in_library ? st('ok', '已入库') : a.built ? st('todo', '已建好，未装共享库') : st('todo', '未找到')}</dd>
@@ -2956,7 +3080,7 @@ const PICK = {
   mat: {
     // only the materials that suit the key's surface (mt-<list>-<role>), server-side appearance.fits; an upstream
     // task's tabletop and ground (mt-rsi-*) take MDL materials only
-    all: (key) => MATS.filter((m) => (m.roles || []).includes(key.split('-')[2])
+    all: (key) => MATS.filter((m) => (key.startsWith('mt-rsi-') ? m.roles || [] : m.scene_roles?.[AP?.id] || m.roles || []).includes(key.split('-')[2])
       && (!key.startsWith('mt-rsi-') || (m.kind === 'mdl' && (rso()?.materials || []).includes(m.id.replace(/^mdl\//, '')))))
       .sort((x, y) => Number(y.category === 'scene') - Number(x.category === 'scene') || x.name.localeCompare(y.name)),
     get: (id) => MATS.find((m) => m.id === id), name: (m) => m.name, img: (m) => m?.thumb, icon: 'image',
@@ -3539,7 +3663,7 @@ async function deleteUser(username) {
   } catch (err) { toast(`删除失败：${err.message}`, true); }
 }
 async function load() {
-  await Promise.all([...KINDS.map(async (k) => { S[k] = await api(`/api/items?kind=${k}`); }), api('/api/items?kind=library').then((l) => { S.library = l; }), api('/api/members').then((m) => { MEMBERS = m; }),
+  await Promise.all([loadDatasetInventory(), ...KINDS.map(async (k) => { S[k] = await api(`/api/items?kind=${k}`); }), api('/api/items?kind=library').then((l) => { S.library = l; }), api('/api/members').then((m) => { MEMBERS = m; }),
     api('/api/materials').then((m) => { MATS = m; }), ...['train', 'exam'].map((p) => api(`/api/rsi-options?pool=${p}`).then((o) => { RSI_OPTS[p] = o; }).catch(() => {}))]);
   UI.loaded = true;
   UI.syncedAt = new Date().toLocaleTimeString('zh-CN', {hour12: false});
@@ -3805,6 +3929,18 @@ async function deletePhoto(path) {
     toast('照片已删除');
   } catch (err) { toast(`删除失败：${err.message}`, true); }
 }
+function fieldPatch(doc, field, value) {
+  const [root, ...keys] = field.split('.');
+  if (!keys.length) return {[root]: value};
+  const copy = (x, next) => Array.isArray(x) ? [...x] : x && typeof x === 'object' ? {...x} : /^\d+$/.test(next) ? [] : {};
+  const result = copy(doc[root], keys[0]);
+  let cursor = result;
+  keys.forEach((key, i) => {
+    if (i === keys.length - 1) cursor[key] = value;
+    else { cursor[key] = copy(cursor[key], keys[i + 1]); cursor = cursor[key]; }
+  });
+  return {[root]: result};
+}
 function onFieldChange(ev) {
   const el = ev.target;
   if (el.dataset.sel !== undefined) { if (el.checked) UI.sel.add(el.dataset.sel); else UI.sel.delete(el.dataset.sel); render(); return; }
@@ -3814,10 +3950,7 @@ function onFieldChange(ev) {
   const {kind, id} = box.dataset, doc = S[kind].find((x) => x.id === id) || {};
   let v = el.type === 'checkbox' ? el.checked : el.value;
   if (el.type === 'number') v = el.value === '' ? null : Number(el.value);
-  const [k, sub] = f.split('.');
-  let patch = {[k]: v};
-  if (/^\d+$/.test(sub || '')) { const arr = [...(doc[k] || [])]; arr[Number(sub)] = v; patch = {[k]: arr}; }
-  else if (sub) patch = {[k]: {...(doc[k] || {}), [sub]: v}};
+  const patch = fieldPatch(doc, f, v);
   const prev = Object.fromEntries(Object.keys(patch).map((key) => [key, doc[key]]));
   Object.assign(doc, patch);  // the next change builds on this one even before the save returns
   save(kind, id, patch).then((saved) => {
