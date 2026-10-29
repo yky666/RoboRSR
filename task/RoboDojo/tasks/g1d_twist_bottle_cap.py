@@ -12,7 +12,7 @@ class TwistBottleCapG1dCommon:
     def __init__(self, config, app, **kwargs):
         super().__init__(config, app, **kwargs)
         self.reward_manager = RewardManager(self.num_envs)
-        self.step_lim = 4800  # 160 s: twenty-four 30-degree strokes, each with a regrasp from above
+        self.step_lim = 9000  # 300 s: up to twenty 45-degree strokes at ~150 deg/s, each regripped from above
 
     def _post_setup_scene(self, sim):
         super()._post_setup_scene(sim)
