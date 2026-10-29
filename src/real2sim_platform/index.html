@@ -1206,8 +1206,8 @@ function drawerPrototype(d) {
 }
 
 // ---------- datasets: public catalog with local-copy inventory; publisher descriptions keep their original scope ----------
-const DS_INVENTORY_DATE = '2026-10-29';
-const DATASETS = [
+let DS_INVENTORY_DATE = '2026-10-29', DS_INVENTORY = null, DS_INVENTORY_ERROR = '';
+let DATASETS = [
   {id: 'agibot-world-beta', name: 'AgiBot World Beta', org: '智元机器人 AgiBot', url: 'https://huggingface.co/datasets/agibot-world/AgiBotWorld-Beta',
     episodes: null, hours: null, size: "49,561.637 GB", tb: 49.561637004,
     inventoryNote: "原始 tar 仓库的逻辑体量；尚未逐包核算完整回合和时长。另有转换副本 153,394 条、2,521.364 h，仅为已转换子集，与原始包重叠。",
@@ -1391,7 +1391,7 @@ const DATASETS = [
 ];
 // facets: [key, title, look, options]; a dataset matches a facet when any of its values is picked (OR within, AND across)
 const DS_FACETS = [
-  ['source', '数据类型', 'chips', [['real', '真机采集'], ['sim', '仿真生成'], ['ego', 'Ego · 人类示范']]],
+  ['source', '数据类型', 'chips', [['real', '真机采集'], ['sim', '仿真生成'], ['ego', 'Ego · 人类示范'], ['mixed', '真实 + 仿真'], ['asset', '资产'], ['unknown', '待确认']]],
   ['domain', '应用领域', 'list', [['commercial', '商业 / 零售'], ['home', '家居服务']]],
   ['space', '室内空间', 'list', [['store', '门店 / 商超'], ['cafe', '餐饮'], ['office', '办公'], ['kitchen', '厨房'], ['living', '客厅'], ['bedroom', '卧室'], ['bathroom', '卫浴']]],
   ['form', '机器人形态', 'list', [['wheeled_humanoid', '轮式人形'], ['legged_humanoid', '足式人形'], ['dual_arm', '双臂'], ['single_arm', '单臂'], ['human', '人手（无机器人）']]],
@@ -1405,21 +1405,64 @@ const DS_FACETS = [
   ['local', '本地副本', 'list', [['complete', '已下载'], ['partial', '部分下载'], ['none', '未下载']]],
 ];
 const DS_LABEL = Object.fromEntries(DS_FACETS.map(([k, , , opts]) => [k, Object.fromEntries(opts)]));
-const DS_SRC_IC = {real: 'bot', sim: 'cube', ego: 'eye'};
+const DS_SRC_IC = {real: 'bot', sim: 'cube', ego: 'eye', mixed: 'bot', asset: 'cube', unknown: 'database'};
 const DS_SORT = [['rec', '推荐'], ['episodes', '规模'], ['size', '体量'], ['name', '名称']];
 const dsLabels = (d, k) => (d.f[k] || []).map((v) => DS_LABEL[k][v]);
-const dsEpText = (d) => d.epText || (d.episodes ? d.episodes.toLocaleString() : '—');
-const dsHoursText = (d) => (d.hours ? `${d.hours.toLocaleString()} h` : '—');
+const dsEpText = (d) => d.epText || (d.episodes != null ? d.episodes.toLocaleString() : '—');
+const dsHoursText = (d) => (d.hours != null ? `${d.hours.toLocaleString(undefined, {maximumFractionDigits: 3})} h` : '—');
+// Runtime inventory stays on the authenticated server; private records never enter the public source tree.
+function applyDatasetInventory(snapshot) {
+  const invalid = () => { throw new Error('数据盘点文件格式或覆盖数量不完整'); };
+  if (snapshot.schemaVersion !== 1 || !Array.isArray(snapshot.groups) || !snapshot.groups.length ||
+      !Number.isInteger(snapshot.recordCount) || !/^\d{4}-\d{2}-\d{2}$/.test(snapshot.date)) invalid();
+  const templates = new Map(DATASETS.map((d) => [d.id, d])), ids = new Set(), records = new Set();
+  const numeric = (v) => v === null || (Number.isFinite(v) && v >= 0);
+  const total = (rows, key) => rows.some((v) => v[key] !== null) ? rows.reduce((s, v) => s + (v[key] || 0), 0) : null;
+  const catalog = snapshot.groups.map((g) => {
+    if (!/^[a-z0-9-]+$/.test(g.id) || ids.has(g.id) || !g.name || !Array.isArray(g.versions) || !g.versions.length) invalid();
+    ids.add(g.id);
+    for (const v of g.versions) {
+      if (!v.id || records.has(v.id) || !v.name || !['real', 'sim', 'ego', 'mixed', 'asset', 'unknown'].includes(v.source) ||
+          !['episodes', 'hours', 'gb', 'selectedEpisodes', 'selectedHours'].every((k) => numeric(v[k])) ||
+          (['ego', 'asset'].includes(v.source) && v.selectedEpisodes !== null) ||
+          (v.url && !/^https:\/\/(www\.)?(huggingface\.co|modelscope\.cn)\//.test(v.url))) invalid();
+      records.add(v.id);
+    }
+    const base = templates.get(g.templateId), versions = g.versions, gb = total(versions, 'gb');
+    const sources = [...new Set(versions.map((v) => v.source))];
+    const urls = versions.map((v) => v.url).filter(Boolean), url = base?.url || urls[0] || '';
+    const local = versions.every((v) => v.state === '未下载') ? 'none' : versions.every((v) => v.state === '已完备') ? 'complete' : 'partial';
+    return {...base, id: g.id, name: base?.name || g.name, org: base?.org || (url ? new URL(url).pathname.split('/')[2] || '来源见版本明细' : '本地盘点'), url,
+      desc: base?.desc || `${versions.length} 条本地盘点记录；数据类型与完整性见版本明细，尚未核实的分类和许可保留为空。`,
+      f: {...Object.fromEntries(DS_FACETS.map(([k]) => [k, []])), ...base?.f,
+        source: base?.f.source || sources, license: base?.f.license || ['unknown'], local: [local],
+        platform: [...new Set(urls.map((u) => u.includes('huggingface.co') ? 'hf' : 'ms'))]},
+      episodes: total(versions, 'selectedEpisodes'), hours: total(versions, 'selectedHours'), tb: (gb || 0) / 1000,
+      size: gb === null ? '—' : `${gb.toLocaleString(undefined, {maximumFractionDigits: 3})} GB`, versions,
+      inventoryNote: '按版本明细中的「计入口径」汇总已知部分；未选择的同源副本不重复累计，未知值不作零。目录体量保留全部副本，可能重叠。'};
+  });
+  if (records.size !== snapshot.recordCount) invalid();
+  DATASETS = catalog;
+  DS_INVENTORY = snapshot;
+  DS_INVENTORY_DATE = snapshot.date;
+  DS_INVENTORY_ERROR = '';
+}
+async function loadDatasetInventory() {
+  try { applyDatasetInventory(await api(file(`${INFO.root}/output/dataset_inventory.json`), {cache: 'no-cache'})); }
+  catch (err) { DS_INVENTORY_ERROR = `完整盘点未加载：${err.message}。当前仅显示 ${DATASETS.length} 条缓存目录。`; }
+}
 // Episode range on a log scale between the smallest and largest known counts: slider positions 0..100
-const DS_EP = DATASETS.map((d) => d.episodes).filter(Boolean), DS_EP_LO = Math.log(Math.min(...DS_EP)), DS_EP_HI = Math.log(Math.max(...DS_EP));
-const dsEp = (t) => Math.round(Math.exp(DS_EP_LO + (t / 100) * (DS_EP_HI - DS_EP_LO)));
+const dsEp = (t) => {
+  const counts = DATASETS.map((d) => d.episodes).filter((n) => n > 0), lo = Math.log(Math.min(...counts, Infinity)), hi = Math.log(Math.max(...counts, 1));
+  return counts.length ? Math.round(Math.exp(lo + (t / 100) * (hi - lo))) : 0;
+};
 const dsEpFull = () => UI.ds.ep[0] === 0 && UI.ds.ep[1] === 100;
 const dsPick = (k, v) => { const s = UI.ds.pick[k] ||= []; const i = s.indexOf(v); i < 0 ? s.push(v) : s.splice(i, 1); render(); };
 const dsClear = (k) => { if (k) UI.ds.pick[k] = []; else { UI.ds.pick = {}; UI.ds.ep = [0, 100]; UI.ds.q = ''; } render(); };
 function dsMatch(d, skip) {
   const f = UI.ds, q = f.q.trim().toLowerCase();
   if (!dsEpFull() && (!d.episodes || d.episodes < dsEp(f.ep[0]) || d.episodes > dsEp(f.ep[1]))) return false;
-  if (q && !`${d.name} ${d.org} ${d.desc} ${DS_FACETS.flatMap(([k]) => dsLabels(d, k)).join(' ')}`.toLowerCase().includes(q)) return false;
+  if (q && !`${d.name} ${d.org} ${d.desc} ${(d.versions || []).map((v) => v.name).join(' ')} ${DS_FACETS.flatMap(([k]) => dsLabels(d, k)).join(' ')}`.toLowerCase().includes(q)) return false;
   return DS_FACETS.every(([k]) => k === skip || !f.pick[k]?.length || (d.f[k] || []).some((v) => f.pick[k].includes(v)));
 }
 function dsEpInput() {  // live label while dragging; the list re-renders on change, so the thumb being dragged stays in place
@@ -1464,11 +1507,11 @@ function dsCard(d) {
     <div><b class="ds-name">${esc(d.name)}</b><div class="ds-org">${esc(d.org)}</div></div>
     ${meta ? `<div class="ds-meta">${esc(meta)}</div>` : ''}
     <p class="ds-desc">${esc(d.desc)}</p>
-    ${stats([['本地 Episode', dsEpText(d)], ['本地时长', dsHoursText(d)]])}
+    ${stats([['已知 Episode', dsEpText(d)], ['已知时长', dsHoursText(d)]])}
     <div class="ds-foot"><span>许可 ${esc(dsLabels(d, 'license').join(' / '))}</span><span>${esc(d.size)}</span></div></article>`;
 }
 function dsTable(rows) {
-  return `<div class="table-wrap"><table class="ds-table"><thead><tr><th>数据集</th><th>类型</th><th>形态 / 本体</th><th class="num">本地 Episode</th><th class="num">本地时长</th><th class="num">本地体量</th><th>许可</th><th>本地</th></tr></thead><tbody>
+  return `<div class="table-wrap"><table class="ds-table"><thead><tr><th>数据集</th><th>类型</th><th>形态 / 本体</th><th class="num">已知 Episode</th><th class="num">已知时长</th><th class="num">本地体量</th><th>许可</th><th>本地</th></tr></thead><tbody>
     ${rows.map((d) => `<tr data-open="dataset" data-id="${esc(d.id)}" tabindex="0"><td><div class="t-main">${esc(d.name)}</div><div class="t-sub">${esc(d.org)}</div></td>
       <td><div class="chips">${d.f.source.map(dsSrcBadge).join('')}</div></td><td class="small">${esc([...dsLabels(d, 'form'), ...dsLabels(d, 'robot')].join(' · ') || '—')}</td>
       <td class="num">${dsEpText(d)}</td><td class="num">${dsHoursText(d)}</td><td class="num nowrap">${esc(d.size.split(' · ')[0])}</td>
@@ -1485,32 +1528,37 @@ function viewDatasets() {
   const views = [['grid', '卡片视图', 'grid'], ['list', '列表视图', 'list']].map(([k, label, icon]) =>
     `<button type="button" class="btn btn-icon btn-ghost" aria-pressed="${f.view === k}" aria-label="${label}" title="${label}" onclick="UI.ds.view = '${k}'; render()">${ic(icon)}</button>`).join('');
   return `<div class="page">
-    <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>公开具身数据集<span class="ds-demo" title="页面内容为人工整理的示例，没有接入实际业务">${ic('alert', 'ic-sm')}仅作示意，未支撑实际业务</span></h1>
-      <p>人工整理的公开机器人操作数据集，聚焦商业零售与家居服务两类室内场景；本地 Episode、时长和体量同步自 ${DS_INVENTORY_DATE} 数据盘点，覆盖范围见各条目的统计口径。</p></div>
-      <div class="ds-kpis"><div><span>收录数据集</span><b>${DATASETS.length}</b></div><div><span>本地 Episode</span><b title="${sum('episodes').toLocaleString()} 个本地条目，未去重">${(sum('episodes') / 1e4).toLocaleString(undefined, {maximumFractionDigits: 1})}<small>万</small></b></div>
-        <div><span>本地时长</span><b title="本地已统计时长，未去重">${Math.round(sum('hours')).toLocaleString()}<small>h</small></b></div><div><span>已下载到本地</span><b>${DATASETS.filter((d) => d.f.local[0] !== 'none').length}<small>/ ${DATASETS.length}</small></b></div></div></section>
+    <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>具身数据清单<span class="ds-demo" title="页面内容为人工整理的示例，没有接入实际业务">${ic('alert', 'ic-sm')}仅作示意，未支撑实际业务</span></h1>
+      <p>${DS_INVENTORY ? `完整纳入 ${DS_INVENTORY.recordCount} 条具名盘点记录，按系列归为 ${DATASETS.length} 组，覆盖公开数据、自采数据、视频和资产。` : '公开目录缓存。'}统计更新于 ${DS_INVENTORY_DATE}；每组保留全部版本，汇总只计选定的已知部分。</p></div>
+      <div class="ds-kpis"><div><span>数据集系列</span><b>${DATASETS.length}</b></div><div><span>归组已知 Episode</span><b title="${sum('episodes').toLocaleString()} 条；按版本选择汇总，合集之间仍可能重叠，视频片段另列">${(sum('episodes') / 1e4).toLocaleString(undefined, {maximumFractionDigits: 1})}<small>万</small></b></div>
+        <div><span>归组已知时长</span><b title="${sum('hours').toLocaleString(undefined, {maximumFractionDigits: 3})} h；含部分实测，未完成跨合集内容去重">${sum('hours').toLocaleString(undefined, {maximumFractionDigits: 1})}<small>h</small></b></div><div><span>有本地副本 / 元数据</span><b>${DATASETS.filter((d) => d.f.local[0] !== 'none').length}<small>/ ${DATASETS.length}</small></b></div></div></section>
+    ${DS_INVENTORY_ERROR ? `<p class="callout">${esc(DS_INVENTORY_ERROR)}</p>` : ''}<p class="hint">${esc(DS_INVENTORY?.method || '缓存目录范围有限，不代表全部本地数据。')}</p>
     <div class="ds-layout">${dsSidebar()}
       <section class="ds-main" aria-label="数据集列表">
         <div class="ds-bar"><h2 class="ds-n">数据集 <span class="num">${shown.length}</span></h2>
           <button type="button" class="btn btn-sm" onclick="dsClear()" ${active.length || f.q ? '' : 'disabled'}>${ic('rotate', 'ic-sm')}重置</button>
-          <span class="ds-note">统一按 LeRobot 数据语义整理，训练接入见 <code>scripts/datagen/CONTRACT.md</code></span><span class="sp"></span>
+          <span class="ds-note">${DS_INVENTORY ? `${DS_INVENTORY.recordCount} 条版本记录均已归组；搜索也匹配版本名称` : '公开目录缓存'}</span><span class="sp"></span>
           ${searchBox('ds-q', f.q, 'UI.ds.q', '搜索数据集')}${dropdown('ds-sort', '排序', DS_SORT, f.sort, (v) => { UI.ds.sort = v; })}<div class="views" role="group" aria-label="视图">${views}</div></div>
         ${active.length ? `<div class="ds-active">${active.map(([label, undo]) => `<button type="button" class="tag ds-x" onclick="${undo}" aria-label="移除筛选 ${esc(label)}">${esc(label)}${ic('close', 'ic-sm')}</button>`).join('')}</div>` : ''}
         ${!shown.length ? `<div class="card">${empty('database', '没有匹配的数据集', '放宽筛选条件，或点「重置」')}</div>`
           : f.view === 'list' ? dsTable(shown) : `<div class="grid ds-grid">${shown.map(dsCard).join('')}</div>`}
-        <p class="hint" style="margin-top:20px">仅作示意，未支撑实际业务：分类标签为初稿。本地统计更新于 ${DS_INVENTORY_DATE}，体量按逻辑字节计算（1 GB = 10^9 B），可包含压缩包、处理版本和模型。空白表示尚未可靠核实；不同表示、父子集可能重叠，合计不代表独立演示数；未物理删除的质检排除项仍计入。</p></section></div></div>`;
+        <p class="hint" style="margin-top:20px">仅作示意，未支撑实际业务：分类标签为初稿。本地统计更新于 ${DS_INVENTORY_DATE}，体量按逻辑字节计算（1 GB = 10^9 B），保留全部目录副本，可能重叠。已知时长可能只覆盖子集，空白表示尚未可靠核实；不同合集可能重叠，合计不代表独立演示数；未物理删除的质检排除项仍计入。</p></section></div></div>`;
 }
 function drawerDataset(d) {
   const host = d.url.includes('huggingface') ? 'Hugging Face' : 'ModelScope';
   return {title: d.name, sub: d.org,
-    actions: `<a class="btn" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">${ic('external')}在 ${host} 打开</a>`,
+    actions: d.url ? `<a class="btn" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">${ic('external')}在 ${host} 打开</a>` : '',
     body: `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px">${d.f.source.map(dsSrcBadge).join('')}${dsLabels(d, 'skill').map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
       <p style="margin:0 0 14px;line-height:1.7">${esc(d.desc)}</p>
-      ${stats([['本地 Episode', dsEpText(d)], ['本地时长', dsHoursText(d)], ['本地体量', d.size]])}
+      ${stats([['已知 Episode', dsEpText(d)], ['已知时长', dsHoursText(d)], ['本地体量', d.size]])}
       ${sec('本地统计口径 · ' + DS_INVENTORY_DATE, `<p style="line-height:1.7">${esc(d.inventoryNote)}</p>`)}
+      ${d.versions ? sec(`版本与子集 · ${d.versions.length} 条`, d.versions.map((v) => `<details class="card" style="margin:10px 0;padding:12px"><summary><b>${esc(v.name)}</b> · ${esc(v.state || '待确认')}</summary>
+        <p class="small">原记录：${v.episodes === null ? 'Episode 未知' : `${v.episodes.toLocaleString()} ${v.source === 'ego' ? '视频片段' : 'Episode / 条目'}`} · ${v.hours === null ? '完整时长未知' : `${v.hours.toLocaleString(undefined, {maximumFractionDigits: 3})} h`} · ${v.gb === null ? '体量未知' : `${v.gb.toLocaleString(undefined, {maximumFractionDigits: 3})} GB`}</p>
+        <p class="small">计入口径：${v.selectedEpisodes === null ? 'Episode 不累计 / 未知' : `${v.selectedEpisodes.toLocaleString()} Episode`} · ${v.selectedHours === null ? '时长不累计 / 未知' : `${v.selectedHours.toLocaleString(undefined, {maximumFractionDigits: 3})} h`}。${esc(v.selectionNote || '采用该记录的已知统计；未知项留空。')}</p>
+        <p class="hint">${esc(v.note)}</p>${v.url ? `<a class="small" href="${esc(v.url)}" target="_blank" rel="noopener noreferrer">查看来源 ${ic('external', 'ic-sm')}</a>` : ''}</details>`).join('')) : ''}
       ${sec(`${ic('layers')}分类`, `<dl class="kv">${DS_FACETS.filter(([k]) => !['source', 'skill', 'local'].includes(k)).map(([k, title]) =>
         `<dt>${title}</dt><dd>${dsLabels(d, k).map((x) => esc(x)).join('、') || '<span class="muted">待补</span>'}</dd>`).join('')}</dl>`)}
-      ${sec(`${ic('database')}获取`, `<dl class="kv"><dt>来源</dt><dd><a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" class="mono small">${esc(d.url.replace(/^https?:\/\/(www\.)?/, ''))}</a></dd>
+      ${sec(`${ic('database')}获取`, `<dl class="kv"><dt>来源</dt><dd>${d.url ? `<a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" class="mono small">${esc(d.url.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '未登记公开来源'}</dd>
         <dt>本地副本</dt><dd>${esc(dsLabels(d, 'local').join(''))}</dd></dl>`)}`};
 }
 
@@ -3571,7 +3619,7 @@ async function deleteUser(username) {
   } catch (err) { toast(`删除失败：${err.message}`, true); }
 }
 async function load() {
-  await Promise.all([...KINDS.map(async (k) => { S[k] = await api(`/api/items?kind=${k}`); }), api('/api/items?kind=library').then((l) => { S.library = l; }), api('/api/members').then((m) => { MEMBERS = m; }),
+  await Promise.all([loadDatasetInventory(), ...KINDS.map(async (k) => { S[k] = await api(`/api/items?kind=${k}`); }), api('/api/items?kind=library').then((l) => { S.library = l; }), api('/api/members').then((m) => { MEMBERS = m; }),
     api('/api/materials').then((m) => { MATS = m; }), ...['train', 'exam'].map((p) => api(`/api/rsi-options?pool=${p}`).then((o) => { RSI_OPTS[p] = o; }).catch(() => {}))]);
   UI.loaded = true;
   UI.syncedAt = new Date().toLocaleTimeString('zh-CN', {hour12: false});
