@@ -23,7 +23,7 @@
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
   - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
-  - 指令名称：`scripts/objects/object_names.json` 给平台上 54 件完备物体（含变体）和 13 个能拧盖的瓶子写了中英文各 5–6 个从简到详的名称，`object_names.py apply` 写进 `description.json` 的 `names`，指令模板的 `<标签>` 从中取词（10-29，见「最近任务」第一节）。共享库里的 `description.json` 还没写入。
+  - 指令名称：`scripts/objects/object_names.json` 给平台上 54 件完备物体（含变体）和 13 个能拧盖的瓶子写了中英文各 5–6 个从简到详的名称，`object_names.py apply` 写进 `description.json` 的 `names`，指令模板的 `<标签>` 从中取词（10-29，见「最近任务」第一节）。共享库里已装的 38 件已写入。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
   - 杯对杯倒豆、量杯对倒：部分 seed 成功。
@@ -50,9 +50,11 @@
 - **prompt**：`object_registration.py` 升到 `real-object-v3`，新增「指令名称」一节，交付清单加上名称表条目和 `description.json` 的 `names`。旧版确认的记录需要管理员重新点确认才会拿到新 prompt（和 v2 一样）。同步改了 `ASSET_WORKFLOW.md`、`scripts/objects/SKILL.md`、`scripts/datagen/SKILL.md`，平台任务抽屉的实现文本也要求候选物体写成 `<角色标签>`。
 - **覆盖范围**：平台 `review_state == done` 的 54 件，即金属杯 7、农夫山泉和东方树叶两族瓶子共 13、陶瓷杯 7、量杯 6、桌面垃圾盒 7、塑料杯 `00001–00007`、马克杯 6、红豆 1，另加 13 个 Articulation 瓶子。名称依据各资产 `description.json` 的 caption 和描述（共享库里有的取共享库，否则取最新的隔离运行目录），并与同事分支生成脚本里的变体参数核对过。
 - **验证**：本机 ruff 0.11.7、`git diff --check`，`test_object_names.py` 5 项（名称表合规、校验器能拦住错误、`apply` 只加 `names`、别名、真实 `DescManager` 在中英文模板下两只量杯都只用能区分的名称），`test_server.py` 13 项。`5090-2` 隔离目录 `/data/robodojo-runs/object-names-20261029-010544/`：把 67 件真实的 `description.json` 拷进 `obj/`（原件留在 `obj.before/`），在 `RoboDojo` 环境里跑 `apply` 和 `load_desc_info` 回读，67/67 写入，除 `names` 外字段不变，回读一致。没跑 Isaac 任务（没有任务用到这些物体的占位符）。
+- **共享库**（09:10，用户同意）：对 `5090-2:/data/robodojo-assets/Assets/Object/Real2Sim` 跑 `apply`，写了已装的 38 件（瓶子 Clutter、Articulation 各 13 个，量杯 `00002–00005`，塑料杯 `00001–00007`，红豆）。逐个和备份对比：除 `names` 外不变，属主（uid 1008）和权限 644 不变。备份 `/data/robodojo-assets/backups/description-before-names-20261029-091001.tar.gz`，回滚就在 `Object/Real2Sim` 下解开它。
 - **剩余**：
-  - 共享库 `Object/Real2Sim` 里已装的 38 件（瓶子 Clutter、Articulation 各 13 个、量杯 `00002–00005`、塑料杯 `00001–00007`、红豆）要等用户同意后跑 `apply`；金属杯、陶瓷杯、垃圾盒、马克杯、量杯 `00000/00001` 不在共享库，装库时再 `apply`。
-  - 平台不显示名称；物体页的建模阶段也不检查 `names`。
+  - 金属杯、陶瓷杯、垃圾盒、马克杯、量杯 `00000/00001` 不在共享库，装库时要跑 `apply`。
+  - 平台读的元数据镜像 `/root/RoboDojo_assets` 没动，平台也不显示名称；物体页的建模阶段不检查 `names`。
+  - Notion 记录待补录：授权后工具没加载出来，草稿在 worktree 的 `.cache/notion_draft_object_names.md`（不入库）。
 
 ### 数采平台加载提速 + 筛选栏统一（2026-10-29 00:3x，`chongzheng/platform-banzhi-flywheel`）
 
