@@ -1,0 +1,32 @@
+{
+  "id": "Rigid/basket/00000",
+  "twin": true,
+  "asset_origin": "physical_object",
+  "name": "篮子",
+  "name_en": "basket",
+  "material": "PP 塑料",
+  "color": "黄白色",
+  "mass_g": 266,
+  "dimensions_mm": "长35.8cm，宽25.3cm，高9.6cm",
+  "features": "带有分布不均匀的孔洞",
+  "requirements": "孔洞要和实物差不多",
+  "generalization": {
+    "count": 6,
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "徐鹤鸣",
+  "updated_at": "2026-10-29 11:59:13",
+  "reference_source": "实物照片",
+  "dimension_policy": "measured",
+  "mass_policy": "measured",
+  "physics_requirements": "不做物理测试",
+  "modeling_confirmation": {
+    "version": "real-object-v3",
+    "revision": "c3648fa3617ce2f22a7bbf3e639fbb4bcfbd2d0b5f62de0715c7e5ed1f20dbbb",
+    "by": "徐鹤鸣",
+    "at": 1793246353.0836797
+  }
+}

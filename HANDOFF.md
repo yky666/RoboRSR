@@ -22,6 +22,7 @@
   - 学校的纸杯 `paper_cup/0000{0,1}`、纸盘 `paper_plate/0000{0,1,2}` 是孪生的拟合几何，没在平台登记，没有实测，未装共享库。平台上能看到它们（10-20 部署，见下面「数采平台」）。
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
   - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。
+  - 奶白镂空收纳篮 `Rigid/basket/00000` 和 6 个泛化变体（00002–00007）：按平台登记建，未装共享库（见「最近任务」）。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
@@ -38,6 +39,12 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 收纳篮 `Rigid/basket/00000`、`00001`（2026-10-29，分支 `z/objects-basket`）
+
+- 平台建模任务（徐鹤鸣 10-29 登记，两只都是 PP 镂空收纳篮，不要求物理测试，要求孔洞和实物对应）。两只同时登记，变体编号排在后面：00000 的变体是 00002–00007，00001 的变体是 00008–00013。两只由两个子代理并行建，各写一个生成脚本。
+- 奶白篮 00000（`scripts/objects/make_basket_cream.py`）：266 g，长 358、宽 253、高 96 mm。manifold3d 布尔：圆角矩形环做底脚、外扩的篮壁和卷边，再减去内腔；两端短边各一个 66 × 20 mm 把手槽，上面是灰色把手嵌件（单独网格 `visual/grips`，带两排凸点）。孔都是外观网格里的真实通孔：壁孔 311 个（约 6 mm，交错 7 排，只在四角附近成片，长边中部实心，短边把手槽两侧有孔、槽下实心），底孔 253 个（12 mm 方格 24 × 15，孔区轮廓逐行拟合俯视照片，孔径从中心 7 mm 渐变到边缘 4.6 mm，中间椭圆实心块里有 3 个孤孔）。碰撞体 41 块实心凸包（底板、20 块篮壁、20 块卷边；孔和把手槽不开、把手不建），顶部不封，脚本检查没有凸包进入内腔。除三项实测外都是照片估计（孔径、孔距约 ±1 mm）。没有实测摩擦，不写摩擦键。
+- 验证：`measurements_mm` 三项误差 0；`check_object.py --image-dir` 七件 OK（倾角 0°），`sim.png`、`check.json` 已同步到部署机；和照片的对比图看过，外形、颜色、把手和孔的分布一致，底孔比照片显得淡（照片里篮底下是阴影）。生成结果在 5090-2 `/data/robodojo-runs/basket_00000-20261029-121631/ovl/Rigid/basket/`，未装共享库。
 
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 
