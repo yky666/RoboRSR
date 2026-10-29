@@ -42,7 +42,7 @@
 - 运行根目录 `rsi-openwam-x5-r6`（协议 5.1）：`5090-2` 上有 `exam/`（评测方）、`data/`（数据方）、`referee/`；考试在 `5090-3:/data/robodojo-runs/rsi-openwam-x5-r6/referee/run/` 跑（裁判自己的代码副本 + 考卷资产的实体拷贝）。
 - 两方各一个 subagent、各自 worktree：评测方 `chongzheng/rsi-exam-r1`（已出 exam_r1，G1 裁判复核通过：28 个 seed 目录 `audit --pool exam` 全过、split 全为 val），数据方 `chongzheng/rsi-data-experts`（X5 专家就绪，R0.3）。两方互不读对方的分支和目录；隔离目前只靠提示词，Unix 用户和权限还没落实。
 - 新增 `scripts/datagen/rsi_exam_run.py`（+ 测试）：按 manifest 分路跑考试，每个任务每路一个策略服务；某作业 30 分钟无新文件就 `kill -9` 后同 run id 续跑（最多 3 次），每次派发、卡死、重跑写 `referee/ops/ops.jsonl`；结束时做 G2（退出码 0 且 `eval_time` = 计划回合数）。`--env1` 的任务（`fold_clothes`）改用 1 个并行环境（生成 `<env cfg>_env1` 和 `sim_config_env1`，不动共用的 `sim_config.yml`）：布料在 10 个并行环境下结果偏低。
-- 考试 10-29 11:44 启动（tmux `exam-r1`，三路 GPU 0/3、1/4、2/5，270 回合），结果和 G2 写 `referee/rounds/r1/`。下一步：按维度 × 级别算 Score、保留率 ρ 和 bootstrap 区间，出分档成绩单给数据方、逐回合结果给评测方（成绩单脚本还没写）。
+- 考试 10-29 11:44 启动（tmux `exam-r1`，三路 GPU 0/3、1/4、2/5，270 回合），结果和 G2 写 `referee/rounds/r1/`。考完跑 `scripts/datagen/rsi_scorecard.py`（+ 测试，确定性判定）：每个任务的 L0 锚点均值归一，按维度 × 级别算 ρ；区间是两层 bootstrap（考题回合和每个任务的锚点一起重采样，重采样的锚点均值不低于 10）。每个任务只有 4 个锚点，只对考题重采样的区间偏窄，会误升级。前沿级别 ρ 下界 ≥ 0.7 升、上界 < 0.3 降（L1–L3），合并各族的结论用到该维度的所有族。输出 `referee/rounds/r<N>/scores.json`（裁判）、`out/data/scorecard_r<N>.json`（分档，n ≥ 30 才发布）、`out/exam/results_r<N>/` 和 `levels_<N>.json`。数据方第一版专家（分支 `chongzheng/rsi-data-experts`）：20 个 L0 训练布局上 stack_blocks 20/20、arrange_largest_number 14/20、stack_bowls 13/20 进入可生产清单，其余 9 个任务本运行暂为无专家。审计时要查 arrange 的垫子位姿（配置固定 x、y 只抽 5 cm，可能触到规则 2 的复用阈值）。
 
 ### RSI 协议 v0.6：基模定为 OpenWAM-α 开源权重，起始评测 = 官方评测集 0 的简化版（2026-10-27，`chongzheng/rsi-openwam-start`）
 
