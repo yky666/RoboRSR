@@ -24,7 +24,7 @@ def main():
     out.mkdir(parents=True, exist_ok=False)
     definitions = [
         ("cloth_over_sphere", "cloth", [500, 500], 30, 80),
-        ("sphere_soft_block", "soft_body", [160, 160, 160], 6, 300),
+        ("sphere_soft_block", "volume", [160, 160, 160], 6, 300),
     ]
     reports = {}
     for name, family, size, cells, mass in definitions:
@@ -42,7 +42,7 @@ def main():
                 "geometry": {"size_mm": size, "cells": cells},
             },
         }
-        if family == "soft_body":
+        if family == "volume":
             spec["deformable"]["solver_parameters"] = {"young_pa": 3000, "poisson": 0.3}
         asset = build(spec, out / "assets", a.genie_root, a.device)
         config = json.loads((asset / "runtime_config.json").read_text())

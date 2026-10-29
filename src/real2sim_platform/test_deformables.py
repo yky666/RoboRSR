@@ -29,6 +29,9 @@ def test_acceptance_fails_closed():
     empty = deformables.acceptance(profile, {}, "0" * 64)
     assert empty["status"] == "pending" and set(empty["checks"]) == {*checks, "bend_twist"}  # rope adds bend/twist
     assert set(deformables.acceptance({"family": "bag"}, {}, "0" * 64)["checks"]) >= {"seams_openings"}
+    for family in ("shell", "volume"):  # a paper cup or a plush is accepted on squashing and springing back
+        assert deformables.validate({"family": family}) is None
+        assert "compression_recovery" in deformables.acceptance({"family": family}, {}, "0" * 64)["checks"]
 
     mesh = "ab" * 32
     report = {
@@ -49,9 +52,12 @@ def test_acceptance_fails_closed():
 
 
 def test_replay_diagnostic_does_not_replace_state_reset():
-    profile = {"family": "soft_body"}
+    profile = {"family": "volume"}
     report = {
-        "checks": {k: {"status": "pass", "evidence": "report.json"} for k in deformables.COMMON_CHECKS},
+        "checks": {
+            k: {"status": "pass", "evidence": "report.json"}
+            for k in (*deformables.COMMON_CHECKS, "compression_recovery")
+        },
         "mesh_sha256": "a" * 64,
         "material_calibrated": True,
         "registration_sha256": deformables.registration_fingerprint(profile),
@@ -68,7 +74,7 @@ def test_flexible_prompt_protocol_is_versioned_without_invalidating_rigid_inputs
     import object_registration as reg
 
     rigid = {"id": "Rigid/test/00000", "auto": {}}
-    flexible = {"id": "Dynamic/test/00000", "auto": {}, "deformable": {"family": "soft_body"}}
+    flexible = {"id": "Dynamic/test/00000", "auto": {}, "deformable": {"family": "volume"}}
     assert reg.version(rigid) == reg.VERSION
     assert reg.version(flexible) != reg.VERSION
     text = reg.prompt(flexible)

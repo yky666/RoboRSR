@@ -638,6 +638,8 @@ def scan_objects(assets, tasks, keep):
                 object_spec.get("dimensions_mm"),
             ),
             "deformable_mesh_sha256": ((meta or {}).get("deformable") or {}).get("mesh_sha256"),
+            # set only by the flexible-item generators (FEM, particle cloth, D6 rod); rigid assets leave it out
+            "sim_backend": (meta or {}).get("backend") or physics.get("backend"),
             "mass": physics.get("mass", check.get("mass_kg")),
             "size": physics.get("size")
             or ((meta or {}).get("geometry", {}).get("aligned_bbox") or {}).get("extents")
@@ -771,7 +773,10 @@ def write_spec(doc):
     """A twin's registration as real2sim/objects/<id>/spec.json, next to its photos: the input for modeling it."""
     path = OBJECTS_DIR / doc["id"] / "spec.json"
     if not object_registration.physical_origin(doc):
-        return path.unlink(missing_ok=True)
+        # a generator's hand-written spec.json (no "twin": true) is input the scan reads, not ours to remove
+        if (load_json(path) or {}).get("twin") is True:
+            path.unlink()
+        return None
     spec = {
         "id": doc["id"],
         "twin": True,

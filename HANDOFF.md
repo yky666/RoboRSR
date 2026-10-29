@@ -43,11 +43,20 @@
 ### 柔性物体生成与物理检查（2026-10-30，`yky666/objects-deformable-generation-checks`）
 
 - 在最新主线上补充可选 Newton/Genie 进程桥、矩形布片与规则软块候选生成器、物理检查及RTX轨迹渲染；没有替换生产 SceneManager 或机器人任务。
-- 沿用平台登记与确认后的 prompt；增加体积软体类别。柔性提示词独立升级为 `real-object-v3-deformable-v2`，只使柔性旧确认失效；刚体确认版本保持。
+- 沿用平台登记与确认后的 prompt；沿用主线 volume 体积软体类别。柔性提示词独立升级为 `real-object-v3-deformable-v2`，只使柔性旧确认失效；刚体确认版本保持。
 - `reset_state` 检查初始位置/速度恢复；重放偏差改为 `diagnostics.replay`，不设通用1 mm门槛，平台独立展示。不宣称已修复此前 PhysX 表面接触分叉。
 - 新演示：布片固定边下垂到球面；自由球撞击3 kPa候选软块。形变RMS峰值47.588/4.626 mm；软块最小J=0.6794，无翻转；接触关闭对照有差异，未检出溢出，60帧重放偏差0。
 - 检查：scripts/check.sh 92 passed、4 skipped、82 subtests；独立Newton环境8项生成/桥接测试通过。原始报告与视频保留在隔离运行目录，预览通过r2s publish发布；生成结果不入Git或共享库。
 - 入口：`real2sim/prototypes/deformable_assets/README.md`、`VALIDATION.md`。材料标定、完整自交/接缝和机器人操作仍待完成；agent仍需专门构建衣服/袋子/绳索拓扑，不能把原型计入已验收实物资产。
+
+### 裁纸刀本体和三个颜色变体（2026-10-30，codex/objects-paper-knife-00000）
+
+- 隔离目录 `/data/robodojo-runs/paper-knife-20261029`，worktree基于origin/main；生成器 `make_paper_knife.py`，原生工厂接触验证 `check_paper_knife.py`。输入、四张原图、照片派生贴图、独立名称条目及REPORT/delivery_report已归档。
+- 用户补测厚17.14 mm并指示继续；登记新revision `e249245a730f5980ca6d5b91285c3dad45f476e8a4ded6581e561aa9bbf0fdd4`。长度152.88、最大宽39.44、中间宽32.83 mm、58.9 g保持原实测。对话补测来源署名与原登记人区别记录，旧输入有备份。局部几何是照片拟合，非额外实测。
+- 本体00000和颜色变体00001–00003；开放导轨、分段刀片、尾孔/压印保留，压印来自照片，独立label_blade_stamp；rt_color仅model，固定尾框颜色用于名称区分。各语言各5条，apply/check通过。
+- 标准check_object四件OK；validation06原生部署项目工厂加载、质量、落地、尾孔/实体通道、推挡、夹持代理抬升/释放、复位均通过。夹持代理49.94 mm/50 mm，非机器人场景验证。相机为同侧近似、背/底面缺照片，摩擦/材料未标定。保持研究资产，未装共享库。
+- scripts/check.sh 91 passed、1 skipped、82 subtests passed；首轮LFS指针问题通过git-lfs materialize解决，失败日志保留。没有把部署工作树其他会话的物理加载器改动纳入本分支；报告用源码SHA识别实际测试实现。
+- 下一步：用户审核预览并补背面/底面照片；完整机器人场景抓取验证后再申请基础资产验收。共享库部署需要用户授权，届时只复制验证过的这4个ID并备份，不在共享库重新生成。
 
 
 ### 数采平台和 `5090-2` 工作区隔离（2026-10-29 23:xx 至 10-30 00:2x，`chongzheng/platform-isolation`，[PR #50](https://github.com/Zheng-Chong/RoboRSR/pull/50) 已合并，线上已切换）
@@ -72,6 +81,22 @@
   - 回退到旧方式：`systemctl disable --now r2s-platform r2s-platform-tunnel`，按 `.agent/ops.local.md` 重建两个 tmux 会话；旧数据库 `/root/RoboDojo/.cache/real2sim_platform.sqlite3` 停在 00:23，之后的新登记先 `r2s export /root/RoboDojo` 拷回，数据库用 `/data/r2s-platform/state/platform.sqlite3`。
 - **AGENTS.md** 加了「Data Platform on `5090-2` (`r2s`)」：各目录谁写、`r2s` 都在 `5090-2` 上以 root 跑、读登记 / 发布产出 / 装库后扫描 / 部署的命令和例子。
 - **风险**：切换后直接往 `/root/RoboDojo/real2sim` 放的渲染平台看不到，要 `r2s publish`；`/root/RoboDojo_assets` 镜像不再用，可以删；状态目录本身 root 仍能手改，靠文档约束；`rollback` 不回退状态目录，要回退数据用 `backups/`。
+
+### 柔性物体补模型图、登记种类；非孪生保存不再删手写 spec.json（2026-10-30 00:5x）
+
+- **用户要求**：补上可变形纸杯的模型图；毛绒卡皮巴拉和 FEM 软块登记成实心软体。
+- **新脚本 `scripts/objects/render_model.py`**：柔性资产不能按刚体加载，`check_object.py` 跑不了。它按 `check_object.py` 单件视图的地面、灯光、机位和 640×480 渲染，把 USD 引用进来按包围盒放到地面上，不步进仿真（静止形状），写 `preview/00_model.png`。在 `5090-2` 隔离目录 `/data/robodojo-runs/flex-model-render-20261030/` 用 GPU 0 渲染了 `Dynamic/paper_cup/00000`、`Dynamic/soft_block/00000`（包围盒 87.9×87.9×136、100³ mm，与 metadata 一致；目测与刚体纸杯 `sim.png` 风格一致），`r2s publish` 发布（只增不删，测试图都还在）。卡皮巴拉已有 `00_sim.png`，没重渲。`scripts/objects/SKILL.md` 和建模 prompt 的柔性段指向这个脚本。
+- **登记种类**：照 `r2s scan` 的做法用首个管理员的临时会话调平台 `PUT /api/items`（只改 `deformable.family`，其余字段原样带回）：纸杯 `bag → shell`，卡皮巴拉、软块 `null → volume`；署名是「管理员」。扫描后纸杯、卡皮巴拉的柔性验收按新种类重算为待验收（多了「压缩与回弹」）。
+- **发现的平台 bug（已修）**：`write_spec` 对非孪生物体一律删 `spec.json`，所以保存软块（`twin: false`，`asset_origin: simulation_reference`）时把杨开元手写的 `state/real2sim/objects/Dynamic/soft_block/00000/spec.json` 删了。数据库记录完整，页面不受影响；原文件还在 `/root/RoboDojo/real2sim/objects/Dynamic/soft_block/00000/spec.json`（工作区未入库）。修复：只删自己写的（带 `"twin": true`），手写的留着；`test_server.py` 补了这一条。状态目录里那份没有手工恢复（AGENTS.md 不许手改状态目录，`r2s publish` 也拒绝写 `spec.json`），要恢复需要用户点头。
+
+### 物体资产：刚体 / 柔性筛选、柔性封面与形变测试分开（2026-10-30 00:4x）
+
+- **用户问题**：实物孪生里的柔性物体要不要单独分出来；「可变形纸杯」的渲染图和其他展示图完全不一样。结论（用户选定）：不单独分库（库按来源分，柔性是物理属性），在物体页加「全部 / 刚体 / 柔性」筛选；柔性物体的封面只用模型图，测试图单独放；补两种柔性种类。可变形纸杯 `Dynamic/paper_cup/00000` 仍单独一张卡，种类由用户在平台上从误标的「布袋」改成「薄壳」（状态目录不手改）。
+- **原因**：卡片封面取 `preview/` 第一张图。可变形纸杯 `preview/` 里只有挤压三联、挤压到回弹 8 格和 G1-D 抓取序列三张验证图，没有单件模型图；其他柔性条目的落地、悬垂、压缩图也和模型图混在一起。
+- **判定柔性**：`server.py` 物体多了 `auto.sim_backend`（资产 `metadata.json` 的 `backend`，只有柔性生成脚本写：`isaac_physx_fem`、`isaac_physx_particle_cloth`、`isaac_physx_d6_rod`；在共享库里核对过，恰好是 8 个柔性条目，传送带和刚体没有）。前端 `isFlex` = 登记了柔性种类，或有 `sim_backend`，或类型是 `Garment`；`flexFamily` 没登记时按后端推断（FEM → 实心软体、粒子布料 → 布料、D6 → 绳）。`real_material_calibrated` 不能当判据：锤子、空气清新剂等刚体也有。
+- **封面与测试图**：柔性物体文件名匹配 `FLEX_TEST`（drop、suspend、squeeze、compress、recover、grasp、reset、rest、sheet、bend、twist、hang、press、release）的图归「形变测试」图库（抽屉里「实物参考与模型」下方），其余才做封面、渲染大图和变体缩略图；只有测试图时封面退回实拍并标「缺模型渲染」。刚体不受影响。卡片和列表多一个「柔性 · 种类」标签。
+- **柔性种类**：`deformables.FAMILIES` 加 `shell`（薄壳 / 纸杯纸盒）和 `volume`（实心软体 / 毛绒海绵），两者验收多一项 `compression_recovery`（压缩与回弹）；建模 prompt 的柔性段补了薄壳、实心软体的要求，并要求另出一张文件名含 model 的单件模型图、测试图文件名写明测试项。`test_deformables.py` 补了这两种。
+- 本机浏览器用一个物体模拟可变形纸杯（FEM 后端、薄壳、只有三张测试图）核对：筛选「刚体 67 / 柔性 1」切换正确，卡片封面退回实拍并显示「缺模型渲染」「柔性 · 薄壳」，抽屉渲染区提示缺单件模型图、测试图进「形变测试」，种类下拉有薄壳和实心软体。
 
 ### 代码块改成浅色、prompt 高亮（2026-10-29 22:5x）
 

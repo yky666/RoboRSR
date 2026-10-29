@@ -803,7 +803,7 @@ const UI = {
   dd: '',  // id of the open dropdown menu
   qaRate: 1,  // playback speed of the QA videos, kept when another episode is picked
   vpick: {},  // object drawer id -> the variant whose render is previewed in it
-  obj: {q: '', photo: false, status: '', owner: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
+  obj: {q: '', photo: false, status: '', owner: '', phys: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
   qa: {task: '', config: '', policy: '', result: '', status: 'pending'},
 };
 let INFO = {};
@@ -2373,13 +2373,23 @@ const stateOf = (d) => (baseOf(d) || d).review_state;
 const twinObj = (d) => Boolean(d.twin || d.auto.library === 'Real2Sim' || d.auto.variant_of || variantsOf(d.id).length);
 const objPath = (d) => `Assets/Object/${d.auto?.library || 'Real2Sim'}/${d.id}`;
 const ownObj = (d) => Boolean(d.auto.generator || twinObj(d));
+// flexible: registered with a deformable family, or built by a flexible-item generator (metadata backend)
+const FLEX_SHORT = {cloth: '布料', garment: '衣服', rope: '绳', bag: '袋', shell: '薄壳', volume: '软体'};
+const BACKEND_FAMILY = {isaac_physx_fem: 'volume', isaac_physx_particle_cloth: 'cloth', isaac_physx_d6_rod: 'rope'};
+const flexFamily = (d) => d.deformable?.family || BACKEND_FAMILY[d.auto.sim_backend] || (d.auto.type === 'Garment' ? 'garment' : '');
+const isFlex = (d) => Boolean(flexFamily(d) || d.auto.sim_backend);
+const flexPill = (d) => (isFlex(d) ? `<span class="pill" title="柔性物体${d.auto.sim_backend ? ` · ${esc(d.auto.sim_backend)}` : ''}">柔性 · ${FLEX_SHORT[flexFamily(d)] || '待定'}</span>` : '');
+// a flexible object's preview/ mixes test sheets (drop, squeeze...) with model views; only views make a cover
+const FLEX_TEST = /drop|suspend|squeeze|compress|recover|grasp|reset|rest|sheet|bend|twist|hang|press|release/i;
+const objViews = (d) => (d.auto.renders || []).filter((p) => !isFlex(d) || !FLEX_TEST.test(base(p)));
+const objTests = (d) => (isFlex(d) ? (d.auto.renders || []).filter((p) => FLEX_TEST.test(base(p))) : []);
 function objMedia(d, thumb = false) {
-  const a = d.auto, render = a.renders?.[0], photo = a.photos?.[0], main = render || photo;
+  const a = d.auto, render = objViews(d)[0], photo = a.photos?.[0], main = render || photo;
   if (thumb) return `<span class="thumb obj-media">${main ? `<img loading="lazy" decoding="async" src="${small(main, 320)}" alt="">` : ic('cube')}</span>`;
   const nv = variantsOf(d.id).length, runtime = runtimeText(d.gen);
   return `<div class="media r43 obj-media">${main ? `<img loading="lazy" decoding="async" src="${small(main, 640)}" alt="">` : ic('cube', 'ic-lg')}
     ${render && photo ? `<img class="inset" loading="lazy" decoding="async" src="${small(photo, 320)}" alt="实拍">` : ''}
-    <div class="pills">${a.photos?.length ? `<span class="pill" title="已归档实物照片">${ic('camera', 'ic-sm')}${a.photos.length}</span>` : hasPhotoReference(d) ? `<span class="pill" title="对话中已提供实物照片，原图待关联">${ic('camera', 'ic-sm')}照片参考</span>` : ''}${render ? `<span class="pill" title="仿真渲染">${ic('cube', 'ic-sm')}渲染</span>` : ''}
+    <div class="pills">${a.photos?.length ? `<span class="pill" title="已归档实物照片">${ic('camera', 'ic-sm')}${a.photos.length}</span>` : hasPhotoReference(d) ? `<span class="pill" title="对话中已提供实物照片，原图待关联">${ic('camera', 'ic-sm')}照片参考</span>` : ''}${render ? `<span class="pill" title="仿真渲染">${ic('cube', 'ic-sm')}渲染</span>` : objTests(d).length ? '<span class="pill" title="只有形变测试图，缺单件模型渲染">缺模型渲染</span>' : ''}${flexPill(d)}
       ${nv ? `<span class="pill" title="泛化变体资产">+${nv} 变体</span>` : ''}${runtime ? `<span class="pill" title="仿真里按布局随机，不建新资产">随机 ${esc(runtime)}</span>` : ''}</div></div>`;
 }
 // object libraries: the two built-ins sort objects by origin; other public libraries are added by admins (kind library)
@@ -2398,7 +2408,7 @@ const toReview = () => live(S.object).filter((d) => isBase(d) && libOf(d) === 'r
 const ownerText = (d) => (d.owner ? memberName(d.owner) : libOf(d) === 'real2sim' ? '未指派负责人' : '');
 function objList() {
   const f = UI.obj, q = f.q.toLowerCase();
-  return S.object.filter((d) => (!f.photo || hasPhotoReference(d)) && (!f.owner || (f.owner === '-' ? !d.owner : d.owner === f.owner))
+  return S.object.filter((d) => (!f.photo || hasPhotoReference(d)) && (!f.phys || (f.phys === 'flex') === isFlex(d)) && (!f.owner || (f.owner === '-' ? !d.owner : d.owner === f.owner))
     && (!q || `${d.id} ${d.name || ''} ${d.auto.name || ''} ${(d.auto.tasks || []).join(' ')}`.toLowerCase().includes(q)))
     .sort((x, y) => Number(ownObj(y)) - Number(ownObj(x)) || x.id.localeCompare(y.id));
 }
@@ -2416,7 +2426,7 @@ function objBody(docs) {
     : `<div class="table-wrap"><table><thead><tr><th style="width:36px"></th><th></th><th>物体</th><th>任务配置（标签）</th><th class="num">模型尺寸 mm</th><th class="num">质量 g</th><th>实测</th><th style="min-width:170px">流程</th></tr></thead><tbody>
       ${docs.map((d) => `<tr data-open="object" data-id="${esc(d.id)}" tabindex="0" class="${UI.drawer?.id === d.id ? 'sel' : ''}">
         <td>${objCheck(d)}</td><td>${objMedia(d, true)}</td>
-        <td><div class="t-main">${esc(objName(d))} ${reviewChip(d)} ${missingBadge(d)}</div><div class="t-sub mono">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div>${ownerText(d) ? `<div class="t-sub">${esc(ownerText(d))}</div>` : ''}</td>
+        <td><div class="t-main">${esc(objName(d))} ${reviewChip(d)} ${missingBadge(d)} ${flexPill(d)}</div><div class="t-sub mono">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div>${ownerText(d) ? `<div class="t-sub">${esc(ownerText(d))}</div>` : ''}</td>
         <td class="small">${(d.auto.tasks || []).map(esc).join('<br>') || '<span class="muted">—</span>'}<div class="t-sub mono">${esc((d.auto.labels || []).join(', '))}</div></td>
         <td class="num small">${mm(d.auto.size)}</td><td class="num small">${num(d.auto.mass) ? (d.auto.mass * 1000).toFixed(0) : '—'}</td>
         <td class="small">${measured(d) ? `${esc(dimText(d))}<div class="t-sub">${d.real_mass} g</div>` : '<span class="muted">—</span>'}</td>
@@ -2435,7 +2445,7 @@ function libSection(lib, docs) {
         aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
       <span class="muted small">${ME?.admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核；只数本体，变体跟随本体审核</span><span class="sp"></span>${pickAll}</div>`
     : pickAll ? `<div class="toolbar lib-status"><span class="sp"></span>${pickAll}</div>` : '';
-  const none = f.q || f.photo || f.status || f.owner ?
+  const none = f.q || f.photo || f.phys || f.status || f.owner ?
  empty('search', '没有符合条件的物体', '调整筛选条件')
     : lib.custom ? empty('box', '库里还没有物体', '登记物体后，在物体详情的「资产库」里选这个库') : empty('box', '还没有物体', '点「登记物体」新建');
   return `<details class="lib" data-lib="${esc(lib.id)}" ${f.closed.has(lib.id) ? '' : 'open'} ontoggle="toggleLib(this)">
@@ -2506,6 +2516,8 @@ function viewObjects() {
     ${assetsWarning()}
     <div class="toolbar filters">${searchBox('obj-q', f.q, 'UI.obj.q', '搜索 id / 名称 / 任务')}
       ${dropdown('obj-owner', '重建负责人', [['', '全部负责人'], ...(ME ? [[ME.username, '我负责的']] : []), ['-', '未指派'], ...MEMBERS.filter((m) => m.username !== ME?.username).map((m) => [m.username, m.name])], f.owner || '', (v) => { UI.obj.owner = v; })}
+      <div class="segctl" role="group" aria-label="按物理类型筛选">${[['', '全部'], ['rigid', '刚体'], ['flex', '柔性']].map(([k, label]) => `<button type="button"
+        aria-pressed="${f.phys === k}" onclick="UI.obj.phys = '${k}'; render()">${label}${k ? ` <span class="num muted">${objs.filter((o) => (k === 'flex') === isFlex(o)).length}</span>` : ''}</button>`).join('')}</div>
       <button type="button" class="pill-toggle" aria-pressed="${Boolean(f.photo)}" onclick="UI.obj.photo = !UI.obj.photo; render()">${ic(f.photo ? 'check' : 'image', 'ic-sm')}只看有照片参考</button>
       <span class="sp"></span><span class="muted small">${docs.filter(isBase).length} 件 · 照片参考 ${objs.filter(hasPhotoReference).length}（已归档 ${objs.filter((o) => o.auto.photos?.length).length}） · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span>
       <div class="segctl" role="group" aria-label="显示方式">
@@ -2680,14 +2692,14 @@ function genBrief(d) {  // brief lines for the generalization asked in step 3 of
     '',
   ];
 }
-const FLEX_FAMILIES = {'': '不启用柔性建模', cloth: '布料 / 毛巾', garment: '衣服', rope: '绳子 / 线缆', bag: '布袋 / 薄膜袋', soft_body: '体积软体'};
-const FLEX_CHECKS = {geometry_mass: '几何与总质量', deformation: '形变响应', contact: '外部接触', self_collision: '自接触与自交', reset_state: '初始状态恢复', reset_replay: '重放诊断（历史）', shutdown: '运行退出', material_fit: '材料实测校准', seams_openings: '缝线与开口', bend_twist: '弯曲与扭转'};
+const FLEX_FAMILIES = {'': '不启用柔性建模', cloth: '布料 / 毛巾', garment: '衣服', rope: '绳子 / 线缆', bag: '布袋 / 薄膜袋', shell: '薄壳 / 纸杯纸盒', volume: '实心软体 / 毛绒海绵'};
+const FLEX_CHECKS = {compression_recovery: '压缩与回弹', geometry_mass: '几何与总质量', deformation: '形变响应', contact: '外部接触', self_collision: '自接触与自交', reset_state: '初始状态恢复', reset_replay: '重放诊断（历史）', shutdown: '运行退出', material_fit: '材料实测校准', seams_openings: '缝线与开口', bend_twist: '弯曲与扭转'};
 const FLEX_MEASURES = {thickness_mm: '厚度 (mm)', areal_density_g_m2: '面密度 (g/m²)', diameter_mm: '绳径 (mm)', linear_density_g_m: '线密度 (g/m)'};
 function flexibleFields(d) {
   const a = d.auto.deformable_acceptance;
   return sec('柔性建模与材料记录', `<div class="form">
     ${row('物体种类', 'deformable.family', sel(d, 'deformable.family', FLEX_FAMILIES))}
-    ${row('参考状态', 'deformable.rest_state', area(d, 'deformable.rest_state', 'placeholder="如 无拉力平铺；绳索自然伸直；袋口打开、空袋"'))}
+    ${row('参考状态', 'deformable.rest_state', area(d, 'deformable.rest_state', 'placeholder="如 无拉力平铺；绳索自然伸直；袋口打开、空袋；杯子立放、未受压"'))}
     ${row('裁片 / 缝线 / 开口', 'deformable.structure', area(d, 'deformable.structure', 'placeholder="经纬方向、裁片边界、缝线连接、袖口/袋口/拉链；绳端连接与截面"'))}
     ${row('试验记录', 'deformable.test_data', area(d, 'deformable.test_data', 'placeholder="悬垂、经纬拉伸、剪切、摩擦、恢复曲线的文件或记录编号；未测请留空"'))}
     ${row('候选仿真后端', 'deformable.backend', sel(d, 'deformable.backend', {'': '待评估', auto: '按验收结果选择', physx: 'PhysX', newton: 'Newton'}))}
@@ -2745,7 +2757,7 @@ function drawerObject(d) {
   const a = d.auto, c = dimCheck(d), rs = evalStages(OBJ_STAGES, d), photos = a.photos || [];
   const parent = baseOf(d), root = parent || d, family = [root, ...variantsOf(root.id)];
   // the render shown under 仿真渲染: this object, or a sibling variant picked below it (previewed in place)
-  const shown = family.find((v) => v.id === UI.vpick[d.id]) || d, renders = shown.auto.renders || [];
+  const shown = family.find((v) => v.id === UI.vpick[d.id]) || d, renders = objViews(shown), tests = objTests(d);
   const brief = modelingPanel(d);
   GAL[`obj-renders-${shown.id}`] = renders;
   const hero = (key, list, emptyText) => (list.length
@@ -2763,14 +2775,15 @@ function drawerObject(d) {
       <figure><figcaption>${ic('cube')}仿真渲染 <span class="muted small">${shown === d ? '' : `${esc(objName(shown))} · `}${renders.length} 张</span><span class="sp"></span>
         <button class="btn btn-ghost" type="button" data-open="object" data-id="${esc(shown.id)}" ${shown === d ? 'style="visibility:hidden" tabindex="-1" aria-hidden="true"' : ''}>${ic('external', 'ic-sm')}打开详情</button></figcaption>
 
-        ${hero(`obj-renders-${shown.id}`, renders, '还没有渲染图：在 GPU 服务器运行下方「渲染」命令，生成到 real2sim/objects/&lt;id&gt;/preview/')}
+        ${hero(`obj-renders-${shown.id}`, renders, objTests(shown).length ? '还没有单件模型渲染图（中性光照），形变测试图在下方' : '还没有渲染图：在 GPU 服务器运行下方「渲染」命令，生成到 real2sim/objects/&lt;id&gt;/preview/')}
         <div class="strip">${renders.slice(1).map((p, i) => `<div class="item"><button class="gthumb" type="button" data-lb="obj-renders-${esc(shown.id)}" data-i="${i + 1}" aria-label="查看 ${esc(base(p))}"><img loading="lazy" src="${small(p, 320)}" alt=""></button></div>`).join('')}</div>
         ${family.length > 1 ? `<div class="strip vpick" role="group" aria-label="切换预览的变体（${family.length - 1} 个变体）">${family.map((v) => {
-          const tag = v === root ? '本体' : `变体 ${Number(v.id.split('/').pop())}`, img = v.auto.renders?.[0] || v.auto.photos?.[0];
+          const tag = v === root ? '本体' : `变体 ${Number(v.id.split('/').pop())}`, img = objViews(v)[0] || v.auto.photos?.[0];
           return `<div class="item"><button class="gthumb" type="button" aria-pressed="${v.id === shown.id}" data-d="${esc(d.id)}" data-v="${esc(v.id)}"
             onclick="pickVariant(this.dataset.d, this.dataset.v)" title="${esc(`${tag} · ${objName(v)} · ${v.id}`)}" aria-label="预览${esc(tag)} ${esc(objName(v))}">
             ${img ? `<img loading="lazy" src="${small(img, 320)}" alt="">` : ic('cube')}<span class="vtag">${v === root ? '本体' : Number(v.id.split('/').pop())}</span></button></div>`;
         }).join('')}</div>` : ''}</figure></div>`)}
+    ${tests.length ? sec(`${ic('layers')}形变测试`, gallery(`obj-tests-${d.id}`, tests), ` <span class="muted small">${tests.length} 张 · 落地、悬垂、挤压、抓取等验证图</span>`) : ''}
     ${sec('流程', `${progress(rs)}<div style="height:10px"></div>${stageList(rs)}`)}
     ${sec('基本信息', `<div class="form">
       ${row('名称', 'name', inp(d, 'name', 'text', `placeholder="${esc(a.name || '')}"`))}
@@ -3122,7 +3135,7 @@ const isHoldKey = (key) => key === 'dish' || /^h\d+$/.test(key);
 const objLabel = (oid) => { const o = S.object.find((x) => x.id === oid); return o ? `${objName(o)} · ${oid}` : oid; };
 // pickers: a search list with thumbnails; hovering a row or a picked chip shows a larger preview card. Keys "sc-*" pick
 // scenes, the others objects.
-const objImage = (o) => o?.auto.renders?.[0] || o?.auto.photos?.[0];
+const objImage = (o) => (o && objViews(o)[0]) || o?.auto.photos?.[0];
 const sceneImage = (s) => s?.auto.renders?.[0] || (s?.auto.previews || []).find((x) => /compar/.test(x)) || s?.auto.previews?.[0] || s?.auto.photos?.[0];
 const PICK = {
   obj: {

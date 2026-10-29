@@ -98,6 +98,8 @@ def check(asset, output, python, genie_root, device="cpu", frames=180, config_ov
         "shutdown": row("pass" if clean else "fail"),
         "material_fit": row("pending"),
     }
+    if spec["deformable"]["family"] in {"shell", "volume"}:
+        checks["compression_recovery"] = row("pending")
     software = {
         "finite": bool(np.isfinite(trace).all()),
         "no_tet_inversion": minimum_j > 0,

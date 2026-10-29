@@ -174,7 +174,10 @@ def prompt(doc):
                 [
                     "## 柔性专用验收",
                     "按 real2sim/prototypes/deformable_assets/README.md 建模；"
-                    "布/衣/袋保留裁片、开口和接缝，绳单独验证弯曲和扭转。",
+                    "布/衣/袋保留裁片、开口和接缝，绳单独验证弯曲和扭转；"
+                    "薄壳（纸杯、纸盒）保留壁厚和卷边，实心软体（毛绒、海绵）用体网格，两者单独验证压缩和回弹。"
+                    "另用 scripts/objects/render_model.py 渲染单件模型图 preview/00_model.png，"
+                    "测试图文件名写明测试项（drop、suspend、squeeze 等）。",
                     "另写 preview/deformable_check.json，包含 mesh_sha256、registration_sha256、"
                     "material_calibrated 和各项 checks 的状态及证据。",
                     "刚体落地检查不能替代柔性验收。实测材料未标定、初始状态恢复失败或证据过期时不得标通过。",

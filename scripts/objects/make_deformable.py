@@ -57,19 +57,19 @@ def build(spec, output, genie_root, device="cpu"):
         raise ValueError("Expected an existing type/category/00000 asset id")
     profile = spec["deformable"]
     family = profile["family"]
-    if family not in ("cloth", "soft_body"):
+    if family not in ("cloth", "volume"):
         raise ValueError(
-            "This primitive generator supports cloth/soft_body only; preserve real seams and openings separately"
+            "This primitive generator supports cloth/volume only; preserve real seams and openings separately"
         )
     g = profile["geometry"]
     size = np.asarray(g["size_mm"], dtype=float) / 1000
     expected = 2 if family == "cloth" else 3
     if size.shape != (expected,) or not np.isfinite(size).all() or np.any(size <= 0):
-        raise ValueError("Positive finite size_mm required (cloth: width,length; soft_body: width,length,height)")
+        raise ValueError("Positive finite size_mm required (cloth: width,length; volume: width,length,height)")
     cells = g.get("cells", 24 if family == "cloth" else 6)
     if type(cells) is not int or not 2 <= cells <= 80:
         raise ValueError("cells must be an integer in 2..80")
-    if family == "soft_body" and cells > 16:
+    if family == "volume" and cells > 16:
         raise ValueError("Primitive soft blocks are limited to 16 cells per axis")
     mass_g = spec.get("mass_g", spec.get("estimated_mass_g"))
     if isinstance(mass_g, bool) or not isinstance(mass_g, int | float) or not np.isfinite(mass_g) or mass_g <= 0:

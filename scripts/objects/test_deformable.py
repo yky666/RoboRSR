@@ -26,7 +26,7 @@ def test_soft_block_preserves_mass_and_relocatable_configuration(tmp_path):
         "id": "Dynamic/test_soft/00000",
         "estimated_mass_g": 30,
         "mass_policy": "estimate",
-        "deformable": {"family": "soft_body", "geometry": {"size_mm": [100, 100, 100], "cells": 2}},
+        "deformable": {"family": "volume", "geometry": {"size_mm": [100, 100, 100], "cells": 2}},
     }
     asset = build(spec, tmp_path, Path("."))
     meta = json.loads((asset / "metadata.json").read_text())

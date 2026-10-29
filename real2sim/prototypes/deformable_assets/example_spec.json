@@ -4,7 +4,7 @@
   "estimated_mass_g": 300,
   "mass_policy": "estimate",
   "deformable": {
-    "family": "soft_body",
+    "family": "volume",
     "rest_state": "unloaded block",
     "parameter_source": "synthetic candidate; not measured",
     "geometry": {
