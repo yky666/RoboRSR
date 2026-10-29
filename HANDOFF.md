@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-29
-本会话分支：`z/platform-deformable-objects`（worktree `5090-2:/data/robodojo-runs/paper_cup_fem-20261029-135413/wt`，只在本地提交、未推送）：新的场景物体类型 `deformable`（PhysX FEM 体软体）和可形变纸杯 `Dynamic/paper_cup/00000`，G1-D 抓取试验，见「最近任务」第一节。之前：`chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库（第二节），`chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main`（第三节）。下行保留主线历史。
+本会话分支：`z/platform-deformable-objects`（worktree `5090-2:/data/robodojo-runs/paper_cup_fem-20261029-135413/wt`，已推送，未开 PR）：新的场景物体类型 `deformable`（PhysX FEM 体软体）和可形变纸杯 `Dynamic/paper_cup/00000`，G1-D 抓取试验，见「最近任务」第一节。之前：`chongzheng/platform-variant-twins` 把自建孪生搬到独立的 `Object/Real2Sim` 物体库（第二节），`chongzheng/merge-open-prs-1028` 把 #31–#34 合进 `main`（第三节）。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -43,7 +43,7 @@
 
 - **用户要求**：纸杯 `Clutter/paper_cup/00000` 做一个可形变版本并做形变测试（刚体版另一会话在做）；不用 soft_block 原型的写法，只用 IsaacLab / Isaac Sim 官方接口；接入平台成新类型 `deformable`，再试 G1-D 夹爪抓取。
 - **后端**：IsaacLab 0.54.3 的 `isaaclab.assets.DeformableObject`（旧版 `PhysxSchema.PhysxDeformableBodyAPI`，FEM 体软体，只能 GPU 管线）。Isaac Sim 5.1 的新版面软体（`/persistent/physics/enableDeformableBeta`，有 `surfaceBendStiffness`）能加载、能步进，但按 0.35 mm / 4 GPa 纸板在重力下塌成布（117 → 17–25 mm，bend 0 / 0.01 / 1 / 100 都一样），IsaacLab 也没有封装，没用。
-- **资产**（`scripts/objects/make_paper_cup_fem.py` → `Assets/Object/Real2Sim/Dynamic/paper_cup/00000`，共享库没装）：实测外形 87.9 / 60.5 / 136.0 mm 的闭合回转薄壁体，含 3.5 mm 卷边、9 mm 内凹杯底和裙边；外黑内白（两个 GeomSubset）。等效壁厚 3 mm，E = 19 MPa（按弯曲刚度等效是 6.35 MPa，FEM 在 120 次迭代下欠收敛、挤压偏软，取约 3 倍；未标定），泊松 0.3，22 g，六面体分辨率 28（4585 节点）。网格由 PhysX 按官方 schema 自己剖分。`metadata.json` 有 `measurements_mm`（开口外径 / 底部直径 / 高度）和刚体同格式的 `oriented_bbox`。
+- **资产**（`scripts/objects/make_paper_cup_fem.py` → `Assets/Object/Real2Sim/Dynamic/paper_cup/00000`；已装共享库（2026-10-29，新增目录，回滚清单 `/data/robodojo-assets/backups/added-objects-1029-paper_cup-20261029-154704.txt`）。平台上单独登记为 `Dynamic/paper_cup/00000`（`spec.json` 由 `Clutter/paper_cup/00000` 派生，`derived_from` 指向它；预览目录放了侧夹和 G1-D 抓取截图），因为平台按登记编号列物体，原登记编号显示的是刚体孪生）：实测外形 87.9 / 60.5 / 136.0 mm 的闭合回转薄壁体，含 3.5 mm 卷边、9 mm 内凹杯底和裙边；外黑内白（两个 GeomSubset）。等效壁厚 3 mm，E = 19 MPa（按弯曲刚度等效是 6.35 MPa，FEM 在 120 次迭代下欠收敛、挤压偏软，取约 3 倍；未标定），泊松 0.3，22 g，六面体分辨率 28（4585 节点）。网格由 PhysX 按官方 schema 自己剖分。`metadata.json` 有 `measurements_mm`（开口外径 / 底部直径 / 高度）和刚体同格式的 `oriented_bbox`。
 - **独立形变测试**（`scripts/objects/check_paper_cup_fem.py`，1/300 s，GPU）：落地高度 −1.0 mm（欠收敛，物理上应约为 0）、口径 +0.04 mm；中部两块板夹 20 mm 保持 0.73 N；松开后截面残差 0.006 mm（线弹性，不会像真纸杯那样留折痕）；重置后第二回合力 0.7305 / 0.7301 N；18.5 ms / 物理步。
 - **平台**：
   - `env/scene_manager/objects/deformable.py`：包 IsaacLab `DeformableObject`（`UsdFileCfg`，资产自带 FEM schema 和材质）；登记进 `sim.scene.deformable_objects`，由 `DirectRLEnv.sim_step` 每步 `write_data_to_sim` / `update`。摆放、重置、移出画面都写节点状态（`write_nodal_state_to_sim`）；给布局和脚本专家的位姿是节点对静止形状的刚体拟合（Kabsch）。仿真设备不是 CUDA 时报错，运行中改 scale 报错。布局 `physics` 里可写 `dynamic_friction` 和 `deformable_body`（`PhysxDeformableBodyAPI` 属性）覆盖。

@@ -1,0 +1,28 @@
+{
+  "id": "Dynamic/paper_cup/00000",
+  "twin": true,
+  "asset_origin": "physical_object",
+  "name": "可形变纸杯",
+  "name_en": "deformable paper cup",
+  "material": "纸",
+  "color": "杯壁黑色，杯口和内壁白色",
+  "mass_g": 22,
+  "dimensions_mm": "开口外径87.9mm，底部直径60.5mm，高度136.0mm",
+  "features": "杯底有一个阶梯形状",
+  "requirements": "如果仿真环境支持，做成可以形变的材质，和真正的纸杯一样",
+  "generalization": {
+    "count": 0,
+    "color": false,
+    "material": false,
+    "size": false,
+    "shape": false
+  },
+  "updated_by": "z",
+  "updated_at": "2026-10-29 15:47:04",
+  "reference_source": "实物",
+  "mass_policy": "measured",
+  "dimension_policy": "measured",
+  "physics_requirements": "如果建模为可以形变的材质，进行形变测试",
+  "derived_from": "Clutter/paper_cup/00000",
+  "notes": "同一只纸杯（徐鹤鸣登记的 Clutter/paper_cup/00000）的可形变版本：IsaacLab DeformableObject（PhysX FEM 体积软体），材料未标定；需要平台的 deformable 物体类型和 GPU 物理"
+}
