@@ -84,7 +84,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .gbar .me-name b { font-weight: 500; }
 .gbar .me .btn-icon { width: 32px; min-height: 32px; color: var(--muted); }
 .gbar .me .btn-icon:hover { color: var(--text); }
-.side { position: sticky; top: var(--gbar); z-index: 5; display: flex; align-items: center; gap: 24px; min-height: var(--sub); padding: 0 max(40px, calc((100% - 1440px) / 2)); background: var(--glass); border-bottom: 1px solid var(--border); backdrop-filter: saturate(180%) blur(12px); }
+.side { position: sticky; top: var(--gbar); z-index: 5; display: flex; align-items: center; gap: 24px; min-height: var(--sub); padding: 0 max(40px, calc((100% - 1440px) / 2)); background: var(--bg); border-bottom: 1px solid var(--border); }
 .app.no-sub .side { display: none; }
 .side .nav-item[aria-current="page"] { background: var(--surface); box-shadow: inset 0 0 0 1px var(--border); }
 nav { display: flex; flex: 1; justify-content: flex-start; gap: 2px; min-width: 0; margin-left: -12px; overflow-x: auto; scrollbar-width: none; }
@@ -168,7 +168,13 @@ main { flex: 1; min-width: 0; padding: 36px 40px 72px; }
 .obj-bulk { position: fixed; bottom: 16px; left: 50%; z-index: 15; width: min(720px, calc(100vw - 32px)); transform: translateX(-50%); border-radius: 14px; box-shadow: var(--shadow-3); }
 .page:has(.obj-bulk) { padding-bottom: 140px; }
 
+.obj-bulk { width: min(900px, calc(100vw - 32px)); }
 .obj-bulk select { min-height: 30px; }
+.obj-bulk input[type=text] { flex: 1; min-width: 200px; min-height: 30px; border-color: transparent; color: var(--text); }
+.obj-bulk .dd-btn { min-height: 30px; }
+.bulk-hint { color: color-mix(in srgb, var(--on-primary) 65%, transparent); font-size: 12px; }
+.bulk-sep { width: 1px; height: 18px; margin: 0 2px; background: color-mix(in srgb, var(--on-primary) 25%, transparent); }
+.bulkbar .btn:disabled { opacity: .45; }
 .osel { flex: none; width: 18px; height: 18px; margin: 0; cursor: pointer; }
 
 .review-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -298,6 +304,8 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 
 /* media */
 .scene-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
+/* off-screen cards skip layout and paint until scrolled near; the placeholder height keeps the scrollbar steady */
+.mcard, .ds-card { content-visibility: auto; contain-intrinsic-size: auto 340px; }
 /* datasets */
 .ds-hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: end; gap: 32px; margin-bottom: 24px; padding: 8px 0 28px; border-bottom: 1px solid var(--border); }
 .ds-eyebrow { color: var(--muted); font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
@@ -336,6 +344,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .dd-btn[aria-expanded="true"] .ic { transform: rotate(180deg); }
 .dd-menu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 10; display: grid; gap: 2px; min-width: max(100%, 132px); max-width: min(420px, calc(100vw - 32px)); padding: 6px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-2); animation: dd-in .12s ease-out; }
 .dd-menu.end { right: 0; left: auto; }
+.dd-menu.up { top: auto; bottom: calc(100% + 6px); }
 .dd-menu button { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 0; min-height: 34px; padding: 0 10px 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--text-2); text-align: left; white-space: nowrap; cursor: pointer; }
 .dd-menu button > span { overflow: hidden; text-overflow: ellipsis; }
 .dd-menu button:hover { background: var(--surface-2); color: var(--text); }
@@ -353,7 +362,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .ds-meta { overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 /* datasets: facet sidebar + results */
 .ds-layout { display: grid; grid-template-columns: 252px minmax(0, 1fr); align-items: start; gap: 32px; }
-.ds-side { position: sticky; top: calc(var(--gbar) + 16px); max-height: calc(100vh - var(--gbar) - 32px); margin: -4px 0 0 -8px; padding: 0 8px 24px; overflow-y: auto; }
+.ds-side { position: sticky; top: calc(var(--gbar) + 16px); max-height: calc(100vh - var(--gbar) - 32px); margin: -4px 0 0 -8px; padding: 0 8px 24px; overflow-y: auto; scrollbar-width: thin; }
 .fgroup { padding: 4px 0 12px; border-bottom: 1px solid var(--border); }
 .fgroup + .fgroup { margin-top: 8px; }
 .fgroup > summary { display: flex; align-items: center; gap: 8px; min-height: 36px; font-size: 13px; font-weight: 650; list-style: none; cursor: pointer; }
@@ -408,7 +417,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .media > img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .media .inset { position: absolute; right: 8px; bottom: 8px; width: 34%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border: 2px solid #fff; border-radius: 6px; box-shadow: var(--shadow-2); }
 .media .pills { position: absolute; top: 8px; right: 8px; left: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
-.pill { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; background: var(--glass); color: var(--text); font: 500 11px var(--mono); box-shadow: 0 1px 2px rgba(17, 17, 19, .08); backdrop-filter: blur(6px); }
+.pill { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; background: var(--glass); color: var(--text); font: 500 11px var(--mono); box-shadow: 0 1px 2px rgba(17, 17, 19, .08); }
 .m3d { position: relative; aspect-ratio: 4 / 3; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
 .m3d:fullscreen { border: 0; border-radius: 0; }
 .m3d canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
@@ -587,8 +596,8 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .draft-note > div { display: flex; flex: 1; align-items: center; gap: 10px; }
 
 /* drawer */
-#scrim { position: fixed; inset: 0; z-index: 20; background: rgba(17, 17, 19, .32); backdrop-filter: blur(2px); opacity: 0; pointer-events: none; transition: opacity .2s; }
-#scrim.on { opacity: 1; pointer-events: auto; }
+#scrim { position: fixed; inset: 0; z-index: 20; background: rgba(17, 17, 19, .32); opacity: 0; pointer-events: none; transition: opacity .2s, visibility 0s .2s; visibility: hidden; }
+#scrim.on { opacity: 1; pointer-events: auto; visibility: visible; backdrop-filter: blur(2px); transition: opacity .2s; }
 #drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 21; display: flex; flex-direction: column; width: min(780px, 100vw); overflow: hidden; border-radius: 20px 0 0 20px; background: var(--surface); box-shadow: var(--shadow-3); transform: translateX(100%); visibility: hidden; transition: transform .22s ease, visibility 0s .22s; }
 #drawer.on { transform: none; visibility: visible; transition: transform .22s ease; }
 .dr-h { display: flex; align-items: flex-start; gap: 12px; padding: 20px 22px 16px; border-bottom: 1px solid var(--border); }
@@ -763,7 +772,8 @@ const KIND_LABEL = {scene: '场景', object: '物体', task: '任务', episode: 
 const S = {scene: [], object: [], task: [], episode: [], embodiment: [], evaluation: [], prototype: [], library: []};
 const UI = {
   tab: 'overview', drawer: null, ep: null, taskDim: 'custom', taskQ: '', sel: new Set(), loaded: false, syncing: false, syncedAt: '',
-  osel: new Set(),  // objects ticked on the objects page, for bulk owner assignment
+  osel: new Set(),  // objects ticked on the objects page, for bulk review and owner assignment
+  bulk: {owner: '', reject: false, note: ''},
   ds: {pick: {}, ep: [0, 100], q: '', sort: 'rec', view: 'grid', closed: ['robot', 'skill', 'format', 'license', 'platform', 'local']},  // datasets page filters
   dd: '',  // id of the open dropdown menu
   qaRate: 1,  // playback speed of the QA videos, kept when another episode is picked
@@ -1054,9 +1064,11 @@ function segSlide(before) {
   });
 }
 window.addEventListener('resize', () => segSlide());
-function placeMenus() {  // menus open rightwards from their button; one that would leave the window opens leftwards
+function placeMenus() {  // menus open right and down from their button; flipped when that side has no room
   document.querySelectorAll('.dd-menu').forEach((m) => {
-    if (m.getBoundingClientRect().right > document.documentElement.clientWidth - 8) m.classList.add('end');
+    const r = m.getBoundingClientRect(), above = m.parentElement.getBoundingClientRect().top;
+    if (r.right > document.documentElement.clientWidth - 8) m.classList.add('end');
+    if (r.bottom > innerHeight - 8 && above > r.height + 16) m.classList.add('up');
   });
 }
 function ddPick(id, i) {
@@ -2264,16 +2276,42 @@ function selectObjs(ids, checked) {
   ids.forEach((id) => (checked ? UI.osel.add(id) : UI.osel.delete(id)));
   render();
 }
+// ticked base objects an admin can review in one go (variants follow their base; other states are skipped)
+const bulkPending = () => [...UI.osel].map((id) => S.object.find((d) => d.id === id)).filter((d) => d && isBase(d) && d.review_state === 'review');
 function objBulkBar() {
   const n = UI.osel.size;
   if (!n) return '';
-  return `<div class="bulkbar obj-bulk" role="region" aria-label="批量操作"><b>已选 ${n} 件</b><span class="sp"></span>
-    <label for="bulk-owner">重建负责人</label><select id="bulk-owner" style="color:var(--text)">${opts(memberOpts(), '')}</select>
-    <button class="btn" type="button" onclick="bulkOwner()">${ic('users')}批量指派</button>
-    <button class="btn" type="button" onclick="UI.osel.clear(); render()">取消选择</button></div>`;
+  const pending = bulkPending().length, none = pending ? '' : 'disabled title="选中的物体里没有待审核的本体"';
+  const cancel = `<button class="btn" type="button" onclick="UI.osel.clear(); UI.bulk.reject = false; render()">取消选择</button>`;
+  if (ME?.admin && UI.bulk.reject) {
+    return `<div class="bulkbar obj-bulk" role="region" aria-label="批量退回"><b>退回 ${pending} 件</b>
+      <input id="bulk-note" type="text" placeholder="退回原因（必填，写进每件的审核记录）" aria-label="退回原因" value="${esc(UI.bulk.note)}" oninput="UI.bulk.note = this.value">
+      <button class="btn" type="button" onclick="bulkReview('reject')">${ic('x')}确认退回</button>
+      <button class="btn" type="button" onclick="UI.bulk.reject = false; render()">返回</button></div>`;
+  }
+  return `<div class="bulkbar obj-bulk" role="region" aria-label="批量操作"><b>已选 ${n} 件</b>${ME?.admin ? `<span class="bulk-hint">待审核 ${pending}</span>` : ''}<span class="sp"></span>
+    ${ME?.admin ? `<button class="btn" type="button" ${none} onclick="bulkReview('approve')">${ic('check')}批量通过</button>
+    <button class="btn" type="button" ${none} onclick="UI.bulk.reject = true; render(); $('#bulk-note')?.focus()">${ic('x')}批量退回…</button><span class="bulk-sep" aria-hidden="true"></span>` : ''}
+    ${dropdown('bulk-owner', '重建负责人', Object.entries(memberOpts()), UI.bulk.owner, (v) => { UI.bulk.owner = v; })}
+    <button class="btn" type="button" onclick="bulkOwner()">${ic('users')}批量指派</button>${cancel}</div>`;
+}
+async function bulkReview(action) {
+  const docs = bulkPending(), skipped = UI.osel.size - docs.length, note = action === 'reject' ? UI.bulk.note.trim() : '';
+  if (action === 'reject' && !note) {
+    toast('退回要写明原因', true);
+    return $('#bulk-note')?.focus();
+  }
+  const verb = action === 'approve' ? '通过（标为完备）' : '退回重建';
+  if (!docs.length || !confirm(`${verb} ${docs.length} 件待审核物体？${skipped ? `\n另外 ${skipped} 件不是待审核的本体（变体跟随本体），会跳过。` : ''}`)) return;
+  let ok = 0;
+  for (const d of docs) ok += await save('object', d.id, {review_action: action, review_note: note}, true) ? 1 : 0;
+  UI.osel.clear();
+  UI.bulk = {...UI.bulk, reject: false, note: ''};
+  render();
+  toast(ok === docs.length ? `已${action === 'approve' ? '通过' : '退回'} ${ok} 件` : `${ok}/${docs.length} 件成功，其余失败`, ok !== docs.length);
 }
 async function bulkOwner() {
-  const ids = [...UI.osel], owner = $('#bulk-owner').value, who = owner ? memberName(owner) : '未指派';
+  const ids = [...UI.osel], owner = UI.bulk.owner, who = owner ? memberName(owner) : '未指派';
   if (!ids.length || !confirm(`把 ${ids.length} 件物体的重建负责人设为「${who}」？`)) return;
   let n = 0;
   for (const id of ids) n += await save('object', id, {owner}, true) ? 1 : 0;
@@ -4205,6 +4243,39 @@ function setTheme(t) {
   $('#theme').innerHTML = THEMES.map(([k, label, icon]) => `<button type="button" class="btn btn-icon btn-ghost" aria-pressed="${t === k}" aria-label="${label}" title="${label}" onclick="setTheme('${k}')">${ic(icon)}</button>`).join('');
 }
 setTheme(document.documentElement.dataset.theme);
+// the page glides to where the wheel sends it (a damped ease) instead of stepping; inner panels that can still scroll,
+// sideways and zoom gestures, open drawers and reduced motion keep the browser's own scrolling
+(() => {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let target = 0, last = 0, raf = 0;
+  const innerScrolls = (el, dy) => {
+    for (; el && el !== document.body; el = el.parentElement) {
+      if (el.scrollHeight > el.clientHeight + 1 && /(auto|scroll)/.test(getComputedStyle(el).overflowY)
+        && (dy < 0 ? el.scrollTop > 0 : el.scrollTop + el.clientHeight < el.scrollHeight - 1)) return true;
+    }
+    return false;
+  };
+  const glide = () => {
+    raf = 0;
+    if (Math.abs(scrollY - last) > 1.5) return;  // keys, the scrollbar or a scrollTo moved the page: they win
+    const d = target - scrollY;
+    if (Math.abs(d) < 1.5) {  // scroll positions snap to whole pixels: finish instead of creeping forever
+      scrollTo(0, target);
+      return;
+    }
+    last = scrollY + (Math.abs(d) * 0.14 < 1 ? Math.sign(d) : d * 0.14);
+    scrollTo(0, last);
+    raf = requestAnimationFrame(glide);
+  };
+  addEventListener('wheel', (e) => {
+    if (e.ctrlKey || e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || $('#drawer.on, #lightbox.on') || innerScrolls(e.target, e.deltaY)) return;
+    e.preventDefault();
+    if (!raf) target = last = scrollY;
+    const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
+    target = Math.max(0, Math.min(target + dy, document.documentElement.scrollHeight - innerHeight));
+    if (!raf) raf = requestAnimationFrame(glide);
+  }, {passive: false});
+})();
 UI.tab = tabFromHash();
 renderNav();
 fetch('/api/me').then((r) => (r.ok ? r.json() : null)).then((me) => {
