@@ -4187,18 +4187,30 @@ function mountModel() {
   VIEWER?.stop();
   VIEWER = slot ? startViewer(slot) : null;
 }
-const NO_WEBGL = '这个浏览器现在没有可用的 WebGL（硬件加速被关闭、显卡被禁用，或远程桌面 / 虚拟机没有 GPU），3D 预览打不开；'
-  + '在浏览器设置里打开「使用图形加速」后重开页面即可。照片和渲染图不受影响。';
-function webglWorks() {  // a throwaway context, released at once so it does not count against the browser's limit
-  const gl = document.createElement('canvas').getContext('webgl2') || document.createElement('canvas').getContext('webgl');
-  gl?.getExtension('WEBGL_lose_context')?.loseContext();
-  return Boolean(gl);
+// browsers no longer fall back to software WebGL on their own: once the GPU path is off (setting, blocklist, or a GPU
+// process crash earlier in the session) three.js cannot start, so say so and pass on the browser's own reason
+const noWebgl = (why) => `这个浏览器现在没有给页面可用的 WebGL，3D 预览打不开。浏览器给出的原因：${why || '没有说明'}。`
+  + '常见是这次会话里显卡进程崩溃过：完全退出浏览器（所有窗口）再打开；Chrome 可在地址栏打开 chrome://gpu 看「WebGL」一行，'
+  + '并确认设置里「使用图形加速」已打开。照片和渲染图不受影响。';
+function webglProblem() {  // '' when WebGL works; otherwise why not. Test contexts are released at once
+  let why = '';
+  for (const kind of ['webgl2', 'webgl']) {
+    const canvas = document.createElement('canvas');
+    canvas.addEventListener('webglcontextcreationerror', (e) => { why ||= e.statusMessage; });
+    const gl = canvas.getContext(kind);
+    if (gl) {
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      return '';
+    }
+  }
+  return why || '没有说明';
 }
 function startViewer(el) {
   const v = {url: el.dataset.model, el, stopped: false, stop() { this.stopped = true; this.free?.(); }};
   const status = el.querySelector('.m3d-status');
-  if (!webglWorks()) {
-    status.textContent = NO_WEBGL;
+  const problem = webglProblem();
+  if (problem) {
+    status.textContent = noWebgl(problem);
     return v;
   }
   Promise.all(['three', 'three/addons/controls/OrbitControls.js', 'three/addons/loaders/GLTFLoader.js', 'three/addons/environments/RoomEnvironment.js'].map((m) => import(m)))
@@ -4363,7 +4375,7 @@ function startViewer(el) {
       if (v.stopped) v.free();
     })
     .catch((err) => {
-      if (!v.stopped) status.textContent = /webgl/i.test(String(err.message || err)) ? NO_WEBGL : `3D 预览加载失败：${err.message || err}（three.js 从 registry.npmmirror.com 加载，内网环境需能访问它）`;
+      if (!v.stopped) status.textContent = /webgl/i.test(String(err.message || err)) ? noWebgl(err.message) : `3D 预览加载失败：${err.message || err}（three.js 从 registry.npmmirror.com 加载，内网环境需能访问它）`;
     });
   return v;
 }
