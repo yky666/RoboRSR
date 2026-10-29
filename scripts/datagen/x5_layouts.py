@@ -211,6 +211,10 @@ def parent_label(entry):
     return None if plane in ("Table", "Ground") else plane.split("/")[0]
 
 
+def on_table(entry):
+    return str(entry.get("relative_plane") or "Table") == "Table"
+
+
 class Generator:
     def __init__(self, task, profile, assets, templates, tiers=None):
         self.task, self.profile, self.assets = task, profile, Assets(assets)
@@ -220,6 +224,12 @@ class Generator:
         self.labels = pools(self.base_config)[0]
         self.holdout = held_out(self.base_config, self.variant_config)
         self.templates = templates
+        self.rest = {}  # (section, category, index) -> (orientation, z, scale) an official layout rests it at
+        for _, template in templates:
+            for section, category, e in entries(template):
+                if on_table(e):
+                    key = (section, category, e["category_idx"])
+                    self.rest.setdefault(key, (list(e["default_ori"]), e["default_pos"][2], e.get("scale")))
         self.prohibited = [
             area for config in (self.base_config, self.variant_config) for area in config.get("ProhibitedArea") or []
         ]
@@ -298,10 +308,15 @@ class Generator:
             old_meta, new_meta = self.assets.meta(section, category, old), self.assets.meta(section, category, new)
             if not (old_meta and new_meta):
                 continue
-            shift = bottom(old_meta, entry.get("scale"), entry["default_ori"])
-            shift -= bottom(new_meta, entry.get("scale"), entry["default_ori"])
+            rest = self.rest.get((section, category, new))
+            if on_table(entry) and rest and rest[2] == entry.get("scale"):
+                # a bounding box is no contact model: a headset on its side rests 2-6 cm above its box bottom, and
+                # each instance at its own tilt
+                entry["default_ori"], entry["default_pos"][2] = list(rest[0]), rest[1]
+            else:
+                shift = bottom(old_meta, entry.get("scale"), entry["default_ori"])
+                entry["default_pos"][2] += shift - bottom(new_meta, entry.get("scale"), entry["default_ori"])
             entry["category_idx"] = new
-            entry["default_pos"][2] += shift
             entry["physics"] = {**entry.get("physics", {}), **(new_meta.get("physics") or {})}
             swapped.append(f"{category} {old}->{new}")
         return swapped

@@ -208,6 +208,27 @@ def test_instance_tasks():
         assert (gen.extra.get(("Rigid", "bowl")) == [16]) is joins
 
 
+def test_swap_takes_official_rest_pose():
+    """A swapped-in instance takes the orientation and height an official layout rests it at, not a bbox guess."""
+    a, b = template(0), template(0)
+    tilt = [0.92388, 0.38268, 0.0, 0.0]  # 45 deg about x
+    for bowl, idx in zip(b["Rigid"]["bowl"], (5, 7, 8)):
+        bowl["category_idx"] = idx
+    b["Rigid"]["bowl"][0].update(default_ori=tilt, default_pos=[0.0, 0.0, 0.9])
+    gen = X.Generator("stack_bowls", {"instances": True}, assets(), [("a.json", a), ("b.json", b)], POOLS)
+    found = 0
+    for seed in range(30):
+        layout, _ = gen.layout(0, seed)  # template a, which never shows bowl 5
+        for bowl in layout["Rigid"]["bowl"]:
+            if bowl["category_idx"] == 5:
+                assert bowl["default_ori"] == tilt and bowl["default_pos"][2] == 0.9
+                found += 1
+            if bowl["category_idx"] == 16:  # in no official layout: rests on its bbox
+                low = X.bottom(gen.assets.meta("Rigid", "bowl", 16), bowl["scale"], bowl["default_ori"])
+                assert abs(bowl["default_pos"][2] + low - 0.765) < 1e-6
+    assert found
+
+
 def test_restyle_scale():
     root = assets()
     real = X.RESTYLE["stack_bowls"]
