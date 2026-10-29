@@ -101,3 +101,29 @@ def test_link():
     assert (pen / "00900").is_symlink() and (out / "Object/RoboDojo/Clutter/kettle").is_symlink()
     assert (out / "Room").is_symlink() and (out / "Background/studio.hdr").exists()
     assert not (out / "Eval_Layout").is_symlink()
+
+
+def test_link_pool():
+    base, extra, out = (Path(tempfile.mkdtemp()) for _ in range(3))
+    write(base / "Object/RoboDojo/Rigid/bowl/00001/metadata.json", {})
+    write(base / "Object/RoboDojo/Rigid/bowl/00011/metadata.json", {})
+    write(base / "Object/RoboDojo/Geometry/cup_holder/00000/metadata.json", {})
+    write(base / "Room/Simple_Room/base0.usd", {})
+    write(base / "Room/Simple_Room_teal/base0.usd", {})
+    write(base / "Eval_Layout/RoboDojo/arx_x5/0/stack_bowls_0.json", {})
+    write(base / "Robots/X5/x5.usd", {})
+    write(extra / "Background/studio.hdr", {})
+    write(extra / "Background/held.hdr", {})
+    write(extra / "Background/polyhaven.json", {})
+    pools = {"t0": ["Rigid:bowl/11", "room:Simple_Room_teal"], "pools": {}}
+    for pool, hdr in (("train", "studio.hdr"), ("exam", "held.hdr")):
+        pools["pools"][pool] = {"rooms": [], "materials": [], "hdrs": [hdr], "distractors": [], "instances": []}
+    R.link([base, extra], out, R.banned_for(pools, "train"))
+    assert (out / "Object/RoboDojo/Rigid/bowl/00001").is_symlink()
+    assert not (out / "Object/RoboDojo/Rigid/bowl").is_symlink()  # only in base, still split per index
+    assert not (out / "Object/RoboDojo/Rigid/bowl/00011").exists()
+    assert (out / "Object/RoboDojo/Geometry/cup_holder/00000").is_symlink()
+    assert (out / "Room/Simple_Room").is_symlink() and not (out / "Room/Simple_Room_teal").exists()
+    assert (out / "Background/studio.hdr").exists() and (out / "Background/polyhaven.json").exists()
+    assert not (out / "Background/held.hdr").exists() and not (out / "Eval_Layout").exists()
+    assert (out / "Robots").is_symlink()

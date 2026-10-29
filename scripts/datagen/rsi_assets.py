@@ -15,7 +15,8 @@ clutter:<category>/<index>, <Section>:<category>/<index> for task-object section
     python scripts/datagen/rsi_assets.py link --base <official Assets> --extra <new assets> ... --out <run>/Assets
 link merges asset trees with symlinks (new objects from scripts/objects/manitwin.py, HDRs from
 scripts/scenes/polyhaven_hdris.py, materials from scripts/scenes/polyhaven_materials.py) without copying or touching
-either; entries already in --out stay as they are.
+either; entries already in --out stay as they are. With --pool it builds a party's overlay: no T0 asset, nothing of
+the other pool, no Eval_Layout (link the template seed folder x5_layouts.py reads yourself).
 """
 
 import argparse
@@ -181,26 +182,58 @@ def audit(layout_dir, pools, pool):
     return bad
 
 
-def link(trees, out):
+def asset_id(rel):
+    """Asset id of a path under an Assets/ root (its parts), None for anything that is not one asset."""
+    if len(rel) == 2 and rel[0] == "Room":
+        return f"room:{rel[1]}"
+    if len(rel) == 2 and rel[0] == "Material" and rel[1].startswith("material"):
+        return f"material:{rel[1]}"
+    if len(rel) == 2 and rel[0] == "Background" and rel[1].endswith(".hdr"):
+        return f"hdr:{rel[1]}"
+    if len(rel) == 5 and rel[0] == "Object" and rel[2] in ("Clutter", *SECTIONS) and rel[4].isdigit():
+        return f"{'clutter' if rel[2] == 'Clutter' else rel[2]}:{rel[3]}/{int(rel[4])}"
+    return None
+
+
+def above_assets(rel):
+    """True for a directory whose entries are asset ids or lead to them (merged entry by entry under a pool)."""
+    if rel in (("Room",), ("Material",), ("Background",), ("Object",)):
+        return True
+    return rel[:1] == ("Object",) and (len(rel) == 2 or (len(rel) in (3, 4) and rel[2] in ("Clutter", *SECTIONS)))
+
+
+def link(trees, out, banned=None, rel=()):
     """Merge directory trees into `out` with symlinks: a name only one tree has is linked whole, a directory several
-    trees have becomes a real directory merged one level down; two files of the same name are refused."""
+    trees have becomes a real directory merged one level down; two files of the same name are refused. With `banned`
+    (asset ids) every asset is linked one by one and the banned ones and Eval_Layout are left out."""
     out.mkdir(parents=True, exist_ok=True)
     names = {}
     for tree in trees:
         for p in sorted(tree.iterdir()):
             names.setdefault(p.name, []).append(p.resolve())
     for name, sources in names.items():
-        target = out / name
+        target, sub = out / name, (*rel, name)
+        if banned is not None and (sub == ("Eval_Layout",) or asset_id(sub) in banned):
+            continue
+        split = banned is not None and above_assets(sub) and all(s.is_dir() for s in sources)
         if target.exists() or target.is_symlink():
             if target.is_dir() and not target.is_symlink() and all(s.is_dir() for s in sources):
-                link(sources, target)
+                link(sources, target, banned, sub)
             continue
-        if len(sources) == 1:
+        if len(sources) == 1 and not split:
             target.symlink_to(sources[0])
         elif all(s.is_dir() for s in sources):
-            link(sources, target)
+            link(sources, target, banned, sub)
         else:
             raise SystemExit(f"{target}: more than one tree has a file named {name}")
+
+
+def banned_for(pools, pool):
+    """Asset ids a party's Assets/ overlay leaves out: T0 and the other party's pool."""
+    other = pools["pools"]["exam" if pool == "train" else "train"]
+    ids = set(pools["t0"]) | set(other["distractors"]) | set(other["instances"])
+    ids |= {f"room:{r}" for r in other["rooms"]} | {f"material:{m}" for m in other["materials"]}
+    return ids | {f"hdr:{h}" for h in other["hdrs"]}
 
 
 def main(argv=None):
@@ -217,9 +250,10 @@ def main(argv=None):
     m.add_argument("--base", type=Path, required=True)
     m.add_argument("--extra", type=Path, nargs="+", required=True)
     m.add_argument("--out", type=Path, required=True)
+    m.add_argument("--pool", choices=("train", "exam"), help="a party's overlay: without T0, the other pool, layouts")
     args = ap.parse_args(argv)
     if args.cmd == "link":
-        link([args.base, *args.extra], args.out)
+        link([args.base, *args.extra], args.out, banned_for(load(), args.pool) if args.pool else None)
     elif args.cmd == "scan":
         result = scan(args.assets)
         args.out.parent.mkdir(parents=True, exist_ok=True)
