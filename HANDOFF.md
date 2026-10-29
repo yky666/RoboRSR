@@ -1,7 +1,7 @@
 # Project Handoff
 
-更新时间：2026-10-29
-本会话分支：`chongzheng/platform-isolation`（worktree `../RoboDojo-platform-isolation`，基于 `origin/main@a23b9c2`）：数采平台和 `5090-2` 上的工作区隔离（「最近任务」第一节）。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
+更新时间：2026-10-30
+本会话分支：`chongzheng/platform-isolation`（worktree `../RoboDojo-platform-isolation`，基于 `origin/main@a23b9c2`）：数采平台和 `5090-2` 上的工作区隔离，PR #50 已合并，10-30 00:23 线上已切换（「最近任务」第一节）。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -33,14 +33,14 @@
 - **数据**：所有数据集登记在 `scripts/datagen/registry.json`。目前有 2 份办公室量杯全量倒豆数据，各 100 条，LeRobot v3.0，都是按旧的 legacy 格式导出的：
   - 固定朝向的一份，已上传 ModelScope 私有仓库；
   - 随机左右手、随机朝向、大范围位置的一份，也已上传 ModelScope 私有仓库（单独的仓库）。
-- **数采平台** `src/real2sim_platform/`（页面名 BanzhiFlywheel，分「仿真平台」和「数据集」两个板块）：部署在 `5090-2`，经阿里云反向隧道对外访问。目前仍从工作区 `/root/RoboDojo` 起（tmux `r2s-platform`）；隔离部署 `src/real2sim_platform/ops.sh`（只读 release + 独立状态目录 + systemd 沙箱）已在隔离端口验证，等约时间切换（「最近任务」第一节）。场景卡片封面是 RTX 渲染图，抽屉里有 3D 预览（见「最近历史」10-21）。
+- **数采平台** `src/real2sim_platform/`（页面名 BanzhiFlywheel，分「仿真平台」和「数据集」两个板块）：部署在 `5090-2`，经阿里云反向隧道对外访问。10-30 起由 `r2s`（`src/real2sim_platform/ops.sh`）管理：代码是只读 release `/opt/r2s-platform/current`，平台只写状态目录 `/data/r2s-platform/state/`，systemd `r2s-platform` 和 `r2s-platform-tunnel`，不再从 `/root/RoboDojo` 起、不再用 tmux。agent 怎么用见 `AGENTS.md`「Data Platform on `5090-2`」（「最近任务」第一节）。场景卡片封面是 RTX 渲染图，抽屉里有 3D 预览（见「最近历史」10-21）。
 - **服务器**：只用 `5090-2`（8×5090）。
-  - 共享资产库：`/data/robodojo-assets/Assets`（10-20 整体迁来，39 GB）。改它要先征得同意，备份放 `/data/robodojo-assets/backups/`。物体分两个库：`Object/RoboDojo/` 是官方的，`Object/Real2Sim/` 是自建孪生（10-28 起；RoboDojo 下留有指向它的软链接，见「最近任务」第一节）。运行目录的 `Assets/` 覆盖目录里，不改的部分直接从它软链接或拷贝。数采平台现在读的还是手动刷新的元数据镜像 `/root/RoboDojo_assets/Assets`，切换到 `ops.sh` 部署后直接只读这个库。
+  - 共享资产库：`/data/robodojo-assets/Assets`（10-20 整体迁来，39 GB）。改它要先征得同意，备份放 `/data/robodojo-assets/backups/`。物体分两个库：`Object/RoboDojo/` 是官方的，`Object/Real2Sim/` 是自建孪生（10-28 起；RoboDojo 下留有指向它的软链接，见「最近任务」第一节）。运行目录的 `Assets/` 覆盖目录里，不改的部分直接从它软链接或拷贝。数采平台 10-30 起直接只读这个库；旧的元数据镜像 `/root/RoboDojo_assets/Assets` 不再用，可以删。
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
 
-### 数采平台和 `5090-2` 工作区隔离（2026-10-29 23:xx，`chongzheng/platform-isolation`，未合并、线上未切换）
+### 数采平台和 `5090-2` 工作区隔离（2026-10-29 23:xx 至 10-30 00:2x，`chongzheng/platform-isolation`，[PR #50](https://github.com/Zheng-Chong/RoboRSR/pull/50) 已合并，线上已切换）
 
 - **起因**：平台从 `/root/RoboDojo` 起，那里同时是大家的工作区（218 个未提交改动），数据库、登记、照片也写在里面；部署靠 stash → ff → pop，10-29 11:42 的重启把别的会话未提交的 `server.py` 带上了线。所有人都是 root，靠权限拦不住。用户选定：登记以平台状态目录为准，定稿时写回 Git；先在隔离端口验证，再约时间切线上。
 - **做法**（新增 `src/real2sim_platform/ops.sh`，装好后 `/usr/local/bin/r2s`；`server.py` 只在 `/api/info` 加 `data_root`）：
@@ -56,11 +56,11 @@
   - 网页上传照片落在状态目录，删除正常。`publish`：`spec.json` 被跳过、单独发布被拒，第二次发布时旧 `check.json` 进了备份，越界 DEST 被拒。`export` 只带出登记和 `reference/`，没有 `preview/`。
   - `d346685` ↔ 新提交来回部署：112 个登记文件校验和不变，LFS 指针数不变，替换的 25 / 39 个文件进备份；`rollback` 和再前进各 3 s。故意坏掉的提交 6 s 内判定失败并切回，页面一直 200。
   - 本机：`test_server.py`（直接运行的部分）、`test_dataset_catalog.cjs`、页面脚本 `node --check`、`ruff check/format`（0.11.7）、`git diff --check`、`bash -n` 通过（本机没有 shellcheck）。`5090-2` 隔离目录在 RoboDojo 环境里跑 `scripts/check.sh` 的 pytest 部分 92 passed / 82 subtests、任务清单 `--check` 通过（同步时没带 `.git`，lint 那段在本机跑）。测试实例和测试分支已删除，线上进程（22:25 起）没动。
-- **切换步骤**（约好时间，停机约 1 分钟；按顺序，`.agent/ops.local.md` 同步改）：
-  1. 合并本分支进 `main`，把 sha 推到 `5090-2:/root/RoboDojo`（`refs/heads/incoming-main`）。
-  2. `tmux kill-session -t r2s-platform`（先停写入），`ops.sh init /root/RoboDojo`（用 `git show <sha>:src/real2sim_platform/ops.sh` 取脚本）。
-  3. 写 `/data/r2s-platform/tunnel.env`（`R2S_TUNNEL_KEY=/root/.ssh/real2sim_tunnel`、`R2S_TUNNEL_LISTEN`、`R2S_TUNNEL_HOST`，值取 `.cache/run-tunnel.sh`），`ops.sh install`，`ops.sh deploy <sha>`；公网首页 200、未登录 401 后 `tmux kill-session -t r2s-tunnel`，`systemctl start r2s-platform-tunnel`。
-  4. 回退：`systemctl stop r2s-platform r2s-platform-tunnel`，按 `.agent/ops.local.md` 重建两个 tmux 会话（切换后的新登记要先 `ops.sh export /root/RoboDojo` 拷回）。
+- **切换**（10-30 00:23，`62a9571` = PR #50 合并提交）：`tunnel.env` 从旧隧道脚本生成；`tmux kill-session -t r2s-platform` → `init /root/RoboDojo` → `install` → `deploy`，停机 00:23:24–00:23:35 共 11 s；旧 tmux 隧道先转到新服务（公网首页 200、未登录 401），再换成 systemd 隧道（4 s 内恢复）。没有 tmux 会话了，两个 unit 开机自启。
+  - 切换后：扫描场景 10、任务 68、物体 2228（共享库比旧镜像多 8 个）、回合 507、评测 17；账号 13、材质 990；`data_root` = 状态目录，`assets_ok`；服务进程里只有状态目录可写，root 改 release 被拒。
+  - 本体页从 8 个变 5 个：`aurora_lite`、`g1d_aurora_upper`、`ur5_official` 的配置文件只在部署机工作区（10-23 起未提交，`env/robot_manager/robot_config/`），release 里没有，所以不再算已接入；登记还在，研究资产从 15 变 17。要恢复就把那些文件提交进 `main` 再 `r2s deploy`。
+  - 回退到旧方式：`systemctl disable --now r2s-platform r2s-platform-tunnel`，按 `.agent/ops.local.md` 重建两个 tmux 会话；旧数据库 `/root/RoboDojo/.cache/real2sim_platform.sqlite3` 停在 00:23，之后的新登记先 `r2s export /root/RoboDojo` 拷回，数据库用 `/data/r2s-platform/state/platform.sqlite3`。
+- **AGENTS.md** 加了「Data Platform on `5090-2` (`r2s`)」：各目录谁写、`r2s` 都在 `5090-2` 上以 root 跑、读登记 / 发布产出 / 装库后扫描 / 部署的命令和例子。
 - **风险**：切换后直接往 `/root/RoboDojo/real2sim` 放的渲染平台看不到，要 `r2s publish`；`/root/RoboDojo_assets` 镜像不再用，可以删；状态目录本身 root 仍能手改，靠文档约束；`rollback` 不回退状态目录，要回退数据用 `backups/`。
 
 ### 代码块改成浅色、prompt 高亮（2026-10-29 22:5x）
