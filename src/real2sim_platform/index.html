@@ -242,6 +242,14 @@ select { cursor: pointer; }
 .segctl button:hover { color: var(--text); }
 .segctl button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
 .segctl button[aria-pressed="true"] .muted { color: color-mix(in srgb, var(--on-primary) 72%, transparent); }
+/* sliding thumb behind the picked button (segSlide); the buttons go transparent only once it is in place */
+.segctl { position: relative; isolation: isolate; }
+.seg-thumb { position: absolute; top: 0; left: 0; z-index: -1; border-radius: 999px; background: var(--primary); pointer-events: none;
+  transition: transform .28s cubic-bezier(.2, .8, .2, 1), width .28s cubic-bezier(.2, .8, .2, 1), height .28s cubic-bezier(.2, .8, .2, 1); }
+.segctl.slid button { transition: color .2s; }
+.segctl.slid button[aria-pressed="true"] { background: transparent; }
+.segctl.slid button .muted { transition: color .2s; }
+@media (prefers-reduced-motion: reduce) { .seg-thumb { transition: none; } }
 
 /* status */
 .st { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border: 1px solid transparent; border-radius: 999px; background: var(--todo-soft); color: var(--todo); font-size: 12px; font-weight: 500; white-space: nowrap; }
@@ -1005,6 +1013,44 @@ function dropdown(id, label, opts, cur, pick) {
     ${UI.dd === id ? `<div class="dd-menu" role="listbox" aria-labelledby="${id}">${opts.map(([v, text], i) => `<button type="button" role="option" aria-selected="${now?.[0] === v}"
       onclick="ddPick('${id}', ${i})" title="${esc(text)}"><span>${esc(text)}</span>${now?.[0] === v ? ic('check', 'ic-sm') : ''}</button>`).join('')}</div>` : ''}</div>`;
 }
+// segmented controls are rebuilt on every render: remember where each thumb sat and slide it from there
+const segKey = (el, i) => `${el.getAttribute('aria-label') || ''}#${i}`;
+const segSnapshot = () => new Map([...document.querySelectorAll('.segctl')].map((el, i) =>
+  [segKey(el, i), el.querySelector(':scope > .seg-thumb')?.dataset.at]));
+function segSlide(before) {
+  document.querySelectorAll('.segctl').forEach((el, i) => {
+    const on = el.querySelector(':scope > button[aria-pressed="true"]');
+    let t = el.querySelector(':scope > .seg-thumb');
+    el.classList.add('slid');  // before the first layout, so the picked button never paints (and fades) its own background
+    if (!on || !on.offsetWidth) {  // nothing picked, or hidden in a closed section: the button paints itself
+      t?.remove();
+      el.classList.remove('slid');
+      return;
+    }
+    if (!t) {
+      t = document.createElement('span');
+      t.className = 'seg-thumb';
+      t.setAttribute('aria-hidden', 'true');
+      el.prepend(t);
+    }
+    const place = (at) => {
+      const [x, y, w, h] = at.split(',');
+      t.style.transform = `translate(${x}px, ${y}px)`;
+      t.style.width = `${w}px`;
+      t.style.height = `${h}px`;
+    };
+    const to = [on.offsetLeft, on.offsetTop, on.offsetWidth, on.offsetHeight].join(), from = before?.get(segKey(el, i));
+    if (from && from !== to) {
+      t.style.transition = 'none';
+      place(from);
+      t.getBoundingClientRect();
+      t.style.transition = '';
+    }
+    place(to);
+    t.dataset.at = to;
+  });
+}
+window.addEventListener('resize', () => segSlide());
 function placeMenus() {  // menus open rightwards from their button; one that would leave the window opens leftwards
   document.querySelectorAll('.dd-menu').forEach((m) => {
     if (m.getBoundingClientRect().right > document.documentElement.clientWidth - 8) m.classList.add('end');
@@ -4126,7 +4172,7 @@ function render() {
   renderNav();
   if (!UI.loaded) return;
   const focus = document.activeElement?.id, scroll = $('.qa-list')?.scrollTop, oldVideos = $('#qa-videos'), opening = UI.drawerFocus;
-  const sideScroll = $('.ds-side')?.scrollTop;
+  const sideScroll = $('.ds-side')?.scrollTop, segs = segSnapshot();
   $('#main').innerHTML = VIEWS[UI.tab]();
   if (sideScroll && $('.ds-side')) $('.ds-side').scrollTop = sideScroll;
   placeMenus();
@@ -4135,6 +4181,7 @@ function render() {
   else if (slot) videos('rate', UI.qaRate);
   if (scroll && $('.qa-list')) $('.qa-list').scrollTop = scroll;
   renderDrawer();
+  segSlide(segs);
   mountModel();
   const el = focus && document.getElementById(focus);
   if (el && el !== document.activeElement && !opening) {
