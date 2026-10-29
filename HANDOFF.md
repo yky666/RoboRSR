@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-29
-本会话分支：`chongzheng/platform-banzhi-flywheel`（worktree `../RoboDojo-banzhi-flywheel`）：数采平台改名 BanzhiFlywheel，分「仿真平台 / 数据集」两个板块，加公开数据集目录和日间 / 夜间主题（「最近任务」第一节，连同第二节的黑白改版）。2026-10-29 rebase 到 `806f4e6` 后快进推 `main`（`65abd16` 为代码，其后一个提交只改本文件），00:05 部署到 `5090-2`。之前：`chongzheng/merge-open-prs-1028b` 把 #36、#38–#43 合进 `main` 并部署。下行保留主线历史。
+本会话分支：`chongzheng/objects-instruction-names`（worktree `../RoboDojo-object-names`，基于 `origin/main@492473b`）：物体指令名称和建模 prompt v3（「最近任务」第一节）。上一会话：`chongzheng/platform-banzhi-flywheel`（worktree `../RoboDojo-banzhi-flywheel`）：数采平台改名 BanzhiFlywheel，分「仿真平台 / 数据集」两个板块，加公开数据集目录和日间 / 夜间主题（「最近任务」第一节，连同第二节的黑白改版）。2026-10-29 rebase 到 `806f4e6` 后快进推 `main`（`65abd16` 为代码，其后一个提交只改本文件），00:05 部署到 `5090-2`。之前：`chongzheng/merge-open-prs-1028b` 把 #36、#38–#43 合进 `main` 并部署。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -23,6 +23,7 @@
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
   - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
+  - 指令名称：`scripts/objects/object_names.json` 给平台上 54 件完备物体（含变体）和 13 个能拧盖的瓶子写了中英文各 5–6 个从简到详的名称，`object_names.py apply` 写进 `description.json` 的 `names`，指令模板的 `<标签>` 从中取词（10-29，见「最近任务」第一节）。共享库里已装的 38 件已写入。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
   - 杯对杯倒豆、量杯对倒：部分 seed 成功。
@@ -38,6 +39,22 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 物体指令名称 + 建模 prompt v3（2026-10-29，`chongzheng/objects-instruction-names`）
+
+- **起因**（用户）：每个物体和变体要有多条从简到详的名称，填进训练指令做泛化、提高指令遵循；应在建模 prompt 里就设计好，并给现有完备物体补上。
+- **发现**：指令模板的 `<label>` 原来由 `layout_manager.get_label_descriptions` 从 `description.json` 的 `description`（5 句英文长描述）里随机取一句填入，填进去的是整句而不是名称。现有任务只有 `general_pickup` 用了占位符（单个 `<target>`），G1-D 任务都是固定句子。
+- **数据格式**：`description.json` 新增 `names: {"en": [...], "zh": [...]}`，每种至少 5 个，顺序是大类泛称 → 类别名 → 加一个显著属性 → 加两三个区分属性 → 在同族里唯一的完整短语。名称必须是名词短语（不带冠词、数量词、位置、比较级、任务角色）；登记开了 `rt_color` 的族（金属杯、陶瓷杯、马克杯整件换色，农夫山泉族只换瓶盖）不写会被换掉的颜色。
+- **来源与写入**：名称表是入库的 `scripts/objects/object_names.json`（键是资产 id，Articulation 瓶子写成 Clutter id 的别名），由 `object_names.py apply <物体根目录>` 写进资产，`check` 校验条数、顺序（英文词数和中文字数不减）、措辞，以及最详细的名称全表唯一。没有改生成脚本，因为金属杯、陶瓷杯、垃圾盒、新版塑料杯的脚本还在同事的 `z/objects-*` 分支上没合进 `main`。代价是重新生成后必须再跑一次 `apply`（已写进 SKILL 的第 6 步和「常见坑」）。
+- **运行时**（向后兼容）：`load_desc_info` 读 `names`；`get_label_descriptions(..., lang=None)` 有对应语言的名称就返回名称，否则仍返回 `description`；`desc_manager` 按模板里有没有汉字选 `zh`/`en`，同一模板里两个物体共有的名称（如两只量杯共有的 "cup"、"measuring cup"、"plastic measuring cup"）跳过，只剩能区分的几级。官方资产没有 `names`，行为不变。
+- **prompt**：`object_registration.py` 升到 `real-object-v3`，新增「指令名称」一节，交付清单加上名称表条目和 `description.json` 的 `names`。旧版确认的记录需要管理员重新点确认才会拿到新 prompt（和 v2 一样）。同步改了 `ASSET_WORKFLOW.md`、`scripts/objects/SKILL.md`、`scripts/datagen/SKILL.md`，平台任务抽屉的实现文本也要求候选物体写成 `<角色标签>`。
+- **覆盖范围**：平台 `review_state == done` 的 54 件，即金属杯 7、农夫山泉和东方树叶两族瓶子共 13、陶瓷杯 7、量杯 6、桌面垃圾盒 7、塑料杯 `00001–00007`、马克杯 6、红豆 1，另加 13 个 Articulation 瓶子。名称依据各资产 `description.json` 的 caption 和描述（共享库里有的取共享库，否则取最新的隔离运行目录），并与同事分支生成脚本里的变体参数核对过。
+- **验证**：本机 ruff 0.11.7、`git diff --check`，`test_object_names.py` 5 项（名称表合规、校验器能拦住错误、`apply` 只加 `names`、别名、真实 `DescManager` 在中英文模板下两只量杯都只用能区分的名称），`test_server.py` 13 项。`5090-2` 隔离目录 `/data/robodojo-runs/object-names-20261029-010544/`：把 67 件真实的 `description.json` 拷进 `obj/`（原件留在 `obj.before/`），在 `RoboDojo` 环境里跑 `apply` 和 `load_desc_info` 回读，67/67 写入，除 `names` 外字段不变，回读一致。没跑 Isaac 任务（没有任务用到这些物体的占位符）。
+- **共享库**（09:10，用户同意）：对 `5090-2:/data/robodojo-assets/Assets/Object/Real2Sim` 跑 `apply`，写了已装的 38 件（瓶子 Clutter、Articulation 各 13 个，量杯 `00002–00005`，塑料杯 `00001–00007`，红豆）。逐个和备份对比：除 `names` 外不变，属主（uid 1008）和权限 644 不变。备份 `/data/robodojo-assets/backups/description-before-names-20261029-091001.tar.gz`，回滚就在 `Object/Real2Sim` 下解开它。
+- **剩余**：
+  - 金属杯、陶瓷杯、垃圾盒、马克杯、量杯 `00000/00001` 不在共享库，装库时要跑 `apply`。
+  - 平台读的元数据镜像 `/root/RoboDojo_assets` 没动，平台也不显示名称；物体页的建模阶段不检查 `names`。
+  - Notion 记录待补录：授权后工具没加载出来，草稿在 worktree 的 `.cache/notion_draft_object_names.md`（不入库）。
 
 ### 数采平台加载提速 + 筛选栏统一（2026-10-29 00:3x，`chongzheng/platform-banzhi-flywheel`）
 
@@ -888,6 +905,7 @@
 
 ## 下一会话
 
+0. 物体指令名称（`chongzheng/objects-instruction-names`）：合并、部署数采平台后，管理员对已确认的登记重新点确认（prompt v3）；共享库已装的 38 件已写入，其余物体装库时跑 `apply`；`z/objects-*` 分支合并时检查名称表是否仍对得上这些分支的变体；实现 `g1d_pour_beans_any_cups` 时指令写成 `<source_cup>`、`<target_cup>`。
 0. 物体 prompt v2（`chongzheng/platform-prompt-labels`）：合并后部署数采平台，管理员对东方树叶、农夫山泉等已确认的登记重新点确认；再按新 prompt 重做农夫山泉 00000 的照片标签（东方树叶等 `z/objects-plastic-bottle-00006` 合并后复核）。
 0. RSI：先读 `rsi/AGENTS.md`。资产分池、ManiTwin 干扰物、Poly Haven HDR 已完成（见「最近任务」前两节），新资产在 `5090-2:/data/robodojo-runs/rsi-assets-20261024/`，用 `rsi_assets.py link` 合并进运行目录。下一步按优先级：材质（Poly Haven PBR 贴图转 MDL，官方材质被三套评测集用完了）→ 房间变体（新材质给 `Simple_Room` 换墙面）→ GSO 的鞋和玩具 → 任务物体的新实例 → 12 个 `_random` 任务基础版的 X5 脚本专家。每次加完新资产都要重跑 `rsi_assets.py scan` 并把 `pools.json` 入库。
 0. 榜单：基线已停（16:35，用户要求），先问用户是否续跑；续跑后收两份基线（`smoke_results/baseline_*_20261022.md`，核对每个任务 `eval_time >= 1`），按任务对比 OpenWAM / pi0.5 / 有无官方数据；看失败视频做归类；然后开始把 `collect.py` 和插件接口推广到 dual X5，按优先级给无官方数据的任务写专家。
@@ -903,6 +921,7 @@
 
 ## 最近历史
 
+- 2026-10-29：物体指令名称：`description.json` 新增 `names`（中英文各至少 5 个，从简到详），给 54 件完备物体和 13 个关节瓶子写好（`scripts/objects/object_names.json`），指令模板的 `<标签>` 按语言取名称并跳过两个物体共有的名称；建模 prompt 升到 `real-object-v3`。
 - 2026-10-28：物体建模 prompt 升到 `real-object-v2`：实物标签必须从照片做贴图，交付同视角照片对照图；v1 确认需重新确认。
 
 - 2026-10-28：量杯新增 4 个泛化变体 `00002–00005`（同截面，改高度和颜色），`check_object` 全部 OK，已放上数采平台（待审核）。

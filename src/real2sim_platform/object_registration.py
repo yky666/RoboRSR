@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import time
 
-VERSION = "real-object-v2"
+VERSION = "real-object-v3"
 FIELDS = (
     "asset_origin",
     "photo_reference",
@@ -147,12 +147,29 @@ def prompt(doc):
             "泛化变体可换虚构品牌的绘制标签，但位置和覆盖范围沿用本体。",
             "- 按参考照片的视角各渲染一张，与照片并排做成对照图；标签缺失、位置或颜色与照片不符，都不算完成。",
             "",
+            "## 指令名称",
+            "- 训练指令里的 <标签> 由物体名称填入。本体和每个泛化变体各写英文（en）、中文（zh）名称，每种至少 5 个，"
+            "从简到详排列：大类泛称（cup / 杯子）→ 类别名（measuring cup / 量杯）→ 类别加一个最显著的属性"
+            "（clear measuring cup / 透明量杯）→ 再加两三个区分属性（大小、形状、材质、标签）→ "
+            "能在同族里唯一指认它的完整短语。中间各级可以补同义说法。",
+            "- 写名词短语，不带冠词、数量词和句末标点，能直接填进「pick up the <x>」「拿起<x>」；"
+            "英文小写（品牌等专名除外）。",
+            "- 只写模型上看得见的固有属性：不写位置、左右、比较级和任务角色。颜色和标签以生成的模型为准；"
+            "变体写它自己的属性，前两级通常和本体一致。登记开了运行时换色（rt_color）时，"
+            "不写会被换色的部件的颜色（metadata.json 的 visual.color_parts，没写就是整件）。",
+            "- 写进 scripts/objects/object_names.json（键是资产 id）。每次生成后运行 "
+            "`python scripts/objects/object_names.py apply <物体根目录>`，写入 description.json 的 names；"
+            "`object_names.py check` 不通过不算完成。交付说明列出全部名称。",
+            "",
             "## 物理与复用",
             "按登记选择刚体、关节体、布料、绳索或体积软体后端；分开记录显示网格与碰撞网格。关节必须有轴、原点、限位、驱动；柔性物体必须有实际变形求解，材料未辨识时写明假设。",
             "从项目实际工厂加载，验证落地/静置、碰撞通道与实体阻挡、复位/再次加载；按物体类型补开合、悬垂、压缩、卸载恢复或夹持测试。仅报告实际运行项目，保留失败；独立模型/静态渲染不能证明任务可用或实物标定。",
             "",
             "## 交付与入库",
-            f"代码及输入：real2sim/objects/{doc['id']}/spec.json、reference/、生成脚本、参数来源；生成结果（Real2Sim物体库Assets/Object/Real2Sim/{doc['id']}/）：object.usdz、metadata.json、description.json、runtime_config.json（适用时）。",
+            f"代码及输入：real2sim/objects/{doc['id']}/spec.json、reference/、生成脚本、参数来源、"
+            "object_names.json 条目；"
+            f"生成结果（Real2Sim物体库Assets/Object/Real2Sim/{doc['id']}/）：object.usdz、metadata.json、"
+            "description.json（含 names）、runtime_config.json（适用时）。",
             "用同名 measurements_mm 对照已实测尺寸；估计值独立保存。"
             "交付原生报告、模型SHA、多视角渲染和同视角照片对照图。",
             "通过对应类型复用与物理检查后加入基础资产；未通过项留研究资产。统一名称/ID/单位/字段格式。"

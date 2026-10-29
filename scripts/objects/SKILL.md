@@ -111,7 +111,12 @@ rsync -az --exclude preview/ <部署机>:<仓库>/real2sim/objects/<id>/ real2si
   - 照片缺某一面（背面、瓶颈、底部）：在交付说明里列出缺的角度，请登记人补拍；补拍前该面用纯色底，并在 `ASSETS.md` 写「缺照片」，不要编内容。
   - 泛化变体可以换成虚构品牌的绘制标签，但位置和覆盖范围沿用本体。
 - uuid：`uuid.uuid5(uuid.NAMESPACE_URL, f"robodojo/rigid/{类别}/{编号}")`，编号用整数。
-- `description.json`：`uuid`；`caption` 下 `color`、`material`、`size`、`name`、`shape`、`function` 各 3 个英文短语；`description` 是 5 句英文描述。
+- `description.json`：`uuid`；`caption` 下 `color`、`material`、`size`、`name`、`shape`、`function` 各 3 个英文短语；`description` 是 5 句英文描述；`names` 是指令名称（见下）。
+- **指令名称**：任务指令模板里的 `<标签>` 由 `desc_manager` 按模板语言（含汉字就用中文）从 `names` 里随机取一个填入。同一模板里两个物体共有的名称会被跳过，比如两只量杯都叫 "measuring cup"，就只用能区分它们的那几级。没有 `names` 的物体（官方资产）仍取 `description` 的整句。
+  - 本体和每个泛化变体各写 `en`、`zh`，每种至少 5 个，从简到详：大类泛称（cup / 杯子）→ 类别名（measuring cup / 量杯）→ 加一个最显著属性（clear measuring cup / 透明量杯）→ 再加两三个区分属性 → 能在同族里唯一指认它的完整短语。中间各级可以补同义说法。
+  - 写名词短语，能直接填进 "pick up the <x>"、"拿起<x>"：不带冠词、数量词、句末标点；不写位置、左右、比较级、任务角色。英文小写，品牌等专名除外。
+  - 颜色和标签以生成的模型为准；变体写自己的属性，前两级一般和本体相同。登记开了 `rt_color` 时，不写会被换色的部件的颜色（`visual.color_parts`，没写就是整件）。
+  - 写进 `scripts/objects/object_names.json`（键是资产 id；能拧盖的 Articulation 版写成对应 Clutter id 的别名）。生成脚本不写 `names`，每次生成后都要跑 `python scripts/objects/object_names.py apply <物体根目录>`（如 `ovl`）。`object_names.py check` 校验条数、顺序（按英文词数、中文字数不减）、措辞，以及最详细的名称不和其他物体重复；它也在 `check.sh` 里。
 
 **`metadata.json`**：照 `make_plastic_cups.py` 的 `metadata()` 从网格计算（下面只是结构示意，数值保留 4 位）。
 
@@ -154,6 +159,7 @@ python -m py_compile scripts/objects/<脚本>.py
 
 ```bash
 python scripts/objects/<脚本>.py ovl/Rigid      # 老脚本 make_pitcher.py、make_water_cup.py 传类别目录 ovl/Rigid/<类别>
+python scripts/objects/object_names.py apply ovl   # 生成会重写 description.json，名称每次都要重新写入
 CUDA_VISIBLE_DEVICES=<卡> PYTHONPATH=. python scripts/objects/check_object.py ovl/Rigid/<类别>/<编号> --image-dir real2sim/objects
 ```
 
@@ -177,6 +183,7 @@ CUDA_VISIBLE_DEVICES=<卡> PYTHONPATH=. python scripts/objects/check_object.py o
 
 - **提交**：
   - 生成脚本（和形状模块）
+  - `scripts/objects/object_names.json` 里本体和变体的条目
   - `real2sim/objects/<id>/spec.json` 和 `reference/` 照片（从部署机拷来的原件，图片自动走 LFS）
   - 新脚本或新物体：README「快速开始」第 4 步加上生成命令
   - `real2sim/ASSETS.md` 新增或更新一行：真实对应物、生成脚本，尺寸、质量、摩擦、外观各自的匹配等级和依据（spec 里的值算「实测」，照片估的算「估计」），共享库状态
@@ -224,5 +231,6 @@ CUDA_VISIBLE_DEVICES=<卡> PYTHONPATH=. python scripts/objects/check_object.py o
 - 凸包顶点超限：颗粒（红豆）穿过碰撞体。
 - 凸包的点离某个平面不到 0.7 mm（PhysX 烹饪的平面容差）：烹饪时被合并，平底不再平，物体落地后歪着（`airpods` 曾歪 2.4°、下沉 0.7 mm）。凸包的点要么正好在平面上，要么离开 ≥ 1.5 mm（见 `make_airpods.py` 的 `hull_points`）。
 - 只写了 `friction`：摩擦不生效。
+- 重新生成后没跑 `object_names.py apply`：`description.json` 丢了 `names`，指令退回整句描述。装共享库前 `rg -L '"names"' <目录>/*/description.json` 应当没有输出。
 - 质量超过 0.5 kg：运行时被截断。
 - 把要入库的东西放进 `Assets/`：`init_assets.sh` 发现目录不完整时会把整个 `Assets/` 挪走。
