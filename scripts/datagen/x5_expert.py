@@ -228,6 +228,8 @@ class Arm:
         r = Rotation.from_matrix(link6[:3, :3])
         p0 = self.pose[0]
         z = max(p0[2], carry_z, link6[2, 3])
+        if not self.reachable([(np.r_[link6[:2, 3], z], r), (link6[:3, 3], r)]):
+            raise Unreachable(f"{self.prefix} IK fails above or at the place {np.round(link6[:3, 3], 3).tolist()}")
         self.move(np.r_[p0[:2], z])
         self.move(np.r_[link6[:2, 3], z], r)
         self.move(link6[:3, 3])

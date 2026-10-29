@@ -204,7 +204,12 @@ class Episode:
 
     def summary(self):
         return dict(
-            base=self.base, moved_base=self.moved_base, order=self.order, plans=self.plans, failure=self.failure
+            base=self.base,
+            moved_base=self.moved_base,
+            order=self.order,
+            plans=self.plans,
+            failure=self.failure,
+            final_checks=X.task_report(self.env, self.checks),
         )
 
 

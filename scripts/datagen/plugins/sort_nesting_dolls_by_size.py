@@ -193,7 +193,9 @@ class Episode:
         )
 
     def summary(self):
-        return dict(row=self.row, plans=self.plans, failure=self.failure)
+        return dict(
+            row=self.row, plans=self.plans, failure=self.failure, final_checks=X.task_report(self.env, self.checks)
+        )
 
 
 def audit(privileged, quality):

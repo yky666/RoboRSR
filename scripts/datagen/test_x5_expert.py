@@ -98,11 +98,12 @@ def test_checked_hooks():
 
 
 def test_rim_points():
-    lo, hi = np.array([-0.04, -0.04, 0.0]), np.array([0.07, 0.04, 0.1])  # body radius 4 cm, handle out to +7 cm
+    lo, hi = np.array([-0.035, -0.035, 0.0]), np.array([0.07, 0.035, 0.1])  # body radius 3.5 cm, handle to +7 cm
     points = H.rim_points(lo, hi, hi[2], degrees=(180, 90))
-    (p, inward), (q, _) = points
-    assert np.allclose(p, [-0.04 + H.WALL_IN_M, 0.0, 0.1 - H.GRIP_DEPTH_M]) and np.allclose(inward, [1, 0, 0])
-    assert np.allclose(q[:2], [0.0, 0.04 - H.WALL_IN_M])
+    (p, inward, a), (q, _, b) = points
+    assert (a, b) == (180, 90)
+    assert np.allclose(p, [-0.035 + H.WALL_IN_M, 0.0, 0.1 - H.GRIP_DEPTH_M]) and np.allclose(inward, [1, 0, 0])
+    assert np.allclose(q[:2], [0.0, 0.035 - H.WALL_IN_M])
 
 
 def test_upright_and_yawed():

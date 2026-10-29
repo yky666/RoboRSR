@@ -3,14 +3,14 @@ of the three mugs on the cup_holder's hooks, one at a time, each by the arm on i
 when that one cannot reach; when neither can pick it and hang it, one arm first sets it down upright in front of the
 other).
 
-A mug is pinched from above at a rim point away from its handle (RIM_DEG: opposite it first), the fingers closing
-across the wall, and lifted. Its pose in the grip is then measured, which gives the link6 pose that puts the mug where
-it hangs on a hook: the handle frame on the hook's support frame, raised HANG_LIFT_M along the hook so the hook runs
-through the handle loop (scripts/objects/instance_fit.py found this hangs the official mugs on all six hooks). The arm
-brings the mug, turned handle up in one joint-space move, to INSERT_M out along the hook's axis (the handle's hole
-axis), slides it on, lets go, backs the fingers off and goes to its start joints. A pinch is taken only when the IK
-also reaches the hang it leads to with the mug rigid in the grip; the first (hook, handle frame) whose whole path the
-IK follows is used.
+A mug is pinched from above at a rim point away from its handle (RIM_DEG: opposite it first, where the fingers end
+up one above the other once the mug hangs) with the fingers closing across the wall, and lifted. Its pose in the
+grip is then measured, which gives the link6 pose that puts the mug where it hangs on a hook: the handle frame on the
+hook's support frame, raised HANG_LIFT_M along the hook so the hook runs through the handle loop
+(scripts/objects/instance_fit.py found this hangs the official mugs on all six hooks). The arm brings the mug, turned
+handle up in one joint-space move, to INSERT_M out along the hook's axis (the handle's hole axis), slides it on, lets
+go, backs the fingers off and goes to its start joints. A pinch is taken only when the IK also reaches the hang it
+leads to with the mug rigid in the grip; the first (hook, handle frame) whose whole path the IK follows is used.
 
 The task's check compares each handle with the holder's first hook only (RewardManager.is_axis_aligned reads the first
 functional frame): x axes within 60 deg either way, z axes within 60 deg. Two of the six hooks point across that one
@@ -35,8 +35,7 @@ LABELS = ("mug0", "mug1", "mug2")
 HOLDER = "cup_holder"
 RIM_DEG = (180, 135, 225, 90, 270)  # pinch points on the rim, deg about the mug's z from its handle (+x)
 PINCHES = [(lean, side) for lean in (90, 70, 55, 45) for side in (1, -1)]  # approach lean deg, tangent side
-GRIP_DEPTH_M = 0.03  # aimed pad midpoint below the rim (the pads sit 0.75-2.25 cm past it): a mug turned handle up
-# pivots out of a shallower pinch
+GRIP_DEPTH_M = 0.02  # aimed pad midpoint below the rim (the pads sit 0.75-2.25 cm past it)
 WALL_IN_M = 0.004  # pinch point inside the body's outer radius
 PRE_M = 0.06  # back-off along the approach before closing and after letting go
 LIFT_M = 0.08  # straight up after closing
@@ -80,15 +79,15 @@ def checked_hooks(hooks, limit=ALIGN_DEG):
 
 
 def rim_points(lo, hi, top_z, degrees=RIM_DEG):
-    """[(pinch point, inward direction)] in the mug frame (handle along +x, its bbox lo / hi): rim points of the body
-    at `degrees` about z from the handle, pad centre GRIP_DEPTH_M below `top_z`."""
+    """[(pinch point, inward direction, deg)] in the mug frame (handle along +x, its bbox lo / hi): rim points of the
+    body at `degrees` about z from the handle, pad centre GRIP_DEPTH_M below `top_z`."""
     r = (hi[1] - lo[1]) / 2
     centre = np.array([lo[0] + r, (lo[1] + hi[1]) / 2])
     out = []
     for d in degrees:
         radial = np.array([np.cos(np.radians(d)), np.sin(np.radians(d))])
         point = np.r_[centre + (r - WALL_IN_M) * radial, top_z - GRIP_DEPTH_M]
-        out.append((point, np.r_[-radial, 0.0]))
+        out.append((point, np.r_[-radial, 0.0], d))
     return out
 
 
@@ -115,7 +114,7 @@ class Episode:
         local = np.asarray(meta["geometry"]["aligned_bbox"]["vertices"], float).reshape(-1, 3) * scale
         T = X.matrix(X.pose7(self.lm, label))
         lo, hi = local.min(0), local.max(0)
-        rims = [(T[:3, :3] @ p + T[:3, 3], T[:3, :3] @ u) for p, u in rim_points(lo, hi, hi[2])]
+        rims = [(T[:3, :3] @ p + T[:3, 3], T[:3, :3] @ u, tag) for p, u, tag in rim_points(lo, hi, hi[2])]
         frames = [np.asarray(f, float) for f in meta["active"]["functional"]["handle"]["frame"]]
         return T, frames, scale, rims
 
@@ -186,7 +185,7 @@ class Episode:
     def pinches(self, rims):
         return [
             (pinch, X.wall_pinch(inward, lean, side), (rim, lean, side))
-            for (pinch, inward), rim in zip(rims, RIM_DEG)
+            for pinch, inward, rim in rims
             for lean, side in PINCHES
         ]
 
@@ -287,12 +286,17 @@ class Episode:
         """Frames of `arm` sliding the held `label` onto its hook from where it is held now (re-measured: the mug
         shifts in the grip as the wrist turns), letting go and going home."""
         saved = arm.snapshot()
+        measured = self.goal(label, self.plans[label]["hook"], self.plans[label]["frame"])
+        planned = self.planned[label]
+        turn = X.Rotation.from_matrix(measured[0][:3, :3] @ planned[0][:3, :3].T).magnitude()
+        shift = [round(float(np.linalg.norm(measured[0][:3, 3] - planned[0][:3, 3])), 4), round(np.degrees(turn), 1)]
+        self.plans[label]["grip_shift_m_deg"] = shift
         try:
-            self.slide_on(arm, *self.goal(label, self.plans[label]["hook"], self.plans[label]["frame"]))
-        except X.Unreachable:  # the slide as planned before the mug shifted
+            self.slide_on(arm, *measured)
+        except X.Unreachable as e:  # the slide as planned before the mug shifted
             arm.restore(saved)
-            self.slide_on(arm, *self.planned[label])
-            self.plans[label]["slide"] = "as planned"
+            self.slide_on(arm, *planned)
+            self.plans[label]["slide"] = f"as planned: {e}"
         return arm.take()
 
     def actions(self):
