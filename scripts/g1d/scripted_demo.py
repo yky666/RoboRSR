@@ -132,9 +132,9 @@ CARRY_UP = 0.08  # m the side-grasped cup is lifted off the counter for the driv
 # any offset and PhysX flung the bottle. The holding hand grips the body with fingers horizontal: pitched down like
 # the cup grasp, the wrist camera housing (4-8 cm above the pads, up to 7.6 cm forward of the hand base) reached past
 # the bottle axis and pushed the 23 cm bottle over
-# m, grip point below the cap top: above it, the pads (+-2 cm high at this pitch) still span the cap. At -2 mm the
-# hand overshot ~6 mm on the way down, the tips jammed into the support ring and shoved the bottle up in the pinch
-CAP_GRIP_DOWN = -0.006
+# m, grip point below the cap top: above it, the pads (+-2 cm high at this pitch) still span the cap. At 6 mm above,
+# the pads closed on the cap's top edge and squeezed it up: the bottle shot 4 cm up out of the holding pinch
+CAP_GRIP_DOWN = 0.0
 CAP_APPROACH = 0.15  # m above the grip: from the raised start pose the turning fingers knocked the bottle over
 # out in front and to the right of the cap, where the hand turns from its start pose: turning on the way, it swung
 # into the torso (PhysX blew up on the fingertips and the logo link)
@@ -149,6 +149,7 @@ BOTTLE_HOLD_UP = 0.11
 # deg the holding hand turns beyond the cup grasp's 45 deg, toward pointing right: its forearm then runs further left,
 # out of the twisting hand's sweep (the twisting fingers hit it at the end of a stroke and PhysX flung the bottle)
 HOLD_TURN = 0.0
+HOLD_SLIP = 0.003  # m the bottle may rise in the holding hand before it is set back down on the table
 # per stroke, actions per turn, most strokes. At 60 deg the IK could not turn the hand about the pads without moving
 # them: it dragged the clamped cap sideways, pushed a finger open and PhysX blew up
 TWIST_STROKE, TWIST_ACTIONS, TWIST_STROKES = np.deg2rad(45), 60, 40
@@ -893,6 +894,7 @@ def twist_cap_actions(env):
             (body, hand, 0, 15),  # close
         ],
     )
+    held = robot.object("bottle")[0]
 
     def holding(actions):
         """`actions` with the holding hand kept where it closed, in the world: on fixed joint targets it drifted as
@@ -1002,12 +1004,21 @@ def twist_cap_actions(env):
             f" {np.degrees((arm.pose()[1] * turned.inv()).magnitude()):.0f} deg, fingers {fingers().round(4)}",
             flush=True,
         )
-        # let go fully, then rise from where the hand is, not after the cap: rising while the fingers still held it
-        # (and following it up) pulled the bottle out of the holding hand. Turned back clear above the cap: turning
-        # round it, an open finger swept into the cap and PhysX blew up
-        here, up = cap_grip() + corr, np.array([0, 0, CAP_SERVO_UP])
-        yield from holding(robot.move(arm, [(here, turned, 1.0, 20)], CAP_ROT_W, CAP_MAX_DQ))
-        yield from holding(robot.move(arm, [(here + up, turned, 1.0, 30)], CAP_ROT_W, CAP_MAX_DQ))
+        # let go fully where the hand is, then rise from there, not after the cap: rising while the fingers still held
+        # it (and following it up) pulled the bottle out of the holding hand, and opening on the stroke's target pose
+        # moved the closed hand and drew the bottle 5 mm up. Turned back clear above the cap: turning round it, an
+        # open finger swept into the cap and PhysX blew up
+        up = np.array([0, 0, CAP_SERVO_UP])
+        here, there = arm.grasp_point(), arm.pose()[1]
+        yield from holding(robot.move(arm, [(here, there, 1.0, 20)], CAP_ROT_W, CAP_MAX_DQ))
+        yield from holding(robot.move(arm, [(here + up, there, 1.0, 30)], CAP_ROT_W, CAP_MAX_DQ))
+        # each stroke can draw the bottle a few mm up through the holding pinch: with the twisting hand clear above,
+        # the holding hand sets it back down on the table
+        rise = robot.object("bottle")[0][2] - held[2]
+        if rise > HOLD_SLIP:
+            print(f"[scripted_demo] stroke {k}: bottle {rise * 1000:.0f} mm up in the hold, set back down", flush=True)
+            for body in np.linspace(body, body - [0, 0, rise], 20):
+                yield from holding(robot.move(arm, [(here + up, there, 1.0, 1)], CAP_ROT_W, CAP_MAX_DQ))
         yield from holding(robot.move(arm, [(here + up, ready, 1.0, TWIST_ACTIONS)], CAP_ROT_W, CAP_MAX_DQ))
         yield from holding(robot.move(arm, [(cap_grip() + corr, ready, open_cmd, 25)], CAP_ROT_W, CAP_MAX_DQ))
         yield from centre(1)
