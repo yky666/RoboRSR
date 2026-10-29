@@ -19,9 +19,11 @@ whole stage: the engine takes it from the first parallel env's layout.
 
     python scripts/datagen/x5_layouts.py --task stack_bowls_random --seed 900 --count 100 --assets Assets
     python scripts/datagen/x5_layouts.py --task hang_mugs --seed 950 --count 30 --split val
+    python scripts/datagen/x5_layouts.py --task hang_mugs --seed 950 --count 30 --split val --redraw 4,17
 Writes <assets>/Eval_Layout/RoboDojo/<env cfg>/<seed>/ with split.json (train layouts are refused by the eval client
-without --allow_train_layouts) and report.json; with camera jitter also env_cfg/arx_x5_rsi_<task>.yml and
-env_cfg/camera/rsi_<task>.yml (both git-ignored).
+without --allow_train_layouts) and report.json; with camera jitter also env_cfg/arx_x5_rsi_<task>_cam<deg>.yml and
+env_cfg/camera/rsi_<task>_cam<deg>.yml (both git-ignored). --redraw replaces layouts of an existing folder (unstable in
+a hold-pose run) with fresh draws of the same profile; the report keeps which.
 """
 
 import argparse
@@ -551,15 +553,23 @@ class Generator:
                 record["lights"].append({"type": kind, "pos": pos, "intensity": intensity})
 
 
+def env_cfg_name(task, camera=None):
+    """Env config a task's layouts live under: arx_x5, or the generated one of a head-camera jitter angle."""
+    return f"arx_x5_rsi_{task}_cam{camera['ori_deg']:g}" if camera else "arx_x5"
+
+
 def camera_configs(task, camera):
     """Write the env config and camera config that jitter the head camera; returns the env config name."""
-    name = f"arx_x5_rsi_{task}"
+    name = env_cfg_name(task, camera)
     cam = yaml.safe_load((ROOT / "env_cfg" / "camera" / "camera_config.yml").read_text(encoding="utf-8"))
     o = camera["ori_deg"]
     cam["random"] = {"cam_head": {"enabled": True, "ori": {"min": [-o] * 3, "max": [o] * 3}}}
-    (ROOT / "env_cfg" / "camera" / f"rsi_{task}.yml").write_text(yaml.safe_dump(cam, sort_keys=False), encoding="utf-8")
+    camera_name = name.removeprefix("arx_x5_")
+    (ROOT / "env_cfg" / "camera" / f"{camera_name}.yml").write_text(
+        yaml.safe_dump(cam, sort_keys=False), encoding="utf-8"
+    )
     env = yaml.safe_load((ROOT / "env_cfg" / "arx_x5.yml").read_text(encoding="utf-8"))
-    env["config_name"], env["config"]["camera"] = name, f"rsi_{task}"
+    env["config_name"], env["config"]["camera"] = name, camera_name
     (ROOT / "env_cfg" / f"{name}.yml").write_text(yaml.safe_dump(env, sort_keys=False), encoding="utf-8")
     return name
 
@@ -587,6 +597,7 @@ def main(argv=None):
     ap.add_argument("--assets", type=Path, default=ROOT / "Assets")
     ap.add_argument("--profile", type=Path, help="default real2sim/benchmark_tasks/<task>/randomization.json")
     ap.add_argument("--split", choices=("train", "val"), default="train")
+    ap.add_argument("--redraw", default="", help="comma-separated ids of this task's layouts in --seed to draw again")
     args = ap.parse_args(argv)
     if args.seed == 0:
         ap.error("seed 0 is the benchmark's eval set")
@@ -602,6 +613,8 @@ def main(argv=None):
     gen = Generator(args.task, profile, args.assets, templates_of(args.assets, args.task))
     env_cfg = camera_configs(args.task, profile["camera"]) if profile.get("camera") else "arx_x5"
     out = args.assets / "Eval_Layout" / "RoboDojo" / env_cfg / str(args.seed)
+    if args.redraw:
+        return redraw(gen, out, args, profile, allowed, [int(i) for i in args.redraw.split(",")])
     if any(out.glob(f"{args.task}_*.json")):
         raise SystemExit(f"{out} already has {args.task} layouts")
     split_path = out / "split.json"
@@ -620,7 +633,7 @@ def main(argv=None):
             raise SystemExit(f"layout {draw - 1} uses reserved or other-pool assets: {', '.join(banned)}")
         name = f"{args.task}_{len(records)}.json"
         (out / name).write_text(json.dumps(layout, ensure_ascii=False), encoding="utf-8")
-        records[name] = record
+        records[name] = record | {"draw": draw - 1}
     if len(records) < args.count:
         print(f"only {len(records)} of {args.count} layouts: the rest kept a template pose in every try")
     digest = hashlib.sha256(json.dumps(profile, sort_keys=True).encode()).hexdigest()[:12]
@@ -635,11 +648,40 @@ def main(argv=None):
         "profile": profile,
         "count": len(records),
         "dropped": dropped,
+        "draws": draw,
         "layouts_with_kept_yaw": kept_yaw,
         "layouts": records,
     }
     (out / f"report_{args.task}.json").write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"{len(records)} layouts -> {out} (env cfg {env_cfg}); dropped {dropped}; {kept_yaw} kept some yaw")
+
+
+def redraw(gen, out, args, profile, allowed, ids):
+    """Replace layouts <task>_<id> of `out` with draws after the last one its report used."""
+    path = out / f"report_{args.task}.json"
+    report = json.loads(path.read_text(encoding="utf-8"))
+    if report["profile"] != profile:
+        raise SystemExit(f"{path}: the folder was drawn with another profile")
+    draw = report.get("draws", 3 * report["count"])
+    for i in ids:
+        name = f"{args.task}_{i}.json"
+        if name not in report["layouts"]:
+            raise SystemExit(f"{out} has no {name}")
+        for draw in range(draw, draw + 50):
+            layout, record = gen.layout(draw, args.seed)
+            if not record["kept_pose"]:
+                break
+        else:
+            raise SystemExit(f"{name}: 50 draws all kept a template pose")
+        if banned := sorted(rsi_assets.layout_assets(layout)[0] - allowed):
+            raise SystemExit(f"draw {draw} uses reserved or other-pool assets: {', '.join(banned)}")
+        (out / name).write_text(json.dumps(layout, ensure_ascii=False), encoding="utf-8")
+        report["layouts"][name] = record | {"draw": draw}
+        report.setdefault("redrawn", {}).setdefault(name, []).append(draw)
+        draw += 1
+    report["draws"] = draw
+    path.write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"redrew {len(ids)} layouts of {args.task} in {out}")
 
 
 if __name__ == "__main__":

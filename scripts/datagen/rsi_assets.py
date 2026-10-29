@@ -15,7 +15,8 @@ clutter:<category>/<index>, <Section>:<category>/<index> for task-object section
     python scripts/datagen/rsi_assets.py link --base <official Assets> --extra <new assets> ... --out <run>/Assets
 link merges asset trees with symlinks (new objects from scripts/objects/manitwin.py, HDRs from
 scripts/scenes/polyhaven_hdris.py, materials from scripts/scenes/polyhaven_materials.py) without copying or touching
-either; entries already in --out stay as they are.
+either; entries already in --out stay as they are. With --pool it builds a party's overlay: the seen assets, that
+pool, and the official template layouts only.
 """
 
 import argparse
@@ -181,24 +182,65 @@ def audit(layout_dir, pools, pool):
     return bad
 
 
-def link(trees, out):
+def path_asset(rel):
+    """Asset id of an Assets/-relative path, or None for anything that is no pooled asset (robots, a yml)."""
+    parts = rel.parts
+    if len(parts) == 2 and parts[0] == "Room":
+        return f"room:{parts[1]}"
+    if len(parts) == 2 and parts[0] == "Material" and parts[1].startswith("material"):
+        return f"material:{parts[1]}"
+    if len(parts) == 2 and parts[0] == "Background" and parts[1].endswith(".hdr"):
+        return f"hdr:{parts[1]}"
+    if len(parts) == 5 and parts[0] == "Object" and parts[2] in ("Clutter", *SECTIONS) and parts[4].isdigit():
+        return f"{'clutter' if parts[2] == 'Clutter' else parts[2]}:{parts[3]}/{int(parts[4])}"
+    return None
+
+
+def pool_filter(pools, pool):
+    """keep(rel) for link(): True links the path whole, False leaves it out, None merges it a level down. A party's
+    overlay holds the seen assets and its own pool, and of the official layouts only the template set (seed 0) that
+    x5_layouts.py reads the structure from; seed folders are generated into it."""
+    ok = allowed(pools, pool)
+    template = ("Eval_Layout", "RoboDojo", "arx_x5", OFFICIAL_SEEDS[0])
+
+    def keep(rel):
+        parts = rel.parts
+        if parts[0] == "Eval_Layout":
+            n = min(len(parts), len(template))
+            return False if parts[:n] != template[:n] else (True if n == len(template) else None)
+        if (asset := path_asset(rel)) is not None:
+            return asset in ok
+        if parts[0] in ("Room", "Material", "Background"):
+            return None if len(parts) == 1 else True
+        if parts[0] == "Object" and (len(parts) <= 2 or (len(parts) <= 4 and parts[2] in ("Clutter", *SECTIONS))):
+            return None
+        return True
+
+    return keep
+
+
+def link(trees, out, keep=None, rel=Path()):
     """Merge directory trees into `out` with symlinks: a name only one tree has is linked whole, a directory several
-    trees have becomes a real directory merged one level down; two files of the same name are refused."""
+    trees have becomes a real directory merged one level down; two files of the same name are refused. `keep`
+    (pool_filter) leaves paths out or splits a directory to filter what is below it."""
     out.mkdir(parents=True, exist_ok=True)
     names = {}
     for tree in trees:
         for p in sorted(tree.iterdir()):
             names.setdefault(p.name, []).append(p.resolve())
     for name, sources in names.items():
-        target = out / name
+        target, sub = out / name, rel / name
+        verdict = keep(sub) if keep else True
+        if verdict is False:
+            continue
         if target.exists() or target.is_symlink():
             if target.is_dir() and not target.is_symlink() and all(s.is_dir() for s in sources):
-                link(sources, target)
+                link(sources, target, keep, sub)
             continue
-        if len(sources) == 1:
+        if len(sources) == 1 and (verdict or not sources[0].is_dir()):
             target.symlink_to(sources[0])
         elif all(s.is_dir() for s in sources):
-            link(sources, target)
+            link(sources, target, keep, sub)
         else:
             raise SystemExit(f"{target}: more than one tree has a file named {name}")
 
@@ -215,11 +257,12 @@ def main(argv=None):
     a.add_argument("--pool", choices=("train", "exam"), required=True)
     m = sub.add_parser("link")
     m.add_argument("--base", type=Path, required=True)
-    m.add_argument("--extra", type=Path, nargs="+", required=True)
+    m.add_argument("--extra", type=Path, nargs="*", default=[])
     m.add_argument("--out", type=Path, required=True)
+    m.add_argument("--pool", choices=("train", "exam"), help="link only the seen assets and this pool")
     args = ap.parse_args(argv)
     if args.cmd == "link":
-        link([args.base, *args.extra], args.out)
+        link([args.base, *args.extra], args.out, pool_filter(load(), args.pool) if args.pool else None)
     elif args.cmd == "scan":
         result = scan(args.assets)
         args.out.parent.mkdir(parents=True, exist_ok=True)

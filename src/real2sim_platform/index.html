@@ -2697,7 +2697,7 @@ function rsiSection(d) {
   const block = (title, note, body) => `<div class="ap-role"><div class="ap-h"><b>${title}</b><span class="small muted">${note}</span></div>${body}</div>`;
   const types = (rso()?.light_types || Object.keys(LIGHT_NAMES)).map((t) => `<label class="check"><input type="checkbox" ${r.types.includes(t) ? 'checked' : ''}
     onchange="RS.types = this.checked ? [...new Set([...RS.types, '${t}'])] : RS.types.filter((x) => x !== '${t}')">${LIGHT_NAMES[t] || t}</label>`).join('');
-  const dir = rel(`${INFO.root}/real2sim/benchmark_tasks/${d.id}`), env = r.camOn ? `arx_x5_rsi_${d.id}` : 'arx_x5';
+  const dir = rel(`${INFO.root}/real2sim/benchmark_tasks/${d.id}`), env = r.camOn ? `arx_x5_rsi_${d.id}_cam${Number(r.camOri)}` : 'arx_x5';
   const seeds = r.pool === 'exam' ? '5000–8999' : '1000–4999', fresh = pools.new?.[r.pool] || {};
   const poolChoice = Object.entries(RS_POOL_NAMES).map(([k, v]) => `<label class="check"><input type="radio" name="rs-pool" ${r.pool === k ? 'checked' : ''} onchange="setRsPool('${k}')">${v}</label>`).join('');
   return sec(`${ic('layers')}泛化随机方案`, `<p class="hint" style="margin:0 0 10px">生成这个任务的训练布局（数据方）或考场布局（评测方）时打开哪些随机，规则见 <code>rsi/AGENTS.md</code>。选择器只列出官方训练数据里见过的资产和本池的资产；榜单保留的资产（官方评测用到、官方训练数据里没有的）永远不出现。位置、朝向在任务配置自带的范围里重采样，不沿用官方评测布局的位置。房间、材质、HDR 留空就保持任务原样。</p>

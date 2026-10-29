@@ -101,3 +101,21 @@ def test_link():
     assert (pen / "00900").is_symlink() and (out / "Object/RoboDojo/Clutter/kettle").is_symlink()
     assert (out / "Room").is_symlink() and (out / "Background/studio.hdr").exists()
     assert not (out / "Eval_Layout").is_symlink()
+
+
+def test_link_pool():
+    """An exam overlay: seen assets and the exam pool only, of the official layouts just the template set."""
+    root = tree()
+    write(root / "Eval_Layout/RoboDojo/arx_x5/1/stack_bowls_0.json", {})
+    write(root / "Eval_Layout/RoboDojo/arx_x5/1002/stack_bowls_0.json", {})  # another party's seed folder
+    write(root / "Object/RoboDojo/Clutter/clutter.yml", {})
+    write(root / "Robots/arx_x5/robot.usd", {})
+    pools = R.scan(root)
+    out = Path(tempfile.mkdtemp()) / "Assets"
+    R.link([root], out, R.pool_filter(pools, "exam"))
+    ok = R.allowed(pools, "exam")
+    linked = {R.path_asset(p.relative_to(out)) for p in out.rglob("*")} - {None}
+    assert linked == {a for a in R.library(root) if a in ok} and "Rigid:bowl/11" not in linked  # no T0 bowl
+    assert "room:Simple_Room_nolight" in linked and (out / "Robots").is_symlink()
+    assert (out / "Object/RoboDojo/Clutter/clutter.yml").exists()
+    assert sorted(p.name for p in (out / "Eval_Layout/RoboDojo/arx_x5").iterdir()) == ["0"]

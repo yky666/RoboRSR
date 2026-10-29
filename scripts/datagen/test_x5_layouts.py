@@ -274,9 +274,10 @@ def test_camera_configs():
         name = X.camera_configs("stack_bowls", {"ori_deg": 2})
     finally:
         X.ROOT = real
+    assert name == X.env_cfg_name("stack_bowls", {"ori_deg": 2}) == "arx_x5_rsi_stack_bowls_cam2"  # one per angle
     env = X.load_yaml(root / "env_cfg" / f"{name}.yml")
-    cam = X.load_yaml(root / "env_cfg" / "camera" / "rsi_stack_bowls.yml")["random"]["cam_head"]
-    assert env["config"]["camera"] == "rsi_stack_bowls"
+    cam = X.load_yaml(root / "env_cfg" / "camera" / "rsi_stack_bowls_cam2.yml")["random"]["cam_head"]
+    assert env["config"]["camera"] == "rsi_stack_bowls_cam2" and env["config_name"] == name
     assert cam == {"enabled": True, "ori": {"min": [-2, -2, -2], "max": [2, 2, 2]}}  # no position jitter
 
 
