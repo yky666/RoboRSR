@@ -637,6 +637,12 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .code { position: relative; }
 .code pre { max-height: 360px; margin: 0; padding: 12px 46px 12px 14px; overflow: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); color: var(--text-2); font: 12px/1.65 var(--mono); white-space: pre-wrap; word-break: break-all; }
 .code .copy { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; min-height: 0; border-color: var(--border); background: var(--surface); color: var(--muted); }
+.hl-h { color: light-dark(#0550AE, #79C0FF); font-weight: 700; }
+.hl-k { color: light-dark(#953800, #FFA657); }
+.hl-s { color: light-dark(#0A3069, #A5D6FF); }
+.hl-n, .hl-l { color: light-dark(#CF222E, #FF7B72); }
+.hl-c { color: light-dark(#8250DF, #D2A8FF); }
+.hl-b { color: var(--faint); font-weight: 700; }
 .code .copy:hover { border-color: var(--border-strong); color: var(--text); }
 
 /* QA */
@@ -1027,7 +1033,27 @@ const pageHead = (title, sub, actions = '') => `<header class="ph"><div><h1>${ti
 const stats = (pairs) => `<div class="stats">${pairs.map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div>`;
 const empty = (icon, title, text) => `<div class="empty">${ic(icon)}<b>${title}</b><span class="small">${text}</span></div>`;
 const sec = (title, body, extra = '') => `<section class="sec"><h3>${title}${extra}</h3>${body}</section>`;
-const code = (text, label = '复制命令') => `<div class="code"><pre>${esc(text)}</pre><button class="btn btn-icon copy" type="button" aria-label="${esc(label)}" onclick="copyCode(this)">${ic('copy')}</button></div>`;
+// Tokens are matched on the raw text and escaped one by one, so entities never get split.
+const tokens = (s, re, wrap) => {
+  let out = '', i = 0;
+  for (const m of s.matchAll(re)) { out += esc(s.slice(i, m.index)) + wrap(m); i = m.index + m[0].length; }
+  return out + esc(s.slice(i));
+};
+const hl = (cls, t) => `<span class="hl-${cls}">${esc(t)}</span>`;
+const hlInline = (s) => tokens(s, /`[^`\n]+`/g, (m) => hl('c', m[0]));
+const hlJson = (s) => tokens(s, /("(?:[^"\\]|\\.)*")(\s*:)?|\b(true|false|null)\b|-?\b\d+(?:\.\d+)?\b/g,
+  (m) => m[1] ? hl(m[2] ? 'k' : 's', m[1]) + esc(m[2] || '') : hl(m[3] ? 'l' : 'n', m[0]));
+function mdHighlight(text) {
+  let json = false;
+  return String(text ?? '').split('\n').map((line) => {
+    if (!json && /^[{[]\s*$/.test(line)) json = true;
+    if (json) { if (/^[}\]]\s*$/.test(line)) json = false; return hlJson(line); }
+    if (/^#{1,6}\s/.test(line)) return hl('h', line);
+    const li = line.match(/^(\s*)([-*]|\d+\.)(\s)/);
+    return li ? esc(li[1]) + hl('b', li[2]) + hlInline(line.slice(li[1].length + li[2].length)) : hlInline(line);
+  }).join('\n');
+}
+const code = (text, label = '复制命令', fmt = esc) => `<div class="code"><pre>${fmt(text)}</pre><button class="btn btn-icon copy" type="button" aria-label="${esc(label)}" onclick="copyCode(this)">${ic('copy')}</button></div>`;
 const missingBadge = (d) => (d.auto?.missing ? `<span class="st bad">${ic('alert')}文件已不存在</span>` : '');
 const val = (d, f) => f.split('.').reduce((o, k) => o?.[k], d);
 const fid = (f) => `f-${f.replace(/\./g, '-')}`;
@@ -2710,7 +2736,7 @@ function modelingPanel(d) {
     </div>
     <p class="small">${r.confirmed ? `已确认 · ${esc(r.confirmed_by || '')} · ${esc(r.version || '')}` : `待确认${missing.length ? `：${esc(missing.join('、'))}` : ''}`}</p>
     <button type="button" class="btn btn-primary" data-id="${esc(d.id)}" onclick="confirmObjectModeling(this.dataset.id)" ${missing.length ? 'disabled' : ''}>确认登记并生成统一 prompt</button>
-    ${r.confirmed ? code(modelingBrief(d), '复制建模 prompt') : ''}`);
+    ${r.confirmed ? code(modelingBrief(d), '复制建模 prompt', mdHighlight) : ''}`);
 }
 
 function drawerObject(d) {
