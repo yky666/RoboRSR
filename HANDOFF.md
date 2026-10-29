@@ -23,9 +23,9 @@
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
   - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
-  - 金属杯 `Clutter/metal_cup/00000` 和 6 个泛化变体：按平台登记建，未做仿真验证，未装共享库（见「最近任务」）。
-  - 陶瓷杯 `Rigid/ceramic_cup/00000` 和 6 个泛化变体：按平台登记建，`check_object.py` 落地 + 渲染，未装共享库（见「最近任务」）。
-  - iPhone 17 Pro Max `Rigid/iphone_17_pro_max/0000{0,1,2}`：按苹果官网参数建（未登记实物），三种配色，未装共享库（见「最近任务」）。
+  - 金属杯 `Clutter/metal_cup/00000` 和 6 个泛化变体：按平台登记建，未做仿真验证，已装共享库（2026-10-29，回滚清单 `/data/robodojo-assets/backups/added-objects-1029-cups-iphone-20261029-121751.txt`）（见「最近任务」）。
+  - 陶瓷杯 `Rigid/ceramic_cup/00000` 和 6 个泛化变体：按平台登记建，`check_object.py` 落地 + 渲染，已装共享库（2026-10-29，回滚清单 `/data/robodojo-assets/backups/added-objects-1029-cups-iphone-20261029-121751.txt`）（见「最近任务」）。
+  - iPhone 17 Pro Max `Rigid/iphone_17_pro_max/0000{0,1,2}`：按苹果官网参数建（未登记实物），三种配色，已装共享库（2026-10-29，回滚清单 `/data/robodojo-assets/backups/added-objects-1029-cups-iphone-20261029-121751.txt`）（见「最近任务」）。
   - 塑料杯 `Rigid/plastic_cup/00001` 和 6 个泛化变体：按平台登记建，已装共享库（2026-10-28）（见「最近任务」）。
   - 易拉罐 `Rigid/soda_can/00006`（零度可乐，已开罐）和 6 个泛化变体：按平台登记建，已装共享库（2026-10-28）（见「最近任务」）。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
