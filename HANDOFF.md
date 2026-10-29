@@ -22,7 +22,7 @@
   - 学校的纸杯 `paper_cup/0000{0,1}`、纸盘 `paper_plate/0000{0,1,2}` 是孪生的拟合几何，没在平台登记，没有实测，未装共享库。平台上能看到它们（10-20 部署，见下面「数采平台」）。
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
   - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。
-  - 塑料收纳盒 `Rigid/plastic_box/00000` 和 6 个泛化变体：按平台登记建，`check_object.py` 落地 + 渲染，未装共享库（见「最近任务」）。
+  - 塑料收纳盒 `Rigid/plastic_box/00000` 和 6 个泛化变体：按平台登记建，`check_object.py` 落地 + 渲染，已装共享库（2026-10-29）（见「最近任务」）。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
@@ -44,7 +44,7 @@
 
 - 平台建模任务（徐鹤鸣 10-28 登记）：PP 方盒，下半白色、上半灰色，151 g，外边长 151.5、内边长 140.2 mm，不要求物理测试。新脚本 `scripts/objects/make_plastic_box.py` 生成 00000 和 6 个泛化变体 00001–00006（`variant_of` 00000；颜色、材质、尺寸、形状都变）。
 - 结构：灰色外沿 `/root/visual/band`（外 151.5、开口 140.2，壁厚 5.65 mm，高 27 mm）罩在白色盒身 `/root/visual/model` 上，盒身每边内收 8.5 mm、向底部再收 2.5 mm，平底；外沿内侧下降 8 mm 后接白色内壁的小台阶。高约 100 mm 由正面照片按外沿宽度换算。除两项实测外都是照片估计。碰撞体：24 边形底板 + 三层高度的盒壁分片（00000 共 52 块），顶部不封；脚本断言没有凸包进入盒内空腔、每块 ≤ 64 点。没有实测摩擦，不写摩擦键。
-- 验证：`measurements_mm` 两项误差 0；`check_object.py --image-dir` 七件 OK（倾角 0°），`sim.png`、`check.json` 已同步到部署机；和照片的对比图看过，外沿、收腰和圆角一致。`check_object` 的固定灯光比照片亮，预览图里外沿显得偏浅。生成结果在 5090-2 `/data/robodojo-runs/plastic_box-20261028-144657/ovl/Rigid/plastic_box/`，未装共享库。
+- 验证：`measurements_mm` 两项误差 0；`check_object.py --image-dir` 七件 OK（倾角 0°），`sim.png`、`check.json` 已同步到部署机；和照片的对比图看过，外沿、收腰和圆角一致。`check_object` 的固定灯光比照片亮，预览图里外沿显得偏浅。生成结果在 5090-2 `/data/robodojo-runs/plastic_box-20261028-144657/ovl/Rigid/plastic_box/`；已装共享库 `Object/Real2Sim`（2026-10-29，新增目录、没有覆盖，回滚清单 `/data/robodojo-assets/backups/added-objects-1029-20261029-120207.txt`）。
 
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 
