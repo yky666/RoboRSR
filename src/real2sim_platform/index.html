@@ -329,11 +329,11 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .dd-menu button > span { overflow: hidden; text-overflow: ellipsis; }
 .dd-menu button:hover { background: var(--surface-2); color: var(--text); }
 .dd-menu button[aria-selected="true"] { background: var(--surface-2); color: var(--text); font-weight: 600; }
-.toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text-2); font-weight: 500; cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
-.toggle:hover { border-color: var(--faint); color: var(--text); }
-.toggle .ic { color: var(--muted); }
-.toggle[aria-pressed="true"] { border-color: var(--text); background: var(--surface-2); color: var(--text); }
-.toggle[aria-pressed="true"] .ic { color: var(--text); }
+.pill-toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text-2); font-weight: 500; cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
+.pill-toggle:hover { border-color: var(--faint); color: var(--text); }
+.pill-toggle .ic { color: var(--muted); }
+.pill-toggle[aria-pressed="true"] { border-color: var(--text); background: var(--surface-2); color: var(--text); }
+.pill-toggle[aria-pressed="true"] .ic { color: var(--text); }
 @keyframes dd-in { from { opacity: 0; transform: translateY(-4px); } }
 @media (prefers-reduced-motion: reduce) { .dd-menu { animation: none; } .dd-btn .ic { transition: none; } }
 .ds-desc { display: -webkit-box; min-height: 3.2em; margin: 0; overflow: hidden; color: var(--text-2); font-size: 13px; line-height: 1.6; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
@@ -2246,7 +2246,7 @@ function viewObjects() {
     ${assetsWarning()}
     <div class="toolbar filters">${searchBox('obj-q', f.q, 'UI.obj.q', '搜索 id / 名称 / 任务')}
       ${dropdown('obj-owner', '重建负责人', [['', '全部负责人'], ...(ME ? [[ME.username, '我负责的']] : []), ['-', '未指派'], ...MEMBERS.filter((m) => m.username !== ME?.username).map((m) => [m.username, m.name])], f.owner || '', (v) => { UI.obj.owner = v; })}
-      <button type="button" class="toggle" aria-pressed="${Boolean(f.photo)}" onclick="UI.obj.photo = !UI.obj.photo; render()">${ic(f.photo ? 'check' : 'image', 'ic-sm')}只看有照片参考</button>
+      <button type="button" class="pill-toggle" aria-pressed="${Boolean(f.photo)}" onclick="UI.obj.photo = !UI.obj.photo; render()">${ic(f.photo ? 'check' : 'image', 'ic-sm')}只看有照片参考</button>
       <span class="sp"></span><span class="muted small">${docs.filter(isBase).length} 件 · 照片参考 ${objs.filter(hasPhotoReference).length}（已归档 ${objs.filter((o) => o.auto.photos?.length).length}） · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span>
       <div class="segctl" role="group" aria-label="显示方式">
         <button type="button" aria-pressed="${f.view === 'cards'}" onclick="setObjView('cards')">${ic('grid', 'ic-sm')} 卡片</button>
