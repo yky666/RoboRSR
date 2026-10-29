@@ -264,6 +264,38 @@ def test_slots_and_children():
     assert len(orders) > 1
 
 
+def test_rows():
+    config = X.load_yaml(X.CONFIG_DIR / "arrange_largest_number.yml")
+    assert X.lines(config) == {"mat": (0.0, 0.085, (-0.1, -0.05))}
+    layout = template(0)
+    layout["Rigid"]["bowl"] = []
+    for k, x in enumerate((0.3, -0.3, 0.1, -0.1)):  # a template's row, scrambled
+        layout["Rigid"]["bowl"].append(
+            {
+                "category": "bowl",
+                "category_idx": 1,
+                "xlim": [-0.45, 0.45],
+                "ylim": [-0.1, -0.05],
+                "rotate_rand": False,
+                "relative_plane": "Table",
+                "label": f"mat_{k}",
+                "default_pos": [x, -0.07, 0.795],
+                "default_ori": [1, 0, 0, 0],
+                "scale": [0.1, 0.1, 0.1],
+            }
+        )
+    gen = X.Generator("stack_bowls", {"position": True}, assets(), [("t.json", layout)], POOLS)
+    gen.lines = {"mat": (0.0, 0.085, (-0.1, -0.05))}
+    ys = set()
+    for i in range(5):
+        out, record = gen.layout(i, 1)
+        row = sorted(out["Rigid"]["bowl"], key=lambda e: e["label"])
+        assert [round(e["default_pos"][0], 4) for e in row] == [-0.1275, -0.0425, 0.0425, 0.1275]
+        assert len({e["default_pos"][1] for e in row}) == 1 and -0.1 <= row[0]["default_pos"][1] <= -0.05
+        ys.add(row[0]["default_pos"][1])
+    assert len(ys) > 1
+
+
 def test_camera_configs():
     root, real = Path(tempfile.mkdtemp()), X.ROOT
     for rel in ("env_cfg/arx_x5.yml", "env_cfg/camera/camera_config.yml"):

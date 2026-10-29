@@ -134,6 +134,20 @@ def pools(config):
     return by_label, by_category
 
 
+def lines(config):
+    """{label prefix: (centre x, spacing, (y low, y high))} of a config's blocks laid out as a row along x
+    (dynamic_layout x_symmetric_line: <prefix>_0 leftmost, the row centred on `center`, one y for all)."""
+    out = {}
+    for section in MOVABLE:
+        for block in config.get(section) or []:
+            layout = block.get("dynamic_layout") or {}
+            if layout.get("type") == "x_symmetric_line":
+                for prefix in (block.get("select_mode") or {}).get("label_prefix") or []:
+                    y = ranges(block["common"]["ylim"])[0]
+                    out[prefix] = (float(layout.get("center", 0.0)), float(layout["spacing"]), y)
+    return out
+
+
 def held_out(base_config, variant_config):
     """{category: indices} that only the _random variant uses."""
     base, variant = pools(base_config)[1], pools(variant_config)[1] if variant_config else {}
@@ -216,6 +230,7 @@ class Generator:
         self.base_config = load_yaml(CONFIG_DIR / f"{base}.yml")
         self.variant_config = load_yaml(CONFIG_DIR / f"{variant}.yml") if variant else {}
         self.labels = pools(self.base_config)[0]
+        self.lines = lines(self.base_config)
         self.holdout = held_out(self.base_config, self.variant_config)
         self.templates = templates
         self.prohibited = [
@@ -374,12 +389,22 @@ class Generator:
 
         def movable(item):
             s, _, e = item
-            if s not in MOVABLE or e.get("xlim") is None or slots(e):
+            if s not in MOVABLE or e.get("xlim") is None or slots(e) or id(e) in lined:
                 return False
             fixed_xy = all(lo == hi for lo, hi in ranges(e["xlim"]) + ranges(e["ylim"]))
             return (p.get("position") and not fixed_xy) or (p.get("yaw") and e.get("rotate_rand"))
 
-        moved = {}  # id(entry) -> (old pose, new pose)
+        moved, lined = {}, set()  # id(entry) -> (old pose, new pose); ids of entries laid out in a row
+        if p.get("position"):  # a row keeps its spacing along x and gets a new y, placed before the rest
+            for prefix, (centre, spacing, ylim) in self.lines.items():
+                row = [e for _, _, e in on_table if re.fullmatch(rf"{re.escape(prefix)}_\d+", str(e.get("label")))]
+                row.sort(key=lambda e: int(e["label"].rsplit("_", 1)[1]))
+                y = float(np.random.uniform(*ylim))
+                for k, e in enumerate(row):
+                    old = pose(e)
+                    e["default_pos"] = [centre + (k - (len(row) - 1) / 2) * spacing, y, e["default_pos"][2]]
+                    moved[id(e)] = (old, pose(e))
+                    lined.add(id(e))
         if p.get("position"):  # objects sharing a slot list swap places
             groups = {}
             for s, _, e in on_table:
