@@ -49,3 +49,20 @@ def test_acceptance_fails_closed():
     assert deformables.acceptance(profile, no_evidence, mesh, 12.0, "长 300")["checks"]["contact"] == "pending"
     failed = {**report, "checks": {**report["checks"], "shutdown": {"status": "fail", "evidence": "崩溃日志"}}}
     assert deformables.acceptance(profile, failed, mesh, 12.0, "长 300")["status"] == "fail"
+
+
+def test_failed_report_for_another_mesh_or_registration_is_not_current_failure():
+    profile = {"family": "rope"}
+    mesh = "ab" * 32
+    report = {
+        "mesh_sha256": mesh,
+        "registration_sha256": deformables.registration_fingerprint(profile, 100, "3 m"),
+        "checks": {"reset_replay": {"status": "fail", "evidence": "candidate reset report"}},
+    }
+    current = deformables.acceptance(profile, report, mesh, 100, "3 m")
+    assert current["status"] == "fail"
+    other = deformables.acceptance(profile, report, "cd" * 32, 100, "3 m")
+    assert other["status"] == "pending" and other["evidence_status"] == "fail"
+    assert other["failed_checks"] == ["reset_replay"]
+    changed = deformables.acceptance(profile, report, mesh, 80, "0.8 m")
+    assert changed["status"] == "pending" and not changed["registration_matches"]

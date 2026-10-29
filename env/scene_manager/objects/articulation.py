@@ -13,7 +13,7 @@ from omegaconf import DictConfig
 import omni.kit.commands
 import omni.physx.scripts.utils as physx_utils
 import omni.usd
-from pxr import PhysxSchema, Usd, UsdGeom, UsdPhysics, UsdShade
+from pxr import Gf, PhysxSchema, Usd, UsdGeom, UsdPhysics, UsdShade
 import torch
 
 
@@ -211,7 +211,7 @@ class ArticulationObject(SingleArticulation):
         for param in physics_params_to_randomize:
             if param in modified_config and modified_config[param] is not None:
                 original_value = modified_config[param]
-                if isinstance(original_value, (int, float)):
+                if isinstance(original_value, int | float):
                     variation = original_value * (ratio - 1)
                     min_val = original_value - variation
                     max_val = original_value + variation
@@ -219,7 +219,7 @@ class ArticulationObject(SingleArticulation):
                 elif isinstance(original_value, list) and len(original_value) > 0:
                     randomized_list = []
                     for val in original_value:
-                        if isinstance(val, (int, float)):
+                        if isinstance(val, int | float):
                             variation = val * (ratio - 1)
                             min_val = val - variation
                             max_val = val + variation
@@ -232,8 +232,11 @@ class ArticulationObject(SingleArticulation):
     def initialize(self):
         self.physics_sim_view = SimulationManager.get_physics_sim_view()
         super().initialize(physics_sim_view=self.physics_sim_view)
-        self.upper_joint_positions = self.dof_properties["upper"].copy()
-        self.lower_joint_positions = self.dof_properties["lower"].copy()
+        limits = self._articulation_view.get_dof_limits()[0]
+        if isinstance(limits, torch.Tensor):
+            limits = limits.detach().cpu().numpy()
+        self.upper_joint_positions = limits[:, 1].copy()
+        self.lower_joint_positions = limits[:, 0].copy()
         self.initial_joint_positions = self.get_current_joint_positions()
         self.initial_drive_targets = self._capture_drive_targets()
         # Restoring the USD targetPosition attribute alone does not reach PhysX once
@@ -252,6 +255,48 @@ class ArticulationObject(SingleArticulation):
                 ).copy()
         self.app = omni.kit.app.get_app()
         self.app.update()
+        self._full_reset_state = None
+        if self.physics_cfg.get("reset_full_state", False):
+            view = self._articulation_view._physics_view
+            self._full_reset_state = {
+                name: getattr(view, "get_" + name)().clone()
+                for name in ("root_transforms", "dof_positions", "dof_position_targets", "dof_velocity_targets")
+            }
+            self._full_reset_instance = self._instance_world_pose(self.default_pos, self.default_ori)
+
+    def _instance_world_pose(self, position, orientation):
+        # default_pos/default_ori are local to the instance parent, whereas PhysX
+        # root transforms are world-space, including cloned environment offsets.
+        parent = self.stage.GetPrimAtPath(self._prim_path).GetParent()
+        frame = UsdGeom.XformCache().GetLocalToWorldTransform(parent)
+        point = frame.Transform(Gf.Vec3d(*map(float, position)))
+        local = Gf.Quatd(float(orientation[0]), Gf.Vec3d(*map(float, orientation[1:])))
+        quat = frame.ExtractRotationQuat() * local
+        return np.array(point), np.array([quat.GetReal(), *quat.GetImaginary()])
+
+    def _restore_full_articulation_state(self, position=None, orientation=None):
+        from env.scene_manager.objects.articulation_reset import map_physics_root
+
+        saved = self._full_reset_state
+        if saved is None:
+            raise RuntimeError("Full articulation reset must be initialized")
+        root = saved["root_transforms"]
+        target = self._instance_world_pose(
+            self.default_pos if position is None else position,
+            self.default_ori if orientation is None else orientation,
+        )
+        transformed = map_physics_root(root.detach().cpu().numpy(), *self._full_reset_instance, *target)
+        root = torch.as_tensor(transformed, dtype=root.dtype, device=root.device)
+        index = torch.tensor([0], dtype=torch.int32, device=root.device)
+        view = self._articulation_view._physics_view
+        view.set_root_transforms(root, index)
+        view.set_dof_positions(saved["dof_positions"].clone(), index)
+        view.set_dof_position_targets(saved["dof_position_targets"].clone(), index)
+        view.set_dof_velocity_targets(saved["dof_velocity_targets"].clone(), index)
+        view.set_dof_velocities(torch.zeros_like(saved["dof_positions"]), index)
+        view.set_dof_actuation_forces(torch.zeros_like(saved["dof_positions"]), index)
+        view.set_root_velocities(torch.zeros((1, 6), dtype=root.dtype, device=root.device), index)
+        self.physics_sim_view.update_articulations_kinematic()
 
     def get_current_joint_positions(self):
         return self.get_joint_positions()
@@ -273,16 +318,19 @@ class ArticulationObject(SingleArticulation):
         return None
 
     def apply_saved_pose(self):
-        self.set_current_joint_positions(self.initial_joint_positions)
-        if self.physics_cfg.get("reset_drive", False):
-            self.reset_drive_targets()
-        pos = self.default_pos
-        ori = self.default_ori
-        scale = self.init_scale
-        self.set_local_pose(pos, ori)
-        self.set_local_scale(np.array(scale))
-        self._apply_default_velocities()
-        self.app.update()
+        if self.physics_cfg.get("reset_full_state", False):
+            self._restore_full_articulation_state()
+        else:
+            self.set_current_joint_positions(self.initial_joint_positions)
+            if self.physics_cfg.get("reset_drive", False):
+                self.reset_drive_targets()
+            pos = self.default_pos
+            ori = self.default_ori
+            scale = self.init_scale
+            self.set_local_pose(pos, ori)
+            self.set_local_scale(np.array(scale))
+            self._apply_default_velocities()
+            self.app.update()
         visible = self.visual_cfg.get("visible", True)
         imageable = UsdGeom.Imageable(self.prim)
         if imageable:
@@ -299,15 +347,18 @@ class ArticulationObject(SingleArticulation):
             _FAR_CENTER[1] + random.uniform(-_FAR_JITTER, _FAR_JITTER),
             _FAR_CENTER[2] + random.uniform(-_FAR_JITTER, _FAR_JITTER),
         )
-        self.set_current_joint_positions(self.initial_joint_positions)
-        if self.physics_cfg.get("reset_drive", False):
-            self.reset_drive_targets()
-        ori = self.default_ori
-        scale = self.init_scale
-        self.set_local_pose(pos, ori)
-        self.set_local_scale(np.array(scale))
-        self._apply_default_velocities()
-        self.app.update()
+        if self.physics_cfg.get("reset_full_state", False):
+            self._restore_full_articulation_state(position=pos)
+        else:
+            self.set_current_joint_positions(self.initial_joint_positions)
+            if self.physics_cfg.get("reset_drive", False):
+                self.reset_drive_targets()
+            ori = self.default_ori
+            scale = self.init_scale
+            self.set_local_pose(pos, ori)
+            self.set_local_scale(np.array(scale))
+            self._apply_default_velocities()
+            self.app.update()
         visible = self.visual_cfg.get("visible", True)
         imageable = UsdGeom.Imageable(self.prim)
         if imageable:
@@ -404,9 +455,7 @@ class ArticulationObject(SingleArticulation):
 
         for prim in Usd.PrimRange(root_prim):
             if not (
-                prim.IsA(UsdPhysics.PrismaticJoint)
-                or prim.IsA(UsdPhysics.RevoluteJoint)
-                or prim.IsA(UsdPhysics.Joint)
+                prim.IsA(UsdPhysics.PrismaticJoint) or prim.IsA(UsdPhysics.RevoluteJoint) or prim.IsA(UsdPhysics.Joint)
             ):
                 continue
             drive_type = self._get_joint_drive_type(prim)

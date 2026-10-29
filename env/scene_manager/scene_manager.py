@@ -541,6 +541,10 @@ class SceneManager:
         Returns:
             Created object instance
         """
+        if obj_type in ("rigid", "garment", "articulation", "dynamic"):
+            from env.scene_manager.objects.asset_defaults import with_asset_defaults
+
+            inst_cfg = with_asset_defaults(usd_path, inst_cfg)
         base_args = {
             "prim_path": prim_path,
             "usd_path": usd_path,

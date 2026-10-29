@@ -228,6 +228,16 @@ class GarmentObject(SingleClothPrim):
         and setting up initial state.
         """
         self._get_initial_info()
+        mass_config = self.physics_cfg.get("vertex_mass_distribution")
+        if mass_config:
+            from env.scene_manager.objects.cloth_mass import load_vertex_masses
+
+            current = self._cloth_prim_view.get_particle_masses()
+            values = load_vertex_masses(self.usd_path, mass_config, current.shape[-1])
+            values = torch.as_tensor(values, dtype=current.dtype, device=current.device).unsqueeze(0)
+            self._cloth_prim_view._physics_view.set_masses(
+                values, torch.tensor([0], dtype=torch.int32, device=current.device)
+            )
 
     def reset(self):
         """
@@ -254,6 +264,8 @@ class GarmentObject(SingleClothPrim):
                         initial_pos_tensor = initial_pos_tensor.unsqueeze(0)
                 try:
                     self._cloth_prim_view.set_world_positions(initial_pos_tensor)
+                    if self.physics_cfg.get("reset_velocities", False):
+                        self._cloth_prim_view.set_velocities(torch.zeros_like(self._cloth_prim_view.get_velocities()))
                 except Exception as e:
                     print(f"Error setting world positions in reset for {self._prim_path}: {e}")
 

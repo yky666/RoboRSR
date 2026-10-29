@@ -425,3 +425,15 @@ agent 照着反馈迭代，优化目标就是"真机可执行"而不只是仿真
 ## 许可证
 
 沿用 RoboDojo 的 [MIT License](LICENSE)。
+
+### 柔性资产诊断
+
+在Isaac Sim环境中用项目工厂检查D6代理复位和布袋自交；结果不代替材料标定或机器人摩擦抓取验收。输出目录必须不存在，保持失败证据。
+
+```bash
+python scripts/objects/check_articulation_reset.py --asset <隔离线缆目录> --output <新报告目录>
+python scripts/objects/check_cloth_contact.py --help
+python scripts/objects/repair_flexible_candidate.py --source <已有研究候选> --output <新隔离副本>
+```
+
+诊断范围和当前失败见 [柔性复核](real2sim/prototypes/flexible_review_20261030/REPORT.md)。

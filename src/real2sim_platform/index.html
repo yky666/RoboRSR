@@ -910,12 +910,7 @@ const OBJ_STAGES = [
     return over.length || dm > 5 ? bad(text) : done.length < c.length ? todo(text) : ok(text);
   }],
   ['physics', '物理检验', (d) => {
-    if (d.deformable?.family) {
-      const a = d.auto.deformable_acceptance;
-      if (!a || a.family !== d.deformable.family) return todo('柔性专用验收待同步，刚体检查不能替代');
-      if (a.status === 'fail') return bad('柔性专用检查有失败项');
-      return a.status === 'pass' ? ok('柔性几何、材料与运行证据通过') : todo('柔性证据、材料标定或版本核对未完成');
-    }
+    if (d.deformable?.family) return deformablePhysicsState(d);
     const v = PHYS.map(([k]) => physState(d, k));
     if (v.includes('fail')) return bad(`${v.filter((x) => x === 'fail').length} 项不通过`);
     const done = v.filter((x) => x === 'pass' || x === 'na').length;
@@ -924,6 +919,21 @@ const OBJ_STAGES = [
   ['library', '入共享库', (d) => (d.auto.in_library ? ok('资产库中已有') : todo(d.auto.built
     ? '经同意装进服务器共享资产库，再刷新平台的资产库镜像' : '建好之后'))],
 ];
+
+function deformablePhysicsState(d) {
+  const a = d.auto?.deformable_acceptance;
+  if (!a || a.family !== d.deformable?.family) return todo('柔性专用验收待同步，刚体检查不能替代');
+  const labels = {geometry_mass: '几何与质量', deformation: '形变', contact: '外接触',
+    self_collision: '自接触/面片穿插', reset_replay: '复位重放', shutdown: '退出清理',
+    material_fit: '材料标定', seams_openings: '缝线与开口', bend_twist: '弯曲与扭转',
+    compression_recovery: '压缩恢复'};
+  const failed = Object.entries(a.checks || {}).filter(([, state]) => state === 'fail')
+    .map(([key]) => labels[key] || key).join('、');
+  if (a.mesh_matches === false) return todo('验收报告不对应当前库模型' + (failed ? '；报告中未通过：' + failed : ''));
+  if (a.registration_matches === false) return todo('登记已变化，需重验' + (failed ? '；旧报告未通过：' + failed : ''));
+  if (a.status === 'fail') return bad('柔性检验未通过' + (failed ? '：' + failed : ''));
+  return a.status === 'pass' ? ok('柔性几何、材料与运行证据通过') : todo('柔性证据或材料标定未完成');
+}
 
 const DIMS = {custom: 'G1-D 自建', generalization: '泛化', memory: '记忆', precision: '精细', 'long-horizon': '长程', open: '开放'};
 // generalization axes, each graded L1–L3 (default ranges per level); L3 is never in training. Grade Gk puts every axis

@@ -91,8 +91,14 @@ def acceptance(profile, report, mesh_sha256, mass_g=None, dimensions_mm=None):
         and all(v == "pass" for v in rows.values())
     ):
         status = "pass"
+    evidence_status = status
+    if not identity_ok or not registration_ok:
+        status = "pending"  # A different model's failure cannot classify the current one.
     return {
         "status": status,
+        "evidence_status": evidence_status,
+        "failed_checks": [name for name, value in rows.items() if value == "fail"],
+        "validation_error": validate(profile),
         "family": profile["family"],
         "checks": rows,
         "mesh_matches": identity_ok,
