@@ -4,6 +4,10 @@
 不需要重启服务。该文件不入 Git；不要把私人路径、连接信息或内部来源写进公开 HTML。
 读取失败会明确提示当前只有缓存目录，不将缓存说成完整盘点。
 
+数据集管理员在页面上的修改（名称、机构、链接、简介、口径、三个统计数、各分类）存为平台数据库里的 `dataset` 记录，
+按组 `id` 叠加在盘点之上，只存和盘点不同的字段；盘点文件不变，「恢复盘点值」删掉这条记录。
+管理员新增的条目是 `custom: true` 的整条记录，不在盘点里。重新生成盘点时组 `id` 要保持不变，否则旧修改不再生效。
+
 JSON 顶层为 `schemaVersion: 1`、`date`（YYYY-MM-DD）、`recordCount`、`method` 和 `groups`。
 每组包含唯一 `id`、`name`、可选 `templateId`（沿用公开目录分类）和非空 `versions`。
 每条版本包含唯一 `id`、`name`、公开 `url`（或空串）、`source`（real/sim/ego/mixed/asset/unknown）、
