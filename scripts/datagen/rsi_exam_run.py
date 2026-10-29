@@ -15,6 +15,7 @@ from collections import defaultdict
 import json
 import os
 from pathlib import Path
+import re
 import signal
 import socket
 import subprocess
@@ -23,6 +24,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 POLICY = dict(dir="XPolicyLab/policy/OpenWAM", ckpt="OpenWAM-Alpha-Sim-RoboDojo", action="ee")
+BROKEN = re.compile(r"\[PhysX\] broken envs=\[[^\]]*\] -> abandon seeds=\[([\d, ]*)\]")
 _ops_lock = threading.Lock()
 
 
@@ -144,23 +146,35 @@ def run_lane(lane, port, tasks, jobs, a, logs, results):
         log_op(a.ops, job=f"server_{task}", action="stopped")
 
 
-def gate(results):
-    """G2: exit 0 and eval_time == planned for every job."""
+def abandoned(log):
+    """Layouts the engine gave up on as broken envs (PhysX), from a job log: unstable, recorded, not scored."""
+    seeds = set()
+    if log.exists():
+        for m in BROKEN.finditer(log.read_text(errors="replace")):
+            seeds.update(int(s) for s in m.group(1).split(",") if s.strip())
+    return sorted(seeds)
+
+
+def gate(results, logs):
+    """G2: exit 0, and every planned episode either scored or abandoned by the engine as a broken env (a layout
+    abandoned and then scored after a restart counts as scored)."""
     bad = []
     for r in results:
         f = Path(r["dir"]) / "_result.json" if r.get("dir") else None
-        done = json.loads(f.read_text())["eval_time"] if f and f.exists() else 0
-        r["eval_time"] = done
-        if r["rc"] != 0 or done != r["planned"]:
+        res = json.loads(f.read_text()) if f and f.exists() else {"eval_time": 0, "details": {}}
+        r["eval_time"] = res["eval_time"]
+        scored = {int(d["layout_id"]) for d in res["details"].values()}
+        r["unstable"] = [s for s in abandoned(logs / f"{r['job']}.log") if s not in scored]
+        if r["rc"] != 0 or r["eval_time"] + len(r["unstable"]) != r["planned"]:
             bad.append(r["job"])
     return bad
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--manifest", required=True)
-    ap.add_argument("--run-id", required=True)
-    ap.add_argument("--lanes", required=True, help="policy_gpu:env_gpu,... one lane each")
+    ap.add_argument("--manifest")
+    ap.add_argument("--run-id")
+    ap.add_argument("--lanes", help="policy_gpu:env_gpu,... one lane each")
     ap.add_argument("--ops", required=True)
     ap.add_argument("--policy-env", default="/root/miniconda3/envs/openwam-bench")
     ap.add_argument("--assets", default=str(ROOT / "Assets"))
@@ -169,7 +183,14 @@ def main(argv=None):
     ap.add_argument("--retries", type=int, default=3)
     ap.add_argument("--base-port", type=int, default=18600)
     ap.add_argument("--out")
+    ap.add_argument("--regate", help="a previous run's g2.json: judge G2 again from its results, run nothing")
     a = ap.parse_args(argv)
+
+    if a.regate:
+        report = json.loads(Path(a.regate).read_text())
+        results = [r for r in report["results"] if "planned" in r]
+        bad = gate(results, ROOT / "logs" / report["run_id"])
+        return finish(a, report["run_id"], results, bad)
 
     jobs = json.loads(Path(a.manifest).read_text())["jobs"]
     env1 = set(filter(None, a.env1.split(",")))
@@ -191,11 +212,18 @@ def main(argv=None):
         t.start()
     for t in threads:
         t.join()
-    bad = gate(results)
-    report = {"run_id": a.run_id, "jobs": len(results), "failed": bad, "passed": not bad, "results": results}
-    log_op(a.ops, job=a.run_id, action="end", passed=not bad, failed=bad)
-    Path(a.out or logs / "g2.json").write_text(json.dumps(report, indent=1) + "\n")
-    print(f"G2 {'passed' if not bad else 'failed'}: {len(results)} jobs, failed {bad}")
+    return finish(a, a.run_id, results, gate(results, logs))
+
+
+def finish(a, run_id, results, bad):
+    unstable = {r["job"]: r["unstable"] for r in results if r.get("unstable")}
+    report = {
+        "run_id": run_id, "jobs": len(results), "failed": bad, "passed": not bad, "unstable": unstable,
+        "results": results,
+    }  # fmt: skip
+    log_op(a.ops, job=run_id, action="end", passed=not bad, failed=bad, unstable=unstable)
+    Path(a.out or ROOT / "logs" / run_id / "g2.json").write_text(json.dumps(report, indent=1) + "\n")
+    print(f"G2 {'passed' if not bad else 'failed'}: {len(results)} jobs, failed {bad}, unstable {unstable}")
     return 0 if not bad else 1
 
 

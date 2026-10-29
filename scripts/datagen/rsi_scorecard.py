@@ -1,11 +1,14 @@
 """Judge one RSI exam (rsi/AGENTS.md 5.3 step 3): scores, retention, level changes and the two parties' outputs.
 
-    python scripts/datagen/rsi_scorecard.py --manifest referee/rounds/r1/manifest.json --eval-root run/eval_result \
-        --run-id exam_r1 --levels referee/levels_0.json --round 1 --model "OpenWAM-α" --out referee
+    python scripts/datagen/rsi_scorecard.py --manifest r1/manifest.json r1/topup/manifest.json \
+        --eval-root run/eval_result --run-id exam_r1 exam_r1_topup --prev-anchors r0/anchors.json \
+        --levels referee/levels_0.json --round 1 --model "OpenWAM-α" --out referee
 
-Deterministic: the same results give the same files (bootstrap with a fixed seed). An episode's retention is its
-score over its task's L0 anchor mean in the same exam; a subject's retention rho is the mean over its episodes,
-families pooled. Tasks whose L0 mean is below CAPABILITY are capability gaps: reported, never in rho. The frontier
+Deterministic: the same results give the same files (bootstrap with a fixed seed). A subject's retention rho is the
+sum of its episodes' scores over the sum of their tasks' L0 anchor means (ratio of means), families pooled; its 95%
+interval resamples the episodes and every task's anchors together. Tasks whose L0 mean, this round's anchors and
+the previous round's (--prev-anchors, {task: [scores]}) pooled, is below CAPABILITY are capability gaps: reported,
+never in rho. The frontier
 level of an axis moves up when rho's 95% lower bound >= UP, down when the upper bound < DOWN, by one level, inside
 L1..L3; the pooled decision applies to every family on that axis. Writes
 - out/rounds/r<N>/scores.json: every number, referee only;
@@ -31,7 +34,8 @@ def bootstrap_rho(eps, anchors, n=2000, seed=0):
     means = []
     for _ in range(n):
         l0 = {t: max(sum(rng.choices(a, k=len(a))) / len(a), CAPABILITY) for t, a in sorted(anchors.items())}
-        means.append(sum(s / l0[t] for t, s in rng.choices(eps, k=len(eps))) / len(eps))
+        sample = rng.choices(eps, k=len(eps))
+        means.append(sum(s for _, s in sample) / sum(l0[t] for t, _ in sample))
     means.sort()
     return means[int(0.025 * n)], means[int(0.975 * n) - 1]
 
@@ -41,28 +45,33 @@ def band(x, width):
     return f"{lo:g}-{lo + width:g}" if width >= 1 else f"{lo:.1f}-{lo + width:.1f}"
 
 
-def episodes(manifest, eval_root, run_id):
+def episodes(layouts, eval_root, run_ids):
     """Manifest layouts joined with their scores (0-100); a layout without a result is left out and listed."""
     scores = {}
-    for f in Path(eval_root).glob(f"RoboDojo/*/**/{run_id}_*/_result.json"):
+    for f in Path(eval_root).glob("RoboDojo/*/**/_result.json"):
         task = f.relative_to(eval_root).parts[1]
+        if not any(f.parent.name.startswith(f"{rid}_{task}_") for rid in run_ids):
+            continue
         seed = int(f.parent.name.rsplit("_", 1)[1])
         for d in json.loads(f.read_text())["details"].values():
-            scores[(task, seed, int(d["layout_id"]))] = 100 * d["score"]
+            key = (task, seed, int(d["layout_id"]))
+            assert key not in scores, f"{key} scored twice"
+            scores[key] = 100 * d["score"]
     out, missing = [], []
-    for lay in manifest["layouts"]:
+    for lay in layouts:
         key = (lay["task"], lay["seed"], lay["layout_id"])
         (out.append({**lay, "score": scores[key]}) if key in scores else missing.append(key))
     return out, missing
 
 
-def judge(eps, levels):
+def judge(eps, levels, prev_anchors=None):
     anchors = defaultdict(list)
     for e in eps:
         if e["level"] == "L0" and not e["capability"]:
             anchors[e["task"]].append(e["score"])
     l0 = {t: sum(v) / len(v) for t, v in anchors.items()}
-    gaps = sorted(t for t, m in l0.items() if m < CAPABILITY)
+    pooled = {t: v + (prev_anchors or {}).get(t, []) for t, v in anchors.items()}
+    gaps = sorted(t for t, v in pooled.items() if sum(v) / len(v) < CAPABILITY)
 
     subjects = defaultdict(list)
     for e in eps:
@@ -70,7 +79,7 @@ def judge(eps, levels):
             subjects[(e["axis"], e["level"])].append((e["task"], e["score"]))
     rows = []
     for (axis, level), v in sorted(subjects.items()):
-        rho = sum(s / l0[t] for t, s in v) / len(v)
+        rho = sum(s for _, s in v) / sum(l0[t] for t, _ in v)
         lo, hi = bootstrap_rho(v, {t: anchors[t] for t in {t for t, _ in v}})
         rows.append({
             "axis": axis, "level": level, "n": len(v), "score": sum(s for _, s in v) / len(v),
@@ -99,7 +108,7 @@ def judge(eps, levels):
             if e["level"] == "L0":
                 capability[e["task"]].append(e["score"])
     return {
-        "l0": l0, "capability_gaps": gaps, "subjects": rows, "moves": moves, "levels": new,
+        "l0": l0, "anchors": dict(anchors), "capability_gaps": gaps, "subjects": rows, "moves": moves, "levels": new,
         "capability": {t: {"n": len(v), "score": sum(v) / len(v)} for t, v in sorted(capability.items())},
     }  # fmt: skip
 
@@ -121,19 +130,21 @@ def scorecard(j, rnd, model):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--manifest", required=True)
+    ap.add_argument("--manifest", nargs="+", required=True)
     ap.add_argument("--eval-root", required=True)
-    ap.add_argument("--run-id", required=True)
+    ap.add_argument("--run-id", nargs="+", required=True)
+    ap.add_argument("--prev-anchors", help="{task: [L0 scores]} of the previous round, for the capability rule")
     ap.add_argument("--levels", required=True, help="levels_<N-1>.json")
     ap.add_argument("--round", type=int, required=True)
     ap.add_argument("--model", required=True)
     ap.add_argument("--out", required=True, help="the run's referee/ dir")
     a = ap.parse_args(argv)
 
-    manifest = json.loads(Path(a.manifest).read_text())
+    layouts = [lay for m in a.manifest for lay in json.loads(Path(m).read_text())["layouts"]]
     levels = json.loads(Path(a.levels).read_text())
-    eps, missing = episodes(manifest, a.eval_root, a.run_id)
-    j = judge(eps, levels)
+    eps, missing = episodes(layouts, a.eval_root, a.run_id)
+    prev = json.loads(Path(a.prev_anchors).read_text()) if a.prev_anchors else None
+    j = judge(eps, levels, prev)
     out, r = Path(a.out), a.round
     full = {"round": r, "model": a.model, "episodes": len(eps), "missing": missing, **j}
     for path, data in (
@@ -142,6 +153,7 @@ def main(argv=None):
         (out / "out" / "exam" / f"results_r{r}" / "episodes.json", eps),
         (out / f"levels_{r}.json", {"round": r, "levels": j["levels"], "capability": levels.get("capability")}),
         (out / "out" / "exam" / f"levels_{r}.json", {"round": r, "levels": j["levels"]}),
+        (out / "rounds" / f"r{r}" / "anchors.json", j["anchors"]),
     ):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n")

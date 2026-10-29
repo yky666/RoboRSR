@@ -18,10 +18,15 @@ def test_assign_balances_lanes_and_keeps_tasks_whole():
 def test_gate_needs_exit_zero_and_every_planned_episode(tmp_path):
     for name, n in (("a", 3), ("b", 2)):
         (tmp_path / name).mkdir()
-        (tmp_path / name / "_result.json").write_text(json.dumps({"eval_time": n}))
+        details = {str(i): {"layout_id": i + 1, "score": 1.0} for i in range(n)}
+        (tmp_path / name / "_result.json").write_text(json.dumps({"eval_time": n, "details": details}))
     results = [
         {"job": "a", "rc": 0, "dir": str(tmp_path / "a"), "planned": 3},
         {"job": "b", "rc": 0, "dir": str(tmp_path / "b"), "planned": 3},
         {"job": "c", "rc": -9, "dir": "", "planned": 1},
+        {"job": "d", "rc": 0, "dir": str(tmp_path / "b"), "planned": 3},
     ]
-    assert rsi_exam_run.gate(results) == ["b", "c"]
+    log = "[PhysX] broken envs=[{0}] -> abandon seeds=[{0}]; refill from queue=[]\n"
+    (tmp_path / "d.log").write_text(log.format(0) + log.format(1))
+    assert rsi_exam_run.gate(results, tmp_path) == ["b", "c"]
+    assert results[3]["unstable"] == [0]  # 1 was abandoned, then scored after a restart

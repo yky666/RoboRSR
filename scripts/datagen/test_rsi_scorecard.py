@@ -38,11 +38,13 @@ def test_retention_levels_and_banding(tmp_path):
     _result(tmp_path, "ex", "b", 5121, [0.05] * 30)
     _result(tmp_path, "ex", "p", 5000, [0.0] * 10)
 
-    eps, missing = rsi_scorecard.episodes({"layouts": layouts}, tmp_path, "ex")
+    _result(tmp_path, "ex_smoke", "a", 5121, [0.0] * 30)  # another run id: ignored
+    eps, missing = rsi_scorecard.episodes(layouts, tmp_path, ["ex"])
     assert missing == [("a", 5131, 0)] and len(eps) == 78
     levels = {"levels": {"place": {"clutter": "L1", "surfaces": "L1"}, "pack": {"clutter": "L1"}}}
     j = rsi_scorecard.judge(eps, levels)
     assert j["capability_gaps"] == ["b"]
+    assert rsi_scorecard.judge(eps, levels, {"b": [20.0] * 8})["capability_gaps"] == []  # pooled anchors 15
     (row,) = j["subjects"]
     assert (row["axis"], row["n"], row["rho"]) == ("clutter", 30, 1.0)
     assert j["moves"] == {"clutter/L1": "L2"}

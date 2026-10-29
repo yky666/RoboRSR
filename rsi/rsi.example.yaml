@@ -49,7 +49,7 @@ budget:                    # per round
 gates:                     # rsi/AGENTS.md section 5.4
   expert_min_acceptance: 0.5   # R0.3: a task's expert on 20 L0 train layouts, else no demos for it
   episodes_per_subject: 30
-  l0_anchor_share: 0.15
+  l0_anchors_per_task: 10   # v0.7: per task in every exam; retention is a ratio of means over them
 
 stop:
   patience: 2              # rounds without a sealed-probe gain beyond its 95% interval
