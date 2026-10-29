@@ -39,9 +39,7 @@ def row(rnd, model, scores=None, sealed=None, audit=None, training=None, prev_ro
             "capability_gaps": scores["capability_gaps"],
         }
     if audit:
-        r["data"] = {
-            k: audit[k] for k in ("accepted", "episodes", "batches", "rejected_batches", "by_task") if k in audit
-        }
+        r["data"] = {k: audit[k] for k in ("accepted", "episodes", "batches", "rejected_batches", "by_task") if k in audit}
     if training:
         r["training"] = training
     best = [p for p in prev_rows if "sealed" in p]
@@ -57,44 +55,25 @@ def read_ledger(path):
     return [json.loads(line) for line in p.read_text().splitlines() if line.strip()] if p.exists() else []
 
 
-def fmt_ci(ci, digits=1):
-    return f"[{ci[0]:.{digits}f}, {ci[1]:.{digits}f}]"
-
-
-def cells(*xs):
-    return "| " + " | ".join(str(x) for x in xs) + " |"
+def fmt_ci(ci):
+    return f"[{ci[0]:.1f}, {ci[1]:.1f}]"
 
 
 def report(rows, start=None, leaderboard=None, final=None):
     out = ["# RSI 运行报告", ""]
-    out += [
-        "## 封存探针（每轮同一组布局，唯一能跨轮比较的成绩）",
-        "",
-        "| 轮 | 模型 | Score | 95% 区间 | 退步 |",
-        "| :-- | :-- | --: | :-- | :-- |",
-    ]
+    out += ["## 封存探针（每轮同一组布局，唯一能跨轮比较的成绩）", "", "| 轮 | 模型 | Score | 95% 区间 | 退步 |", "| :-- | :-- | --: | :-- | :-- |"]
     for r in rows:
         if "sealed" in r:
             s = r["sealed"]
-            out.append(
-                cells(
-                    r["round"], r["model"], f"{s['score']:.1f}", fmt_ci(s["ci95"]), "是" if r.get("regressed") else ""
-                )
-            )
+            out.append(f"| {r['round']} | {r['model']} | {s['score']:.1f} | {fmt_ci(s['ci95'])} | {'是' if r.get('regressed') else ''} |")
     out += ["", "## 每轮考试（考卷每轮都变，只看本轮的保留率和级别变化）", ""]
     for r in rows:
         if "exam" not in r:
             continue
         e = r["exam"]
-        out += [
-            f"### 第 {r['round']} 轮（{r['model']}，{e['episodes']} 回合）",
-            "",
-            "| 维度 | 级别 | n | Score | ρ | ρ 区间 |",
-            "| :-- | :-- | --: | --: | --: | :-- |",
-        ]
+        out += [f"### 第 {r['round']} 轮（{r['model']}，{e['episodes']} 回合）", "", "| 维度 | 级别 | n | Score | ρ | ρ 区间 |", "| :-- | :-- | --: | --: | --: | :-- |"]
         for s in e["subjects"]:
-            rho = f"{s['rho']:.2f}"
-            out.append(cells(s["axis"], s["level"], s["n"], f"{s['score']:.1f}", rho, fmt_ci(s["rho_ci95"], 2)))
+            out.append(f"| {s['axis']} | {s['level']} | {s['n']} | {s['score']:.1f} | {s['rho']:.2f} | [{s['rho_ci95'][0]:.2f}, {s['rho_ci95'][1]:.2f}] |")
         cap = ", ".join(f"{t} {c['score']:.1f}（n={c['n']}）" for t, c in e["capability"].items())
         out += ["", f"- 级别变化：{e['moves'] or '无'}", f"- 能力缺口：{cap or '无'}", ""]
     out += ["## 每轮数据", "", "| 轮 | 通过审计 | 回合数 | 作废批次 | 训练 |", "| :-- | :-- | --: | :-- | :-- |"]
@@ -102,9 +81,7 @@ def report(rows, start=None, leaderboard=None, final=None):
         if "data" in r or "training" in r:
             d, t = r.get("data", {}), r.get("training", {})
             train = ", ".join(f"{k}={v}" for k, v in t.items() if k in ("steps", "hours", "init", "episodes_total"))
-            out.append(
-                cells(r["round"], d.get("accepted", ""), d.get("episodes", ""), d.get("rejected_batches", ""), train)
-            )
+            out.append(f"| {r['round']} | {d.get('accepted', '')} | {d.get('episodes', '')} | {d.get('rejected_batches', '')} | {train} |")
     if start or final:
         out += ["", "## 原 RoboDojo 评测（官方评测集 0，20 个任务 × 布局 0–9）", ""]
         tasks = sorted((start or final)["tasks"])
@@ -117,11 +94,7 @@ def report(rows, start=None, leaderboard=None, final=None):
             if final:
                 line += f" {final['tasks'][t]['score']:.1f} |"
             out.append(line)
-        means = {
-            name: sum(d["tasks"][t]["score"] for t in tasks) / len(tasks)
-            for name, d in (("起始", start), ("终评", final))
-            if d
-        }
+        means = {name: sum(d["tasks"][t]["score"] for t in tasks) / len(tasks) for name, d in (("起始", start), ("终评", final)) if d}
         out += ["", "- 平均：" + "，".join(f"{k} {v:.2f}" for k, v in means.items())]
     return "\n".join(out) + "\n"
 

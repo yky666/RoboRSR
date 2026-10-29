@@ -15,10 +15,10 @@ training:                  # fixed recipe from round 0 on; the data agent never 
   init: previous           # previous: M_r continues from M_{r-1} | base: every round from the starting checkpoint
   data: cumulative         # official + every audited generated batch so far, mixed by `mix`
   steps_per_round: null    # fixed at round 0
-  host: dsw-4
+  host: dsw-6              # 8x H20; shares the ossfs /mnt/data with dsw-4
   gpus: [0, 1, 2, 3, 4, 5, 6, 7]
   hours_per_round: 24
-  data_root: /mnt/data/<user>/rsi     # the root disk of dsw-4 is full
+  data_root: /mnt/data/<user>/rsi     # ossfs, visible from dsw-4 and dsw-6
   mix: {official: 0.5, generated: 0.5}  # share of each training batch
   command: "bash XPolicyLab/policy/{policy}/train.sh RoboDojo {dataset} arx_x5 {action_type} 0 {gpus}"
 
