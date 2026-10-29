@@ -85,6 +85,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .gbar .me-name b { font-weight: 500; }
 .gbar .me .btn-icon { width: 32px; min-height: 32px; color: var(--muted); }
 .gbar .me .btn-icon:hover { color: var(--text); }
+.gbar .me .btn-icon[aria-current="page"] { background: var(--surface-2); color: var(--text); }
 .side { position: sticky; top: var(--gbar); z-index: 5; display: flex; align-items: center; gap: 24px; min-height: var(--sub); padding: 0 max(40px, calc((100% - 1440px) / 2)); background: var(--bg); border-bottom: 1px solid var(--border); }
 .app.no-sub .side { display: none; }
 .side .nav-item[aria-current="page"] { background: var(--surface); box-shadow: inset 0 0 0 1px var(--border); }
@@ -1105,10 +1106,11 @@ function gallery(key, paths = [], limit = 24) {
 
 // ---------- navigation ----------
 function renderNav() {
-  const ds = UI.tab === 'datasets';
-  $('.app').classList.toggle('no-sub', ds);
-  document.title = `BanzhiFlywheel · ${ds ? '数据集' : '仿真平台'}`;
-  $('#products').innerHTML = [['overview', '仿真平台', !ds], ['datasets', '数据集', ds]].map(([tab, label, on]) =>
+  // datasets and accounts sit above the simulation platform: they leave its sub-navigation out
+  const ds = UI.tab === 'datasets', top = ds || UI.tab === 'users';
+  $('.app').classList.toggle('no-sub', top);
+  document.title = `BanzhiFlywheel · ${ds ? '数据集' : top ? '成员管理' : '仿真平台'}`;
+  $('#products').innerHTML = [['overview', '仿真平台', !top], ['datasets', '数据集', ds]].map(([tab, label, on]) =>
     `<a class="product" href="#${tab}" ${on ? 'aria-current="page"' : ''}>${label}</a>`).join('');
   const pending = live(S.episode).filter((e) => !e.qa || e.qa === 'pending').length;
   const items = [
@@ -1120,7 +1122,6 @@ function renderNav() {
     ['tasks', '任务采集', 'list', live(S.task).filter((t) => t.auto.dimension === 'custom').length],
     ['qa', '数据质检', 'clipboard', pending],
     ['evals', '模型评测', 'compare', live(S.evaluation).filter((d) => !['done', 'failed', 'cancelled'].includes(d.status)).length],
-    ...(ME?.admin ? [['users', '成员管理', 'users', USERS.length]] : []),
   ];
   $('#nav').innerHTML = items.map(([tab, label, icon, n]) => `<a class="nav-item" href="#${tab}" ${UI.tab === tab ? 'aria-current="page"' : ''}>${ic(icon, 'ic-lg')}<span>${label}</span>${
     tab === 'qa' ? (n ? `<span class="badge" title="待审回合">${n}</span>` : '')
@@ -1135,6 +1136,7 @@ function renderNav() {
   $('#me').title = ME ? `${ME.name}（${ME.username}）` : '';
   $('#me').innerHTML = ME ? `${ME.guest ? `<span class="tag guest-tag" title="访客账号只能查看，不能修改">${ic('eye', 'ic-sm')}访客 · 只读</span>` : ''}<span class="avatar" aria-hidden="true">${esc([...ME.name][0] || '?')}</span>
     <span class="me-name"><b>${esc(ME.name)}</b><small>${esc(ME.username)}</small></span><span class="sp"></span>
+    ${ME.admin ? `<a class="btn btn-icon btn-ghost" href="#users" aria-label="成员管理" title="成员管理 · ${USERS.length} 个账号" ${UI.tab === 'users' ? 'aria-current="page"' : ''}>${ic('users')}</a>` : ''}
     <button class="btn btn-icon btn-ghost" type="button" data-open="account" aria-label="修改密码" title="修改密码">${ic('key')}</button>
     <button class="btn btn-icon btn-ghost" type="button" onclick="logout()" aria-label="退出登录" title="退出登录">${ic('logout')}</button>` : '';
 }
@@ -3397,7 +3399,7 @@ function viewUsers() {
         <button class="btn btn-icon" type="button" aria-label="删除 ${who}" title="删除账号" ${self ? 'disabled' : ''}
         onclick="deleteUser(this.closest('tr').dataset.user)">${ic('trash')}</button></td></tr>`;
   }).join('');
-  return `<div class="page">${pageHead('成员管理', `${USERS.length} 个账号 · 每人用自己的账号登录，录入和质检结论按显示名署名；改名或删号不会改动已有记录上的署名`)}
+  return `<div class="page">${pageHead('成员管理', `${USERS.length} 个账号，仿真平台和数据集通用 · 每人用自己的账号登录，录入和质检结论按显示名署名；改名或删号不会改动已有记录上的署名`)}
   ${cred}<div class="grid users">
     <div class="table-wrap"><table><thead><tr><th>账号</th><th>显示名</th><th>角色</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table></div>
     <section class="card"><div class="card-h"><h2>新建账号</h2></div><div class="card-b">
