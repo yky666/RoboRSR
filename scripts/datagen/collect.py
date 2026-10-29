@@ -87,9 +87,10 @@ def state_keys(env):
     return [rm.process_name(name) for r in robots for name in (r.arm_name, r.gripper_name)]
 
 
-def write_trajectory(path, instruction, info, states, actions, images, privileged):
+def write_trajectory(path, instruction, info, states, actions, images, privileged, vision=None):
     """XPolicyLab trajectory layout (README "Trajectory Data Format"): state/ and action/ as <key>s (T, D) float32,
-    vision/<camera>/colors as encode_image_bit JPEGs in a fixed-width byte column; privileged/ is ours (audit only)."""
+    vision/<camera>/colors as encode_image_bit JPEGs in a fixed-width byte column, `vision` {path under vision/:
+    array} for the camera matrices; privileged/ is ours (audit only)."""
     import h5py
 
     tmp = path.with_suffix(".tmp")
@@ -105,6 +106,8 @@ def write_trajectory(path, instruction, info, states, actions, images, privilege
                 f[f"action/{key}s"] = np.asarray(rows, dtype=np.float32)
             for camera, frames in images.items():
                 f[f"vision/{camera}/colors"] = np.asarray(frames, dtype=f"S{max(map(len, frames))}")
+            for key, value in (vision or {}).items():
+                f[f"vision/{key}"] = np.asarray(value)
             for key, value in privileged.items():
                 value = np.asarray(value)
                 f.create_dataset(f"privileged/{key}", data=value, compression="gzip" if value.ndim else None)
@@ -153,24 +156,53 @@ def record_episode(env, plugin, output, cfg):
     keys = state_keys(env)
     rm = env.robot_manager
     joints = {rm.process_name(r.arm_name): list(r.arm_joints_name) for r in rm.robot_list if r.type == "target"}
-    states, actions = {k: [] for k in keys}, {k: [] for k in keys}
+    # ACTIONS = "next_state" (the official RoboDojo X5 data): every state key, and each action is the state the
+    # command led to; otherwise the commanded joint and gripper actions
+    hindsight = getattr(plugin, "ACTIONS", "commanded") == "next_state"
+    recorded = list(obs["state"]) if hindsight else keys
+    states, actions = {k: [] for k in recorded}, {k: [] for k in keys}
     images = {camera: [] for camera in CAMERAS}
-    stable, last = 0, None
+    extrinsics = {camera: [] for camera in CAMERAS if "extrinsic_matrix" in obs["vision"][camera]}
+    vision = {
+        f"{camera}/{name}": np.asarray(obs["vision"][camera][name])
+        for camera in CAMERAS
+        for name in ("intrinsic_matrix", "shape")
+        if name in obs["vision"][camera]
+    }
+    stable, last, frames = 0, None, 0
     for action in itertools.chain(episode.actions(), itertools.repeat(None, plugin.TAIL)):
         if action is None and last is None:
-            raise RuntimeError("Expert produced no actions")
+            if env.success[0]:
+                raise RuntimeError("Expert produced no actions")
+            break  # the expert gave up before its first action (it says why in its summary)
         action = last = action if action is not None else last
-        for key in keys:
+        for key in recorded:
             states[key].append(np.asarray(obs["state"][key], dtype=np.float32).reshape(-1))
-            actions[key].append(np.asarray(action[key], dtype=np.float32).reshape(-1))
+        if not hindsight:
+            for key in keys:
+                actions[key].append(np.asarray(action[key], dtype=np.float32).reshape(-1))
         for camera in CAMERAS:
             images[camera].append(encode_image_bit(np.asarray(obs["vision"][camera]["color"], dtype=np.uint8)))
+        for camera, rows in extrinsics.items():
+            rows.append(np.asarray(obs["vision"][camera]["extrinsic_matrix"], dtype=np.float64))
         env.take_action(action)
         obs = env.get_obs()
         stable = stable + 1 if episode.step() else 0
         frames = len(states[keys[0]])
         if stable >= plugin.HOLD or not env.success[0] or frames >= env.step_lim:
             break
+    if not frames:
+        quality.update(accepted=False, frames=0, **episode.summary())
+        sidecar.write_text(json.dumps(quality, indent=2) + "\n")
+        env.success[0], env.end_flag[0] = False, True
+        print(f"[datagen] {path.name}: accepted=False frames=0", flush=True)
+        return
+    if hindsight:
+        last_state = {k: np.asarray(obs["state"][k], dtype=np.float32).reshape(-1) for k in states}
+        actions = {k: rows[1:] + [last_state[k]] for k, rows in states.items()}
+        for key in [k for k in states if k.endswith("_ee_pose")]:  # the official files carry it, equal to ee_pose
+            states[key.replace("_ee_pose", "_delta_ee_pose")] = list(states[key])
+    vision |= {f"{camera}/extrinsic_matrix": rows for camera, rows in extrinsics.items()}
     if not all(np.isfinite(np.concatenate(rows)).all() for rows in (*states.values(), *actions.values())):
         raise ValueError("Non-finite state or action")
     accepted = stable >= plugin.HOLD and bool(env.success[0])
@@ -185,7 +217,7 @@ def record_episode(env, plugin, output, cfg):
         **episode.summary(),
     )
     info = dict(frequency=cfg["fps"], env_cfg=cfg["env_cfg"], physics_dt=env.dt, layout=layout_file.name)
-    write_trajectory(path, instruction, info, states, actions, images, episode.privileged())
+    write_trajectory(path, instruction, info, states, actions, images, episode.privileged(), vision)
     sidecar.write_text(json.dumps(quality, indent=2) + "\n")
     env.success[0], env.end_flag[0] = accepted, True
     print(f"[datagen] {path.name}: accepted={accepted} frames={frames} stable={stable}", flush=True)

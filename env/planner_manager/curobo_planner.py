@@ -31,6 +31,7 @@ class CuroboPlanner:
         dt=None,
         yml_path=None,
         table_height=0.74,
+        device=None,
     ):
         if yml_path is not None:
             self.yml_path = yml_path
@@ -67,7 +68,8 @@ class CuroboPlanner:
                 )
             self._active_to_cspace_idx.append(self.cspace_joint_names.index(joint_name))
 
-        self.device_cfg = DeviceCfg()
+        # the sim's GPU: cuRobo's default cuda:0 is another GPU when the sim runs on --device cuda:N
+        self.device_cfg = DeviceCfg(torch.device(device)) if device else DeviceCfg()
 
         self.use_cuda_graph = True
 

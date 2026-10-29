@@ -614,6 +614,20 @@ class RobotManager:
         ensure_usd_path(scene_cfg)
         return scene_cfg
 
+    @staticmethod
+    def _physics_gpu():
+        """The GPU PhysX runs on ("cuda:N" from AppLauncher --device), made torch's current device so cuRobo's CUDA
+        graphs land there too; None (cuRobo's cuda:0) outside Kit."""
+        try:
+            import carb
+        except ImportError:
+            return None
+        gpu = carb.settings.get_settings().get("/physics/cudaDevice")
+        if not isinstance(gpu, int) or gpu < 0 or not torch.cuda.is_available():
+            return None
+        torch.cuda.set_device(gpu)
+        return f"cuda:{gpu}"
+
     def _setup_planner(self, robot):
         if robot.robot_type == "arm":
             root_pose = deepcopy(robot.entity_origin_pose)
@@ -624,6 +638,7 @@ class RobotManager:
                 dt=self.dt,
                 yml_path=robot.curobo_yml_path,
                 table_height=0.74 - root_pose[2],
+                device=self._physics_gpu(),
             )
             self.ik_solver[robot.robot_name] = self.planner[robot.robot_name]
 
