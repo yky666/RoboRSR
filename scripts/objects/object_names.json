@@ -227,5 +227,21 @@
     "Rigid/red_bean/00000": {
         "en": ["bean", "red bean", "adzuki bean", "dark red adzuki bean", "glossy dark red adzuki bean with a white stripe along one side"],
         "zh": ["豆子", "红豆", "赤小豆", "深红色赤小豆", "侧面带一道白线的亮面深红色赤小豆"]
+    },
+    "Rigid/paper_knife/00000": {
+        "en": ["knife", "paper knife", "plastic paper knife", "plastic paper knife with metal guide", "plastic paper knife with ribbed slider and yellow tail rim"],
+        "zh": ["刀具", "裁纸刀", "塑料裁纸刀", "带金属导轨的塑料裁纸刀", "带条纹滑块和黄色挂孔边框的塑料裁纸刀"]
+    },
+    "Rigid/paper_knife/00001": {
+        "en": ["knife", "paper knife", "plastic paper knife", "plastic paper knife with metal guide", "plastic paper knife with ribbed slider and ivory tail rim"],
+        "zh": ["刀具", "裁纸刀", "塑料裁纸刀", "带金属导轨的塑料裁纸刀", "带条纹滑块和象牙色挂孔边框的塑料裁纸刀"]
+    },
+    "Rigid/paper_knife/00002": {
+        "en": ["knife", "paper knife", "plastic paper knife", "plastic paper knife with metal guide", "plastic paper knife with ribbed slider and orange tail rim"],
+        "zh": ["刀具", "裁纸刀", "塑料裁纸刀", "带金属导轨的塑料裁纸刀", "带条纹滑块和橙色挂孔边框的塑料裁纸刀"]
+    },
+    "Rigid/paper_knife/00003": {
+        "en": ["knife", "paper knife", "plastic paper knife", "plastic paper knife with metal guide", "plastic paper knife with ribbed slider and light gray tail rim"],
+        "zh": ["刀具", "裁纸刀", "塑料裁纸刀", "带金属导轨的塑料裁纸刀", "带条纹滑块和浅灰色挂孔边框的塑料裁纸刀"]
     }
 }
