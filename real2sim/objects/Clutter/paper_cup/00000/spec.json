@@ -1,0 +1,32 @@
+{
+  "id": "Clutter/paper_cup/00000",
+  "twin": true,
+  "asset_origin": "physical_object",
+  "name": "纸杯",
+  "name_en": "paper cup",
+  "material": "纸",
+  "color": "杯壁黑色，杯口和内壁白色",
+  "mass_g": 22,
+  "dimensions_mm": "开口外径87.9mm，底部直径60.5mm，高度136.0mm",
+  "features": "杯底有一个阶梯形状",
+  "requirements": "如果仿真环境支持，做成可以形变的材质，和真正的纸杯一样",
+  "generalization": {
+    "count": 6,
+    "color": true,
+    "material": true,
+    "size": true,
+    "shape": true
+  },
+  "updated_by": "徐鹤鸣",
+  "updated_at": "2026-10-29 13:46:11",
+  "reference_source": "实物",
+  "mass_policy": "measured",
+  "dimension_policy": "measured",
+  "physics_requirements": "如果建模为可以形变的材质，进行形变测试",
+  "modeling_confirmation": {
+    "version": "real-object-v3",
+    "revision": "6652764823520d7222baa4ab76a73ff3b4ae9eed0cc84db2292edfbe45666a3b",
+    "by": "徐鹤鸣",
+    "at": 1793252771.6532102
+  }
+}

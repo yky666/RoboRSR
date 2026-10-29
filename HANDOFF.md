@@ -22,6 +22,7 @@
   - 学校的纸杯 `paper_cup/0000{0,1}`、纸盘 `paper_plate/0000{0,1,2}` 是孪生的拟合几何，没在平台登记，没有实测，未装共享库。平台上能看到它们（10-20 部署，见下面「数采平台」）。
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
   - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。
+  - 黑色纸杯 `Clutter/paper_cup/00000` 和 6 个泛化变体：按平台登记建的刚体孪生，未装共享库；登记要求的可形变版本另在分支 `z/platform-deformable-objects` 做（见「最近任务」）。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
@@ -38,6 +39,12 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 黑色纸杯 `Clutter/paper_cup/00000`（2026-10-29，分支 `z/objects-paper-cup`）
+
+- 平台建模任务（徐鹤鸣 10-29 登记）：单层纸杯，外壁黑色、杯口和内壁白色，22 g，开口外径 87.9、底部直径 60.5、高度 136.0 mm，杯底有台阶；要求「如果仿真环境支持，做成可以形变的材质」，并做形变测试。本分支是刚体孪生；可形变版本（IsaacLab 官方 `DeformableObject`，PhysX FEM 体积软体）和平台新增的 `deformable` 物体类型另在分支 `z/platform-deformable-objects` 做。
+- 新脚本 `scripts/objects/make_paper_cup.py` 生成 00000 和 6 个泛化变体 00001–00006（`variant_of` 00000）；杯型放在只依赖 numpy 的 `scripts/objects/paper_cup_shape.py`（`paper_cup_profile(params)` 返回各关键高度和内外半径函数），形变版本可以直接导入、不用启动 Isaac Sim。直锥杯壁、3.4 mm 白色卷边（圆环）、杯底内凹 10 mm、裙边底部向内折，杯底和杯壁交界有一圈略深的斜面（俯视照片里看到的「台阶」），一条竖向接缝（外侧 0.8 mm 凸条、内侧细线）。外壁哑光黑、内壁卷边和杯底米白，对照照片测过颜色。碰撞体 81 块凸包（落地的裙边环、内凹高度的底板、杯壁和卷边分片），顶部不封，脚本检查没有凸包进入杯腔。除三项实测外都是照片估计。没有实测摩擦，不写摩擦键。UUID 种子用 `robodojo/clutter/paper_cup/<n>`，和 `make_school_tableware.py` 的旧 `Rigid/paper_cup` 不冲突。
+- 验证：`measurements_mm` 三项误差 0；`check_object.py --image-dir` 七件 OK（倾角 0°），`sim.png`、`check.json` 已同步到部署机；和照片的对比图看过，外形、卷边、接缝和颜色一致。生成结果在 5090-2 `/data/robodojo-runs/paper_cup-20261029-135314/ovl/Clutter/paper_cup/`，未装共享库。
 
 ### 自建孪生从 `Object/RoboDojo` 搬到独立的 `Object/Real2Sim` 物体库（2026-10-28，`chongzheng/platform-variant-twins`）
 
