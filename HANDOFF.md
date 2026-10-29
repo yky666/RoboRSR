@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-29
-本会话分支：`chongzheng/objects-instruction-names`（worktree `../RoboDojo-object-names`，基于 `origin/main@492473b`）：物体指令名称和建模 prompt v3（「最近任务」第一节）。上一会话：`chongzheng/platform-banzhi-flywheel`（worktree `../RoboDojo-banzhi-flywheel`）：数采平台改名 BanzhiFlywheel，分「仿真平台 / 数据集」两个板块，加公开数据集目录和日间 / 夜间主题（「最近任务」第一节，连同第二节的黑白改版）。2026-10-29 rebase 到 `806f4e6` 后快进推 `main`（`65abd16` 为代码，其后一个提交只改本文件），00:05 部署到 `5090-2`。之前：`chongzheng/merge-open-prs-1028b` 把 #36、#38–#43 合进 `main` 并部署。下行保留主线历史。
+本会话分支：`chongzheng/scene-office-layout`（worktree `../RoboDojo-office-layout`，基于 `origin/main@d60f1ba`）：办公室场景布局精简（「最近任务」第一节）。上一会话：`chongzheng/objects-instruction-names`（worktree `../RoboDojo-object-names`）：物体指令名称和建模 prompt v3（「最近任务」第二节）。再上一会话：`chongzheng/platform-banzhi-flywheel`（worktree `../RoboDojo-banzhi-flywheel`）：数采平台改名 BanzhiFlywheel，分「仿真平台 / 数据集」两个板块，加公开数据集目录和日间 / 夜间主题（「最近任务」第一节，连同第二节的黑白改版）。2026-10-29 rebase 到 `806f4e6` 后快进推 `main`（`65abd16` 为代码，其后一个提交只改本文件），00:05 部署到 `5090-2`。之前：`chongzheng/merge-open-prs-1028b` 把 #36、#38–#43 合进 `main` 并部署。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -39,6 +39,13 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 办公室场景布局精简（2026-10-29 13:xx，`chongzheng/scene-office-layout`，未进 `main`、未部署、未装共享库）
+
+- **用户要求**（看平台 3D 预览的俯视图）：不要窗外背景；东侧那张橙色办公桌（俯视图上方）靠墙；西南角两张桌子只留一张。
+- **改动**（`real2sim/scenes/real_scene1_office/build_scene.py`）：删掉北窗、东窗外两块视频帧贴图背景板（`Exterior/*`、`exterior` 材质、`window_exterior.png`，也去掉了只给它用的 `no_shadow`），窗洞里现在是 `AmbientDome` 的颜色；`DeskEast` 整体 +0.84 m 贴东墙（x 1.43–2.99，离墙 1 cm，窗台在桌面上方，不冲突），桌上筐、墙角皮椅、女同事椅跟着平移；删掉粗摆的 `DeskWest2`，留下挨着西侧 a 椅的 `DeskWest`。任务桌、桌面物体、机器人站位都没动。依据写在 `LAYOUT` 的 `src` 和 `PLAN.md` 对照表「布局精简」一行；这两处从此和照片对不上。
+- **验证**（只在本机）：`build_scene.py` 重建（`usd/objects` 只有面序变化，已还原）；`check_scene.py` 31/31，任务桌到最近背景碰撞体从 5.5 cm 变成 47.6 cm；`scene_parts.py`（`parts.json` 不变）、`make_manifest.py`；`export_glb.py` 生成 `preview/scene.glb`，用平台同款 three.js 渲染俯视、斜视、头部视角和旧版对比，GLB 里已没有 `Exterior`、`DeskWest2`；`bash scripts/check.sh`（uv 临时环境）87 passed、1 skipped。没跑 Isaac RTX，也没跑任务。
+- **还没做**：合进 `main`、部署机同步 `preview/scene.glb`（平台卡片封面 `preview/render/sim.jpg` 要在 `5090-2` 上用 `render_scenes.py` 重渲）、装进共享库 `Room/real_scene1/`（要用户同意；`g1d`、`g1d_mobile`、`g1d_aurora_lite_ws` 都用这个房间，装库后新采的办公室数据背景会和已发布的两份 100 条数据不同）。装库前在隔离目录跑 `build_asset.py` 和 `g1d` seed 0 的脚本专家，看一眼头部相机画面（窗外从照片变成纯色）。
 
 ### 物体指令名称 + 建模 prompt v3（2026-10-29，`chongzheng/objects-instruction-names`）
 

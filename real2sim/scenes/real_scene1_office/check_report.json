@@ -89,8 +89,7 @@
     "assets": [
      "cabinet_wood.png",
      "carpet_tile.png",
-     "leather.png",
-     "window_exterior.png"
+     "leather.png"
     ],
     "unresolved": []
    }
@@ -106,8 +105,8 @@
    "name": "mesh validity (finite points, triangle indices, normals count, no degenerate faces)",
    "ok": true,
    "detail": {
-    "meshes": 208,
-    "triangles": 57762,
+    "meshes": 200,
+    "triangles": 57686,
     "bad": []
    }
   },
@@ -217,10 +216,10 @@
    "ok": true,
    "detail": {
     "pairs": [],
-    "min_clearance_m": 0.055,
+    "min_clearance_m": 0.476,
     "nearest": [
      "/World/Table/Colliders/top",
-     "/World/Background/Colliders/DeskEast_top"
+     "/World/Background/Colliders/Chair_west_b"
     ]
    }
   },

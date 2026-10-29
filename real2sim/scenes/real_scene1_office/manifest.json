@@ -178,9 +178,8 @@
    "pedestal": "white drawer pedestal, drawer face toward -X: face x=2.03, y -1.87..-1.49 back-projected in p1 and v0340; top z 0.59 (v0340); depth est.",
    "sofa": "foot + arm back-projection in v0160, leather point extents",
    "plant": "foliage point centroid + rim triangulation",
-   "desk_east": "front corners triangulated (0.60,0.33,0.77)/(0.59,-0.52); back edge v0300/v0340 at z=0.75",
-   "desk_west": "legs back-projected (-1.23..-1.34, -0.26..-0.44); near corner (-1.16,-0.32) at z=0.75",
-   "desk_west2": "orange points near x=-2.4; coarse",
+   "desk_east": "front corners triangulated (0.60,0.33,0.77)/(0.59,-0.52); back edge v0300/v0340 at z=0.75. Moved +0.84 m against the E wall on request (2026-10-29); the basket and the corner and woman chairs moved with it",
+   "desk_west": "legs back-projected (-1.23..-1.34, -0.26..-0.44); near corner (-1.16,-0.32) at z=0.75. The coarse second desk at x -2.62..-2.02 was dropped on request (2026-10-29)",
    "chairs": "first build: star-base centers back-projected to the floor (v0040/v0160/v0480). Rework: corner hub triangulated in v0300+p1 (residual 4 mm), facing the v0260/v0300 cameras; door, woman and west_b hubs back-projected at z=0.1 in two or three views each (v0160/v0100, v0300/p1, v0100/v0480/v0040); west_a kept (its back top triangulates to (-1.07,-0.81) in v0480+p0, as the first build). task: mesh-back chair with T arms and a black base (v0040, v0100, v0160, v0480); exec: the padded high-back chair with chrome arms and base by the plant (v0260, v0300, p4)"
   }
  },
@@ -195,12 +194,12 @@
  },
  "files": {
   "usd/background.usda": {
-   "bytes": 6134745,
-   "sha256": "99246ee722b6ece9068de119be8e116358fc6c7d82869a773e2a348be2d9d3d3"
+   "bytes": 6123623,
+   "sha256": "ee22266e0dc033342d48b41934b628357ca009efc5daf0f77de88a4fbfc0ba85"
   },
   "usd/build_params.json": {
-   "bytes": 6992,
-   "sha256": "98715048d3318258bcc5bc780c71f6e17352b081887d5dc71d697a4bbac2dacb"
+   "bytes": 7039,
+   "sha256": "4c1ffd890ec3d704e14da06079652468286c2b98f8e6f56e0a06c0f0bbd4fc08"
   },
   "usd/lights.usda": {
    "bytes": 1871,
@@ -249,10 +248,6 @@
   "usd/textures/leather.png": {
    "bytes": 193296,
    "sha256": "343665fe1c3f034135b56004e097ac2b6dad34a1378fd5618bea2fb8635bd82b"
-  },
-  "usd/textures/window_exterior.png": {
-   "bytes": 422015,
-   "sha256": "6d8cd5a5dd81d84f52986c8fb5348ea759fddbc42fcb7e181a613b5c1fa3a450"
   }
  }
 }

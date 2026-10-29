@@ -78,12 +78,14 @@ LAYOUT = dict(
     sofa=dict(x0=-1.66, x1=0.62, y0=1.10, y1=1.95, seat_z=0.44, back_z=0.81, arm_z=0.62,
               src="foot + arm back-projection in v0160, leather point extents"),
     plant=dict(x=0.93, y=1.45, pot_r=0.19, pot_h=0.75, top=1.45, src="foliage point centroid + rim triangulation"),
-    desk_east=dict(x0=0.59, x1=2.15, y0=-0.55, y1=0.33, top=0.76,
-                   src="front corners triangulated (0.60,0.33,0.77)/(0.59,-0.52); back edge v0300/v0340 at z=0.75"),
-    desk_west=dict(x0=-1.95, x1=-1.22, y0=-2.10, y1=-0.30, top=0.75, src="legs back-projected (-1.23..-1.34, -0.26..-0.44); near corner (-1.16,-0.32) at z=0.75"),
-    desk_west2=dict(x0=-2.62, x1=-2.02, y0=-2.10, y1=-0.40, top=0.75, src="orange points near x=-2.4; coarse"),
+    desk_east=dict(x0=1.43, x1=2.99, y0=-0.55, y1=0.33, top=0.76,
+                   src="front corners triangulated (0.60,0.33,0.77)/(0.59,-0.52); back edge v0300/v0340 at z=0.75. "
+                       "Moved +0.84 m against the E wall on request (2026-10-29); the basket and the corner and "
+                       "woman chairs moved with it"),
+    desk_west=dict(x0=-1.95, x1=-1.22, y0=-2.10, y1=-0.30, top=0.75, src="legs back-projected (-1.23..-1.34, -0.26..-0.44); near corner (-1.16,-0.32) at z=0.75. "
+                   "The coarse second desk at x -2.62..-2.02 was dropped on request (2026-10-29)"),
     chairs=dict(west_a=(-1.45, -0.84, 90, "task"), west_b=(-1.50, 0.01, -135, "task"), door=(-2.15, 1.64, -150, "task"),
-                corner=(1.25, 0.84, 124, "exec"), woman=(1.23, -0.94, 0, "task"),
+                corner=(2.09, 0.84, 124, "exec"), woman=(2.07, -0.94, 0, "task"),
                 src="first build: star-base centers back-projected to the floor (v0040/v0160/v0480). Rework: corner hub "
                     "triangulated in v0300+p1 (residual 4 mm), facing the v0260/v0300 cameras; door, woman and west_b "
                     "hubs back-projected at z=0.1 in two or three views each (v0160/v0100, v0300/p1, v0100/v0480/v0040); "
@@ -132,7 +134,6 @@ MATERIALS = {
     "spandrel": (lin((62, 61, 62)), 0.5, 0.0, 1.0),  # v0160/v0260
     "column_clad": (lin((209, 200, 185)), 0.6, 0.0, 1.0),  # NE corner column, v0260
     "mullion": ((0.06, 0.06, 0.065), 0.4, 0.3, 1.0),
-    "exterior": ((1.0, 1.0, 1.0), 1.0, 0.0, 1.0),
     "leather": (lin(LEATHER_SRGB), 0.3, 0.0, 1.0),  # diffuse from textures/leather.png
     "leather_dark": (lin((96, 52, 34)), 0.4, 0.0, 1.0),  # buttons and piping, the shaded seams of v0160
     "pot_white": (lin((222, 220, 214)), 0.22, 0.0, 1.0),  # glazed pot
@@ -156,8 +157,7 @@ MATERIALS = {
     "basket": ((0.80, 0.78, 0.70), 0.7, 0.0, 1.0),
 }
 
-TEXTURED = {"carpet": "carpet_tile.png", "exterior": "window_exterior.png", "cabinet_wood": "cabinet_wood.png",
-            "leather": "leather.png"}
+TEXTURED = {"carpet": "carpet_tile.png", "cabinet_wood": "cabinet_wood.png", "leather": "leather.png"}
 WOOD_TILE_M = 0.6  # cabinet_wood.png covers 0.6 x 0.6 m, grain along v
 
 PHYS = {"default": (0.5, 0.45, 0.0), "table_white": (0.5, 0.45, 0.0), "carpet": (0.8, 0.7, 0.0)}
@@ -299,8 +299,6 @@ class Layer:
             tx.CreateInput("st", Sdf.ValueTypeNames.Float2).ConnectToSource(st.ConnectableAPI(), "result")
             tx.CreateOutput("rgb", Sdf.ValueTypeNames.Float3)
             sh.CreateInput("diffuseColor", Sdf.ValueTypeNames.Color3f).ConnectToSource(tx.ConnectableAPI(), "rgb")
-            if key == "exterior":
-                sh.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).ConnectToSource(tx.ConnectableAPI(), "rgb")
         else:
             sh.CreateInput("diffuseColor", Sdf.ValueTypeNames.Color3f).Set(Gf.Vec3f(*color))
         mat.CreateSurfaceOutput().ConnectToSource(sh.ConnectableAPI(), "surface")
@@ -320,7 +318,7 @@ class Layer:
         self.pmats[tag] = pm
         return pm
 
-    def mesh(self, path, m, mat=None, smooth=False, uv=None, guide=False, no_shadow=False):
+    def mesh(self, path, m, mat=None, smooth=False, uv=None, guide=False):
         m = m.copy()
         if smooth:
             m.merge_vertices()
@@ -344,8 +342,6 @@ class Layer:
             pv = UsdGeom.PrimvarsAPI(um).CreatePrimvar("st", Sdf.ValueTypeNames.TexCoord2fArray,
                                                        UsdGeom.Tokens.faceVarying)
             pv.Set(Vt.Vec2fArray.FromNumpy(st))
-        if no_shadow:
-            UsdGeom.PrimvarsAPI(um).CreatePrimvar("doNotCastShadows", Sdf.ValueTypeNames.Bool).Set(True)
         if guide:
             um.CreatePurposeAttr(UsdGeom.Tokens.guide)
         elif mat:
@@ -404,9 +400,8 @@ def build_textures():
     cv2.imwrite(str(TEX / "cabinet_wood.png"), wood_texture(CABINET_WOOD_SRGB))
     cv2.imwrite(str(TEX / "leather.png"), leather_texture(LEATHER_SRGB))
     src = HERE / "texture_src"
-    if (src / "carpet_tile.png").exists() and (src / "window_exterior.png").exists():
-        for name in ("carpet_tile.png", "window_exterior.png"):
-            shutil.copy(src / name, TEX / name)
+    if (src / "carpet_tile.png").exists():
+        shutil.copy(src / "carpet_tile.png", TEX / "carpet_tile.png")
         return
     sys.path.insert(0, str(OBS / "work"))
     from carpet import rectify
@@ -419,8 +414,6 @@ def build_textures():
     out[:, :blend] = tile[:, :blend] * w + tile[:, -blend:] * (1 - w)
     out = cv2.resize(out, (512, 512))
     cv2.imwrite(str(TEX / "carpet_tile.png"), np.clip(out, 0, 255).astype(np.uint8))
-    ext = cv2.imread(str(HERE / "reference" / "v0160.jpg"))[0:118, 140:1280]
-    cv2.imwrite(str(TEX / "window_exterior.png"), cv2.resize(ext, (1536, 256)))
 
 
 # ----------------------------------------------------------------------------- scene parts
@@ -453,13 +446,9 @@ def add_room(L):
     nw, ne, ew = LAYOUT["north_window"], LAYOUT["ne_block"], LAYOUT["east_window"]
     window_wall(L, "WallN", "x", Y1, X0, nw["x1"], nw["sill_z"], nw["band_top"], H, nw["mullion_pitch"], -1,
                 nw["seams"])
-    L.mesh("Exterior/north", quad([-6.0, Y1 + 2.0, 0], [-6.0, Y1 + 2.0, 4.5], [5.0, Y1 + 2.0, 4.5], [5.0, Y1 + 2.0, 0]),
-           "exterior", uv=lambda fv: np.c_[(fv[:, 0] + 6.0) / 11.0, fv[:, 2] / 4.5], no_shadow=True)
     L.mesh("NECornerBlock", box_xyz(ne["x0"], X1 + 0.12, ne["y0"], Y1 + 0.12, 0.0, H), "column_clad")
     window_wall(L, "WallE", "y", X1, ew["y0"], ew["y1"], ew["sill_z"], ew["band_top"], H, 1.30, -1)
     L.mesh("WallE/solid_south", box_xyz(X1, X1 + 0.12, Y0, ew["y0"], 0.0, H), "wall_light", uv=planar_uv(1.0))
-    L.mesh("Exterior/east", quad([X1 + 2.0, -6.0, 0], [X1 + 2.0, 5.0, 0], [X1 + 2.0, 5.0, 4.5], [X1 + 2.0, -6.0, 4.5]),
-           "exterior", uv=lambda fv: np.c_[(fv[:, 1] + 6.0) / 11.0, fv[:, 2] / 4.5], no_shadow=True)
     tv, cb, sw = LAYOUT["tv"], LAYOUT["cabinets"], LAYOUT["south_wall"]
     bx1, (r0, r1), sk = sw["board_x1"], sw["rail"], sw["skirting"]
     L.mesh("WallS/wall", box_xyz(X0, X1, Y0 - 0.10, Y0, 0.0, H), "wall_light", uv=planar_uv(1.0))
@@ -753,12 +742,10 @@ def add_plant(L, seed=3):
 def add_furniture(L):
     add_sofa(L)
     add_plant(L)
-    de = LAYOUT["desk_east"]
+    de, dw = LAYOUT["desk_east"], LAYOUT["desk_west"]
     add_desk(L, "DeskEast", de["x0"], de["x1"], de["y0"], de["y1"], de["top"])
-    L.mesh("DeskEast/basket", box(0.86, 0.12, de["top"], 0.40, 0.28, 0.12, 8), "basket")
-    for nm in ("desk_west", "desk_west2"):
-        d = LAYOUT[nm]
-        add_desk(L, "DeskWest" if nm == "desk_west" else "DeskWest2", d["x0"], d["x1"], d["y0"], d["y1"], d["top"])
+    L.mesh("DeskEast/basket", box(de["x0"] + 0.27, 0.12, de["top"], 0.40, 0.28, 0.12, 8), "basket")
+    add_desk(L, "DeskWest", dw["x0"], dw["x1"], dw["y0"], dw["y1"], dw["top"])
     for nm, pose in LAYOUT["chairs"].items():
         if nm != "src":
             add_chair(L, f"Chair_{nm}", *pose)
