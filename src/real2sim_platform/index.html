@@ -635,9 +635,9 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .hint { color: var(--muted); font-size: 12px; }
 @media (max-width: 560px) { .form { grid-template-columns: 1fr; } .stage-list li { grid-template-columns: 84px 1fr; } .stage-list .sl-detail { grid-column: 1 / -1; } }
 .code { position: relative; }
-.code pre { margin: 0; padding: 14px 46px 14px 16px; overflow: auto; border-radius: 12px; background: light-dark(#111113, #1C1C20); color: #E2E8F0; font: 12px/1.65 var(--mono); white-space: pre-wrap; word-break: break-all; }
-.code .copy { position: absolute; top: 6px; right: 6px; border-color: rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .06); color: #CBD5E1; }
-.code .copy:hover { background: rgba(255, 255, 255, .14); }
+.code pre { max-height: 360px; margin: 0; padding: 12px 46px 12px 14px; overflow: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); color: var(--text-2); font: 12px/1.65 var(--mono); white-space: pre-wrap; word-break: break-all; }
+.code .copy { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; min-height: 0; border-color: var(--border); background: var(--surface); color: var(--muted); }
+.code .copy:hover { border-color: var(--border-strong); color: var(--text); }
 
 /* QA */
 .qa { display: grid; grid-template-columns: minmax(420px, 5fr) minmax(480px, 6fr); align-items: start; gap: 16px; }
