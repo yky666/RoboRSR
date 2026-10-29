@@ -225,7 +225,7 @@ main { flex: 1; min-width: 0; padding: 36px 40px 72px; }
 /* controls */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; padding: 6px 14px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text); font-weight: 500; white-space: nowrap; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
 .btn:hover { border-color: var(--faint); background: var(--surface-2); text-decoration: none; }
-.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
 .btn-primary { border-color: var(--primary); background: var(--primary); color: var(--on-primary); }
 .btn-primary:hover { border-color: var(--primary-hover); background: var(--primary-hover); }
 .btn-ok { border-color: var(--ok); background: var(--ok); color: var(--on-primary); }
@@ -2677,7 +2677,9 @@ function objDeleteBlocker(d) {
 function objDeleteButton(d) {
   if (!ME?.admin) return '';
   const why = objDeleteBlocker(d);
-  return `<button class="btn" type="button" data-id="${esc(d.id)}" ${why ? `disabled title="${esc(why)}"` : 'onclick="removeObject(this.dataset.id)"'}>${ic('trash')}删除物体</button>`;
+  // a blocked delete still answers a click with its reason: a tooltip alone is easy to miss
+  return why ? `<button class="btn" type="button" aria-disabled="true" title="${esc(why)}" data-why="不能删除：${esc(why)}" onclick="toast(this.dataset.why, true)">${ic('trash')}删除物体</button>`
+    : `<button class="btn" type="button" data-id="${esc(d.id)}" onclick="removeObject(this.dataset.id)">${ic('trash')}删除物体</button>`;
 }
 async function confirmObjectModeling(id) {
   try {
