@@ -579,9 +579,17 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .tag-x { display: inline-grid; place-items: center; margin-left: 4px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; opacity: .6; }
 .tag-x:hover { opacity: 1; }
 .obj-chip img { width: 18px; height: 18px; margin-right: 5px; border-radius: 4px; object-fit: cover; vertical-align: -4px; }
-.v3d { margin-top: 10px; }
-.v3d-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.v3d input[type=range] { width: 100%; }
+/* 3D preview controls: materials, lighting, then the actions */
+.v3d { display: grid; gap: 16px; margin-top: 12px; padding: 14px 16px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.v3d-h { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 10px; font-size: 13px; font-weight: 650; }
+.v3d-h small { color: var(--muted); font-size: 12px; font-weight: 400; }
+.v3d-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 20px; }
+.v3d-slider label { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; color: var(--text-2); font-size: 12px; }
+.v3d-slider output { color: var(--text); font: 600 12px var(--mono); }
+.v3d .v3d-slider input[type=range] { display: block; width: 100%; min-height: 0; margin: 8px 0 0; padding: 0; border: 0; background: none; box-shadow: none; accent-color: var(--text); cursor: pointer; }
+.v3d-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border); }
+.v3d-foot .hint { flex-basis: 100%; margin: 2px 0 0; }
+@media (max-width: 720px) { .v3d-grid { grid-template-columns: 1fr; } }
 .ap-role { padding: 10px 0; border-bottom: 1px solid var(--border); }
 .ap-h { display: flex; gap: 10px; align-items: baseline; margin-bottom: 6px; }
 .ap-h b { white-space: nowrap; }
@@ -1794,17 +1802,17 @@ function apState(d) {
 const LIGHT0 = {k: 1, temp: 6500, az: 34};
 function v3dControls(d) {
   const p = d.auto.parts, ap = apState(d), lift = p?.lift;
-  const slider = (label, path, min, max, step, value, unit) => `<div class="fld"><label>${label} <span class="mono small" id="v3d-${path}">${value}${unit}</span></label>
-    <input type="range" min="${min}" max="${max}" step="${step}" value="${value}" oninput="v3dSet('${path}', +this.value, '${unit}')"></div>`;
-  const roles = p ? Object.entries(SURFACES).map(([k, label]) => `<div class="fld"><label>${label}</label>${picker(`mt-v3d-${k}`, `换${label}材质`)}</div>`).join('') : '';
-  return `<div class="v3d"><div class="wz-grid v3d-grid">${roles}
-      ${lift ? slider('桌高', 'vz', lift.range[0], lift.range[1], 0.01, ap.vz ?? p.top_z, ' m') : ''}
-      ${slider('灯光亮度', 'light.k', 0.2, 2.5, 0.05, ap.light.k, '×')}${slider('色温', 'light.temp', 2700, 9000, 100, ap.light.temp, ' K')}
-      ${slider('主光方向', 'light.az', 0, 360, 5, ap.light.az, '°')}</div>
-    <div class="toolbar" style="margin-top:8px">${p ? `<button class="btn" type="button" onclick="v3dFromFixed()">载入固定设置</button>
-      <button class="btn" type="button" onclick="v3dToFixed()">设为固定设置</button>` : ''}<button class="btn" type="button" onclick="v3dReset()">复原</button>
-      <span class="small muted">${p ? '预览里换的材质和桌高点「设为固定设置」后，到下方「外观与桌高」保存才写进场景。' : '这个场景还没有 usd/parts.json，只能调灯光。'}
-        MDL 材质用缩略图近似；灯光只影响预览，仿真用场景 USD 里的灯。</span></div></div>`;
+  const slider = (label, path, min, max, step, value, unit) => `<div class="v3d-slider"><label for="v3d-in-${path}"><span>${label}</span><output id="v3d-${path}">${value}${unit}</output></label>
+    <input id="v3d-in-${path}" type="range" min="${min}" max="${max}" step="${step}" value="${value}" oninput="v3dSet('${path}', +this.value, '${unit}')"></div>`;
+  const roles = p ? Object.entries(SURFACES).map(([k, label]) => `<div class="fld"><label>${label}</label>${picker(`mt-v3d-${k}`, `搜索${label}材质`)}</div>`).join('') : '';
+  return `<div class="v3d">
+    ${p ? `<div><div class="v3d-h">${ic('layers', 'ic-sm')}材质<small>MDL 材质用缩略图近似</small></div><div class="v3d-grid">${roles}</div></div>` : ''}
+    <div><div class="v3d-h">${ic('sun', 'ic-sm')}灯光${lift ? '与桌高' : ''}<small>灯光只影响预览，仿真用场景 USD 里的灯</small></div><div class="v3d-grid">
+      ${slider('亮度', 'light.k', 0.2, 2.5, 0.05, ap.light.k, '×')}${slider('色温', 'light.temp', 2700, 9000, 100, ap.light.temp, ' K')}
+      ${slider('主光方向', 'light.az', 0, 360, 5, ap.light.az, '°')}${lift ? slider('桌高', 'vz', lift.range[0], lift.range[1], 0.01, ap.vz ?? p.top_z, ' m') : ''}</div></div>
+    <div class="v3d-foot">${p ? `<button class="btn btn-primary" type="button" onclick="v3dToFixed()">${ic('check')}设为固定设置</button>
+      <button class="btn" type="button" onclick="v3dFromFixed()">${ic('download')}载入固定设置</button>` : ''}<button class="btn btn-ghost" type="button" onclick="v3dReset()">${ic('rotate')}复原</button>
+      <p class="hint">${p ? '这里只改预览。点「设为固定设置」后，到下方「外观与桌高」保存才写进场景。' : '这个场景还没有 usd/parts.json，只能调灯光。'}</p></div></div>`;
 }
 function v3dSet(path, value, unit) {
   const [a, b] = path.split('.');
@@ -1912,7 +1920,7 @@ function drawerScene(d) {
   const tie = src ? sec(`${ic('layers')}所属场景`, `<p>${link('scene', src.id, sceneName(src))} 的工况变体，不单独计入孪生场景。</p>`)
     : variants.length ? sec(`${ic('layers')}工况变体 <span class="muted small">${variants.length} 个</span>`, `<div class="ra-list">${variants.map((v) =>
       `<p>${link('scene', v.id, sceneName(v))} <span class="small muted">${esc(v.auto.engine || '')} · ${esc(v.auto.status || '')}</span></p>`).join('')}</div>`) : '';
-  return {...view, body: sceneNameSec(d) + tie + (isBench(d) ? '' : reviewPanel(d, 'scene')) + view.body};
+  return {...view, body: (view.top || '') + sceneNameSec(d) + tie + (isBench(d) ? '' : reviewPanel(d, 'scene')) + view.body};
 }
 function sceneDrawerView(d) {
   if (d.auto.source === 'imported_simulation') return drawerImportedScene(d);
@@ -1939,11 +1947,11 @@ function sceneDrawerView(d) {
     + '# 装入 Assets/Room/ 并为各场景配置生成 G1-D 布局（改共享库前先在隔离目录验证、征得同意并备份）\npython scripts/g1d/build_asset.py';
   return {
     title: sceneName(d), sub: `${dir} · ${sceneDims(d)} · env 配置 ${(a.configs || []).join('、') || '—'}`, actions,
-    body: `${a.model ? sec(`${ic('cube')}3D 预览`, `<div class="m3d" data-model="${esc(file(a.model))}" data-scene="${esc(d.id)}"><canvas aria-label="场景 3D 模型，拖拽旋转"></canvas>
+    top: a.model ? sec(`${ic('cube')}3D 预览`, `<div class="m3d" data-model="${esc(file(a.model))}" data-scene="${esc(d.id)}"><canvas aria-label="场景 3D 模型，拖拽旋转"></canvas>
       <div class="m3d-status">加载中…</div><div class="m3d-hint">左键拖拽旋转 · 右键拖拽平移 · 滚轮缩放</div>
       <div class="m3d-bar"><button class="btn" type="button" onclick="VIEWER?.toggleRoom(this)" title="墙、天花板和背景家具，地面保留">隐藏房间</button><button class="btn" type="button" onclick="VIEWER?.reset()">重置视角</button>
-      <button class="btn" type="button" onclick="VIEWER?.el.requestFullscreen?.()">全屏</button></div></div>${v3dControls(d)}`, ' <span class="muted small">preview/scene.glb · scripts/scenes/export_glb.py</span>') : ''}
-    ${a.renders?.length ? sec(`${ic('image')}仿真渲染`, gallery(`scene-renders-${d.id}`, a.renders), ' <span class="muted small">Isaac RTX · scripts/scenes/render_scenes.py</span>') : ''}
+      <button class="btn" type="button" onclick="VIEWER?.el.requestFullscreen?.()">全屏</button></div></div>${v3dControls(d)}`, ' <span class="muted small">preview/scene.glb · scripts/scenes/export_glb.py</span>') : '',
+    body: `${a.renders?.length ? sec(`${ic('image')}仿真渲染`, gallery(`scene-renders-${d.id}`, a.renders), ' <span class="muted small">Isaac RTX · scripts/scenes/render_scenes.py</span>') : ''}
     ${sec('验收进度', `${progress(rs)}<div style="height:10px"></div>${stageList(rs)}`)}
     ${a.checks_failed?.length ? `<div class="callout bad" style="margin-top:12px">${ic('alert')}<div><b>未通过的离线检查</b><br>${a.checks_failed.map(esc).join('<br>')}</div></div>` : ''}
     ${sec('验收录入', `<div class="form">
