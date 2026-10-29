@@ -633,6 +633,8 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .form .ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-width: 0; }
 .form .ctl > input:not([type=checkbox]), .form .ctl > select { flex: 1 1 200px; max-width: 360px; }
 .hint { color: var(--muted); font-size: 12px; }
+.sub-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 18px 0 8px; font-size: 13px; font-weight: 650; }
+.sub-h .hint { font-weight: 400; }
 @media (max-width: 560px) { .form { grid-template-columns: 1fr; } .stage-list li { grid-template-columns: 84px 1fr; } .stage-list .sl-detail { grid-column: 1 / -1; } }
 .code { position: relative; }
 .code pre { max-height: 360px; margin: 0; padding: 12px 46px 12px 14px; overflow: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); color: var(--text-2); font: 12px/1.65 var(--mono); white-space: pre-wrap; word-break: break-all; }
@@ -2734,9 +2736,9 @@ function modelingPanel(d) {
       ${row('质量依据', 'mass_policy', sel(d, 'mass_policy', INPUT_POLICIES))}
       ${row('物理类型与测试', 'physics_requirements', area(d, 'physics_requirements', 'placeholder="刚体/关节/布料/软体；碰撞、压缩、悬垂、夹持等要求"'))}
     </div>
-    <p class="small">${r.confirmed ? `已确认 · ${esc(r.confirmed_by || '')} · ${esc(r.version || '')}` : `待确认${missing.length ? `：${esc(missing.join('、'))}` : ''}`}</p>
-    <button type="button" class="btn btn-primary" data-id="${esc(d.id)}" onclick="confirmObjectModeling(this.dataset.id)" ${missing.length ? 'disabled' : ''}>确认登记并生成统一 prompt</button>
-    ${r.confirmed ? code(modelingBrief(d), '复制建模 prompt', mdHighlight) : ''}`);
+    <div class="toolbar" style="margin-top:12px"><button type="button" class="btn ${r.confirmed ? '' : 'btn-primary'}" data-id="${esc(d.id)}" onclick="confirmObjectModeling(this.dataset.id)" ${missing.length ? 'disabled' : ''}>${ic(r.confirmed ? 'rotate' : 'check')}${r.confirmed ? '重新确认' : '确认登记并生成 prompt'}</button>
+      <span class="small ${r.confirmed ? '' : 'muted'}">${r.confirmed ? `已确认 · ${esc(r.confirmed_by || '')} · ${esc(r.version || '')}` : `待确认${missing.length ? `：缺 ${esc(missing.join('、'))}` : ''}`}</span></div>
+    ${r.confirmed ? `<div class="sub-h">统一建模 prompt<span class="hint">复制给建模 agent；登记或照片改了会自动失效</span></div>${code(modelingBrief(d), '复制建模 prompt', mdHighlight)}` : ''}`);
 }
 
 function drawerObject(d) {
