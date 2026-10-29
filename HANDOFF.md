@@ -40,6 +40,13 @@
 
 ## 最近任务
 
+### 场景工况变体并入源场景；3D 预览的 WebGL 提示（2026-10-29 22:xx）
+
+- **起因**（用户）：场景页多了「茶水间吧台 / 办公室升降桌 · Benchmark桌面工况」两张卡；3D 预览报「Error creating WebGL context」却提示网络。
+- **来源**：两张卡来自 10-29 16:06 的 benchmark 同步（从 `/root/robodojo-pro_benchmark` 同步 4 个任务、iPhone 和手机盒，记录在部署机 `real2sim/benchmark_sync/20261029T160621/`，署名「刘小凡授权同步」），是部署机上未提交的 `real2sim/scenes/g1d_benchmark_tabletop_{counter,office}/platform.json`，`source_scene` 指向吧台和办公室。平台把任何带 `platform.json` 的目录都当独立场景。
+- **改动**（只有 `index.html`）：`source_scene` 指向另一个已有场景的条目算工况变体（`sceneSource`/`sceneVariants`），不单独出卡、不计入孪生场景数；源场景卡片显示「+N 工况」，详情里列出工况并可点开，工况详情写明所属场景。3D 预览先 `webglWorks()` 检测（临时上下文用完即释放），没有 WebGL 时说明是硬件加速 / GPU 问题、不再提示网络，也不去下载 three.js；加载中抛出的 WebGL 错误同样如此。关闭抽屉时本来就会 `dispose` + `forceContextLoss`，不是泄漏。
+- **验证**：本机临时造一个带 `source_scene` 的场景目录（测完删除）核对卡片、+1 工况、双向链接和计数；把 `getContext` 换成返回 null 核对提示。
+
 ### 部署机上的平台未提交工作收进 `main`（2026-10-29 17:0x，`chongzheng/platform-inventory-materials`）
 
 - **起因**（用户）：另一个 Codex 会话在 `5090-2` 部署目录里直接改平台（VS Code 远程，16:35 停），一直没提交；用户让我接管并整理进 `main`。

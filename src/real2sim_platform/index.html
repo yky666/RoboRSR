@@ -1644,7 +1644,11 @@ function viewOverview() {
 
 // ---------- scenes ----------
 const isBench = (d) => d.auto?.source === 'robodojo';  // the benchmark's own env_cfg/scene/*.yml, not a twin
-const twinScenes = () => live(S.scene).filter((d) => !isBench(d));
+// a scene whose platform.json names another existing scene as source_scene (e.g. a benchmark tabletop setup of it)
+// is that scene's variant: it rides on the source card and drawer instead of a card of its own
+const sceneSource = (d) => (d.auto.source_scene && d.auto.source_scene !== d.id ? S.scene.find((x) => x.id === d.auto.source_scene) : null);
+const sceneVariants = (d) => live(S.scene).filter((x) => sceneSource(x) === d);
+const twinScenes = () => live(S.scene).filter((d) => !isBench(d) && !sceneSource(d));
 const sceneDims = (d) => {
   const a = d.auto, r = d.reg || {};
   if (a.source === 'imported_simulation') return `${a.engine} · ${a.status}`;
@@ -1684,7 +1688,7 @@ function viewScenes() {
     const a = d.auto, rs = a.source === 'imported_simulation' ? importedSceneStages(d) : evalStages(SCENE_STAGES, d), cover = sceneImage(d);
     return `<article class="card mcard" data-open="scene" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开场景 ${esc(d.id)}">
       <div class="media r169">${cover ? `<img loading="lazy" decoding="async" src="${small(cover, 640)}" alt="">` : ic('image', 'ic-lg')}
-        <div class="pills">${a.engine ? `<span class="pill">${esc(a.engine)}</span>` : ''}${(a.configs || []).map((c) => `<span class="pill">${esc(c)}</span>`).join('')}${a.model ? `<span class="pill" title="可在详情里 3D 预览">${ic('cube', 'ic-sm')}3D</span>` : ''}</div></div>
+        <div class="pills">${a.engine ? `<span class="pill">${esc(a.engine)}</span>` : ''}${(a.configs || []).map((c) => `<span class="pill">${esc(c)}</span>`).join('')}${a.model ? `<span class="pill" title="可在详情里 3D 预览">${ic('cube', 'ic-sm')}3D</span>` : ''}${sceneVariants(d).length ? `<span class="pill" title="${esc(sceneVariants(d).map(sceneName).join('、'))}">+${sceneVariants(d).length} 工况</span>` : ''}</div></div>
       <div class="mcard-b"><div class="mcard-t"><b>${esc(sceneName(d))}</b>${d.registered ? '<span class="tag info">已登记</span>' : ''}${missingBadge(d)}</div>
         ${sceneName(d) !== d.id ? `<div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>` : ''}
         <div class="small muted">${esc(sceneDims(d))}</div>
@@ -1894,7 +1898,11 @@ function drawerImportedScene(d) {
 }
 function drawerScene(d) {
   const view = sceneDrawerView(d);
-  return {...view, body: sceneNameSec(d) + view.body};
+  const src = sceneSource(d), variants = sceneVariants(d);
+  const tie = src ? sec(`${ic('layers')}所属场景`, `<p>${link('scene', src.id, sceneName(src))} 的工况变体，不单独计入孪生场景。</p>`)
+    : variants.length ? sec(`${ic('layers')}工况变体 <span class="muted small">${variants.length} 个</span>`, `<div class="ra-list">${variants.map((v) =>
+      `<p>${link('scene', v.id, sceneName(v))} <span class="small muted">${esc(v.auto.engine || '')} · ${esc(v.auto.status || '')}</span></p>`).join('')}</div>`) : '';
+  return {...view, body: sceneNameSec(d) + tie + view.body};
 }
 function sceneDrawerView(d) {
   if (d.auto.source === 'imported_simulation') return drawerImportedScene(d);
@@ -4159,9 +4167,20 @@ function mountModel() {
   VIEWER?.stop();
   VIEWER = slot ? startViewer(slot) : null;
 }
+const NO_WEBGL = '这个浏览器现在没有可用的 WebGL（硬件加速被关闭、显卡被禁用，或远程桌面 / 虚拟机没有 GPU），3D 预览打不开；'
+  + '在浏览器设置里打开「使用图形加速」后重开页面即可。照片和渲染图不受影响。';
+function webglWorks() {  // a throwaway context, released at once so it does not count against the browser's limit
+  const gl = document.createElement('canvas').getContext('webgl2') || document.createElement('canvas').getContext('webgl');
+  gl?.getExtension('WEBGL_lose_context')?.loseContext();
+  return Boolean(gl);
+}
 function startViewer(el) {
   const v = {url: el.dataset.model, el, stopped: false, stop() { this.stopped = true; this.free?.(); }};
   const status = el.querySelector('.m3d-status');
+  if (!webglWorks()) {
+    status.textContent = NO_WEBGL;
+    return v;
+  }
   Promise.all(['three', 'three/addons/controls/OrbitControls.js', 'three/addons/loaders/GLTFLoader.js', 'three/addons/environments/RoomEnvironment.js'].map((m) => import(m)))
     .then(async ([THREE, {OrbitControls}, {GLTFLoader}, {RoomEnvironment}]) => {
       if (v.stopped) return;
@@ -4324,7 +4343,7 @@ function startViewer(el) {
       if (v.stopped) v.free();
     })
     .catch((err) => {
-      if (!v.stopped) status.textContent = `3D 预览加载失败：${err.message || err}（three.js 从 registry.npmmirror.com 加载，内网环境需能访问它）`;
+      if (!v.stopped) status.textContent = /webgl/i.test(String(err.message || err)) ? NO_WEBGL : `3D 预览加载失败：${err.message || err}（three.js 从 registry.npmmirror.com 加载，内网环境需能访问它）`;
     });
   return v;
 }
