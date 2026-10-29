@@ -138,25 +138,32 @@ class Store:
         self.db = sqlite3.connect(path, check_same_thread=False)
         self.db.execute("CREATE TABLE IF NOT EXISTS items (kind TEXT, id TEXT, doc TEXT, PRIMARY KEY (kind, id))")
         self.db.execute("CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, name TEXT, pw TEXT)")
-        if "admin" not in [col[1] for col in self.db.execute("PRAGMA table_info(users)")]:
+        cols = [col[1] for col in self.db.execute("PRAGMA table_info(users)")]
+        if "admin" not in cols:
             self.db.execute("ALTER TABLE users ADD COLUMN admin INTEGER NOT NULL DEFAULT 0")
+        if "guest" not in cols:  # read-only accounts: may look at everything, change nothing
+            self.db.execute("ALTER TABLE users ADD COLUMN guest INTEGER NOT NULL DEFAULT 0")
         self.db.execute("CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, username TEXT, expires REAL)")
         self.db.commit()
         self.lock = threading.Lock()
 
-    def add_user(self, username, password, name=None, admin=False):
-        """Create the account; False if the username is taken."""
+    def add_user(self, username, password, name=None, admin=False, guest=False):
+        """Create the account (an admin is never a guest); False if the username is taken."""
         with self.lock, self.db:
-            row = (username, name or username, hash_password(password), int(admin))
-            return self.db.execute("INSERT OR IGNORE INTO users VALUES (?, ?, ?, ?)", row).rowcount == 1
+            row = (username, name or username, hash_password(password), int(admin), int(guest and not admin))
+            sql = "INSERT OR IGNORE INTO users (username, name, pw, admin, guest) VALUES (?, ?, ?, ?, ?)"
+            return self.db.execute(sql, row).rowcount == 1
 
-    def edit_user(self, username, name=None, password=None, admin=None):
+    def edit_user(self, username, name=None, password=None, admin=None, guest=None):
         """Change the given fields; a new password ends the account's sessions. False if there is no such account."""
+        if admin:
+            guest = False
+        flags = [None if v is None else int(v) for v in (admin, guest)]
         with self.lock, self.db:
             found = self.db.execute(
-                "UPDATE users SET name = COALESCE(?, name), pw = COALESCE(?, pw), admin = COALESCE(?, admin) "
-                "WHERE username = ?",
-                (name, hash_password(password) if password else None, None if admin is None else int(admin), username),
+                "UPDATE users SET name = COALESCE(?, name), pw = COALESCE(?, pw), admin = COALESCE(?, admin), "
+                "guest = COALESCE(?, guest) WHERE username = ?",
+                (name, hash_password(password) if password else None, *flags, username),
             ).rowcount
             if password:
                 self.db.execute("DELETE FROM sessions WHERE username = ?", (username,))
@@ -169,15 +176,17 @@ class Store:
 
     def users(self):
         with self.lock:
-            rows = self.db.execute("SELECT username, name, admin FROM users ORDER BY username").fetchall()
-        return [{"username": u, "name": n or u, "admin": bool(a)} for u, n, a in rows]
+            rows = self.db.execute("SELECT username, name, admin, guest FROM users ORDER BY username").fetchall()
+        return [{"username": u, "name": n or u, "admin": bool(a), "guest": bool(g)} for u, n, a, g in rows]
 
     def check(self, username, password):
-        """{username, name, admin} if the password is right, else None."""
+        """{username, name, admin, guest} if the password is right, else None."""
         with self.lock:
-            row = self.db.execute("SELECT name, pw, admin FROM users WHERE username = ?", (username,)).fetchone()
+            row = self.db.execute("SELECT name, pw, admin, guest FROM users WHERE username = ?", (username,)).fetchone()
         right = verify_password(password, row[1] if row else DUMMY_HASH)
-        return {"username": username, "name": row[0] or username, "admin": bool(row[2])} if row and right else None
+        if not (row and right):
+            return None
+        return {"username": username, "name": row[0] or username, "admin": bool(row[2]), "guest": bool(row[3])}
 
     def open_session(self, username):
         token, now = secrets.token_urlsafe(32), time.time()
@@ -192,11 +201,15 @@ class Store:
             return None
         with self.lock:
             row = self.db.execute(
-                "SELECT u.username, u.name, u.admin FROM sessions s JOIN users u USING (username) "
+                "SELECT u.username, u.name, u.admin, u.guest FROM sessions s JOIN users u USING (username) "
                 "WHERE s.token = ? AND s.expires > ?",
                 (token_key(token), time.time()),
             ).fetchone()
-        return {"username": row[0], "name": row[1] or row[0], "admin": bool(row[2])} if row else None
+        return (
+            {"username": row[0], "name": row[1] or row[0], "admin": bool(row[2]), "guest": bool(row[3])}
+            if row
+            else None
+        )
 
     def end_session(self, token):
         with self.lock, self.db:
@@ -1101,6 +1114,10 @@ class Handler(BaseHTTPRequestHandler):
     store, scan_args, roots, info = None, (), [], {}
     failures = {}  # username -> recent failed login times
     PUBLIC = {"/", "/api/login"}  # the page itself carries no data; it shows the sign-in form until /api/me answers
+    GUEST_WRITES = {
+        "/api/logout",
+        "/api/password",
+    }  # all a guest may send besides reads: their own session and password
     protocol_version = "HTTP/1.1"  # keep-alive: a page of images or a video reuses connections through the tunnel
     timeout = 60  # idle keep-alive connections end after a minute
 
@@ -1117,7 +1134,11 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             return False
         self.user = self.store.session_user(self.cookie())
-        if self.user or urlparse(self.path).path in self.PUBLIC:
+        path = urlparse(self.path).path
+        if self.user and self.user["guest"] and self.command not in ("GET", "HEAD") and path not in self.GUEST_WRITES:
+            self.send_json({"error": "访客账号只能查看，不能修改"}, 403, close=True)
+            return False
+        if self.user or path in self.PUBLIC:
             return True
         self.send_json({"error": "请先登录"}, 401, close=True)
         return False
@@ -1171,17 +1192,22 @@ class Handler(BaseHTTPRequestHandler):
         name = str(data.get("name") or "").strip()[:32] or None
         password = str(data.get("password") or "") or None
         admin = None if data.get("admin") is None else bool(data["admin"])
+        guest = None
+        if (role := data.get("role")) is not None:
+            if role not in ("admin", "member", "guest"):
+                return fail("角色只能是管理员、成员或访客")
+            admin, guest = role == "admin", role == "guest"
         if (password and len(password) < 8) or (method == "POST" and not password):
             return fail("密码至少 8 位")
         if method == "POST":
             if not USERNAME.fullmatch(username):
                 return fail("用户名为 1–32 位字母、数字或 _ . -")
-            if not self.store.add_user(username, password, name, bool(admin)):
+            if not self.store.add_user(username, password, name, bool(admin), bool(guest)):
                 return fail(f"用户名 {username} 已存在", 409)
         elif username == self.user["username"] and (method == "DELETE" or admin is False):
             return fail("不能删除自己，也不能取消自己的管理员权限")
         elif method == "PUT":
-            if not self.store.edit_user(username, name, password, admin):
+            if not self.store.edit_user(username, name, password, admin, guest):
                 return fail(f"没有账号 {username}", 404)
         elif not self.store.remove_user(username):
             return fail(f"没有账号 {username}", 404)

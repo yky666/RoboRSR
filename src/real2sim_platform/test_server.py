@@ -211,10 +211,16 @@ def test_account_migration():
     old.commit()
     old.close()
     store = server.Store(path)
-    assert store.users() == [{"username": "bob", "name": "Bob", "admin": False}]
-    assert store.check("bob", "password1") == {"username": "bob", "name": "Bob", "admin": False}
+    assert store.users() == [{"username": "bob", "name": "Bob", "admin": False, "guest": False}]
+    assert store.check("bob", "password1") == {"username": "bob", "name": "Bob", "admin": False, "guest": False}
     assert store.edit_user("bob", admin=True) and store.users()[0]["admin"]
     assert not store.add_user("bob", "password2") and store.check("bob", "password1")
+    assert store.edit_user("bob", admin=False, guest=True) and store.users()[0]["guest"]
+    assert store.edit_user("bob", admin=True, guest=True) and store.users()[0] == {
+        **store.users()[0],
+        "admin": True,
+        "guest": False,
+    }
 
 
 def test_http():
@@ -258,7 +264,7 @@ def test_http():
         assert request("GET", "/api/info")[0] == 401 and request("GET", "/api/me")[0] == 401
         assert login("alice", "wrong-pass")[0] == 401 and login("nobody", "password1")[0] == 401
         status, me, cookie = login("alice", "password1")
-        assert status == 200 and me == {"username": "alice", "name": "张三", "admin": True}
+        assert status == 200 and me == {"username": "alice", "name": "张三", "admin": True, "guest": False}
         assert cookie.startswith("r2s_session=")
         session["Cookie"] = cookie
         assert json.loads(request("GET", "/api/me")[1])["name"] == "张三"
@@ -548,24 +554,46 @@ def test_http():
         assert users("POST", body={**carol, "password": "short"})[0] == 400
         assert users("POST", body={**carol, "username": "a b"})[0] == 400
         status, listed = users("POST", body=carol)
-        assert status == 200 and {"username": "carol", "name": "李四", "admin": False} in listed
+        assert status == 200 and {"username": "carol", "name": "李四", "admin": False, "guest": False} in listed
         assert users("POST", body=carol)[0] == 409
         carol_cookie = login("carol", "password1")[2]
         for method in ("GET", "POST", "PUT", "DELETE"):  # members cannot manage accounts
-            assert users(method, "/api/users?username=alice", {"admin": False}, carol_cookie)[0] == 403
+            assert users(method, "/api/users?username=alice", {"admin": False, "guest": False}, carol_cookie)[0] == 403
         status, members = users("GET", "/api/members", cookie=carol_cookie)  # but see who can own a task
         assert status == 200 and {"username": "alice", "name": "张三"} in members and "admin" not in members[0]
-        assert users("PUT", "/api/users?username=alice", {"admin": False})[0] == 400  # admins cannot demote themselves
+        assert (
+            users("PUT", "/api/users?username=alice", {"admin": False, "guest": False})[0] == 400
+        )  # admins cannot demote themselves
         assert users("DELETE", "/api/users?username=alice")[0] == 400
         assert users("PUT", "/api/users?username=nobody", {"name": "x"})[0] == 404
         status, listed = users("PUT", "/api/users?username=carol", {"name": "王五", "password": "password9"})
-        assert status == 200 and {"username": "carol", "name": "王五", "admin": False} in listed
+        assert status == 200 and {"username": "carol", "name": "王五", "admin": False, "guest": False} in listed
         assert request("GET", "/api/me", headers={"Cookie": carol_cookie})[0] == 401  # reset password ends sessions
         carol_cookie = login("carol", "password9")[2]
-        assert users("PUT", "/api/users?username=carol", {"admin": True})[1][1]["admin"]
+        assert users("PUT", "/api/users?username=carol", {"admin": True, "guest": False})[1][1]["admin"]
         assert users("GET", cookie=carol_cookie)[0] == 200
-        assert users("DELETE", "/api/users?username=carol")[1] == [{"username": "alice", "name": "张三", "admin": True}]
+        assert users("DELETE", "/api/users?username=carol")[1] == [
+            {"username": "alice", "name": "张三", "admin": True, "guest": False}
+        ]
         assert request("GET", "/api/me", headers={"Cookie": carol_cookie})[0] == 401
+
+        dave = {"username": "dave", "name": "访客", "password": "password1", "role": "guest"}
+        assert users("POST", body={**dave, "role": "owner"})[0] == 400
+        assert {"username": "dave", "name": "访客", "admin": False, "guest": True} in users("POST", body=dave)[1]
+        as_dave = {"Cookie": login("dave", "password1")[2]}
+        assert json.loads(request("GET", "/api/me", headers=as_dave)[1])["guest"]
+        assert request("GET", "/api/items?kind=task", headers=as_dave)[0] == 200  # a guest reads everything
+        status, _, resp = request("PUT", "/api/items?kind=task&id=g1d_stack_blocks", b'{"target": 1}', as_dave)
+        assert (status, resp.getheader("Connection")) == (403, "close")  # and writes nothing
+        assert request("POST", "/api/scan", headers=as_dave)[0] == 403
+        assert request("DELETE", "/api/photo?path=x", headers=as_dave)[0] == 403
+        assert request("POST", "/api/users", json.dumps(carol), as_dave)[0] == 403
+        new_pw = json.dumps({"old": "password1", "new": "password3"})  # but keeps their own password and session
+        assert request("POST", "/api/password", new_pw, as_dave)[0] == 200
+        assert {"username": "dave", "name": "访客", "admin": True, "guest": False} in users(
+            "PUT", "/api/users?username=dave", {"role": "admin"}
+        )[1]
+        assert users("DELETE", "/api/users?username=dave")[0] == 200
 
         other = login("alice", "password1")[2]  # a second browser
         change = json.dumps({"old": "password1", "new": "password2"})

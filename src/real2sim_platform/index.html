@@ -79,6 +79,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .theme .btn-icon[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
 .gbar .me { align-self: center; gap: 2px; margin-left: -12px; }
 .gbar .me .sp, .gbar .me-name small { display: none; }
+.guest-tag { gap: 4px; margin-right: 8px; font-family: var(--font); }
 .gbar .avatar { width: 28px; height: 28px; margin-right: 6px; font-size: 13px; }
 .gbar .me-name { margin-right: 6px; }
 .gbar .me-name b { font-weight: 500; }
@@ -239,6 +240,7 @@ kbd { padding: 0 5px; border: 1px solid currentColor; border-radius: 4px; font: 
 input:not([type=checkbox]):not([type=file]), select, textarea { min-height: 36px; padding: 6px 12px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface); transition: border-color .15s, box-shadow .15s; }
 input:not([type=checkbox]):not([type=file]):hover, select:hover, textarea:hover { border-color: var(--faint); }
 input:not([type=checkbox]):not([type=file]):not([type=range]):focus-visible, select:focus-visible, textarea:focus-visible { border-color: var(--ring); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 14%, transparent); }
+input:read-only:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]), textarea:read-only { border-color: transparent; background: var(--surface-2); cursor: default; }
 input[type=checkbox] { width: 16px; height: 16px; margin: 0; accent-color: var(--primary); cursor: pointer; }
 textarea { width: 100%; min-height: 72px; resize: vertical; }
 select { cursor: pointer; }
@@ -1064,6 +1066,18 @@ function segSlide(before) {
   });
 }
 window.addEventListener('resize', () => segSlide());
+// guests read everything and change nothing: the server refuses their writes, and here the controls that would try
+// are hidden (actions, uploads, bulk ticks) or locked (record fields stay readable and copyable)
+const GUEST_HIDE = /^(setQA|reviewObject|bulk\w+|save\w+|remove\w+|delete\w+|gen\w+|unregisterTask|toggleTag|sync|setReal|resetPassword|openNew\w+|confirmObjectModeling|addExtra|addBuiltScenes|discardDraft)\(/;
+function guestLock(root) {
+  if (!ME?.guest || !root) return;
+  root.querySelectorAll('button[onclick]').forEach((b) => { if (GUEST_HIDE.test(b.getAttribute('onclick'))) b.hidden = true; });
+  root.querySelectorAll('[data-open^="new-"], [data-open="libraries"], input[type=file], .osel, [data-sel], [data-ids]').forEach((el) => { (el.closest('label') || el).hidden = true; });
+  root.querySelectorAll('[data-f]').forEach((el) => {
+    if (el.tagName === 'TEXTAREA' || /^(text|number|url|search|date)$/.test(el.type)) el.readOnly = true;
+    else el.disabled = true;
+  });
+}
 function placeMenus() {  // menus open right and down from their button; flipped when that side has no room
   document.querySelectorAll('.dd-menu').forEach((m) => {
     const r = m.getBoundingClientRect(), above = m.parentElement.getBoundingClientRect().top;
@@ -1113,11 +1127,12 @@ function renderNav() {
     : (n !== '' ? `<span class="count">${n}</span>` : '')}</a>`).join('');
   $('#sync-btn').innerHTML = UI.syncing ? `${ic('refresh', 'spin')}同步中…` : `${ic('refresh')}同步项目数据`;
   $('#sync-btn').disabled = UI.syncing;
+  $('#sync-btn').hidden = Boolean(ME?.guest);
   const source = `资产库${INFO.assets_ok ? '已连接' : '未找到'} · 回合目录 ${(INFO.eval_roots || []).length} 个${UI.syncedAt ? ` · 同步于 ${UI.syncedAt}` : ''}`;
   $('#source').title = source;
   $('#source').innerHTML = `<span class="dot ${INFO.assets_ok ? 'ok' : 'warn'}" aria-hidden="true"></span><span class="sr-only">${esc(source)}</span>`;
   $('#me').title = ME ? `${ME.name}（${ME.username}）` : '';
-  $('#me').innerHTML = ME ? `<span class="avatar" aria-hidden="true">${esc([...ME.name][0] || '?')}</span>
+  $('#me').innerHTML = ME ? `${ME.guest ? `<span class="tag guest-tag" title="访客账号只能查看，不能修改">${ic('eye', 'ic-sm')}访客 · 只读</span>` : ''}<span class="avatar" aria-hidden="true">${esc([...ME.name][0] || '?')}</span>
     <span class="me-name"><b>${esc(ME.name)}</b><small>${esc(ME.username)}</small></span><span class="sp"></span>
     <button class="btn btn-icon btn-ghost" type="button" data-open="account" aria-label="修改密码" title="修改密码">${ic('key')}</button>
     <button class="btn btn-icon btn-ghost" type="button" onclick="logout()" aria-label="退出登录" title="退出登录">${ic('logout')}</button>` : '';
@@ -3360,7 +3375,9 @@ function randomPassword() {
   const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
   return Array.from(crypto.getRandomValues(new Uint32Array(12)), (x) => abc[x % abc.length]).join('');
 }
-const newUserForm = () => ({username: '', name: '', password: randomPassword(), admin: false});
+const newUserForm = () => ({username: '', name: '', password: randomPassword(), role: 'member'});
+const ROLES = {member: '成员', admin: '管理员', guest: '访客（只读）'};
+const roleOf = (u) => (u.admin ? 'admin' : u.guest ? 'guest' : 'member');
 function viewUsers() {
   if (!ME?.admin) return `<div class="page">${pageHead('成员管理', '')}<div class="card">${empty('users', '需要管理员权限', '账号由平台管理员创建和管理')}</div></div>`;
   const nu = UI.nu ||= newUserForm();
@@ -3373,7 +3390,7 @@ function viewUsers() {
       <td><input type="text" value="${esc(u.name)}" maxlength="32" aria-label="${who} 的显示名" style="width:100%;max-width:220px"
         onchange="editUser(this.closest('tr').dataset.user, {name: this.value})"></td>
       <td><select aria-label="${who} 的角色" ${self ? 'disabled title="不能取消自己的管理员权限"' : ''}
-        onchange="editUser(this.closest('tr').dataset.user, {admin: this.value === '1'})">${opts({0: '成员', 1: '管理员'}, u.admin ? 1 : 0)}</select></td>
+        onchange="editUser(this.closest('tr').dataset.user, {role: this.value})">${opts(ROLES, roleOf(u))}</select></td>
       <td class="nowrap"><button class="btn" type="button" ${self ? 'disabled title="修改自己的密码用侧栏的钥匙按钮"' : ''}
         onclick="resetPassword(this.closest('tr').dataset.user)">${ic('key')}重置密码</button>
         <button class="btn btn-icon" type="button" aria-label="删除 ${who}" title="删除账号" ${self ? 'disabled' : ''}
@@ -3389,7 +3406,9 @@ function viewUsers() {
         <label class="field">显示名<input id="nu-name" value="${esc(nu.name)}" maxlength="32" placeholder="署名用，如 张三" oninput="UI.nu.name = this.value"></label>
         <label class="field">初始密码<span class="pw-row"><input id="nu-pw" class="mono" value="${esc(nu.password)}" autocomplete="off" spellcheck="false" oninput="UI.nu.password = this.value">
           <button class="btn btn-icon" type="button" aria-label="换一个随机密码" title="换一个随机密码" onclick="UI.nu.password = $('#nu-pw').value = randomPassword()">${ic('refresh')}</button></span></label>
-        <label class="check"><input id="nu-admin" type="checkbox" ${nu.admin ? 'checked' : ''} onchange="UI.nu.admin = this.checked">管理员（可以管理账号）</label>
+        <div class="field">角色<div class="segctl" role="group" aria-label="新账号角色">${Object.entries(ROLES).map(([k, label]) =>
+          `<button type="button" aria-pressed="${nu.role === k}" onclick="UI.nu.role = '${k}'; render()">${label}</button>`).join('')}</div>
+          <small>${{member: '可以录入、质检和提交评测', admin: '另外可以审核物体、管理账号', guest: '只能查看，不能做任何修改'}[nu.role]}</small></div>
         <p id="nu-err" class="field-error" role="alert"></p>
         <button class="btn btn-primary" type="submit">${ic('plus')}创建账号</button>
       </form></div></section>
@@ -3398,6 +3417,10 @@ function viewUsers() {
 
 // ---------- actions ----------
 async function api(url, options = {}) {
+  if (ME?.guest && (options.method || 'GET') !== 'GET' && !['/api/logout', '/api/password'].includes(url)) {
+    toast('访客账号只能查看，不能修改', true);
+    throw new Error('访客账号只能查看');
+  }
   const r = await fetch(url, {headers: {'Content-Type': 'application/json'}, ...options});
   if (r.status === 401 && ME && url !== '/api/password') { showLogin('登录已过期，请重新登录'); throw new Error('请先登录'); }
   if (!r.ok) throw new Error((await r.json().catch(() => null))?.error || `${r.status} ${r.statusText}`);
@@ -3479,7 +3502,7 @@ function drawerAccount() {
 }
 const userApi = (username, options) => api(`/api/users?username=${encodeURIComponent(username)}`, options);
 async function createUser() {
-  const n = UI.nu = {username: $('#nu-user').value.trim(), name: $('#nu-name').value.trim(), password: $('#nu-pw').value, admin: $('#nu-admin').checked};
+  const n = UI.nu = {username: $('#nu-user').value.trim(), name: $('#nu-name').value.trim(), password: $('#nu-pw').value, role: UI.nu?.role || 'member'};
   try {
     USERS = await api('/api/users', {method: 'POST', body: JSON.stringify(n)});
     UI.cred = {text: `账号 ${n.username} 已创建`, username: n.username, password: n.password};
@@ -4222,6 +4245,8 @@ function render() {
   else if (slot) videos('rate', UI.qaRate);
   if (scroll && $('.qa-list')) $('.qa-list').scrollTop = scroll;
   renderDrawer();
+  guestLock($('#main'));
+  guestLock($('#drawer'));
   segSlide(segs);
   mountModel();
   const el = focus && document.getElementById(focus);
