@@ -1020,3 +1020,13 @@
 - 代码验证：OpenUSD 专项 6 passed；当前主线集成 CPU 检查 91 passed、3 skipped、82 subtests passed，ruff 和 inventory 通过。分支基线 d14a164 的平台访客测试原有失败，集成验证采用已经在主线修复的 `2cf5b6d` server.py；本分支不重复修改该权限逻辑。本机无 pytest，验证在服务器隔离源码快照执行。
 - `check_object.py` 加 --white-background，使用完整 physics（含摩擦和 mass_cap）与实际运行加载方式保持一致；白底预览拉开物体间距，避免邻居入镜。继承此前 `40742cf` 的物体图片完整显示补丁，防止统一部署后重新裁切方形图。
 - 下一会话：从本分支合并/部署；新增任务先从 684 件基础通过项中挑选，再单独验证抓取、容器或任务判据。不要把 182 件待复核直接放入默认可用池，不要删除固定原包依赖。
+
+
+## GenieSim 预览发白修复（2026-10-29）
+
+- 用户指出酒罐和玻璃瓶像蒙了一层白膜。根因是 `check_object.py --white-background` 给 200 米地面设置了 `(10, 10, 10)` 自发光，同时开启 GI/反射；强发光地面进入物体反射，冲淡标签与瓶身。改成不自发光的白色漫反射地面，保留原有照明、源材质和物理参数。
+- 相同罐/瓶关闭地面自发光前后实际 RTX 对比确认颜色恢复；预览重建使用 `--seconds 0` 保留源正放姿态，仅替换 `sim.png`，不把这次预览当成新的落地验收，不覆盖原 `check.json`、源文件或资产入库状态。
+- 重建入口：原验证目录下 `rerender-neutral.py` 与 `rerender-neutral-retry.py`；旧图备份 `pre-emission-fix-previews/`。第一次并发重建 769 张，97 张因显存/空帧未替换，改用 8 件小批次并关闭 renderer multiGPU 后重试。
+- 代码检查在服务器既有隔离快照通过：91 passed、3 skipped、82 subtests passed，Ruff/格式/inventory 通过；本机无 GPU，不执行本机 Isaac 验证。
+- 最终 **866/866 张全部更新**，逐件核对平台图片 SHA-256 与新产物一致，866 个原验收 `check.json` 字节未改。最终汇总 `neutral-preview-complete.json`。水流模型确实透明，自动前景阈值未通过，人工检查可见水流与投影后仅更新预览，保留原失败验收，不虚报通过。
+- 浏览器实际核对 AgiBot GenieSim 866 条、684 已入库、866 有预览；酒罐/瓶新图正常加载，完整 contain 显示。后续继续用不自发光白底；若重新做物理验收，仍需三秒落地流程，不能沿用仅预览的 `--seconds 0` 报告。

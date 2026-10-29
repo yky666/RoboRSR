@@ -75,7 +75,8 @@ def main():
         collision_props=sim_utils.CollisionPropertiesCfg(),
         visual_material=sim_utils.PreviewSurfaceCfg(
             diffuse_color=(1.0, 1.0, 1.0) if args.white_background else (0.35, 0.36, 0.38),
-            emissive_color=(10.0, 10.0, 10.0) if args.white_background else (0.0, 0.0, 0.0),
+            # An emissive backdrop lights reflective assets through GI and washes out their textures.
+            emissive_color=(0.0, 0.0, 0.0),
         ),
     )
     floor.func("/World/floor", floor, translation=(0.0, row / 2, -0.01))
