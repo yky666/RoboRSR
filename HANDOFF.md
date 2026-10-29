@@ -1,6 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-29
+本次资产接入分支：`codex/geniesim-assets`（独立 Codex worktree）。GenieSim 下载、逐件验证和平台同步已完成，详见本文末的资产接入记录。
 本会话分支：`chongzheng/objects-instruction-names`（worktree `../RoboDojo-object-names`，基于 `origin/main@492473b`）：物体指令名称和建模 prompt v3（「最近任务」第一节）。上一会话：`chongzheng/platform-banzhi-flywheel`（worktree `../RoboDojo-banzhi-flywheel`）：数采平台改名 BanzhiFlywheel，分「仿真平台 / 数据集」两个板块，加公开数据集目录和日间 / 夜间主题（「最近任务」第一节，连同第二节的黑白改版）。2026-10-29 rebase 到 `806f4e6` 后快进推 `main`（`65abd16` 为代码，其后一个提交只改本文件），00:05 部署到 `5090-2`。之前：`chongzheng/merge-open-prs-1028b` 把 #36、#38–#43 合进 `main` 并部署。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
@@ -64,6 +65,7 @@
 - **前端**：卡片、缩略图、抽屉大图改用 `small(p, w)`；灯箱和「原图」链接仍是原文件。下拉组件改成选项按序号回调（`DD`/`ddPick`），物体页负责人、任务页能力维度、评测页状态、质检页 5 个筛选都换成胶囊下拉；「只看有照片参考」改成胶囊开关 `.toggle`，统计文字靠右。
 - **验证**：`bash scripts/check.sh` 82 passed、1 skipped（`test_http` 新增 gzip、304、缩略图回退断言）；本机浏览器 10 个页面无报错，场景卡片加载 640 px WebP。
 - **下拉修正**（00:5x，用户反馈）：菜单改为和按钮左对齐向右展开，右侧放不下时（`placeMenus()`）才向左，最大宽 420 px、长选项省略号；质检页倍速也换成胶囊下拉并记住倍速（`UI.qaRate`，换回合后沿用）。原先倍速按钮在 `#qa-videos` 里，而这个容器为保住播放进度会在重渲染时整块换回旧节点，导致菜单打不开；现在 `#qa-videos` 只包视频网格。本机用 `make_run` 造的假回合验证：倍速菜单能开、两路视频都是 2×、视频节点和进度保留、任务菜单左缘与按钮对齐。
+- **事故，已修复**（10-29 12:1x）：`d14a164` 用 `git commit -a` 把工作区里被编辑器旧缓存写回的 `server.py`（停在访客改动做到一半时：有 `guest` 列，没有入口拦截和 `role` 处理）一起提交了，`check.sh` 失败却因 `| tail -1` 没拦住推送；部署机快进到了它，但运行中的进程是 11:42 用完整代码起的，线上访客限制没失效。已从 `6104232` 恢复 `server.py`，部署机文件同步回来。`bcf8cc1` 里 `.ds-side` 的 `thin` 也是同一原因。之后只用显式路径提交，检查用真实退出码判断。
 - **数据集页示意说明**（10-29 12:0x，用户要求）：标题旁加琥珀色标签「仅作示意，未支撑实际业务」，页底说明同步。顺带修回 `.ds-side` 的 `scrollbar-width: thin`：`bcf8cc1` 把这一行意外改回了旧版本（同一提交里其余改动都核对过是有意的），筛选栏滚动条又露了出来。
 - **访客角色**（10-29 11:3x，用户要求「只能查看，不能进行任何编辑」）：`users` 表加 `guest` 列（旧库启动时自动补，原账号都不是访客；管理员不会同时是访客）。服务端在 `parse_request` 统一拒绝访客的非 GET/HEAD 请求（403，只放行 `/api/logout`、`/api/password`）；`/api/users` 接受 `role`（admin / member / guest），旧的 `admin` 字段仍可用，管理员不能把自己改成别的角色。前端：成员管理表格三种角色、新建账号用分段选择；访客顶栏显示「访客 · 只读」，`guestLock()` 在每次渲染后隐藏新建、同步、审核、上传、删除、批量、质检结论等按钮和勾选框，把 `data-f` 字段设为只读/禁用（只读字段灰底），`api()` 对访客的写请求先拦截提示。`test_server.py` 新增访客断言（读 200，PUT/POST/DELETE 403 且断开连接，可改自己的密码，角色互转）；浏览器里以访客登录核对了物体页、场景抽屉、质检页，并用管理员在成员管理建访客、改角色。
 - **访客上线**（11:42，`6104232`）：部署机 stash → ff → pop 无冲突后重启了平台进程（用户确认）。**部署机上另一会话未提交的材质白名单改动（`server.py`、`scripts/scenes/appearance.py`、`index.html`，按场景限定可选材质）随这次重启一起生效**，它让 `test_server.py` 的 `test_randomization_profile`、`test_appearance_settings` 两项失败（测试里的材质被判为不适合该表面），等那位同事提交时一起修。线上核对：临时访客读 200、写 403，已删除；物体 1319（重启前备份里已是 1317，是别人更新了资产镜像，不是这次部署）。
@@ -1004,3 +1006,17 @@
 - 2026-10-16：三个场景各自成为 env 配置并装入共享库；自建资产移到 `real2sim/`；相机按棋盘格和真机画面重新标定；新任务 `g1d_pour_beans_cup_to_cup`。
 - 2026-10-14：倒水任务改为倒红豆；修复拾取和叠块（TCP 雅可比、线性 PD 定心）；重建实验室场景。
 - 2026-10-13：搭建服务器环境，接入 G1-D + Dex1；冷水壶资产，以及流体检查只能走 CPU 状态管线。
+
+
+## GenieSim 公开桌面资产接入（2026-10-29）
+
+- 原始来源：ModelScope `agibot_world/GenieSimAssets`，固定 revision `f65609e1c2bb153947ca9eee2ae1dc7392cdf3b7`。许可按仓库 LICENSE / README 的 **CC BY-NC-SA 4.0**，不按网站 Apache 元数据处理。
+- 原包在 `5090-2:/data/robodojo-assets/sources/agibot/geniesim-assets/`；下载 `objects/**`，6803 个 LFS 文件、15998074482 字节，逐文件 SHA-256 全通过。原包必须保留：生成的 `object.usdz` 是引用该固定 checkout 的适配层；移动原包后须重新转换。
+- 1245 个源物体条目中选出 963 个无关节桌面候选（最长边 3–50 cm、最短边 ≥3 mm），转换成功 866 个。97 个静态排除：质量超范围 61、多质量需复核 32、缺依赖 3、实际 USD 尺寸超范围 1；另 282 个在选择阶段因尺寸、关节等排除。原始文件全部保留。
+- 脚本 `scripts/objects/geniesim.py`：只解析 item.py 字面量，原始 USD 不改；米/Z-up/包围盒中心归一化放在刚体根节点下，保留源 USD 质量和摩擦并记录 JSON 冲突。大于 0.5 kg 的有效质量显式带 mass_cap，避免加载器截断。补 OBB 顶点、包围盒底部放置帧、英文名列表；不编造实测值或抓取/接触功能帧。
+- 866 件逐件在 Isaac Sim 做三秒重力落地、正放判据（倾斜<5°、高度偏差<5mm、速度<0.01m/s）和白底渲染：**684 件通过、182 件待复核、0 个验证进程错误**。其中 169 件正放未通过、20 件渲染未通过，交集 7 件。苹果/球体的自然倾斜也会被严格正放判据拒绝，不直接等同模型损坏。未做抓取、容器装载、任务成功率或真机参数验收。
+- 684 件已装共享库 `Assets/Object/RoboDojo/Rigid/geniesim_*/00000/`，保持独立命名空间；平台元数据镜像同步。866 件全部登记到数采平台 **AgiBot GenieSim**（library=`geniesim`），含预览和逐件 check.json；182 件没有装共享库，备注待复核，不标完整验收通过。API 回读数量及图片访问通过。
+- 验证运行目录：`5090-2:/data/robodojo-runs/geniesim-validation-20261029/`，入口 `selection.json`、`converted/conversion.json`、`validation.json`、`platform-sync.json`，逐批日志在 `logs/`，原始下载校验在原包父目录 `geniesim-download-verification.json`。
+- 代码验证：OpenUSD 专项 6 passed；当前主线集成 CPU 检查 91 passed、3 skipped、82 subtests passed，ruff 和 inventory 通过。分支基线 d14a164 的平台访客测试原有失败，集成验证采用已经在主线修复的 `2cf5b6d` server.py；本分支不重复修改该权限逻辑。本机无 pytest，验证在服务器隔离源码快照执行。
+- `check_object.py` 加 --white-background，使用完整 physics（含摩擦和 mass_cap）与实际运行加载方式保持一致；白底预览拉开物体间距，避免邻居入镜。继承此前 `40742cf` 的物体图片完整显示补丁，防止统一部署后重新裁切方形图。
+- 下一会话：从本分支合并/部署；新增任务先从 684 件基础通过项中挑选，再单独验证抓取、容器或任务判据。不要把 182 件待复核直接放入默认可用池，不要删除固定原包依赖。

@@ -117,6 +117,20 @@ PYTHONPATH=. python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid
 PYTHONPATH=. python scripts/objects/check_pitcher_fluid.py --device cpu --out output/pitcher/fluid   # 加 --red-beans 测红豆
 ```
 
+**GenieSim 公开物体导入**（原始资产为 CC BY-NC-SA 4.0，非实测孪生）：
+
+```bash
+GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 https://modelscope.cn/datasets/agibot_world/GenieSimAssets.git <source>
+git -C <source> lfs pull --include='objects/**'
+# CPU 转换需要 usd-core 和 numpy；仅解析 item.py 字面量，不执行资产仓库代码。
+python scripts/objects/geniesim.py select --source <source> --manifest selection.json
+python scripts/objects/geniesim.py convert --source <source> --manifest selection.json --out <output>
+PYTHONPATH=. python scripts/objects/check_object.py <output>/Object/RoboDojo/Rigid/<category>/00000 \
+    --image-dir <preview-root> --white-background
+```
+
+选择无关节、最长边 3–50 cm、最短边至少 3 mm 的物体；转换时继续检查实际 USD 尺寸、质量、依赖和碰撞体，失败原因见 `conversion.json`。保留原始 USD 的质量/摩擦，记录与 JSON 的差异；原始质量超过 0.5 kg 时显式设置 `mass_cap`，不静默截断。统一为米、Z-up、包围盒中心原点，物体编号带 `geniesim_` 前缀。USDZ 包是引用原始模型的适配层，**原始 checkout 必须保留在转换时的位置**；搬迁后应在新位置重新转换。通过转换不代表通过落地、抓取、容器或任务验收，只有实际完成的检查才能登记通过。
+
 流体检查必须用 `--device cpu`（CPU 状态管线，PBD 求解仍在 GPU）；GPU 状态管线下粒子坐标不会回读，结果无效。
 
 **仿真数据生成**：脚本专家逐回合录成 XPolicyLab 标准轨迹（HDF5），通过任务插件的严格验收后，用 XPolicyLab 官方转换器导出为 LeRobot v3.0。训练在仓库外，数据格式和语义的约定见 [`scripts/datagen/CONTRACT.md`](scripts/datagen/CONTRACT.md)，完整流程见 [`scripts/datagen/SKILL.md`](scripts/datagen/SKILL.md)，已有数据集登记在 `scripts/datagen/registry.json`。

@@ -482,6 +482,11 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .hero { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; padding: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-2); color: var(--muted); cursor: zoom-in; }
 /* pinned to the 4:3 box: in the grid a tall photo would size the row and be cut at the bottom (a top crop) */
 .hero img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+/* Object previews must show the whole item even when the source image is square or portrait. */
+.obj-media > img:not(.inset), .obj-chip img, [data-lb^="obj-"] > img, .vpick .gthumb img { object-fit: contain; }
+.media.obj-media > img:not(.inset) { position: absolute; inset: 0; }
+.obj-media, [data-lb^="obj-renders-"] { background: #fff; }
+[data-lb^="obj-"]:hover > img, .vpick .gthumb:hover img { transform: none; }
 .hero.empty-hero { gap: 6px; padding: 16px; cursor: default; font-size: 12px; text-align: center; }
 .strip { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; }
 .strip .item { position: relative; flex: none; }
@@ -2218,9 +2223,9 @@ const objPath = (d) => `Assets/Object/${d.auto?.library || 'Real2Sim'}/${d.id}`;
 const ownObj = (d) => Boolean(d.auto.generator || twinObj(d));
 function objMedia(d, thumb = false) {
   const a = d.auto, render = a.renders?.[0], photo = a.photos?.[0], main = render || photo;
-  if (thumb) return `<span class="thumb">${main ? `<img loading="lazy" decoding="async" src="${small(main, 320)}" alt="">` : ic('cube')}</span>`;
+  if (thumb) return `<span class="thumb obj-media">${main ? `<img loading="lazy" decoding="async" src="${small(main, 320)}" alt="">` : ic('cube')}</span>`;
   const nv = variantsOf(d.id).length, runtime = runtimeText(d.gen);
-  return `<div class="media r43">${main ? `<img loading="lazy" decoding="async" src="${small(main, 640)}" alt="">` : ic('cube', 'ic-lg')}
+  return `<div class="media r43 obj-media">${main ? `<img loading="lazy" decoding="async" src="${small(main, 640)}" alt="">` : ic('cube', 'ic-lg')}
     ${render && photo ? `<img class="inset" loading="lazy" decoding="async" src="${small(photo, 320)}" alt="实拍">` : ''}
     <div class="pills">${a.photos?.length ? `<span class="pill" title="已归档实物照片">${ic('camera', 'ic-sm')}${a.photos.length}</span>` : hasPhotoReference(d) ? `<span class="pill" title="对话中已提供实物照片，原图待关联">${ic('camera', 'ic-sm')}照片参考</span>` : ''}${render ? `<span class="pill" title="仿真渲染">${ic('cube', 'ic-sm')}渲染</span>` : ''}
       ${nv ? `<span class="pill" title="泛化变体资产">+${nv} 变体</span>` : ''}${runtime ? `<span class="pill" title="仿真里按布局随机，不建新资产">随机 ${esc(runtime)}</span>` : ''}</div></div>`;
