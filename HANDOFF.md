@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-29
-本会话分支：`chongzheng/objects-instruction-names`（worktree `../RoboDojo-object-names`，基于 `origin/main@492473b`）：物体指令名称和建模 prompt v3（「最近任务」第一节）。上一会话：`chongzheng/platform-banzhi-flywheel`（worktree `../RoboDojo-banzhi-flywheel`）：数采平台改名 BanzhiFlywheel，分「仿真平台 / 数据集」两个板块，加公开数据集目录和日间 / 夜间主题（「最近任务」第一节，连同第二节的黑白改版）。2026-10-29 rebase 到 `806f4e6` 后快进推 `main`（`65abd16` 为代码，其后一个提交只改本文件），00:05 部署到 `5090-2`。之前：`chongzheng/merge-open-prs-1028b` 把 #36、#38–#43 合进 `main` 并部署。下行保留主线历史。
+本会话分支：`codex/object-image-fit`（独立 Codex worktree）：修复物体白底方形预览在横向卡片被裁切的问题，已部署同等小补丁到数采平台，保留服务器其他未提交改动。上一会话：物体指令名称和建模 prompt v3 已在主线；平台 BanzhiFlywheel 的布局和主题保持现状。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -39,6 +39,15 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 物体白底预览完整显示（2026-10-29）
+
+- NVIDIA SimReady 桌面资产已下载并登记：1001 包、47587 文件、49003411852 字节，源 revision `a72e6a76d53501cbf5a719910a674eb2c1f6f161`，大小与哈希全部通过。原包在 `5090-2:/data/robodojo-assets/sources/nvidia/simready-assets/`；平台分组为 `NVIDIA SimReady`（`nvidia_simready`）。运行时/物理验收未做。
+- 白底图：961 件采用 NVIDIA 浅底图，40 件从原始 USD 补渲染。原始包保留，展示图片以 `white_thumbnail.png` 安装到共享资产库和平台元数据镜像。
+- 本次修复：原先 `object-fit: cover` 会裁切方形白底图，单独改为 `contain` 仍会因 Grid 子项的固有尺寸超出卡片高度而裁切。为物体卡片/列表增加 `obj-media`，主图绝对定位到既有容器并等比完整显示；物体详情、缩略图、变体及角色图同样使用 `contain`，取消物体缩略图的悬停放大。场景封面保持原布局。
+- 验证：本机缺 pytest，CPU 检查改在服务器隔离源码快照运行 `bash scripts/check.sh HEAD`；补齐 Git LFS 模型并排除 macOS AppleDouble 文件后，87 passed、1 skipped、82 subtests passed，任务 inventory 通过。实际线上浏览器验证 18 件 dishware 卡片图片和容器尺寸一致、`object-fit: contain`，详情大图通过；截图确认叉子、勺子、托盘、保温杯完整显示。无需 GPU 验证（仅 HTML/CSS）。
+- 部署：只在服务器实际 HTML 中应用精确 CSS/类名补丁，原文件备份位于隔离运行目录；未覆盖服务器既有工作区修改。下一会话从本分支接续，合并后部署保持该补丁，勿退回整图 cover。
+
 
 ### 物体指令名称 + 建模 prompt v3（2026-10-29，`chongzheng/objects-instruction-names`）
 
