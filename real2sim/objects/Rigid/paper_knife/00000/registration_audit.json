@@ -1,0 +1,65 @@
+{
+  "previous_revision": "4543bcd6832467b38677a33d7692149604a514183916edbfae114ad9f3464dd4",
+  "current_revision": "e249245a730f5980ca6d5b91285c3dad45f476e8a4ded6581e561aa9bbf0fdd4",
+  "reason": "user supplied measured thickness 17.14 mm and instructed continuation on 2026-10-30",
+  "confirmation_basis": "explicit conversation instruction; not original registrant re-signature",
+  "backup": "/root/RoboDojo/.cache/paper-knife-before-thickness-20261030-001228",
+  "inputs": {
+    "asset_origin": null,
+    "photo_reference": null,
+    "name": "裁纸刀",
+    "name_en": "Paper Knife",
+    "material": "PP 塑料",
+    "color": "黄色",
+    "dimensions": "长度152.88，最大宽度39.44，中间宽度32.83，厚度17.14",
+    "real_mass": 58.9,
+    "real_friction": null,
+    "features": "黄色外壳、金属刀身",
+    "requirements": "可夹持",
+    "notes": null,
+    "gen": {
+      "count": 3,
+      "requirements": "参数由 coding agent 设计，彼此差异明显",
+      "rt_color": true,
+      "rt_scale": 0,
+      "color": true,
+      "material": false,
+      "size": false,
+      "shape": false
+    },
+    "estimated_dimensions_mm": null,
+    "estimated_mass_g": null,
+    "reference_source": "实物照片",
+    "dimension_policy": "measured",
+    "mass_policy": "measured",
+    "physics_requirements": "刚体；夹持",
+    "id": "Rigid/paper_knife/00000",
+    "photos": [
+      {
+        "path": "/root/RoboDojo/real2sim/objects/Rigid/paper_knife/00000/reference/03fc5f3d5bd16f7edd80c9819179e94d.jpg",
+        "bytes": 2983697,
+        "sha256": "da93366117f0f1268aeb29d5c741c037e06c383353a49b806d698a567d3ef21b"
+      },
+      {
+        "path": "/root/RoboDojo/real2sim/objects/Rigid/paper_knife/00000/reference/12e9a0db3d97a1934cf4a12e6844e472.jpg",
+        "bytes": 2970449,
+        "sha256": "8f22237fb9454d08738ea4b12398f38dcd3258b5979ab87b08899389bae7e742"
+      },
+      {
+        "path": "/root/RoboDojo/real2sim/objects/Rigid/paper_knife/00000/reference/5e19da097d9027d7b604fc3e822fe316.jpg",
+        "bytes": 3055378,
+        "sha256": "6a7592708ce4a2ef745b610aa673ccb5e00aefcf2ed8b249ee77e67257ba3994"
+      },
+      {
+        "path": "/root/RoboDojo/real2sim/objects/Rigid/paper_knife/00000/reference/655acc5d276cd24019659874101a64a8.jpg",
+        "bytes": 3236710,
+        "sha256": "edd2d8f5ee11531aa5fde3206536dc2c3fb2f80cdc84b83c559e6b92ebec0dd8"
+      }
+    ],
+    "existing_model": {
+      "size": null,
+      "mass": null,
+      "generator": null
+    }
+  }
+}

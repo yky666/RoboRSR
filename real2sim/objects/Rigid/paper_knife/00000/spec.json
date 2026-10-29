@@ -1,0 +1,31 @@
+{
+  "id": "Rigid/paper_knife/00000",
+  "twin": true,
+  "asset_origin": "physical_object",
+  "name": "裁纸刀",
+  "name_en": "Paper Knife",
+  "material": "PP 塑料",
+  "color": "黄色",
+  "mass_g": 58.9,
+  "dimensions_mm": "长度152.88，最大宽度39.44，中间宽度32.83，厚度17.14",
+  "features": "黄色外壳、金属刀身",
+  "requirements": "可夹持",
+  "generalization": {
+    "count": 3,
+    "requirements": "参数由 coding agent 设计，彼此差异明显",
+    "rt_color": true,
+    "color": true
+  },
+  "updated_by": "用户对话补测厚度17.14mm；Codex记录",
+  "updated_at": "2026-10-30 00:12:28",
+  "reference_source": "实物照片",
+  "dimension_policy": "measured",
+  "mass_policy": "measured",
+  "physics_requirements": "刚体；夹持",
+  "modeling_confirmation": {
+    "version": "real-object-v3",
+    "revision": "e249245a730f5980ca6d5b91285c3dad45f476e8a4ded6581e561aa9bbf0fdd4",
+    "by": "用户对话补测厚度17.14mm；Codex记录",
+    "at": 1793290348.2640266
+  }
+}

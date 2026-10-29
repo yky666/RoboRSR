@@ -40,6 +40,16 @@
 
 ## 最近任务
 
+### 裁纸刀本体和三个颜色变体（2026-10-30，codex/objects-paper-knife-00000）
+
+- 隔离目录 `/data/robodojo-runs/paper-knife-20261029`，worktree基于origin/main；生成器 `make_paper_knife.py`，原生工厂接触验证 `check_paper_knife.py`。输入、四张原图、照片派生贴图、独立名称条目及REPORT/delivery_report已归档。
+- 用户补测厚17.14 mm并指示继续；登记新revision `e249245a730f5980ca6d5b91285c3dad45f476e8a4ded6581e561aa9bbf0fdd4`。长度152.88、最大宽39.44、中间宽32.83 mm、58.9 g保持原实测。对话补测来源署名与原登记人区别记录，旧输入有备份。局部几何是照片拟合，非额外实测。
+- 本体00000和颜色变体00001–00003；开放导轨、分段刀片、尾孔/压印保留，压印来自照片，独立label_blade_stamp；rt_color仅model，固定尾框颜色用于名称区分。各语言各5条，apply/check通过。
+- 标准check_object四件OK；validation06原生部署项目工厂加载、质量、落地、尾孔/实体通道、推挡、夹持代理抬升/释放、复位均通过。夹持代理49.94 mm/50 mm，非机器人场景验证。相机为同侧近似、背/底面缺照片，摩擦/材料未标定。保持研究资产，未装共享库。
+- scripts/check.sh 91 passed、1 skipped、82 subtests passed；首轮LFS指针问题通过git-lfs materialize解决，失败日志保留。没有把部署工作树其他会话的物理加载器改动纳入本分支；报告用源码SHA识别实际测试实现。
+- 下一步：用户审核预览并补背面/底面照片；完整机器人场景抓取验证后再申请基础资产验收。共享库部署需要用户授权，届时只复制验证过的这4个ID并备份，不在共享库重新生成。
+
+
 ### 数采平台和 `5090-2` 工作区隔离（2026-10-29 23:xx 至 10-30 00:2x，`chongzheng/platform-isolation`，[PR #50](https://github.com/Zheng-Chong/RoboRSR/pull/50) 已合并，线上已切换）
 
 - **起因**：平台从 `/root/RoboDojo` 起，那里同时是大家的工作区（218 个未提交改动），数据库、登记、照片也写在里面；部署靠 stash → ff → pop，10-29 11:42 的重启把别的会话未提交的 `server.py` 带上了线。所有人都是 root，靠权限拦不住。用户选定：登记以平台状态目录为准，定稿时写回 Git；先在隔离端口验证，再约时间切线上。

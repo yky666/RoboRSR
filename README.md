@@ -64,6 +64,7 @@ python scripts/objects/make_water_cup.py          # 水杯 water_cup
 python scripts/objects/make_water_cup.py --plastic   # 塑料杯 plastic_cup
 python scripts/objects/make_school_tableware.py   # 学校纸杯 paper_cup、纸盘 paper_plate
 python scripts/objects/make_airpods.py            # 耳机充电盒 airpods
+python scripts/objects/make_paper_knife.py  # 裁纸刀本体与三个颜色变体；生成后运行 object_names.py apply
 python scripts/objects/make_lounge_chair.py       # 吧台客区的扶手椅 lounge_chair（蓝、白）
 python scripts/objects/make_plastic_cups.py       # 量杯 measuring_cup、塑料马克杯 plastic_mug（含 5 个泛化变体）
 python scripts/objects/make_plastic_bottle.py     # 带盖塑料瓶 plastic_bottle（Clutter/ 刚体，Articulation/ 能拧盖；标签要中文字体，见 bottle_label.py）
