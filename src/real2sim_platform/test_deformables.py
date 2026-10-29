@@ -29,6 +29,9 @@ def test_acceptance_fails_closed():
     empty = deformables.acceptance(profile, {}, "0" * 64)
     assert empty["status"] == "pending" and set(empty["checks"]) == {*checks, "bend_twist"}  # rope adds bend/twist
     assert set(deformables.acceptance({"family": "bag"}, {}, "0" * 64)["checks"]) >= {"seams_openings"}
+    for family in ("shell", "volume"):  # a paper cup or a plush is accepted on squashing and springing back
+        assert deformables.validate({"family": family}) is None
+        assert "compression_recovery" in deformables.acceptance({"family": family}, {}, "0" * 64)["checks"]
 
     mesh = "ab" * 32
     report = {

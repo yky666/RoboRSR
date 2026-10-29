@@ -638,6 +638,8 @@ def scan_objects(assets, tasks, keep):
                 object_spec.get("dimensions_mm"),
             ),
             "deformable_mesh_sha256": ((meta or {}).get("deformable") or {}).get("mesh_sha256"),
+            # set only by the flexible-item generators (FEM, particle cloth, D6 rod); rigid assets leave it out
+            "sim_backend": (meta or {}).get("backend") or physics.get("backend"),
             "mass": physics.get("mass", check.get("mass_kg")),
             "size": physics.get("size")
             or ((meta or {}).get("geometry", {}).get("aligned_bbox") or {}).get("extents")
