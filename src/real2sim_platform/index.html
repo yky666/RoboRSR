@@ -1754,7 +1754,7 @@ function sceneBrief(d) {  // the task for a coding agent that builds this scene 
   return [
     `为 RoboDojo 建一个真实工位的数字孪生场景 ${d.id}（${sceneName(d)}），按仓库里 real2sim/scenes/SKILL.md 的流程做（现场采集规范、建模、叠图检查、接入和登记）。先 git fetch，从最新的 origin/main 开独立 worktree 和短分支再读它：本地 main 可能落后。`,
     '',
-    `输入：${dir}/registration.json（平台登记信息，卷尺实测已按 scene_spec.json 的格式写好）和 ${dir}/reference/ 下的 ${photos.length} 张照片${photos.length ? `（${photos.join('、')}）` : ''}。这些文件在平台所在机器的 ${INFO.root}/${dir}/，本机没有就先把这个目录同步过来。`,
+    `输入：${dir}/registration.json（平台登记信息，卷尺实测已按 scene_spec.json 的格式写好）和 ${dir}/reference/ 下的 ${photos.length} 张照片${photos.length ? `（${photos.join('、')}）` : ''}。这些文件在平台所在机器的 ${INFO.data_root || INFO.root}/${dir}/（平台的登记，只读），本机没有就先把这个目录同步过来。`,
     '',
     '登记信息：',
     fact('名称', sceneName(d), r.name_en), fact('类型 / 地点', r.scene_type, r.location), fact('用途', PURPOSES[r.purpose]),
@@ -1776,7 +1776,7 @@ function sceneBrief(d) {  // the task for a coding agent that builds this scene 
     `1. 从最接近的已有场景复制目录开始（real_scene3_lab 是照片拟合的最新写法），在 ${dir}/ 下写 fit_photo.py、build_scene.py、check_scene.py、preview.py 和 PLAN.md；${r.charuco ? '先用 scripts/scenes/charuco.py solve 求出每张照片的相机位姿，作为强先验。' : '没有标定板，相机位姿从照片里的桌角和桌沿拟合。'}`,
     `2. 卷尺实测是硬约束：把 registration.json 的 measurements 原样抄进新建的 scene_spec.json（同时写 "name": "${sceneName(d)}"，平台按它显示中文名），拟合时把桌高、长、宽固定成实测值；建好后 python scripts/scenes/acceptance.py 里每项误差 < 1 cm。`,
     '3. 灯光按登记的光源和色温建模，房间要有天花板；lighting.status 写 recorded（和头部相机画面比对过才算 matched）。碰撞体每个凸包 ≤ 64 个顶点、单面 ≤ 32 个顶点。',
-    `4. 在 scripts/g1d/build_asset.py 的 SCENES 里加一行，新增 env_cfg/g1d_${slug}.yml 和 env_cfg/robot/g1d_${slug}.yml；在 5090-2 的隔离目录跑 build_asset.py 和一次 scripted_demo，检查四路相机画面。和照片对比的渲染图放到 ${dir}/preview/（jpg），平台据此显示；再按 SKILL「接入和登记」跑 scripts/scenes/export_glb.py（3D 预览）和 render_scenes.py（卡片封面），preview/ 同步到部署机。装进共享资产库前先征得同意。`,
+    `4. 在 scripts/g1d/build_asset.py 的 SCENES 里加一行，新增 env_cfg/g1d_${slug}.yml 和 env_cfg/robot/g1d_${slug}.yml；在 5090-2 的隔离目录跑 build_asset.py 和一次 scripted_demo，检查四路相机画面。和照片对比的渲染图放到 ${dir}/preview/（jpg），平台据此显示；再按 SKILL「接入和登记」跑 scripts/scenes/export_glb.py（3D 预览）和 render_scenes.py（卡片封面），再在 5090-2 上用 r2s publish <运行目录>/${dir}/preview ${dir}/preview 发布到平台（不要直接改平台目录）。装进共享资产库前先征得同意。`,
     `5. 提交场景目录（含 registration.json、照片、scene_spec.json）、build_asset.py 和 env 配置，更新 real2sim/ASSETS.md 的场景行。`,
   ].filter((line) => line !== null).join('\n');
 }
@@ -1917,7 +1917,7 @@ function drawerBenchScene(d) {
       <dt>背景</dt><dd class="mono">${esc(a.background || '—')}</dd></dl>
       <p class="hint">RoboDojo 自带场景，不是真实场景孪生，没有照片和验收；要改就改仓库里的配置文件。</p>`)}
     ${sec(`${ic('list')}使用这个场景的基准任务`, `<p class="small">${(a.tasks || []).map((t) => link('task', t)).join('、') || '—'}</p>`, ` <span class="muted small">${a.tasks?.length || 0} 个 · task/RoboDojo/config/_task.yml 的 scene_config</span>`)}
-    ${sec(`${ic('terminal')}重新渲染封面`, code(`# GPU 服务器、带 Assets/ 的隔离目录\nOMNI_KIT_ACCEPT_EULA=YES python scripts/scenes/render_scenes.py env_cfg/scene/${name}.yml\n# 再把 real2sim/benchmark_scenes/${name}/preview/ 同步到平台部署机`))}`,
+    ${sec(`${ic('terminal')}重新渲染封面`, code(`# GPU 服务器、带 Assets/ 的隔离目录\nOMNI_KIT_ACCEPT_EULA=YES python scripts/scenes/render_scenes.py env_cfg/scene/${name}.yml\n# 再发布到平台（5090-2 上）：r2s publish <运行目录>/real2sim/benchmark_scenes/${name}/preview real2sim/benchmark_scenes/${name}/preview`))}`,
   };
 }
 function importedSceneStages(d) {
@@ -2039,7 +2039,7 @@ function robotBrief(d) {  // the task for a coding agent that brings a registere
   return [
     `为 RoboDojo 接入新的机器人本体 ${d.id}（${robotName(d)}）。参照现有的 G1-D 接入（env/robot_manager/robot_config/g1d.py、robot_class/g1d.py、scripts/g1d/build_asset.py、env_cfg/robot/g1d.yml），先 git fetch，从最新的 origin/main 开独立 worktree 和短分支。`,
     '',
-    `输入：${dir}/registration.json 和 ${dir}/reference/ 下的 ${(d.auto.photos || []).length} 张照片，在平台所在机器的 ${INFO.root}/${dir}/。`,
+    `输入：${dir}/registration.json 和 ${dir}/reference/ 下的 ${(d.auto.photos || []).length} 张照片，在平台所在机器的 ${INFO.data_root || INFO.root}/${dir}/（只读）。`,
     '',
     '登记信息：',
     fact('名称', [r.name, r.name_en].filter(Boolean).join('，')), fact('型号 / 厂商', r.model), fact('变体', r.variant), fact('自由度', r.dof),
@@ -2209,7 +2209,7 @@ function evalBrief(d) {  // the task for a coding agent that deploys and evaluat
   return [
     `为 RoboDojo 部署并评测外部模型「${evalName(d)}」（评测编号 ${d.id}），按仓库 scripts/datagen/SKILL.md「用本仓库评估外部训练的 checkpoint」和 scripts/datagen/CONTRACT.md 做。先 git fetch，从最新的 origin/main 开独立 worktree 和短分支。`,
     '',
-    `输入：${dir}/request.json（平台申请），在平台所在机器的 ${INFO.root}/${dir}/。`,
+    `输入：${dir}/request.json（平台申请），在平台所在机器的 ${INFO.data_root || INFO.root}/${dir}/（只读）。`,
     '',
     '模型：',
     fact('名称 / 版本', [r.model_name, r.version].filter(Boolean).join('，')), fact('框架', r.framework), fact('checkpoint', r.checkpoint), fact('部署代码', r.code),
@@ -2226,8 +2226,8 @@ function evalBrief(d) {  // the task for a coding agent that deploys and evaluat
     `1. 在 5090-2 开隔离目录 /data/robodojo-runs/eval-${d.id}-<时间>/，把 checkpoint 和部署代码拉过去，按推理环境建 conda 环境。凭据只在服务器上用，不要写进仓库、request.json、result.json 或日志。`,
     '2. 接入：优先用 XPolicyLab 的策略服务（policy 目录 + deploy.yml，WebSocket）；XPolicyLab 里没有对应策略时，在运行目录写进程内适配器，用 src/eval_client/main.py 的 --policy_module 跑（适配器不进本仓库，需要通用化时给 XPolicyLab 提 PR）。观测和动作按 CONTRACT 对齐（16 维顺序、夹爪 state 是实测开度、30 Hz、图像键名），不一致的写进交付说明。',
     `3. 先冒烟 1 回合：_result.json 的 eval_time ≥ 1、相机视频齐全、动作不越限；再按上面的范围跑全量。颗粒任务用 g1d_beans_collect（1/600 s）。只用没有 train 标记的评测布局。策略名用 ${d.id}。`,
-    `4. 把运行目录的 eval_result/ 同步到 5090-2:${INFO.root}/eval_result/，平台据此在「数据质检」里列出这些回合和视频。`,
-    `5. 写 ${dir}/result.json，平台读它显示结果：{"evaluated_at": "...", "summary": "一两句结论", "runs": [{"task", "env_cfg", "level"（综合等级如 "G2"，诊断如 "spatial:L3"）, "layouts", "repeats", "episodes", "success_rate", "ci95": [lo, hi], "expert_success_rate", "eval_time", "result_dir"}], "issues": "部署和对齐中的问题"}。放到部署机同一路径并提交入库。`,
+    `4. 把运行目录的 eval_result/ 同步到 5090-2:${(INFO.eval_roots || [])[0] || `${INFO.root}/eval_result`}/，平台据此在「数据质检」里列出这些回合和视频。`,
+    `5. 写 ${dir}/result.json，平台读它显示结果：{"evaluated_at": "...", "summary": "一两句结论", "runs": [{"task", "env_cfg", "level"（综合等级如 "G2"，诊断如 "spatial:L3"）, "layouts", "repeats", "episodes", "success_rate", "ci95": [lo, hi], "expert_success_rate", "eval_time", "result_dir"}], "issues": "部署和对齐中的问题"}。在 5090-2 上用 r2s publish <运行目录>/${dir}/result.json ${dir}/result.json 发布到平台，并提交入库。`,
     '6. 过程中在平台上把这条评测的状态改成「部署中」「评测中」，完成后改「已完成」或「失败」，在评测记录里写原因。',
   ].filter((line) => line !== null).join('\n');
 }
@@ -3424,7 +3424,7 @@ function taskBrief(d) {  // the task for a coding agent that implements this reg
       ? `为已有的 G1-D 任务 ${d.id}（${r.name}）按平台登记的方案补齐泛化评测布局和采集设置，按仓库 CLAUDE.md 的任务约定和 scripts/datagen/SKILL.md 做。先 git fetch，从最新的 origin/main 开独立 worktree 和短分支。`
       : `为 RoboDojo 实现一个新的 G1-D 任务 ${d.id}（${r.name}），按仓库 CLAUDE.md 的任务约定（任务文件结构、YAML 配置、PR 检查表）和 scripts/datagen/SKILL.md 做。先 git fetch，从最新的 origin/main 开独立 worktree 和短分支。`,
     '',
-    `输入：${dir}/registration.json（平台登记信息），在平台所在机器的 ${INFO.root}/${dir}/，本机没有就先同步过来。`,
+    `输入：${dir}/registration.json（平台登记信息），在平台所在机器的 ${INFO.data_root || INFO.root}/${dir}/（只读），本机没有就先同步过来。`,
     '',
     '登记信息：',
     fact('名称', [r.name, r.name_en].filter(Boolean).join('，')), fact('任务定义', r.definition),

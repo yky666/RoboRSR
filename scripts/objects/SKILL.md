@@ -11,10 +11,10 @@ description: 按 Real2Sim 数采平台的物体登记（real2sim/objects/<id>/sp
 
 | 层 | 位置 | 入库 | 这一步里怎么用 |
 | :-- | :-- | :-- | :-- |
-| 登记（输入） | 部署机 `<仓库>/real2sim/objects/<id>/`：`spec.json`、`reference/*.jpg` | 拷回本机后入库 | 只读；同步到本机，随脚本一起提交 |
+| 登记（输入） | 平台状态目录 `5090-2:/data/r2s-platform/state/real2sim/objects/<id>/`：`spec.json`、`reference/*.jpg` | 拷回本机后入库 | 只读；同步到本机，随脚本一起提交 |
 | 生成代码 | `scripts/objects/make_*.py`；任务也要用的几何放 `scripts/objects/<类别>_shape.py`（只依赖 numpy） | 入库 | 新建或修改 |
 | 生成结果 | `Assets/Object/Real2Sim/<id>/`（Real2Sim 物体库；官方物体在 `Object/RoboDojo/`，编号两库共用不重复）（`object.usdz`、`metadata.json`、`description.json`） | 不入库 | 只由脚本写，不手改；不要往 `Assets/` 放要入库的文件 |
-| 渲染预览和检查结果 | `real2sim/objects/<id>/preview/sim.png`、`check.json` | 不入库 | `check_object.py --image-dir` 生成，同步到部署机：平台据此显示渲染图，并在资产装进共享库之前就推进「建模」「尺寸核对」「物理检验」 |
+| 渲染预览和检查结果 | `real2sim/objects/<id>/preview/sim.png`、`check.json` | 不入库 | `check_object.py --image-dir` 生成，用 `r2s publish` 发布到平台：平台据此显示渲染图，并在资产装进共享库之前就推进「建模」「尺寸核对」「物理检验」 |
 | 验证 | `5090-2` 的隔离目录 `/data/robodojo-runs/<名称>-<时间>/` | 不入库 | 生成到隔离目录的覆盖目录里再检查 |
 | 共享资产库 | `5090-2:/data/robodojo-assets/Assets` | 不入库 | 只有用户同意后，按 README「改服务器共享资产库」装 |
 | 登记表 | `real2sim/ASSETS.md`、README「快速开始」第 4 步、`HANDOFF.md` | 入库 | 更新 |
@@ -23,7 +23,7 @@ description: 按 Real2Sim 数采平台的物体登记（real2sim/objects/<id>/sp
 
 `<id>` 是 `<类型>/<类别>/<5 位编号>`，如 `Rigid/measuring_cup/00002`。编号由平台登记时分配，资产目录、照片目录、生成脚本里的编号都用它，不要另起。
 
-机器名、路径这类会变的信息以 `HANDOFF.md`「服务器」为准；数采平台的运维细节（部署机仓库、资产库镜像命令等）在本机 `.agent/ops.local.md`，仓库是公开的，这些不入库，本机没有这个文件就问用户。下文写的是写这份说明时的状态。
+机器名、路径这类会变的信息以 `HANDOFF.md`「服务器」为准；数采平台的部署、发布和回滚见 `src/real2sim_platform/ops.sh` 开头的说明，账号、隧道这类运维细节在本机 `.agent/ops.local.md`，仓库是公开的，这些不入库，本机没有这个文件就问用户。下文写的是写这份说明时的状态。
 
 ## 流程
 
@@ -48,11 +48,13 @@ description: 按 Real2Sim 数采平台的物体登记（real2sim/objects/<id>/sp
 
 ### 2. 取登记
 
-登记在平台所在的部署机上（SSH 别名和仓库路径见 `.agent/ops.local.md`，当前是 `5090-2:/root/RoboDojo`）。同步到本机：
+登记在平台的状态目录里（`5090-2:/data/r2s-platform/state/`，只读；平台代码跑在 `/opt/r2s-platform/current`，不可修改，两处都不要直接写）。同步到本机：
 
 ```bash
-rsync -az --exclude preview/ <部署机>:<仓库>/real2sim/objects/<id>/ real2sim/objects/<id>/
+rsync -az --exclude preview/ 5090-2:/data/r2s-platform/state/real2sim/objects/<id>/ real2sim/objects/<id>/
 ```
+
+在 `5090-2` 的 worktree 里做时用 `r2s export <worktree> real2sim/objects/<id>`，效果一样。
 
 `spec.json` 字段（空字段不出现）：
 
@@ -176,7 +178,7 @@ CUDA_VISIBLE_DEVICES=<卡> PYTHONPATH=. python scripts/objects/check_object.py o
 ### 8. 外观
 
 - 按 `reference/` 每张照片的视角各渲染一张，和照片并排拼成对照图放进 `preview/`：逐项核对截面形状、肩颈比例、颜色、透明度、把手位置，以及每块标签的位置、大小、颜色和文字。标签缺失或与照片对不上就不算完成，回到第 4 步。
-- 把 `preview/` 同步回本机和部署机的同一路径（平台读部署机上的），这个目录不入库。
+- 把 `preview/` 同步回本机，并发布到平台：在 `5090-2` 上 `r2s publish <运行目录>/real2sim/objects/<id>/preview real2sim/objects/<id>/preview`（被替换的旧文件进 `state/backups/`，发布后自动重新扫描）。这个目录不入库。
 - `preview/check.json` 由 `check_object.py` 写：落地结果（`settle`）、资产的质量、尺寸和 `measurements_mm`。其余物理检验做了哪项，就在里面加 `"checks": {"collision" | "grasp" | "liquid" | "render": "pass" | "fail" | "na"}` 和 `"notes": {项: 依据}`（如「容器口未封，check_cup_beans 保留 100%」「非容器」）；没做的不写，不要为了通过而写 pass。重跑 `check_object.py` 会覆盖这个文件，补写的项要重新加。平台上人工选的结论优先。
 
 ### 9. 登记、提交、交付说明
@@ -184,7 +186,7 @@ CUDA_VISIBLE_DEVICES=<卡> PYTHONPATH=. python scripts/objects/check_object.py o
 - **提交**：
   - 生成脚本（和形状模块）
   - `scripts/objects/object_names.json` 里本体和变体的条目
-  - `real2sim/objects/<id>/spec.json` 和 `reference/` 照片（从部署机拷来的原件，图片自动走 LFS）
+  - `real2sim/objects/<id>/spec.json` 和 `reference/` 照片（从平台状态目录拷来的原件，图片自动走 LFS）
   - 新脚本或新物体：README「快速开始」第 4 步加上生成命令
   - `real2sim/ASSETS.md` 新增或更新一行：真实对应物、生成脚本，尺寸、质量、摩擦、外观各自的匹配等级和依据（spec 里的值算「实测」，照片估的算「估计」），共享库状态
   - `HANDOFF.md`
@@ -199,8 +201,8 @@ CUDA_VISIBLE_DEVICES=<卡> PYTHONPATH=. python scripts/objects/check_object.py o
 - 按 README「改服务器共享资产库」五步：隔离目录验证 → 征得同意 → 备份要覆盖的部分 → 拷贝**验证过的产物**（不在共享库上重新生成）并 `diff -r` 确认 → 在 `HANDOFF.md` 记下改了什么、备份在哪。
 - 只拷目标 id 的目录。一个脚本会生成整族物体，同族的其他编号不要顺手覆盖。
 - 新 id 不会覆盖已有目录；重建已有物体时先备份原目录。
-- 装好之后：`ASSETS.md`「共享库」一栏改成「已装」；在本机重跑 `.agent/ops.local.md` 里的元数据镜像命令，刷新部署机的资产库镜像，再在平台点「同步项目数据」。平台会按 `measurements_mm` 自动核对尺寸，物体页的「尺寸 / 质量核对」应当变成通过。
-- 没装共享库、但要让平台先看到：把 `metadata.json`、`description.json` 手动放进部署机镜像的同一 id 目录，并记进 `.agent/ops.local.md`。镜像命令会整体替换镜像目录，下次重跑时手动放的文件会被删掉。
+- 装好之后：`ASSETS.md`「共享库」一栏改成「已装」；平台直接只读共享库，在 `5090-2` 上跑 `r2s scan`（或在页面点「同步项目数据」）就能看到。平台会按 `measurements_mm` 自动核对尺寸，物体页的「尺寸 / 质量核对」应当变成通过。
+- 没装共享库、但要让平台先看到：发布 `preview/check.json`（`check_object.py` 写的尺寸、质量），平台据此推进建模和尺寸核对。
 
 ## 从公开库批量导入（RSI 的干扰物和实例）
 

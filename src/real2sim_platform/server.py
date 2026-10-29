@@ -1695,6 +1695,7 @@ def main():
     Handler.roots = [ROOT / "real2sim", ROOT / "output", assets, *eval_roots]
     Handler.info = {
         "root": str(ROOT),
+        "data_root": str((ROOT / "real2sim").resolve().parent),  # the state dir when deployed with ops.sh
         "db": str(args.db.resolve()),
         "assets": str(assets),
         "assets_ok": (assets / "Object").is_dir(),

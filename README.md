@@ -141,6 +141,8 @@ python3 src/real2sim_platform/server.py --host 0.0.0.0 \
     --eval-root eval_result --eval-root /data/robodojo-runs
 ```
 
+团队用的那份在 `5090-2` 上由 `src/real2sim_platform/ops.sh`（装好后是 `r2s`）管理，和大家的工作区分开：代码是某个提交的只读副本（`/opt/r2s-platform/current`，`chattr +i`），平台只能写自己的状态目录 `/data/r2s-platform/state/`（数据库、登记、照片、发布进来的渲染；systemd 沙箱），共享资产库和回合目录只读、实时扫描。部署 `r2s deploy <sha>`（起不来自动退回）、回滚 `r2s rollback`；agent 的渲染和结果用 `r2s publish <源> <real2sim/...>` 发布，登记文件不会被覆盖；`r2s export <worktree>` 把登记和照片拷进 checkout 入库。不要再从 `/root/RoboDojo` 起平台或往那里同步给平台看的文件。
+
 每个人用自己的账号登录，录入和质检结论自动以账号的显示名署名（录入时没法改署名）。账号存在平台数据库里（密码 PBKDF2 加盐哈希），分管理员和成员：管理员在侧栏「成员管理」页新建账号（默认填好随机初始密码，建好后显示一次可复制的登录信息）、改显示名、设为管理员、重置密码（生成新随机密码，踢掉该账号已有的登录）、删除账号；不能删除自己或取消自己的管理员，所以至少总有一个管理员。命令行只用来建第一个管理员或在忘记所有管理员密码时救急：`--add-user 用户名 [--name 显示名] [--admin]` 新建或重置密码，`--remove-user 用户名`，`--list-users`；脚本里可以把密码放在标准输入第一行。登录后在侧栏底部可以改自己的密码、退出登录。会话 14 天有效；同一用户名连续输错 5 次锁定 5 分钟。平台走 HTTP，密码在网络上是明文传输，经公网访问时有被窃听的风险。
 
 启动时和点「从项目同步」时扫描仓库：`real2sim/scenes/`（照片、相机拟合残差、USD、`check_report.json`）、任务清单和 G1-D 任务用到的物体、资产库里的 `metadata.json` 和评测布局数、`--eval-root` 下的 `_result.json` 与各相机视频。页面分五块：
