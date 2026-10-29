@@ -40,12 +40,14 @@
 
 ## 最近任务
 
-### 办公室场景布局精简（2026-10-29 13:xx，`chongzheng/scene-office-layout`，未进 `main`、未部署、未装共享库）
+### 办公室场景布局精简（2026-10-29 13:xx–14:3x，`chongzheng/scene-office-layout`，`f3da0c7` 已进 `main`、已部署、已装共享库）
 
 - **用户要求**（看平台 3D 预览的俯视图）：不要窗外背景；东侧那张橙色办公桌（俯视图上方）靠墙；西南角两张桌子只留一张。
 - **改动**（`real2sim/scenes/real_scene1_office/build_scene.py`）：删掉北窗、东窗外两块视频帧贴图背景板（`Exterior/*`、`exterior` 材质、`window_exterior.png`，也去掉了只给它用的 `no_shadow`），窗洞里现在是 `AmbientDome` 的颜色；`DeskEast` 整体 +0.84 m 贴东墙（x 1.43–2.99，离墙 1 cm，窗台在桌面上方，不冲突），桌上筐、墙角皮椅、女同事椅跟着平移；删掉粗摆的 `DeskWest2`，留下挨着西侧 a 椅的 `DeskWest`。任务桌、桌面物体、机器人站位都没动。依据写在 `LAYOUT` 的 `src` 和 `PLAN.md` 对照表「布局精简」一行；这两处从此和照片对不上。
 - **验证**（只在本机）：`build_scene.py` 重建（`usd/objects` 只有面序变化，已还原）；`check_scene.py` 31/31，任务桌到最近背景碰撞体从 5.5 cm 变成 47.6 cm；`scene_parts.py`（`parts.json` 不变）、`make_manifest.py`；`export_glb.py` 生成 `preview/scene.glb`，用平台同款 three.js 渲染俯视、斜视、头部视角和旧版对比，GLB 里已没有 `Exterior`、`DeskWest2`；`bash scripts/check.sh`（uv 临时环境）87 passed、1 skipped。没跑 Isaac RTX，也没跑任务。
-- **还没做**：合进 `main`、部署机同步 `preview/scene.glb`（平台卡片封面 `preview/render/sim.jpg` 要在 `5090-2` 上用 `render_scenes.py` 重渲）、装进共享库 `Room/real_scene1/`（要用户同意；`g1d`、`g1d_mobile`、`g1d_aurora_lite_ws` 都用这个房间，装库后新采的办公室数据背景会和已发布的两份 100 条数据不同）。装库前在隔离目录跑 `build_asset.py` 和 `g1d` seed 0 的脚本专家，看一眼头部相机画面（窗外从照片变成纯色）。
+- **Isaac 验证**（`5090-2:/data/robodojo-runs/office-layout-20261029-1415/`，GPU 2；`Assets/` 除 `Room/real_scene1` 外都软链接到共享库）：`render_scenes.py` 出新的 RTX 封面；`g1d` seed 0 拾取、叠块 `success_rate` 1.0、`eval_time` 1，头部相机画面正常（看的是桌面，拍不到窗）。量杯倒豆没跑起来：共享库里本来就没有 `g1d_pour_beans_measuring_cups` 的布局（老缺口，和本次无关），脚本 16 s 退出、不写结果。Open3D 预览（5 个自由视角、15 个照片 / 视频帧对比）在同一目录重渲，服务器的 RoboDojo 环境没有 `pxr`，用的是 `PYTHONPATH=/data/robodojo-runs/usdcore-py310`（pip 装的 usd-core）。
+- **部署**（用户同意）：部署机 `d60f1ba` → `f3da0c7`（stash → ff → pop，只有 `HANDOFF.md` 重叠，另外 161 个别人的改动逐字节不变），备份 `.cache/ff-main-20261029-141830/`；`preview/` 覆盖同名文件（`scene.glb`、`render/sim.jpg`、`cmp_/ov_/render_/view_*.jpg`，旧版整个备份在 `.cache/office-layout-preview-before-20261029-142520/`）；没重启平台（部署机 `server.py` 有别的会话未提交的改动），临时会话 POST `/api/scan` 后办公室检查 31/0、`scene.glb` 为新版，未登录 `/api/info` 401。
+- **共享库**（用户同意）：`/data/robodojo-assets/Assets/Room/real_scene1` 整个换成验证过的那份（`window_exterior.png` 不再残留，和仓库 `usd/` 逐字节一致，root 644/755）。旧版备份 `/data/robodojo-assets/backups/backup-shared-room1-20261029-142552.tgz`，回滚就在 `Assets/Room` 下删掉 `real_scene1` 再解开它。`g1d`、`g1d_mobile`、`g1d_aurora_lite_ws` 从此用新房间，新采的办公室数据背景和已发布的两份 100 条不同。
 
 ### 物体指令名称 + 建模 prompt v3（2026-10-29，`chongzheng/objects-instruction-names`）
 
