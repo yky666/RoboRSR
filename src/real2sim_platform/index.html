@@ -1205,155 +1205,186 @@ function drawerPrototype(d) {
       <p class="hint">研究资产保留已有模型与验证记录；当前不作为完整本体或任务登记的新候选。</p>`};
 }
 
-// ---------- datasets: public datasets entered by hand (numbers from the publishers or RoboFlywheel; local copy from the OSS inventory) ----------
+// ---------- datasets: public catalog with local-copy inventory; publisher descriptions keep their original scope ----------
+const DS_INVENTORY_DATE = '2026-10-29';
 const DATASETS = [
   {id: 'agibot-world-beta', name: 'AgiBot World Beta', org: '智元机器人 AgiBot', url: 'https://huggingface.co/datasets/agibot-world/AgiBotWorld-Beta',
-    episodes: 1000000, epText: '100 万+', hours: 2976.4, size: '45 TB', tb: 45,
+    episodes: null, hours: null, size: "49,561.637 GB", tb: 49.561637004,
+    inventoryNote: "原始 tar 仓库的逻辑体量；尚未逐包核算完整回合和时长。另有转换副本 153,394 条、2,521.364 h，仅为已转换子集，与原始包重叠。",
     desc: '100 台机器人在 100 多个真实场景采集，覆盖家居、零售、餐饮、办公、工业 5 个领域、200 多类任务和 87 种原子技能，含视觉触觉、灵巧手和移动双臂数据。',
     f: {source: ['real'], domain: ['commercial', 'home'], space: ['store', 'cafe', 'office', 'kitchen', 'living'], form: ['wheeled_humanoid'], robot: ['agibot'], manip: ['tabletop', 'mobile'],
       skill: ['pick_place', 'organize', 'deformable', 'articulated', 'wipe'], format: ['hdf5', 'lerobot3'], license: ['ccbyncsa'], platform: ['hf'], local: ['partial']}},
   {id: 'unitree-g1-wbt', name: 'Unitree G1 WBT 全身遥操作系列', org: '宇树科技 Unitree', url: 'https://huggingface.co/unitreerobotics',
-    episodes: null, hours: null, size: '约 774 GB · 59 个任务', tb: 0.76,
+    episodes: 13816, hours: 132.445805, size: "831.281 GB", tb: 0.831280572,
+    inventoryNote: "59 个本地任务仓库，按逐条 episode 清单汇总 length/fps，每集只计一次，不乘相机数；系列合计未作跨任务去重。",
     desc: 'G1 人形全身遥操作，配 Brainco / Inspire 灵巧手：铺床、收衣服放进洗衣机、碗碟放进洗碗机、饮料放进冰箱、整理超市货架、收拾客厅拖鞋等家务与零售任务。',
     f: {source: ['real'], domain: ['home', 'commercial'], space: ['bedroom', 'living', 'kitchen', 'bathroom', 'store'], form: ['legged_humanoid'], robot: ['unitree_g1'], manip: ['whole_body', 'mobile'],
       skill: ['pick_place', 'organize', 'deformable', 'articulated'], format: [], license: ['unknown'], platform: ['ms', 'hf'], local: ['complete']}},
   {id: 'unitree-g1-dex1', name: 'Unitree G1 Dex1 桌面操作系列', org: '宇树科技 Unitree', url: 'https://huggingface.co/unitreerobotics',
-    episodes: null, hours: null, size: '约 1.7 TB · 94 个任务', tb: 1.7,
+    episodes: 61228, hours: 355.252726, size: "1,827.562 GB", tb: 1.827562156926,
+    inventoryNote: "94 个登记条目中，86 份有轨迹清单，另外 8 份为空目录或仅元数据。数字汇总有轨迹的本地表示；不同分辨率和衍生版本可能同源，未去重，系列副本不完整。",
     desc: 'G1 上身加 Dex1 两指夹爪，每个任务一个仓库（如叠毛巾 200 条、30 fps、4 路相机）：叠衣物、收纳餐具和调料、整理书架文具、擦桌子、放食物进烤箱、水果分拣等。',
     f: {source: ['real', 'sim'], domain: ['home', 'commercial'], space: ['kitchen', 'living', 'bedroom', 'office', 'store', 'bathroom'], form: ['legged_humanoid'], robot: ['unitree_g1'], manip: ['tabletop'],
-      skill: ['pick_place', 'organize', 'deformable', 'wipe', 'assembly', 'pour'], format: ['lerobot21'], license: ['apache'], platform: ['ms', 'hf'], local: ['complete']}},
+      skill: ['pick_place', 'organize', 'deformable', 'wipe', 'assembly', 'pour'], format: ['lerobot21'], license: ['apache'], platform: ['ms', 'hf'], local: ['partial']}},
   {id: 'robomind-2', name: 'RoboMIND 2.0', org: '北京人形机器人创新中心 X-Humanoid', url: 'https://www.modelscope.cn/collections/X-Humanoid/RoboMIND20',
-    episodes: 230630, hours: 1341, size: '约 91 TB · 9 个子集', tb: 91,
+    episodes: 214783, hours: null, size: "92,302.057 GB", tb: 92.302056595,
+    inventoryNote: "仅汇总本地 9 个平台/分卷（含 Ark、Franka 仿真），不含主仓库索引样本和派生版本。按 HDF5 轨迹文件计数；Tianyi-mobile 未计入，统一采样率未核实，时长待补。",
     desc: '多本体真机操作数据：Franka、UR5、AgileX 双臂、天工 / 天轶人形等平台，另有 Franka 仿真子集；任务含餐厅摆放餐具、厨房备菜、抓取放置等。',
     f: {source: ['real', 'sim'], domain: ['commercial', 'home'], space: ['cafe', 'kitchen'], form: ['single_arm', 'dual_arm', 'wheeled_humanoid'], robot: ['franka', 'ur5', 'agilex', 'tiangong'], manip: ['tabletop', 'mobile'],
       skill: ['pick_place', 'organize'], format: [], license: ['apache'], platform: ['ms'], local: ['partial']}},
   {id: 'galaxea-open-world', name: 'Galaxea Open-World Dataset', org: '星海图 Galaxea AI', url: 'https://www.modelscope.cn/datasets/Galaxea/Galaxea-Open-World-Dataset',
-    episodes: null, hours: null, size: '4.7 TB', tb: 4.7,
+    episodes: null, hours: null, size: "5,094.377 GB", tb: 5.09437665,
+    inventoryNote: "原始压缩包仓库体量，完整轨迹数和时长尚未逐包核算。另有桌面筛选转换子集 6,147 条、93.574 h、515.089 GB，不能当作原仓库全量。",
     desc: '全部在真实的居住与工作环境中采集，统一使用 Galaxea R1 双臂全身本体并带子任务级语言标注，约 10 万条轨迹，用于训练 G0 双系统 VLA 模型。',
     f: {source: ['real'], domain: ['home', 'commercial'], space: ['living', 'kitchen', 'bedroom', 'office', 'store'], form: ['wheeled_humanoid'], robot: ['galaxea'], manip: ['mobile', 'whole_body'],
       skill: ['pick_place', 'organize', 'articulated'], format: ['lerobot'], license: ['ccbyncsa'], platform: ['ms', 'hf'], local: ['complete']}},
   {id: 'geniesim-3', name: 'Genie Sim 3.0 Dataset', org: '智元机器人 AgiBot', url: 'https://modelscope.cn/datasets/agibot_world/GenieSim3.0-Dataset',
-    episodes: null, hours: null, size: '39 TB', tb: 39,
+    episodes: null, hours: null, size: "42,567.430 GB", tb: 42.567430435,
+    inventoryNote: "原始仓库体量包含压缩数据和 checkpoint，完整回合数与时长尚未逐包核算。另有 63 任务的已展开子集 90,703 条、164.280 h、783.500 GB；缺 2 个任务，子集数据含未物理删除的质检排除项。",
     desc: 'Genie Sim 3.0 仿真平台生成的大规模操作数据，LeRobot 格式，含整理工作台、拉抽屉等任务。',
     f: {source: ['sim'], domain: ['commercial', 'home'], space: ['office'], form: ['wheeled_humanoid'], robot: ['agibot'], manip: ['tabletop', 'mobile'],
-      skill: ['pick_place', 'organize', 'articulated'], format: ['lerobot'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
+      skill: ['pick_place', 'organize', 'articulated'], format: ['lerobot'], license: ['unknown'], platform: ['ms'], local: ['partial']}},
   {id: 'agibot-world-2026', name: 'AgiBot World 2026', org: '智元机器人 AgiBot', url: 'https://www.modelscope.cn/datasets/agibot-world/AgiBotWorld2026',
-    episodes: null, hours: null, size: '8.6 TB', tb: 8.6,
+    episodes: null, hours: null, size: "9,362.365 GB", tb: 9.362364587,
+    inventoryNote: "本地压缩/分片文件逻辑体量；尚未逐包核算完整 Episode 与时长。",
     desc: 'AgiBot World 的 2026 版本，分模仿学习（ImitationLearning）、富交互（RichInteraction）和仿真三部分。',
     f: {source: ['real', 'sim'], domain: ['commercial', 'home'], space: [], form: ['wheeled_humanoid'], robot: ['agibot'], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'droid', name: 'DROID', org: 'Stanford · UC Berkeley 等', url: 'https://www.modelscope.cn/datasets/nvidia/Cosmos3-DROID',
-    episodes: 95600, hours: 511, size: '707 GB', tb: 0.69,
+    episodes: 71907, hours: 415.050222, size: "758.395 GB", tb: 0.758395288,
+    inventoryNote: "仅 NVIDIA 转换的本地 LeRobot v3 成功/失败副本。逐条 episode 元数据汇总，sum(length/fps)，每条轨迹只计一次，不乘三路相机。",
     desc: '数十名采集者在北美、亚洲、欧洲 564 个真实场景（家庭、办公室等）用 Franka 遥操作采集；这里收录 NVIDIA 转换的 LeRobot v3 版本，含成功与失败轨迹。',
     f: {source: ['real'], domain: ['home', 'commercial'], space: ['office', 'kitchen', 'living'], form: ['single_arm'], robot: ['franka'], manip: ['tabletop'],
       skill: ['pick_place', 'organize', 'articulated'], format: ['lerobot3'], license: ['ccby'], platform: ['ms'], local: ['complete']}},
   {id: 'robocoin', name: 'RoboCOIN', org: '智源研究院 BAAI', url: 'https://www.modelscope.cn/organization/RoboCOIN',
-    episodes: 101576, hours: 704, size: '6.0 TB', tb: 6,
+    episodes: 183018, hours: 1305.774837, size: "6,527.602 GB", tb: 6.527602301555,
+    inventoryNote: "809 个本地子数据集的逐条 episode 清单汇总；条数与帧数均和 info.json 一致。时长按 length/fps 计算，不乘相机数；未逐帧解码验收。",
     desc: '面向双臂协同一体化操作的数据集，跨 15 种机器人本体、16 类场景、421 种任务。',
     f: {source: ['real'], domain: ['home', 'commercial'], space: [], form: ['dual_arm'], robot: ['multi'], manip: ['tabletop'],
       skill: ['pick_place', 'organize', 'deformable'], format: [], license: ['apache'], platform: ['ms'], local: ['complete']}},
   {id: 'robomind', name: 'RoboMIND', org: '北京人形机器人创新中心 X-Humanoid', url: 'https://www.modelscope.cn/datasets/X-Humanoid/RoboMIND',
-    episodes: 107097, hours: 379, size: '12 TB', tb: 12,
+    episodes: null, hours: null, size: "12,278.970 GB", tb: 12.278969805,
+    inventoryNote: "本地仓库混有压缩分片、样例及失败轨迹，完整 Episode 和总时长尚未核实；体量按整个目录计算。",
     desc: '多本体真机操作基准：人工遥操作采集约 10.7 万条演示，479 类任务，跨 Franka、UR5e、AgileX 双臂和人形，含失败案例。',
     f: {source: ['real'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm', 'legged_humanoid'], robot: ['franka', 'ur5', 'agilex', 'tiangong'], manip: ['tabletop'],
       skill: ['pick_place'], format: [], license: ['apache'], platform: ['ms'], local: ['complete']}},
   {id: 'robochallenge-table30', name: 'RoboChallenge Table30 v1 / v2', org: 'RoboChallenge', url: 'https://huggingface.co/datasets/RoboChallenge/Table30v2',
-    episodes: null, hours: null, size: '约 1.6 TB', tb: 1.6,
+    episodes: null, hours: null, size: "1,748.121 GB", tb: 1.748121105,
+    inventoryNote: "只合计 v1、v2 两个原始压缩仓库的体量；未把双臂子集数冒充全仓总数。另有 v2 双臂转换子集 22,596 条、280.315 h；原始录制时间戳跨度合计 289.495 h，二者口径不同。",
     desc: 'RoboChallenge 真机评测的 30 个桌面任务数据，v2 增加双臂版本。',
     f: {source: ['real'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm'], robot: ['multi'], manip: ['tabletop'],
       skill: ['pick_place', 'organize'], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
   {id: 'gm-100', name: 'GM-100', org: 'Robbyant', url: 'https://www.modelscope.cn/datasets/robbyant/gm100',
-    episodes: null, hours: null, size: '1.5 TB', tb: 1.5,
+    episodes: null, hours: null, size: "1,614.815 GB", tb: 1.61481534,
+    inventoryNote: "本地为压缩包；完整 Episode 和时长未逐包核算。",
     desc: '多本体基准：AgiBot G1、AgileX、Galaxea R1 Pro 三个平台，LeRobot v2.1 格式。',
     f: {source: ['real'], domain: [], space: [], form: ['wheeled_humanoid', 'dual_arm'], robot: ['agibot', 'agilex', 'galaxea'], manip: ['tabletop'],
       skill: [], format: ['lerobot21'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'molmoact2-yam', name: 'MolmoAct2 BimanualYAM', org: 'Allen Institute for AI', url: 'https://huggingface.co/datasets/allenai/MolmoAct2-BimanualYAM-Dataset',
-    episodes: 32246, hours: 720, size: '约 2.35 TB', tb: 2.35,
+    episodes: null, hours: null, size: "未测（未下载）", tb: 0,
+    inventoryNote: "尚无可核验的本地副本；本地 Episode、时长和体量留空。",
     desc: 'YAM 双臂真机数据，约 3.2 万条、720 小时，用于 MolmoAct2 训练。',
     f: {source: ['real'], domain: [], space: [], form: ['dual_arm'], robot: ['yam'], manip: ['tabletop'],
       skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['none']}},
   {id: 'gr00t-teleop-gr1', name: 'GR00T Teleop GR1', org: 'NVIDIA', url: 'https://www.modelscope.cn/datasets/nv-community/PhysicalAI-Robotics-GR00T-Teleop-GR1',
-    episodes: null, hours: null, size: '70 GB', tb: 0.07,
+    episodes: 24283, hours: 104.911236, size: "74.327 GB", tb: 0.074326671,
+    inventoryNote: "本地 13 个 LeRobot 子集，逐条 episode 清单汇总 length/fps；不乘相机数，未逐帧解码验收。",
     desc: 'NVIDIA PhysicalAI 发布的 Fourier GR1 人形遥操作数据。',
     f: {source: ['real'], domain: [], space: [], form: ['legged_humanoid'], robot: ['fourier_gr1'], manip: ['tabletop'],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'humanoid-everyday', name: 'Humanoid Everyday', org: 'USC PSI Lab', url: 'https://huggingface.co/datasets/USC-PSI-Lab/humanoid-everyday',
-    episodes: null, hours: null, size: '约 1 TB', tb: 1,
+    episodes: null, hours: null, size: "未测（未下载）", tb: 0,
+    inventoryNote: "尚无可核验的本地副本；本地 Episode、时长和体量留空。",
     desc: '人形机器人日常任务数据集。',
     f: {source: ['real'], domain: ['home'], space: [], form: ['legged_humanoid'], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['none']}},
   {id: 'biplay', name: 'BiPlay', org: 'UC Berkeley', url: 'https://huggingface.co/datasets/oier-mees/BiPlay',
-    episodes: 7023, hours: 9.7, size: '313 GB', tb: 0.31,
+    episodes: null, hours: null, size: "335.262 GB", tb: 0.335262242,
+    inventoryNote: "本地混有多个 TFDS 子集和 HDF5 表示，尚未可靠核算去重总量；Episode、时长留空，体量计整个目录。",
     desc: 'ALOHA 双臂桌面自由玩耍数据，约 9.7 小时、7023 个片段。',
     f: {source: ['real'], domain: ['home'], space: [], form: ['dual_arm'], robot: ['agilex'], manip: ['tabletop'],
       skill: ['pick_place'], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
   {id: 'maniparena', name: 'ManipArena', org: 'ManipArena', url: 'https://huggingface.co/datasets/ManipArena/maniparena-dataset',
-    episodes: 10800, epText: '约 1.08 万', hours: null, size: '236 GB', tb: 0.23,
+    episodes: 12474, hours: 205.083458, size: "252.970 GB", tb: 0.252969918,
+    inventoryNote: "本地 episode 清单汇总 length/fps；不乘相机数，未逐帧解码验收。",
     desc: '固定和移动双臂的真机操作数据，约 1.08 万条。',
     f: {source: ['real'], domain: [], space: [], form: ['dual_arm'], robot: [], manip: ['tabletop', 'mobile'],
       skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
   {id: 'tacverse', name: 'TacVerse Open Data', org: 'Xense Robotics', url: 'https://www.modelscope.cn/datasets/XenseRobotics/TacVerse-Opendata',
-    episodes: null, hours: null, size: '135 GB', tb: 0.13,
+    episodes: 17690, hours: 370.166407, size: "144.412 GB", tb: 0.144412291,
+    inventoryNote: "122 个本地子数据集，episode 清单汇总 length/fps。副本接近完备，仍有上游问题视频；元数据条目数不是完整可训练回合验收数。",
     desc: '带视触觉传感的真机操作数据。',
     f: {source: ['real'], domain: [], space: [], form: [], robot: [], manip: ['tabletop'],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['partial']}},
   {id: 'realomni-10kh', name: '10Kh RealOmni Open Data', org: '简智新创 GenRobot', url: 'https://modelscope.cn/datasets/GenRobot.AI/10Kh-RealOmin-OpenData',
-    episodes: null, hours: null, size: '6.3 TB', tb: 6.3,
+    episodes: null, hours: null, size: "6,927.942 GB", tb: 6.92794202,
+    inventoryNote: "本地目录逻辑体量已核实；压缩分片尚未逐包展开核算完整 Episode 与时长。",
     desc: 'GenRobot 开源的真实场景操作数据（名称标注万小时级）。',
     f: {source: ['real'], domain: [], space: [], form: [], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'hy-embodied-vla', name: 'Hy-Embodied 0.5 VLA Data', org: '腾讯 Tencent', url: 'https://www.modelscope.cn/datasets/tencent/Hy-Embodied-0.5-VLA-Data',
-    episodes: null, hours: null, size: '19 TB', tb: 19,
+    episodes: 250304, hours: 2162.96587, size: "20,566.129 GB", tb: 20.566129284,
+    inventoryNote: "22 个本地表的逐条 episode 元数据汇总，按 length/fps 计算时长；数据含 Lance 格式，未逐帧解码验收。",
     desc: '腾讯混元具身 0.5 的 VLA 训练数据。',
     f: {source: ['real'], domain: [], space: [], form: [], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'interndata-a1', name: 'InternData-A1', org: '上海人工智能实验室 InternRobotics', url: 'https://www.modelscope.cn/datasets/InternRobotics/InternData-A1',
-    episodes: null, hours: null, size: '6.5 TB', tb: 6.5,
+    episodes: null, hours: null, size: "7,048.026 GB", tb: 7.048025965,
+    inventoryNote: "原始混合仓库体量，完整 Episode 与总时长未核实。另有仿真 LeRobot v3 表示 417,217 条、2,812.311 h、1,681.357 GB，为已展开的表示/子集，含尚未物理删除的质检排除项。",
     desc: '以仿真为主、混合真机的操作数据，覆盖 Franka、Genie-1、Lift2、Split-ALOHA 等本体。',
     f: {source: ['sim', 'real'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm', 'wheeled_humanoid'], robot: ['franka', 'agibot', 'agilex'], manip: ['tabletop'],
       skill: ['pick_place'], format: ['lerobot3'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'interndata-m1', name: 'InternData-M1', org: '上海人工智能实验室 InternRobotics', url: 'https://www.modelscope.cn/datasets/InternRobotics/InternData-M1',
-    episodes: 508511, hours: 1839, size: '5.6 TB', tb: 5.6,
+    episodes: 473594, hours: 1675.527269, size: "6,112.359 GB", tb: 6.112359021,
+    inventoryNote: "本地 info.json 声明：Franka 244,426 条，Robotiq 重定向表示 229,168 条，均 30 fps。合计是两种表示的条目数，可能对应同源演示，不能视为独立采集条数；tar 未逐包解码。",
     desc: '仿真引擎批量生成的抓取放置数据，支撑 InternVLA-M1 空间引导操作模型，用于提升未见物体上的泛化。',
     f: {source: ['sim'], domain: ['home'], space: [], form: ['single_arm', 'dual_arm'], robot: ['franka'], manip: ['tabletop'],
       skill: ['pick_place'], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'robotwin-2', name: 'RoboTwin 2.0', org: 'RoboTwin 团队', url: 'https://www.modelscope.cn/datasets/TianxingChen/RoboTwin2.0',
-    episodes: null, hours: null, size: '509 GB', tb: 0.5,
+    episodes: 27500, hours: null, size: "545.882 GB", tb: 0.545881668,
+    inventoryNote: "本地 HDF5 轨迹逐文件计数；未确认统一采样率，总时长留空。另有统一 LeRobot 副本同为 27,500 条、56.251 h、79.475 GB，与原始数据重叠。",
     desc: '50 个双臂桌面任务，每个任务有干净场景 50 条和域随机化 500 条两个版本。',
     f: {source: ['sim'], domain: ['home'], space: [], form: ['dual_arm'], robot: ['multi'], manip: ['tabletop'],
       skill: ['pick_place', 'organize', 'articulated'], format: ['hdf5'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'robocasa', name: 'RoboCasa', org: 'UT Austin 等', url: 'https://huggingface.co/datasets/haosulab/RoboCasa',
-    episodes: null, hours: null, size: '3.5 GB', tb: 0.0035,
+    episodes: null, hours: null, size: "3.732 GB", tb: 0.003732425,
+    inventoryNote: "本地 ZIP 仓库体量；尚无可靠的完整 Episode 与时长统计。",
     desc: '大规模厨房仿真环境中的日常任务演示，如开关柜门、取放物品。',
     f: {source: ['sim'], domain: ['home'], space: ['kitchen'], form: ['single_arm'], robot: ['franka'], manip: ['mobile'],
       skill: ['pick_place', 'articulated'], format: ['hdf5'], license: ['unknown'], platform: ['hf'], local: ['complete']}},
   {id: 'libero', name: 'LIBERO', org: 'UT Austin', url: 'https://www.modelscope.cn/datasets/nvidia/LIBERO_LeRobot_v3',
-    episodes: null, hours: null, size: '4.2 GB', tb: 0.0042,
+    episodes: 5614, hours: 11.704361, size: "4.458 GB", tb: 0.004457681,
+    inventoryNote: "只统计本地 NVIDIA LeRobot v3 的 5 个子集，逐条 episode 清单汇总 length/fps，不与其他 LIBERO 版本相加。",
     desc: '家居场景的终身学习操作基准，含 libero_10 / 90 / goal / object / spatial 五个子集；这里是 NVIDIA 转换的 LeRobot v3 版本。',
     f: {source: ['sim'], domain: ['home'], space: ['kitchen', 'living'], form: ['single_arm'], robot: ['franka'], manip: ['tabletop'],
       skill: ['pick_place', 'articulated'], format: ['lerobot3'], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'dexmimicgen', name: 'DexMimicGen', org: 'NVIDIA 等', url: 'https://huggingface.co/datasets/MimicGen/dexmimicgen_datasets',
-    episodes: null, hours: null, size: '约 60 GB', tb: 0.06,
+    episodes: null, hours: null, size: "未测（未下载）", tb: 0,
+    inventoryNote: "尚无可核验的本地副本；本地 Episode、时长和体量留空。",
     desc: '用 MimicGen 自动扩增的双臂与人形灵巧操作仿真数据。',
     f: {source: ['sim'], domain: [], space: [], form: ['legged_humanoid', 'dual_arm'], robot: ['fourier_gr1'], manip: ['tabletop'],
       skill: [], format: ['hdf5'], license: ['unknown'], platform: ['hf'], local: ['none']}},
   {id: 'egomimic', name: 'EgoMimic', org: 'Georgia Tech', url: 'https://huggingface.co/datasets/gatech/EgoMimic',
-    episodes: null, hours: null, size: '226 GB', tb: 0.22,
+    episodes: 157, hours: null, size: "242.644 GB", tb: 0.242644486,
+    inventoryNote: "逐个打开全部 6 个 HDF5，统计 data/demo_* 共 157 段、70,368 samples；human/robot 均计入，未做配对去重，统一采样率未核实。",
     desc: '第一视角人类示范和机器人数据配对，用于从人到机器人的迁移学习。',
     f: {source: ['ego', 'real'], domain: ['home'], space: [], form: ['human', 'dual_arm'], robot: [], manip: ['tabletop'],
       skill: ['pick_place'], format: ['hdf5'], license: ['unknown'], platform: ['hf'], local: ['complete']}},
   {id: 'omniworld-epic-kitchens', name: 'OmniWorld · EPIC-KITCHENS', org: 'InternRobotics 整理', url: 'https://www.modelscope.cn/datasets/InternRobotics/OmniWorld',
-    episodes: null, hours: null, size: '225 GB', tb: 0.22,
+    episodes: null, hours: null, size: "240.700 GB", tb: 0.240699675,
+    inventoryNote: "仅本地 OmniWorld 的 EPIC-KITCHENS 压缩子集，非 OmniWorld 全仓；完整 Episode 与时长尚未逐包核算。",
     desc: '家庭厨房的第一视角视频（EPIC-KITCHENS），由 OmniWorld 统一整理。',
     f: {source: ['ego'], domain: ['home'], space: ['kitchen'], form: ['human'], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'ace-data-0', name: 'ACE-Data-0', org: 'ACE Robotics', url: 'https://www.modelscope.cn/datasets/ACERobotics/ACE-Data-0',
-    episodes: null, hours: null, size: '846 GB', tb: 0.83,
+    episodes: 831, hours: 28.078611, size: "907.447 GB", tb: 0.907446533,
+    inventoryNote: "本地 12 个 LeRobot 子集，逐条 episode 清单汇总 length/fps，不乘相机数。",
     desc: '人类示范数据。',
     f: {source: ['ego'], domain: [], space: [], form: ['human'], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['ms'], local: ['complete']}},
   {id: 'vitra-1m', name: 'VITRA-1M', org: 'VITRA', url: 'https://huggingface.co/datasets/VITRA-VLA/VITRA-1M',
-    episodes: null, hours: null, size: '约 85 GB', tb: 0.08,
+    episodes: null, hours: null, size: "91.554 GB", tb: 0.091553735,
+    inventoryNote: "本地为标注和压缩数据，原始 Ego4D/EPIC 视频需另配；完整 Episode 与时长尚未可靠核算。",
     desc: '人手操作视频数据，用于 VLA 预训练。',
     f: {source: ['ego'], domain: [], space: [], form: ['human'], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
@@ -1433,11 +1464,11 @@ function dsCard(d) {
     <div><b class="ds-name">${esc(d.name)}</b><div class="ds-org">${esc(d.org)}</div></div>
     ${meta ? `<div class="ds-meta">${esc(meta)}</div>` : ''}
     <p class="ds-desc">${esc(d.desc)}</p>
-    ${stats([['Episode', dsEpText(d)], ['总时长', dsHoursText(d)]])}
+    ${stats([['本地 Episode', dsEpText(d)], ['本地时长', dsHoursText(d)]])}
     <div class="ds-foot"><span>许可 ${esc(dsLabels(d, 'license').join(' / '))}</span><span>${esc(d.size)}</span></div></article>`;
 }
 function dsTable(rows) {
-  return `<div class="table-wrap"><table class="ds-table"><thead><tr><th>数据集</th><th>类型</th><th>形态 / 本体</th><th class="num">Episode</th><th class="num">总时长</th><th class="num">体量</th><th>许可</th><th>本地</th></tr></thead><tbody>
+  return `<div class="table-wrap"><table class="ds-table"><thead><tr><th>数据集</th><th>类型</th><th>形态 / 本体</th><th class="num">本地 Episode</th><th class="num">本地时长</th><th class="num">本地体量</th><th>许可</th><th>本地</th></tr></thead><tbody>
     ${rows.map((d) => `<tr data-open="dataset" data-id="${esc(d.id)}" tabindex="0"><td><div class="t-main">${esc(d.name)}</div><div class="t-sub">${esc(d.org)}</div></td>
       <td><div class="chips">${d.f.source.map(dsSrcBadge).join('')}</div></td><td class="small">${esc([...dsLabels(d, 'form'), ...dsLabels(d, 'robot')].join(' · ') || '—')}</td>
       <td class="num">${dsEpText(d)}</td><td class="num">${dsHoursText(d)}</td><td class="num nowrap">${esc(d.size.split(' · ')[0])}</td>
@@ -1455,9 +1486,9 @@ function viewDatasets() {
     `<button type="button" class="btn btn-icon btn-ghost" aria-pressed="${f.view === k}" aria-label="${label}" title="${label}" onclick="UI.ds.view = '${k}'; render()">${ic(icon)}</button>`).join('');
   return `<div class="page">
     <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>公开具身数据集<span class="ds-demo" title="页面内容为人工整理的示例，没有接入实际业务">${ic('alert', 'ic-sm')}仅作示意，未支撑实际业务</span></h1>
-      <p>人工整理的公开机器人操作数据集，聚焦商业零售与家居服务两类室内场景；数字以发布方公布为准，「本地副本」来自团队的 OSS 数据盘点。</p></div>
-      <div class="ds-kpis"><div><span>收录数据集</span><b>${DATASETS.length}</b></div><div><span>已知 Episode 合计</span><b>${Math.round(sum('episodes') / 1e4).toLocaleString()}<small>万+</small></b></div>
-        <div><span>已知时长合计</span><b>${Math.round(sum('hours')).toLocaleString()}<small>h</small></b></div><div><span>已下载到本地</span><b>${DATASETS.filter((d) => d.f.local[0] !== 'none').length}<small>/ ${DATASETS.length}</small></b></div></div></section>
+      <p>人工整理的公开机器人操作数据集，聚焦商业零售与家居服务两类室内场景；本地 Episode、时长和体量同步自 ${DS_INVENTORY_DATE} 数据盘点，覆盖范围见各条目的统计口径。</p></div>
+      <div class="ds-kpis"><div><span>收录数据集</span><b>${DATASETS.length}</b></div><div><span>本地 Episode</span><b title="${sum('episodes').toLocaleString()} 个本地条目，未去重">${(sum('episodes') / 1e4).toLocaleString(undefined, {maximumFractionDigits: 1})}<small>万</small></b></div>
+        <div><span>本地时长</span><b title="本地已统计时长，未去重">${Math.round(sum('hours')).toLocaleString()}<small>h</small></b></div><div><span>已下载到本地</span><b>${DATASETS.filter((d) => d.f.local[0] !== 'none').length}<small>/ ${DATASETS.length}</small></b></div></div></section>
     <div class="ds-layout">${dsSidebar()}
       <section class="ds-main" aria-label="数据集列表">
         <div class="ds-bar"><h2 class="ds-n">数据集 <span class="num">${shown.length}</span></h2>
@@ -1467,7 +1498,7 @@ function viewDatasets() {
         ${active.length ? `<div class="ds-active">${active.map(([label, undo]) => `<button type="button" class="tag ds-x" onclick="${undo}" aria-label="移除筛选 ${esc(label)}">${esc(label)}${ic('close', 'ic-sm')}</button>`).join('')}</div>` : ''}
         ${!shown.length ? `<div class="card">${empty('database', '没有匹配的数据集', '放宽筛选条件，或点「重置」')}</div>`
           : f.view === 'list' ? dsTable(shown) : `<div class="grid ds-grid">${shown.map(dsCard).join('')}</div>`}
-        <p class="hint" style="margin-top:20px">仅作示意，未支撑实际业务：目录由人工录入，分类标签为初稿；Episode 和时长空缺的待补，部分取自 RoboFlywheel 的统计。</p></section></div></div>`;
+        <p class="hint" style="margin-top:20px">仅作示意，未支撑实际业务：分类标签为初稿。本地统计更新于 ${DS_INVENTORY_DATE}，体量按逻辑字节计算（1 GB = 10^9 B），可包含压缩包、处理版本和模型。空白表示尚未可靠核实；不同表示、父子集可能重叠，合计不代表独立演示数；未物理删除的质检排除项仍计入。</p></section></div></div>`;
 }
 function drawerDataset(d) {
   const host = d.url.includes('huggingface') ? 'Hugging Face' : 'ModelScope';
@@ -1475,7 +1506,8 @@ function drawerDataset(d) {
     actions: `<a class="btn" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">${ic('external')}在 ${host} 打开</a>`,
     body: `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px">${d.f.source.map(dsSrcBadge).join('')}${dsLabels(d, 'skill').map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
       <p style="margin:0 0 14px;line-height:1.7">${esc(d.desc)}</p>
-      ${stats([['Episode', dsEpText(d)], ['总时长', dsHoursText(d)], ['体量', d.size]])}
+      ${stats([['本地 Episode', dsEpText(d)], ['本地时长', dsHoursText(d)], ['本地体量', d.size]])}
+      ${sec('本地统计口径 · ' + DS_INVENTORY_DATE, `<p style="line-height:1.7">${esc(d.inventoryNote)}</p>`)}
       ${sec(`${ic('layers')}分类`, `<dl class="kv">${DS_FACETS.filter(([k]) => !['source', 'skill', 'local'].includes(k)).map(([k, title]) =>
         `<dt>${title}</dt><dd>${dsLabels(d, k).map((x) => esc(x)).join('、') || '<span class="muted">待补</span>'}</dd>`).join('')}</dl>`)}
       ${sec(`${ic('database')}获取`, `<dl class="kv"><dt>来源</dt><dd><a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" class="mono small">${esc(d.url.replace(/^https?:\/\/(www\.)?/, ''))}</a></dd>

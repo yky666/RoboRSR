@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-29
-本会话分支：`chongzheng/scene-office-layout`（worktree `../RoboDojo-office-layout`，基于 `origin/main@d60f1ba`）：办公室场景布局精简（「最近任务」第一节）。上一会话：`chongzheng/objects-instruction-names`（worktree `../RoboDojo-object-names`）：物体指令名称和建模 prompt v3（「最近任务」第二节）。再上一会话：`chongzheng/platform-banzhi-flywheel`（worktree `../RoboDojo-banzhi-flywheel`）：数采平台改名 BanzhiFlywheel，分「仿真平台 / 数据集」两个板块，加公开数据集目录和日间 / 夜间主题（「最近任务」第一节，连同第二节的黑白改版）。2026-10-29 rebase 到 `806f4e6` 后快进推 `main`（`65abd16` 为代码，其后一个提交只改本文件），00:05 部署到 `5090-2`。之前：`chongzheng/merge-open-prs-1028b` 把 #36、#38–#43 合进 `main` 并部署。下行保留主线历史。
+本会话分支：`codex/sync-dataset-inventory`（独立 worktree，基于 `origin/main@6df54a8`）：将本地盘点同步到 BanzhiFlywheel 现有 30 条公开目录（见「最近任务」第一节），已按 HTML 差异部署。上一会话：`chongzheng/scene-office-layout`，办公室布局精简已在主线并部署。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -39,6 +39,17 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### BanzhiFlywheel 同步本地数据盘点（2026-10-29，`codex/sync-dataset-inventory`）
+
+- **目标与范围**：用户要求把本轮 Notion 数据盘点同步到 BanzhiFlywheel。沿用 `index.html` 的 30 条公开目录：单仓库直接对应，宇树 WBT 汇总 59 条、Dex1 汇总 94 条、RoboMIND 2.0 汇总 9 个平台/分卷、RoboChallenge 汇总 v1/v2 原始包。未将自采或内部中间产物扩成独立公开条目。
+- **口径**：卡片、列表、抽屉明确为本地 Episode / 时长 / 体量，新增每条 `inventoryNote` 与统一盘点日期。发布方全量数字不再作为本地副本数；未知保留 `null`。体量统一十进制 GB；RoboMIND 2.0 排除索引样本、派生集，Dex1 排除 8 份空目录/仅元数据后汇总 86 份有清单的表示；同源分辨率、重定向、父子集可能重复，汇总不代表独立演示数。M1 的 473594 是两种 embodiment 表示合计；转换/筛选子集只在说明里单列，不能充作原仓全量。质检排除项未物理删除的仍计入。
+- **结果**：30 条均有统计口径；14 条有 Episode、11 条有时长、27 条有实测体量。DROID 为 71907 条 / 415.050222 h，RoboCOIN 为 183018 条 / 1305.774837 h，WBT 为 13816 条 / 132.445805 h，Dex1 为 61228 条 / 355.252726 h。详情保留公开来源、分类和许可；公开代码不带盘内路径、服务器标识和私人 Notion 链接。
+- **兼容**：沿用前端静态目录和既有筛选/排序/抽屉，无新依赖或服务端接口变更。「仅作示意，未支撑实际业务」标识保留。顶部 Episode 用紧凑显示、悬停给精确数，防止大数溢出。
+- **验证**：现代 Node 语法检查、30 条与源数据映射/隐私/既有分类许可来源不变/卡片列表抽屉自检通过；本机浏览器核对汇总、卡片与 DROID 口径抽屉。服务器隔离工作树执行 `bash scripts/check.sh 6df54a8`：87 passed、1 skipped、82 subtests passed，清单与 diff 检查通过；最初 LFS 网格为指针，补齐既有对象后通过。未运行 GPU 任务（本次仅 HTML 目录）。
+- **部署**：线上 HTML 的其他会话改动以三方合并保留，原件备份后原子替换；本机服务和对外隧道均 HTTP 200，返回内容 SHA-256 一致。服务、数据库、登记和资产库保持现状，无需重启；运维路径记录在本机 `.agent/ops.local.md`。
+- **下一次**：这是静态快照，新的盘点仍需人工同步；压缩包未核实的 Episode/时长继续留空。若将目录改为动态源，需要明确公共展示字段和内网元数据的边界。
+
 
 ### 办公室场景布局精简（2026-10-29 13:xx–14:3x，`chongzheng/scene-office-layout`，`f3da0c7` 已进 `main`、已部署、已装共享库）
 
