@@ -28,7 +28,7 @@ LABELS = ("doll0", "doll1", "doll2", "doll3", "doll4")
 SPOTS = np.array([[-0.24, -0.12], [-0.12, -0.12], [0.0, -0.12], [0.12, -0.12], [0.24, -0.12]])  # ProhibitedArea
 MIDDLE = 2
 CLOSING_DEG = range(0, 360, 30)  # finger closing directions tried, about z
-LEANS = (90, 70, 55)  # approach lean below horizontal
+LEANS = (90, 70, 55, 40)  # approach lean below horizontal; the low ones for dolls close to an arm's base
 PINCH_BELOW_TOP_M = 0.025  # pad midpoint below the doll's top (its head) ...
 PINCH_MIN_SHARE = 0.6  # ... but at least this share of its height above its bottom
 PRE_M = 0.06  # back-off along the approach before closing and after letting go
@@ -133,23 +133,23 @@ class Episode:
 
     def sort(self, label):
         """Frames taking `label` to its spot; raises X.Unreachable."""
-        arms, last = list(self.arms.values()), None
+        arms, reasons = list(self.arms.values()), []
         for option in self.moves(label):
             arm, xy = option[0]
             saved = arm.snapshot()
             try:
                 frames, place = self.transfer(arm, label, xy)
             except X.Unreachable as e:
-                last = e
+                reasons.append(str(e))
                 continue
             if len(option) > 1 and not self.relay_ok(option[1][0], label, option[1][1]):
                 arm.restore(saved)
                 self.plans[label].pop()
-                last = X.Unreachable(f"{label}: no arm reaches it on the middle spot and its own")
+                reasons.append(f"relay: {option[1][0].prefix} IK misses the middle spot or its own")
                 continue
             break
         else:
-            raise last
+            raise X.Unreachable(f"{label}: " + "; ".join(reasons))
         yield from X.actions(arms, arm, frames)
         yield from self.place_measured(arm, label, xy, place)
         if len(option) > 1:

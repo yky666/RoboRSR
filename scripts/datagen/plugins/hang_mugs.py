@@ -1,14 +1,16 @@
 """scripts/datagen plugin for hang_mugs (dual ARX X5; also the mugs of hang_mugs_random layouts): the scripted hang
 of the three mugs on the cup_holder's hooks, one at a time, each by the arm on its side of the holder (the other arm
-when that one cannot reach).
+when that one cannot reach; when neither can pick it and hang it, one arm first sets it down upright in front of the
+other).
 
 A mug is pinched from above at a rim point away from its handle (RIM_DEG: opposite it first), the fingers closing
 across the wall, and lifted. Its pose in the grip is then measured, which gives the link6 pose that puts the mug where
 it hangs on a hook: the handle frame on the hook's support frame, raised HANG_LIFT_M along the hook so the hook runs
 through the handle loop (scripts/objects/instance_fit.py found this hangs the official mugs on all six hooks). The arm
-brings the mug, turned handle up, to INSERT_M out along the hook's axis (the handle's hole axis), slides it on, lets
-go, backs the fingers off and goes to its start joints. A pinch is taken only when the IK also reaches the hang it
-leads to with the mug rigid in the grip; the first (hook, handle frame) whose whole path the IK follows is used.
+brings the mug, turned handle up in one joint-space move, to INSERT_M out along the hook's axis (the handle's hole
+axis), slides it on, lets go, backs the fingers off and goes to its start joints. A pinch is taken only when the IK
+also reaches the hang it leads to with the mug rigid in the grip; the first (hook, handle frame) whose whole path the
+IK follows is used.
 
 The task's check compares each handle with the holder's first hook only (RewardManager.is_axis_aligned reads the first
 functional frame): x axes within 60 deg either way, z axes within 60 deg. Two of the six hooks point across that one
@@ -33,7 +35,8 @@ LABELS = ("mug0", "mug1", "mug2")
 HOLDER = "cup_holder"
 RIM_DEG = (180, 135, 225, 90, 270)  # pinch points on the rim, deg about the mug's z from its handle (+x)
 PINCHES = [(lean, side) for lean in (90, 70, 55, 45) for side in (1, -1)]  # approach lean deg, tangent side
-GRIP_DEPTH_M = 0.02  # pad centre below the rim
+GRIP_DEPTH_M = 0.03  # aimed pad midpoint below the rim (the pads sit 0.75-2.25 cm past it): a mug turned handle up
+# pivots out of a shallower pinch
 WALL_IN_M = 0.004  # pinch point inside the body's outer radius
 PRE_M = 0.06  # back-off along the approach before closing and after letting go
 LIFT_M = 0.08  # straight up after closing
@@ -41,6 +44,11 @@ HANG_LIFT_M = 0.01  # hung pose raised along the hook: the hook through the loop
 INSERT_M = 0.08  # start of the slide onto the hook, out along its axis
 CLEAR_M = 0.03  # carried this much above the slide's start before it
 TIER_M = 0.05  # hooks whose heights differ by less than this count as one tier
+RISE_M = 0.04  # steps of the straight rise before the turn to a hook, when the IK cannot follow it all the way
+RELAY_SHARE = 0.5  # relay spot x: this share of the taking arm's base x
+RELAY_FREE_M = 0.12  # relay spot at least this far (xy) from the other mugs and the holder
+RELAY_CARRY_M = 0.04  # link6 above its lift height while carrying a mug to the relay spot
+RELEASE_M = 0.004  # mug's bottom above the table when set down on the relay spot
 ALIGN_DEG = 50  # hooks used: x within this of the first hook's x (either way), z within this of its z (task: 60)
 
 
@@ -150,39 +158,82 @@ class Episode:
         """Frames of the first (arm, rim point, pinch) whose pick the IK follows and whose hang it reaches with the
         mug rigid in the grip; raises X.Unreachable."""
         T, _, _, rims = self.mug(label)
-        near = self.arm_of[label]
-        last = "no pinch"
-        for prefix in (near, "right" if near == "left" else "left"):
-            arm = self.arms[prefix]
+        lifted = T.copy()
+        lifted[2, 3] += LIFT_M
+        near, reasons, hang = self.arm_of[label], [], {}
+
+        def check(a):
+            if (found := self.can_hang(a, label, lifted, a.matrix())) is None:
+                raise X.Unreachable(f"{a.prefix} IK reaches no hook for {label}")
+            hang["hook"] = found
+
+        for prefix in (near, self.other(near)):
             self.arm_of[label] = prefix
-            saved = arm.snapshot()
-            for (pinch, inward), rim in zip(rims, RIM_DEG):
-                for lean, side in PINCHES:
-                    r = X.wall_pinch(inward, lean, side)
-                    approach = r.as_matrix()[:, 0]
-                    grasp = X.link6_for(pinch, r)
-                    if not arm.reachable([(grasp - PRE_M * approach, r), (grasp, r)]):
-                        last = f"{prefix} IK fails at the pinch of {label}"
-                        continue
-                    try:
-                        arm.move(grasp - PRE_M * approach, r)
-                        arm.move(grasp)
-                        arm.gripper(X.CLOSED)
-                        arm.move(grasp + np.r_[0.0, 0.0, LIFT_M])
-                    except X.Unreachable as e:
-                        arm.restore(saved)
-                        last = str(e)
-                        continue
-                    lifted = T.copy()
-                    lifted[2, 3] += LIFT_M
-                    if (hang := self.can_hang(arm, label, lifted, arm.matrix())) is None:
-                        arm.restore(saved)
-                        last = f"{prefix} IK reaches no hook for {label} pinched at {rim} deg"
-                        continue
-                    self.plans[label] = dict(arm=prefix, rim=rim, pinch=(lean, side), nominal_hook=hang)
-                    return arm.take()
+            try:
+                rim, lean, side = self.arms[prefix].pick(self.pinches(rims), PRE_M, LIFT_M, then=check)
+            except X.Unreachable as e:
+                reasons.append(str(e))
+                continue
+            self.plans[label] = dict(self.plans.get(label, {}), arm=prefix, rim=rim, pinch=(lean, side))
+            self.plans[label]["nominal_hook"] = hang["hook"]
+            return self.arms[prefix].take()
         self.arm_of[label] = near
-        raise X.Unreachable(f"{label}: {last}")
+        raise X.Unreachable(f"{label}: " + "; ".join(reasons))
+
+    def other(self, prefix):
+        return "right" if prefix == "left" else "left"
+
+    def pinches(self, rims):
+        return [
+            (pinch, X.wall_pinch(inward, lean, side), (rim, lean, side))
+            for (pinch, inward), rim in zip(rims, RIM_DEG)
+            for lean, side in PINCHES
+        ]
+
+    def relay_spot(self, taker, label):
+        """A free table spot in front of the `taker` arm, away from the other mugs and the holder, or None."""
+        sx = RELAY_SHARE * float(self.arms[taker].robot.entity_origin_pose[0])
+        others = [X.pose7(self.lm, m)[:2] for m in LABELS if m != label] + [X.pose7(self.lm, HOLDER)[:2]]
+        for spot in ((sx, -0.16), (sx, -0.22), (1.4 * sx, -0.16), (0.6 * sx, -0.2)):
+            if all(np.linalg.norm(np.asarray(spot) - o) > RELAY_FREE_M for o in others):
+                return np.asarray(spot)
+        return None
+
+    def relay(self, label, why):
+        """Frames of one arm setting `label` down upright in front of the other arm, which then hangs it; raises
+        X.Unreachable."""
+        arms, T = list(self.arms.values()), self.mug(label)[0]
+        lifted = T.copy()
+        lifted[2, 3] += LIFT_M
+        for prefix in (self.arm_of[label], self.other(self.arm_of[label])):
+            arm, taker = self.arms[prefix], self.other(prefix)
+            if (spot := self.relay_spot(taker, label)) is None:
+                continue
+
+            def goal(obj):
+                g = X.upright(obj)
+                g[:2, 3], g[2, 3] = spot, T[2, 3] + RELEASE_M
+                return g
+
+            def place(a, obj=lifted):
+                a.place(obj, goal(obj), a.pose[0][2] + RELAY_CARRY_M, PRE_M, self.start[a.prefix])
+
+            try:
+                arm.pick(self.pinches(self.mug(label)[3]), PRE_M, LIFT_M, then=place)
+            except X.Unreachable:
+                continue
+            yield from X.actions(arms, arm, arm.take())
+            saved = arm.snapshot()
+            try:
+                place(arm, self.mug(label)[0])
+            except X.Unreachable:
+                arm.restore(saved)
+                place(arm)
+            yield from X.actions(arms, arm, arm.take())
+            self.arm_of[label] = taker
+            self.plans[label] = dict(relay=dict(arm=prefix, spot=[round(float(v), 3) for v in spot]))
+            return
+        raise X.Unreachable(f"{why}; no arm can set {label} down for the other")
 
     def slide_on(self, arm, link6, start):
         """Slide from `start` onto the hook, let go, back the fingers off, go home."""
@@ -193,6 +244,20 @@ class Episode:
         arm.move(link6[:3, 3] - PRE_M * rot.as_matrix()[:, 0])
         arm.home(*self.start[arm.prefix])
 
+    def rise(self, arm, z):
+        """Straight up towards link6 height `z` (as far as the IK follows, RISE_M steps): the joint-space turn that
+        follows then starts clear of the table."""
+        p = arm.pose[0]
+        for top in [z, *(p[2] + RISE_M * k for k in (3, 2, 1) if p[2] + RISE_M * k < z)]:
+            if top <= p[2]:
+                return
+            saved = arm.snapshot()
+            try:
+                arm.move(np.r_[p[:2], top])
+                return
+            except X.Unreachable:
+                arm.restore(saved)
+
     def bring(self, arm, label):
         """Frames of `arm` carrying the held `label`, turned handle up, to the slide's start of a free hook: the first
         (hook, handle frame) of hang_options whose whole hang the IK follows."""
@@ -201,7 +266,7 @@ class Episode:
         for h, k in self.hang_options(arm, label):
             link6, start = self.goal(label, h, k)
             try:
-                arm.move(np.r_[arm.pose[0][:2], max(arm.pose[0][2], start[2] + CLEAR_M)])
+                self.rise(arm, start[2] + CLEAR_M)
                 arm.move_joints(start + np.r_[0.0, 0.0, CLEAR_M], X.Rotation.from_matrix(link6[:3, :3]))
                 arm.move(start)
                 at_start = (len(arm.q), arm.pose)
@@ -232,16 +297,20 @@ class Episode:
 
     def actions(self):
         arms = list(self.arms.values())
-        for label in self.order:
-            for phase in (self.pick, self.bring, self.slide):
-                arm = self.arms[self.arm_of[label]]
+        try:
+            for label in self.order:
                 try:
-                    frames = phase(label) if phase == self.pick else phase(arm, label)
+                    frames = self.pick(label)
                 except X.Unreachable as e:
-                    self.failure = str(e)
-                    self.env.success[0] = False  # collect.py stops and rejects the episode
-                    return
+                    yield from self.relay(label, str(e))
+                    frames = self.pick(label)
                 yield from X.actions(arms, self.arms[self.arm_of[label]], frames)
+                for phase in (self.bring, self.slide):
+                    arm = self.arms[self.arm_of[label]]
+                    yield from X.actions(arms, arm, phase(arm, label))
+        except X.Unreachable as e:
+            self.failure = str(e)
+            self.env.success[0] = False  # collect.py stops and rejects the episode
 
     def step(self):
         """After each action: record the mugs; True while the task's success check holds."""

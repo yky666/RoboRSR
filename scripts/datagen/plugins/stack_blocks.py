@@ -25,7 +25,7 @@ TAIL = 30
 HOLD = 25  # 1 s
 LABELS = ("block_0", "block_1", "block_2")
 MIDDLE = np.array([-0.035, -0.165])  # centre of the task's ProhibitedArea, kept free of cubes at spawn
-PINCHES = [(lean, flip) for lean in (90, 75, 60) for flip in (1, -1)]  # approach lean deg, which way the wrist rolls
+PINCHES = [(lean, flip) for lean in (90, 75, 60, 45) for flip in (1, -1)]  # lean deg, wrist roll side
 GRIP_BELOW_TOP_M = 0.008  # aimed pad midpoint below the cube's top
 PAD_ABOVE_TABLE_M = 0.025  # ... but never lower than this above its bottom: the fingertips reach past the pads
 PRE_M = 0.06  # back-off along the approach before closing and after letting go
@@ -142,34 +142,24 @@ class Episode:
         c = cube(self.lm, label)
         pinch = self.pinch_point(c)
         stack_top, carry_z = self.stack_top(stack), self.carry_z(label)
-        last = "no pinch"
+        obj = c["T"].copy()
+        obj[2, 3] += LIFT_M
+        candidates = [(pinch, r, (lean, flip)) for lean, flip in PINCHES for r in pinch_rotations(c, lean, flip)]
+        reasons = []
+
+        def place(a):
+            self.place_path(a, obj, stack_top, carry_z)
+
         for arm in self.arms_for(label):
-            saved = arm.snapshot()
-            for lean, flip in PINCHES:
-                for r in pinch_rotations(c, lean, flip):
-                    approach = r.as_matrix()[:, 0]
-                    grasp = X.link6_for(pinch, r)
-                    if not arm.reachable([(grasp - PRE_M * approach, r), (grasp, r)]):
-                        last = f"{arm.prefix} IK fails at the pinch of {label}"
-                        continue
-                    try:
-                        arm.move(grasp - PRE_M * approach, r)
-                        arm.move(grasp)
-                        arm.gripper(X.CLOSED)
-                        arm.move(grasp + np.r_[0.0, 0.0, LIFT_M])
-                        at_lift = arm.snapshot()
-                        obj = c["T"].copy()
-                        obj[2, 3] += LIFT_M
-                        self.place_path(arm, obj, stack_top, carry_z)
-                    except X.Unreachable as e:
-                        arm.restore(saved)
-                        last = str(e)
-                        continue
-                    arm.restore(at_lift)
-                    self.nominal[label] = obj
-                    self.plans[label] = dict(arm=arm.prefix, lean=lean, flip=flip)
-                    return arm, arm.take()
-        raise X.Unreachable(f"{label}: {last}")
+            try:
+                lean, flip = arm.pick(candidates, PRE_M, LIFT_M, then=place)
+            except X.Unreachable as e:
+                reasons.append(str(e))
+                continue
+            self.nominal[label] = obj
+            self.plans[label] = dict(arm=arm.prefix, lean=lean, flip=flip)
+            return arm, arm.take()
+        raise X.Unreachable(f"{label}: " + "; ".join(reasons))
 
     def place(self, arm, label, stack):
         """Frames of `arm` placing the held `label` from where it sits in the grip now."""

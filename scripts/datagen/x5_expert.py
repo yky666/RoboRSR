@@ -195,29 +195,31 @@ class Arm:
         """Plan the first of `candidates` [(pinch point, rotation, tag)] whose approach (from `pre_m` back along the
         approach), close and straight lift by `lift_m` the IK follows, and for which `then(arm)` (the rest of the plan
         with the object rigid in the grip, planned and dropped) raises no Unreachable. Returns its tag; the plan ends
-        at the lift. Raises Unreachable with the last reason."""
-        saved, last = self.snapshot(), f"{self.prefix}: no pinch"
+        at the lift. Raises Unreachable with the reason of the candidate that got furthest."""
+        saved, failed = self.snapshot(), (-1, f"{self.prefix}: no pinch")
         for pinch, r, tag in candidates:
             approach = r.as_matrix()[:, 0]
             grasp = link6_for(pinch, r)
             if not self.reachable([(grasp - pre_m * approach, r), (grasp, r)]):
-                last = f"{self.prefix} IK fails at pinch {tag}"
+                failed = max(failed, (0, f"{self.prefix} IK fails at every pinch"))
                 continue
+            stage = 1
             try:
                 self.move(grasp - pre_m * approach, r)
                 self.move(grasp)
                 self.gripper(CLOSED)
                 self.move(grasp + np.r_[0.0, 0.0, lift_m])
-                at_lift = self.snapshot()
+                at_lift, stage = self.snapshot(), 2
                 if then is not None:
                     then(self)
             except Unreachable as e:
                 self.restore(saved)
-                last = f"{e} (pinch {tag})"
+                if stage > failed[0]:
+                    failed = (stage, f"{e} ({'after the lift' if stage == 2 else 'picking'}, pinch {tag})")
                 continue
             self.restore(at_lift)
             return tag
-        raise Unreachable(last)
+        raise Unreachable(failed[1])
 
     def place(self, obj_now, obj_goal, carry_z, pre_m, home):
         """Plan carrying the held object (pose `obj_now`, 4x4) with link6 at least at `carry_z`, lowering it to
@@ -235,14 +237,16 @@ class Arm:
 
 
 def task_checks(env):
-    """The check list the task's run_reward hands to reward_manager.check, captured without registering it."""
+    """The check list the task's run_reward hands to reward_manager.check (or check_single_env for env 0), captured
+    without registering it."""
     rm, captured = env.reward_manager, []
-    check = rm.check
+    check, check_single_env = rm.check, rm.check_single_env
     rm.check = captured.append
+    rm.check_single_env = lambda env_idx, checks: captured.append(checks) if env_idx == 0 else None
     try:
         env.run_reward()
     finally:
-        rm.check = check
+        rm.check, rm.check_single_env = check, check_single_env
     if len(captured) != 1:
         raise ValueError(f"{env.task_name}.run_reward registers {len(captured)} check lists, expected 1")
     return captured[0]
