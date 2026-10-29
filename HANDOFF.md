@@ -37,6 +37,13 @@
 
 ## 最近任务
 
+### RSI 第 1 轮进行中（2026-10-29，裁判在 `chongzheng/rsi-openwam-start`）
+
+- 运行根目录 `rsi-openwam-x5-r6`（协议 5.1）：`5090-2` 上有 `exam/`（评测方）、`data/`（数据方）、`referee/`；考试在 `5090-3:/data/robodojo-runs/rsi-openwam-x5-r6/referee/run/` 跑（裁判自己的代码副本 + 考卷资产的实体拷贝）。
+- 两方各一个 subagent、各自 worktree：评测方 `chongzheng/rsi-exam-r1`（已出 exam_r1，G1 裁判复核通过：28 个 seed 目录 `audit --pool exam` 全过、split 全为 val），数据方 `chongzheng/rsi-data-experts`（X5 专家就绪，R0.3）。两方互不读对方的分支和目录；隔离目前只靠提示词，Unix 用户和权限还没落实。
+- 新增 `scripts/datagen/rsi_exam_run.py`（+ 测试）：按 manifest 分路跑考试，每个任务每路一个策略服务；某作业 30 分钟无新文件就 `kill -9` 后同 run id 续跑（最多 3 次），每次派发、卡死、重跑写 `referee/ops/ops.jsonl`；结束时做 G2（退出码 0 且 `eval_time` = 计划回合数）。`--env1` 的任务（`fold_clothes`）改用 1 个并行环境（生成 `<env cfg>_env1` 和 `sim_config_env1`，不动共用的 `sim_config.yml`）：布料在 10 个并行环境下结果偏低。
+- 考试 10-29 11:44 启动（tmux `exam-r1`，三路 GPU 0/3、1/4、2/5，270 回合），结果和 G2 写 `referee/rounds/r1/`。下一步：按维度 × 级别算 Score、保留率 ρ 和 bootstrap 区间，出分档成绩单给数据方、逐回合结果给评测方（成绩单脚本还没写）。
+
 ### RSI 协议 v0.6：基模定为 OpenWAM-α 开源权重，起始评测 = 官方评测集 0 的简化版（2026-10-27，`chongzheng/rsi-openwam-start`）
 
 - **用户要求**：用 OpenWAM 在 RoboDojo 上微调的开源权重作后训练基模，以 RoboDojo 官方评测为起点，但评测要简化。
