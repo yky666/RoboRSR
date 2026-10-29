@@ -24,7 +24,7 @@
   - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
   - 东方树叶 `Clutter/plastic_bottle/00006`（另有能拧盖的 Articulation 版本）和 6 个泛化变体：按平台登记建，已装共享库（2026-10-28）（见「最近任务」）。
-  - 透明扁圆瓶 `Clutter/plastic_bottle/00013`（另有能拧盖的 Articulation 版本）和 6 个泛化变体：按平台登记建，未装共享库（见「最近任务」）。
+  - 透明扁圆瓶 `Clutter/plastic_bottle/00013`（另有能拧盖的 Articulation 版本）和 6 个泛化变体：按平台登记建，已装共享库（2026-10-29）（见「最近任务」）。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
   - 杯对杯倒豆、量杯对倒：部分 seed 成功。
@@ -45,7 +45,7 @@
 
 - 平台建模任务（徐鹤鸣 10-28 登记）：透明 PP 瓶，65 g，开口外径 40.1、类椭圆瓶身短边 70、长边 104.1 mm，没有标签，要求瓶盖做成可移除结构、只做静置测试。`make_plastic_bottle.py` 加第三个系列 `OVAL`（`OvalBottle`、`build_oval`）：类椭圆截面（介于椭圆和圆角矩形之间）向底部收到 0.85、底边圆角 13 mm，150 mm 处起宽瓶肩接约 39 mm 的短圆瓶颈，五角星内凹瓶底，壁厚 0.9 mm（按 65 g 反推），透明 PP 加细颗粒法线贴图；半透明白色螺纹盖 Ø44.5 × 24 mm。总高约 235 mm（含盖）由正面照片按宽度换算，除三项实测外都是照片估计。
 - 瓶盖：同前两个系列，`Articulation/` 版本 `cap_twist` 拧 1.25 圈、`cap_lift` 升 5.6 mm（螺距 4.5 mm），盖内壁和螺纹尖留 0.2 mm 间隙；6 个变体 00014–00019 瓶口同 00013。
-- 验证：`measurements_mm` 三项误差 0；`check_object.py --image-dir` Clutter 七件 OK，`check_bottle_cap.py` Articulation 七件落地和拧开 / 拧回都 OK；`sim.png`、`check.json` 已同步到部署机。00000–00012 的输出和改动前逐文件一致。生成结果在 5090-2 `/data/robodojo-runs/plastic_bottle13-1028-1447/ovl/`（含重新生成的 00000–00012，装库时只拷 00013–00019），未装共享库。
+- 验证：`measurements_mm` 三项误差 0；`check_object.py --image-dir` Clutter 七件 OK，`check_bottle_cap.py` Articulation 七件落地和拧开 / 拧回都 OK；`sim.png`、`check.json` 已同步到部署机。00000–00012 的输出和改动前逐文件一致。生成结果在 5090-2 `/data/robodojo-runs/plastic_bottle13-1028-1447/ovl/`（含重新生成的 00000–00012，装库时只拷 00013–00019）；已装共享库 `Object/Real2Sim`（2026-10-29，新增目录、没有覆盖，回滚清单 `/data/robodojo-assets/backups/added-objects-1029-20261029-120207.txt`）。
 - 和照片的差异：颗粒纹理比实物均匀、偏磨砂；瓶肩比照片略方；瓶盖顶没有压纹；瓶底星形的尖角偏圆。
 
 ### 东方树叶 `Clutter/plastic_bottle/00006`（2026-10-28，分支 `z/objects-plastic-bottle-00006`）

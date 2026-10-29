@@ -37,9 +37,9 @@
 | `Clutter/plastic_bottle/00006` 东方树叶 500 ml 茶饮料瓶（带盖） | 数采平台登记的东方树叶红茶瓶（徐鹤鸣 10-28） | `scripts/objects/make_plastic_bottle.py`（`TeaBottle`）、`bottle_label.py` | 实测：瓶口外径 39.6 mm、瓶身边长 62.2 mm、高度 205 mm（含瓶盖；登记写 20.5 mm，用户 10-28 确认 205；模型三项误差 0）；大倒角八边形瓶身（斜面竖纹）、短瓶肩、Ø41.6 mm 长瓶颈、白顶透明裙边瓶盖、圆形内凹瓶底，按照片估计 | 实测 33 g（含盖） | 默认 | 估计：标签只在正面、背面和瓶颈前半圈（侧面无标签），00006 的贴图由脚本从参考照片裁剪、校正透视 | 已装（2026-10-28） |
 | `Clutter/plastic_bottle/00007–00012` 泛化变体（`variant_of` 00006）：600 ml 茉莉清茶、400 ml 琥珀乌龙、圆瓶荔枝红茶、磨砂软方瓶大红袍、收腰柠檬茶、300 ml 白桃乌龙（虚构品牌，瓶口同 00006） | 无实物 | `make_plastic_bottle.py` | 估计：高 150–227 mm、宽 54–64 mm | 估计：按满口容积从 33 g 换算，18–39 g | 默认 | 估计 | 已装（2026-10-28） |
 | `Articulation/plastic_bottle/00006–00012` 上面 7 个瓶子的能拧盖版本 | 同上 | `make_plastic_bottle.py` | 同上 | 同上 | 盖与瓶身之间的物理材质沿用脚本的 0.35 | 同上 | 已装（2026-10-28） |
-| `Clutter/plastic_bottle/00013` 透明扁圆 PP 瓶（带盖，无标签） | 数采平台登记的透明塑料瓶（徐鹤鸣 10-28） | `scripts/objects/make_plastic_bottle.py`（`OvalBottle`） | 实测：开口外径 40.1 mm、瓶身短边 70 mm、长边 104.1 mm（模型三项误差 0）；类椭圆截面向底部收到 0.85、宽瓶肩、短圆瓶颈、五角星内凹瓶底，总高约 235 mm（含盖）、壁厚 0.9 mm 按照片估计 | 实测 65 g | 默认 | 估计：透明 PP 加细颗粒法线贴图，半透明白色螺纹盖（Ø44.5 × 24 mm） | 未装 |
-| `Clutter/plastic_bottle/00014–00019` 泛化变体（`variant_of` 00013）：淡蓝小瓶、光面圆角方瓶、磨砂椭圆瓶、琥珀高瓶、绿色矮宽瓶、粉色细瓶（瓶口同 00013） | 无实物 | `make_plastic_bottle.py` | 估计 | 估计 | 默认 | 估计 | 未装 |
-| `Articulation/plastic_bottle/00013–00019` 上面 7 个瓶子的能拧盖版本 | 同上 | `make_plastic_bottle.py` | 同上 | 同上 | 盖与瓶身之间的物理材质沿用脚本的 0.35 | 同上 | 未装 |
+| `Clutter/plastic_bottle/00013` 透明扁圆 PP 瓶（带盖，无标签） | 数采平台登记的透明塑料瓶（徐鹤鸣 10-28） | `scripts/objects/make_plastic_bottle.py`（`OvalBottle`） | 实测：开口外径 40.1 mm、瓶身短边 70 mm、长边 104.1 mm（模型三项误差 0）；类椭圆截面向底部收到 0.85、宽瓶肩、短圆瓶颈、五角星内凹瓶底，总高约 235 mm（含盖）、壁厚 0.9 mm 按照片估计 | 实测 65 g | 默认 | 估计：透明 PP 加细颗粒法线贴图，半透明白色螺纹盖（Ø44.5 × 24 mm） | 已装（2026-10-29） |
+| `Clutter/plastic_bottle/00014–00019` 泛化变体（`variant_of` 00013）：淡蓝小瓶、光面圆角方瓶、磨砂椭圆瓶、琥珀高瓶、绿色矮宽瓶、粉色细瓶（瓶口同 00013） | 无实物 | `make_plastic_bottle.py` | 估计 | 估计 | 默认 | 估计 | 已装（2026-10-29） |
+| `Articulation/plastic_bottle/00013–00019` 上面 7 个瓶子的能拧盖版本 | 同上 | `make_plastic_bottle.py` | 同上 | 同上 | 盖与瓶身之间的物理材质沿用脚本的 0.35 | 同上 | 已装（2026-10-29） |
 
 - **摩擦“默认”**：运行时 `env/scene_manager/objects/rigid.py` 只读 `physics.static_friction` / `dynamic_friction`，不写就是 0.6 / 1.5。生成脚本写进 `metadata.json` 的 `friction`（0.25 / 0.5）不生效，USD 里也没有绑定物理材质。要让实测摩擦生效，生成脚本要改写这两个键。
 - **任务里的红豆**是 5.6 mm PBD 球形颗粒（与实测单粒等体积）（`scripts/g1d/build_asset.py` 的 `RED_BEAN_PHYSICS`，单粒 0.1 g（同实测）、摩擦 0.2），不是上面的网格；摩擦 0.2 是 4 mm 时为了能从 13 mm 壶嘴倒出来调的，没有实测依据；5.6 mm 颗粒会堵住壶嘴，壶倒杯任务需另行处理。
