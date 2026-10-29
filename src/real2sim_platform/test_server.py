@@ -701,6 +701,13 @@ def test_physical_source_does_not_require_measurements(tmp_path, monkeypatch):
     assert saved["estimated_dimensions_mm"] == {"X": 356} and saved["estimated_mass_g"] == 450
     assert "mass_g" not in saved and "dimensions_mm" not in saved
     assert not registration.physical_origin({**doc, "twin": False})
+    server.write_spec({**doc, "twin": False})
+    assert not (folder / "spec.json").exists()  # no longer a twin: the spec it wrote goes
+    generic = tmp_path / "registrations/Dynamic/soft_block/00000/spec.json"
+    generic.parent.mkdir(parents=True)
+    generic.write_text(json.dumps({"id": "Dynamic/soft_block/00000", "name": "FEM 软块"}))
+    server.write_spec({"id": "Dynamic/soft_block/00000", "twin": False, "auto": {}})
+    assert generic.exists()  # a generator wrote it: saving a non-twin leaves it alone
 
 
 def test_scene_review(tmp_path, monkeypatch):

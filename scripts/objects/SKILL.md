@@ -165,6 +165,7 @@ python scripts/objects/object_names.py apply ovl   # 生成会重写 description
 CUDA_VISIBLE_DEVICES=<卡> PYTHONPATH=. python scripts/objects/check_object.py ovl/Rigid/<类别>/<编号> --image-dir real2sim/objects
 ```
 
+- 柔性物体（FEM、粒子布料、绳）不能按刚体加载，`check_object.py` 跑不了；单件模型图（平台封面）用 `scripts/objects/render_model.py <物体目录> --image-dir real2sim/objects`，同样的地面、灯光和机位，不仿真，写 `preview/00_model.png`。落地、悬垂、挤压等测试图文件名写明测试项（drop、suspend、squeeze…），平台把它们放进「形变测试」，不当封面。
 - `check_object.py` 判 OK 的标准：倾角 < 5°、落地后中心高度与半高差 < 5 mm、速度 < 0.01 m/s，退出码 0。FAIL 时先查原点是否在包围盒中心、底面碰撞体是否平。细长、球形、会滚的物体（如红豆）倾角判据可能不适用，要写明原因，不能直接当成通过。
 - 容器要装颗粒时（`requirements` 写了装豆或装水，或任务里要倒），再跑 `check_cup_beans.py` 或 `check_pitcher_fluid.py`。这两个脚本只接受 `--device cpu`（默认就是），GPU 状态管线下粒子坐标不回读，结果无效。
 - 预计跑十几分钟以上的用 `nohup setsid` 放后台，SSH 长连接会断，进程会被一起杀掉。

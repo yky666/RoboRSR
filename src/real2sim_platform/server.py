@@ -773,7 +773,10 @@ def write_spec(doc):
     """A twin's registration as real2sim/objects/<id>/spec.json, next to its photos: the input for modeling it."""
     path = OBJECTS_DIR / doc["id"] / "spec.json"
     if not object_registration.physical_origin(doc):
-        return path.unlink(missing_ok=True)
+        # a generator's hand-written spec.json (no "twin": true) is input the scan reads, not ours to remove
+        if (load_json(path) or {}).get("twin") is True:
+            path.unlink()
+        return None
     spec = {
         "id": doc["id"],
         "twin": True,
