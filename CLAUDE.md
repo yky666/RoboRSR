@@ -22,6 +22,7 @@ This fork adds the Unitree G1-D and a Real2Sim workflow; the rest of this file i
 
 - The data contract between this repo and training (formats, state and action semantics, physics profile, real-robot mapping) is `scripts/datagen/CONTRACT.md`; every dataset is listed in `scripts/datagen/registry.json`.
 - One agent session = one `git worktree` and short branch: several sessions share the main checkout, and a shared index has already put one session's files into another's commit.
+- The data-collection platform on `5090-2` runs from an immutable release (`/opt/r2s-platform/current`) and writes only its state dir (`/data/r2s-platform/state/`); never edit either by hand, and do not use `/root/RoboDojo` as the platform. Read registrations from the state dir, publish renders and results with `r2s publish SRC DEST`, deploy with `r2s deploy SHA` (`src/real2sim_platform/ops.sh`).
 - Run `bash scripts/check.sh` before committing (CI runs it too). GPU checks go to an isolated run dir on `5090-2` (`/data/robodojo-runs/`); the shared asset library is `5090-2:/data/robodojo-assets/Assets` and changes only with approval.
 
 ## Session Handoff (required)
