@@ -78,7 +78,7 @@
 - **用户要求**：补上可变形纸杯的模型图；毛绒卡皮巴拉和 FEM 软块登记成实心软体。
 - **新脚本 `scripts/objects/render_model.py`**：柔性资产不能按刚体加载，`check_object.py` 跑不了。它按 `check_object.py` 单件视图的地面、灯光、机位和 640×480 渲染，把 USD 引用进来按包围盒放到地面上，不步进仿真（静止形状），写 `preview/00_model.png`。在 `5090-2` 隔离目录 `/data/robodojo-runs/flex-model-render-20261030/` 用 GPU 0 渲染了 `Dynamic/paper_cup/00000`、`Dynamic/soft_block/00000`（包围盒 87.9×87.9×136、100³ mm，与 metadata 一致；目测与刚体纸杯 `sim.png` 风格一致），`r2s publish` 发布（只增不删，测试图都还在）。卡皮巴拉已有 `00_sim.png`，没重渲。`scripts/objects/SKILL.md` 和建模 prompt 的柔性段指向这个脚本。
 - **登记种类**：照 `r2s scan` 的做法用首个管理员的临时会话调平台 `PUT /api/items`（只改 `deformable.family`，其余字段原样带回）：纸杯 `bag → shell`，卡皮巴拉、软块 `null → volume`；署名是「管理员」。扫描后纸杯、卡皮巴拉的柔性验收按新种类重算为待验收（多了「压缩与回弹」）。
-- **发现的平台 bug（已修）**：`write_spec` 对非孪生物体一律删 `spec.json`，所以保存软块（`twin: false`，`asset_origin: simulation_reference`）时把杨开元手写的 `state/real2sim/objects/Dynamic/soft_block/00000/spec.json` 删了。数据库记录完整，页面不受影响；原文件还在 `/root/RoboDojo/real2sim/objects/Dynamic/soft_block/00000/spec.json`（工作区未入库）。修复：只删自己写的（带 `"twin": true`），手写的留着；`test_server.py` 补了这一条。状态目录里那份没有手工恢复（AGENTS.md 不许手改状态目录，`r2s publish` 也拒绝写 `spec.json`），要恢复需要用户点头。
+- **发现的平台 bug（已修）**：`write_spec` 对非孪生物体一律删 `spec.json`，所以保存软块（`twin: false`，`asset_origin: simulation_reference`）时把杨开元手写的 `state/real2sim/objects/Dynamic/soft_block/00000/spec.json` 删了。数据库记录完整，页面不受影响；原文件还在 `/root/RoboDojo/real2sim/objects/Dynamic/soft_block/00000/spec.json`（工作区未入库）。修复：只删自己写的（带 `"twin": true`），手写的留着；`test_server.py` 补了这一条。状态目录里那份不恢复（用户 10-30 09:11 决定；数据库记录完整，平台不依赖它）。
 
 ### 物体资产：刚体 / 柔性筛选、柔性封面与形变测试分开（2026-10-30 00:4x）
 
