@@ -73,6 +73,11 @@
 - **AGENTS.md** 加了「Data Platform on `5090-2` (`r2s`)」：各目录谁写、`r2s` 都在 `5090-2` 上以 root 跑、读登记 / 发布产出 / 装库后扫描 / 部署的命令和例子。
 - **风险**：切换后直接往 `/root/RoboDojo/real2sim` 放的渲染平台看不到，要 `r2s publish`；`/root/RoboDojo_assets` 镜像不再用，可以删；状态目录本身 root 仍能手改，靠文档约束；`rollback` 不回退状态目录，要回退数据用 `backups/`。
 
+### Fluid/wuliangye 封面用上游五粮液瓶（2026-10-30 10:0x）
+
+- `Fluid/wuliangye/00000` 是上游的通用粒子液体（材质 `Linen_Blue`，蓝色），名字来自上游 `pour_liquid_into_cup` 里装它的五粮液瓶 `Rigid/wuliangye/00000`（不透明白瓷瓶，不在我们平台上）；G1-D 两个倒水任务拿它当冷水壶 `pitcher/00002` 里的水（标签 `water`）。用户选封面用五粮液瓶：`render_model.py` 静态渲染瓶子，`r2s publish` 成 `state/real2sim/objects/Fluid/wuliangye/00000/preview/00_bottle.png`（文件名写明是瓶子）。
+- 试过但没入库：把流体倒进容器静置后渲染（隔离目录 `/data/robodojo-runs/fluid-render-20261030/`）。冷水壶里液体正常（4872 粒子全在壶内，液面约 2.3 cm），但壶盖和把手出现黑斑，只在场景里有粒子系统时出现（空壶静态渲染正常），换 Fabric / GPU 管线 / 调高 RTX 折射反射次数都没消；透明塑料杯装不下（溢出），白水杯渲染全灰。以后要做流体封面先查这个黑斑。
+
 ### 登记场景可选上传网格文件；场景 prompt 加网格用法和照片精确建模（2026-10-30 09:5x）
 
 - **用户要求**：登记场景除多角度照片外，可选上传网格文件（判断类型、设准入）；prompt 增加利用网格和按多角度照片精确建模的部分。
