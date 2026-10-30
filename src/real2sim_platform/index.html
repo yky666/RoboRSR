@@ -183,6 +183,8 @@ main { flex: 1; min-width: 0; padding: 36px 40px 72px; }
 .bulk-hint { color: var(--muted); font-size: 12px; white-space: nowrap; }
 .bulk-sep { flex: none; width: 1px; height: 20px; margin: 0 4px; background: var(--border-strong); }
 .bulkbar .btn:disabled { opacity: .45; }
+.obj-bulk .bulk-danger { color: var(--bad); }
+.obj-bulk .bulk-danger:hover:not(:disabled) { background: var(--bad-soft); }
 .osel { flex: none; width: 18px; height: 18px; margin: 0; cursor: pointer; }
 
 .review-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -2481,9 +2483,10 @@ function objBulkBar() {
   return `<div class="bulkbar obj-bulk" role="region" aria-label="批量操作"><span class="bulk-count"><b>${n}</b>已选</span>${ME?.admin ? `<span class="bulk-hint">待审核 ${pending}</span>` : ''}
     <span class="bulk-sep" aria-hidden="true"></span>
     ${ME?.admin ? `<button class="btn" type="button" ${none} onclick="bulkReview('approve')">${ic('check')}通过</button>
-    <button class="btn" type="button" ${none} onclick="UI.bulk.reject = true; render(); $('#bulk-note')?.focus()">${ic('x')}退回…</button><span class="bulk-sep" aria-hidden="true"></span>` : ''}
+    <button class="btn" type="button" ${none} title="写明原因后退回重建" onclick="UI.bulk.reject = true; render(); $('#bulk-note')?.focus()">${ic('x')}退回</button><span class="bulk-sep" aria-hidden="true"></span>` : ''}
     ${dropdown('bulk-owner', '重建负责人', Object.entries(memberOpts()), UI.bulk.owner, (v) => { UI.bulk.owner = v; })}
-    <button class="btn" type="button" onclick="bulkOwner()">${ic('users')}指派</button>${cancel}</div>`;
+    <button class="btn" type="button" onclick="bulkOwner()">${ic('users')}指派</button>
+    ${ME?.admin ? `<span class="bulk-sep" aria-hidden="true"></span><button class="btn bulk-danger" type="button" ${bulkDeletable().length ? '' : 'disabled title="选中的物体都不能删除：已建模、任务在用或有没选中的变体"'} onclick="bulkDelete()">${ic('trash')}删除</button>` : ''}${cancel}</div>`;
 }
 async function bulkReview(action) {
   const docs = bulkPending(), skipped = UI.osel.size - docs.length, note = action === 'reject' ? UI.bulk.note.trim() : '';
@@ -2499,6 +2502,28 @@ async function bulkReview(action) {
   UI.bulk = {...UI.bulk, reject: false, note: ''};
   render();
   toast(ok === docs.length ? `已${action === 'approve' ? '通过' : '退回'} ${ok} 件` : `${ok}/${docs.length} 件成功，其余失败`, ok !== docs.length);
+}
+// ticked objects that may go: variants come first, so a base whose variants are all ticked can go after them
+function bulkDeletable() {
+  const picked = [...UI.osel].map((id) => S.object.find((d) => d.id === id)).filter(Boolean);
+  const going = new Set(picked.map((d) => d.id));
+  return picked.filter((d) => !objDeleteBlocker(d, going)).sort((x, y) => Number(isBase(x)) - Number(isBase(y)));
+}
+async function bulkDelete() {
+  const docs = bulkDeletable(), skipped = UI.osel.size - docs.length;
+  if (!docs.length || !confirm(`删除 ${docs.length} 件物体？登记信息和 real2sim/objects/ 下它们的照片、渲染图会一起删除，不能恢复。`
+    + (skipped ? `\n另外 ${skipped} 件不能删除（已建模、任务在用或有没选中的变体），会跳过；已建模的可以在详情里「隐藏」。` : ''))) return;
+  let ok = 0;
+  for (const d of docs) {
+    try {
+      await api(`/api/items?kind=object&id=${encodeURIComponent(d.id)}`, {method: 'DELETE'});
+      S.object = S.object.filter((x) => x.id !== d.id);
+      UI.osel.delete(d.id);
+      ok += 1;
+    } catch (err) { toast(`删除 ${d.id} 失败：${err.message}`, true); }
+  }
+  render();
+  if (ok) toast(ok === docs.length ? `已删除 ${ok} 件物体` : `${ok}/${docs.length} 件已删除，其余失败`, ok !== docs.length);
 }
 async function bulkOwner() {
   const ids = [...UI.osel], owner = UI.bulk.owner, who = owner ? memberName(owner) : '未指派';
@@ -2723,8 +2748,8 @@ function flexibleBrief(d) {
     '刚体 check_object.py 不能作为柔性验收。另写 preview/deformable_check.json，包含网格 SHA、登记指纹和每项检查的状态及证据；材料未标定不得标通过。', ''];
 }
 function modelingBrief(d) { return d.modeling?.prompt || ''; }
-function objDeleteBlocker(d) {
-  const a = d.auto, variants = variantsOf(d.id).map((v) => v.id);
+function objDeleteBlocker(d, going = new Set()) {  // going: also being deleted now, so not in the way
+  const a = d.auto, variants = variantsOf(d.id).map((v) => v.id).filter((v) => !going.has(v));
   if ((a.tasks || []).length) return `任务 ${a.tasks.join('、')} 在用这个物体`;
   if (variants.length) return `它有泛化变体 ${variants.join('、')}，先删变体`;
   if (a.generator || a.in_library) return MODELED;
