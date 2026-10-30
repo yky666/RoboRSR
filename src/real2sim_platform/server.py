@@ -16,7 +16,9 @@ same way to real2sim/scenes/<scene>/registration.json, next to its reference/ ph
 distractors, scenes, generalization levels) to real2sim/tasks/<task>/registration.json; a registered task shows in
 the task list before it is implemented. Records live in one SQLite file
 (--db), together with the accounts: everyone signs in, and every change is stamped with the signed-in account's name.
-Admins manage accounts in the page (成员管理); the first admin is created on the server with --add-user NAME --admin.
+System admins manage accounts in the page (成员管理) and give each account a role per product: on the simulation
+platform admin, member or guest (read-only), on the datasets admin or viewer. The first system admin is created on the
+server with --add-user NAME --admin.
 
 Usage:
     python3 src/real2sim_platform/server.py --add-user alice --name 张三 --admin   # asks for the password
@@ -61,7 +63,12 @@ import task_inventory
 
 from env.global_configs import OBJECT_LIBRARIES, object_dir
 
-KINDS = ("scene", "object", "task", "episode", "embodiment", "evaluation", "prototype", "library")
+KINDS = ("scene", "object", "task", "episode", "embodiment", "evaluation", "prototype", "library", "dataset")
+# a dataset doc holds a dataset admin's edits over the page's catalog (or a whole entry they added, custom: true)
+DATASET_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,63}")
+DATASET_TEXT = {"name": 80, "org": 80, "url": 300, "desc": 1000, "note": 1000}  # field -> max length
+DATASET_NUMBERS = ("episodes", "hours", "gb")
+FACET_KEY, FACET_VALUE = re.compile(r"[a-z_]{1,20}"), re.compile(r"[a-z0-9_]{1,32}")
 LIBRARY_ID = re.compile(r"[a-z0-9][a-z0-9_-]{0,31}")  # an admin-added public object library, e.g. objaverse
 BUILTIN_LIBRARIES = ("real2sim", "robodojo")  # objects default to these by origin; not docs, cannot be removed
 PROTOTYPES_DIR = ROOT / "real2sim" / "prototypes"
@@ -146,28 +153,52 @@ class Store:
         cols = [col[1] for col in self.db.execute("PRAGMA table_info(users)")]
         if "admin" not in cols:
             self.db.execute("ALTER TABLE users ADD COLUMN admin INTEGER NOT NULL DEFAULT 0")
-        if "guest" not in cols:  # read-only accounts: may look at everything, change nothing
-            self.db.execute("ALTER TABLE users ADD COLUMN guest INTEGER NOT NULL DEFAULT 0")
+        # guest: read-only on the simulation platform; sim_admin / ds_admin: admin of one product only. `admin` is the
+        # system admin: manages accounts and is admin of both products
+        for col in ("guest", "sim_admin", "ds_admin"):
+            if col not in cols:
+                self.db.execute(f"ALTER TABLE users ADD COLUMN {col} INTEGER NOT NULL DEFAULT 0")
         self.db.execute("CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, username TEXT, expires REAL)")
         self.db.commit()
         self.lock = threading.Lock()
 
-    def add_user(self, username, password, name=None, admin=False, guest=False):
-        """Create the account (an admin is never a guest); False if the username is taken."""
+    USER_COLS = "username, name, admin, guest, sim_admin, ds_admin"
+
+    @staticmethod
+    def _user(row):
+        """Effective rights of a users row: a system admin is admin everywhere and never a guest."""
+        username, name, admin, guest, sim_admin, ds_admin = row
+        admin = bool(admin)
+        return {
+            "username": username,
+            "name": name or username,
+            "admin": admin,
+            "guest": not admin and bool(guest),
+            "sim_admin": admin or bool(sim_admin),
+            "ds_admin": admin or bool(ds_admin),
+        }
+
+    def add_user(self, username, password, name=None, admin=False, guest=False, sim_admin=False, ds_admin=False):
+        """Create the account; False if the username is taken."""
         with self.lock, self.db:
-            row = (username, name or username, hash_password(password), int(admin), int(guest and not admin))
-            sql = "INSERT OR IGNORE INTO users (username, name, pw, admin, guest) VALUES (?, ?, ?, ?, ?)"
+            flags = (int(admin), int(guest and not (admin or sim_admin)), int(sim_admin), int(ds_admin))
+            row = (username, name or username, hash_password(password), *flags)
+            sql = (
+                "INSERT OR IGNORE INTO users (username, name, pw, admin, guest, sim_admin, ds_admin) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)"
+            )
             return self.db.execute(sql, row).rowcount == 1
 
-    def edit_user(self, username, name=None, password=None, admin=None, guest=None):
+    def edit_user(self, username, name=None, password=None, admin=None, guest=None, sim_admin=None, ds_admin=None):
         """Change the given fields; a new password ends the account's sessions. False if there is no such account."""
-        if admin:
+        if admin or sim_admin:
             guest = False
-        flags = [None if v is None else int(v) for v in (admin, guest)]
+        flags = [None if v is None else int(v) for v in (admin, guest, sim_admin, ds_admin)]
         with self.lock, self.db:
             found = self.db.execute(
                 "UPDATE users SET name = COALESCE(?, name), pw = COALESCE(?, pw), admin = COALESCE(?, admin), "
-                "guest = COALESCE(?, guest) WHERE username = ?",
+                "guest = COALESCE(?, guest), sim_admin = COALESCE(?, sim_admin), ds_admin = COALESCE(?, ds_admin) "
+                "WHERE username = ?",
                 (name, hash_password(password) if password else None, *flags, username),
             ).rowcount
             if password:
@@ -181,17 +212,17 @@ class Store:
 
     def users(self):
         with self.lock:
-            rows = self.db.execute("SELECT username, name, admin, guest FROM users ORDER BY username").fetchall()
-        return [{"username": u, "name": n or u, "admin": bool(a), "guest": bool(g)} for u, n, a, g in rows]
+            rows = self.db.execute(f"SELECT {self.USER_COLS} FROM users ORDER BY username").fetchall()
+        return [self._user(row) for row in rows]
 
     def check(self, username, password):
-        """{username, name, admin, guest} if the password is right, else None."""
+        """The account's rights (see _user) if the password is right, else None."""
         with self.lock:
-            row = self.db.execute("SELECT name, pw, admin, guest FROM users WHERE username = ?", (username,)).fetchone()
-        right = verify_password(password, row[1] if row else DUMMY_HASH)
+            row = self.db.execute(f"SELECT {self.USER_COLS}, pw FROM users WHERE username = ?", (username,)).fetchone()
+        right = verify_password(password, row[-1] if row else DUMMY_HASH)
         if not (row and right):
             return None
-        return {"username": username, "name": row[0] or username, "admin": bool(row[2]), "guest": bool(row[3])}
+        return self._user(row[:-1])
 
     def open_session(self, username):
         token, now = secrets.token_urlsafe(32), time.time()
@@ -205,16 +236,12 @@ class Store:
         if not token:
             return None
         with self.lock:
+            cols = ", ".join(f"u.{c.strip()}" for c in self.USER_COLS.split(","))
             row = self.db.execute(
-                "SELECT u.username, u.name, u.admin, u.guest FROM sessions s JOIN users u USING (username) "
-                "WHERE s.token = ? AND s.expires > ?",
+                f"SELECT {cols} FROM sessions s JOIN users u USING (username) WHERE s.token = ? AND s.expires > ?",
                 (token_key(token), time.time()),
             ).fetchone()
-        return (
-            {"username": row[0], "name": row[1] or row[0], "admin": bool(row[2]), "guest": bool(row[3])}
-            if row
-            else None
-        )
+        return self._user(row) if row else None
 
     def end_session(self, token):
         with self.lock, self.db:
@@ -246,9 +273,10 @@ class Store:
             rows = self.db.execute("SELECT doc FROM items WHERE kind = ?", (kind,)).fetchall()
         return [json.loads(row[0]) for row in rows]
 
-    def update(self, kind, id_, fields, by):
+    def update(self, kind, id_, fields, by, replace=False):
+        """Merge `fields` into the doc; with replace, they become its whole user input."""
         with self.lock, self.db:
-            doc = self._get(kind, id_) or {"id": id_, "auto": {}}
+            doc = (not replace and self._get(kind, id_)) or {"id": id_, "auto": {}}
             doc.update({k: v for k, v in fields.items() if k not in ("id", "auto", "_by", "_at")})
             doc["_by"] = by
             doc["_at"] = time.time()
@@ -737,11 +765,39 @@ def delete_blocker(kind, doc, user):
         return 409, "已接入仿真的本体由代码管理（env/robot_manager、env_cfg/robot），请在仓库里改"
     if kind == "task" and auto.get("module"):
         return 409, "任务已在代码里实现，在仓库里删除；平台里只能撤销登记"
-    if kind == "evaluation" and not (user["admin"] or (doc or {}).get("submitter") == user["username"]):
-        return 403, "只有管理员或提交人可以删除评测"
-    if kind in ("episode", "prototype", "library") and not user["admin"]:
-        return 403, "只有管理员可以删除这类记录"
+    if kind == "evaluation" and not (user["sim_admin"] or (doc or {}).get("submitter") == user["username"]):
+        return 403, "只有仿真平台管理员或提交人可以删除评测"
+    if kind in ("episode", "prototype", "library") and not user["sim_admin"]:
+        return 403, "只有仿真平台管理员可以删除这类记录"
     return None
+
+
+def dataset_error(fields):
+    """Why a dataset edit is malformed, or "". Only the catalog's display fields; unknown keys are refused."""
+    extra = set(fields) - {*DATASET_TEXT, *DATASET_NUMBERS, "f", "custom"}
+    if extra:
+        return f"数据集没有字段 {'、'.join(sorted(extra))}"
+    for key, limit in DATASET_TEXT.items():
+        if key in fields and not (isinstance(fields[key], str) and len(fields[key]) <= limit):
+            return f"{key} 要是不超过 {limit} 字的文本"
+    if fields.get("url") and not re.fullmatch(r"https?://\S+", fields["url"]):
+        return "来源链接要以 http:// 或 https:// 开头"
+    if fields.get("custom") and not str(fields.get("name", "")).strip():
+        return "新增数据集要填名称"
+    for key in DATASET_NUMBERS:
+        value = fields.get(key)
+        if value is not None and (isinstance(value, bool) or not isinstance(value, int | float) or value < 0):
+            return f"{key} 要是非负数，未知留空"
+    facets = fields.get("f", {})
+    if not isinstance(facets, dict) or not all(
+        FACET_KEY.fullmatch(str(k))
+        and isinstance(v, list)
+        and len(v) <= 20
+        and all(isinstance(x, str) and FACET_VALUE.fullmatch(x) for x in v)
+        for k, v in facets.items()
+    ):
+        return "分类要是 {分类: [选项, …]}"
+    return ""
 
 
 def object_delete_blocker(oid, docs):
@@ -1204,8 +1260,12 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             return False
         self.user = self.store.session_user(self.cookie())
-        path = urlparse(self.path).path
-        if self.user and self.user["guest"] and self.command not in ("GET", "HEAD") and path not in self.GUEST_WRITES:
+        url = urlparse(self.path)
+        path = url.path
+        # a simulation-platform guest may still be a dataset admin: the dataset handlers check that right themselves
+        dataset = path == "/api/items" and parse_qs(url.query).get("kind") == ["dataset"]
+        write = self.command not in ("GET", "HEAD") and path not in self.GUEST_WRITES
+        if self.user and self.user["guest"] and write and not dataset:
             self.send_json({"error": "访客账号只能查看，不能修改"}, 403, close=True)
             return False
         if self.user or path in self.PUBLIC:
@@ -1245,13 +1305,14 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json(user, cookie=f"{COOKIE}={token}; Max-Age={SESSION_DAYS * 86400}")
 
     def accounts(self, method):
-        """Admins only: GET lists, POST creates, PUT ?username= edits, DELETE ?username= removes; replies the list."""
+        """System admins only: GET lists, POST creates, PUT ?username= edits, DELETE ?username= removes; replies the
+        list. Rights: admin (system admin), sim (admin | member | guest), datasets (admin | viewer)."""
 
         def fail(message, status=400):
             self.send_json({"error": message}, status)
 
         if not self.user["admin"]:
-            return fail("需要管理员权限", 403)
+            return fail("需要系统管理员权限", 403)
         if method == "GET":
             return self.send_json(self.store.users())
         data = self.body() if method != "DELETE" else {}
@@ -1262,22 +1323,28 @@ class Handler(BaseHTTPRequestHandler):
         name = str(data.get("name") or "").strip()[:32] or None
         password = str(data.get("password") or "") or None
         admin = None if data.get("admin") is None else bool(data["admin"])
-        guest = None
-        if (role := data.get("role")) is not None:
-            if role not in ("admin", "member", "guest"):
-                return fail("角色只能是管理员、成员或访客")
-            admin, guest = role == "admin", role == "guest"
+        guest = sim_admin = ds_admin = None
+        if (sim := data.get("sim")) is not None:
+            if sim not in ("admin", "member", "guest"):
+                return fail("仿真平台角色只能是管理员、成员或访客")
+            sim_admin, guest = sim == "admin", sim == "guest"
+        if (datasets := data.get("datasets")) is not None:
+            if datasets not in ("admin", "viewer"):
+                return fail("数据集角色只能是管理员或查看")
+            ds_admin = datasets == "admin"
         if (password and len(password) < 8) or (method == "POST" and not password):
             return fail("密码至少 8 位")
         if method == "POST":
             if not USERNAME.fullmatch(username):
                 return fail("用户名为 1–32 位字母、数字或 _ . -")
-            if not self.store.add_user(username, password, name, bool(admin), bool(guest)):
+            if not self.store.add_user(
+                username, password, name, bool(admin), bool(guest), bool(sim_admin), bool(ds_admin)
+            ):
                 return fail(f"用户名 {username} 已存在", 409)
         elif username == self.user["username"] and (method == "DELETE" or admin is False):
-            return fail("不能删除自己，也不能取消自己的管理员权限")
+            return fail("不能删除自己，也不能取消自己的系统管理员权限")
         elif method == "PUT":
-            if not self.store.edit_user(username, name, password, admin, guest):
+            if not self.store.edit_user(username, name, password, admin, guest, sim_admin, ds_admin):
                 return fail(f"没有账号 {username}", 404)
         elif not self.store.remove_user(username):
             return fail(f"没有账号 {username}", 404)
@@ -1413,8 +1480,8 @@ class Handler(BaseHTTPRequestHandler):
         if not action:
             return False
         refusal = None
-        if not self.user["admin"]:
-            refusal = ("只有管理员可以审核", 403)
+        if not self.user["sim_admin"]:
+            refusal = ("只有仿真平台管理员可以审核", 403)
         elif action not in ("approve", "reject", "reopen"):
             refusal = ("审核结论只能是通过、退回或撤回", 400)
         elif follows:
@@ -1446,6 +1513,14 @@ class Handler(BaseHTTPRequestHandler):
         fields = self.body()
         if not kind or fields is None or (kind == "object" and not OBJECT_ID.fullmatch(id_)):
             return self.send_error(400)
+        if kind == "dataset":  # the whole edit each time: a field left out goes back to the inventory value
+            if not self.user["ds_admin"]:
+                return self.send_json({"error": "只有数据集管理员可以修改数据集"}, 403)
+            if not DATASET_ID.fullmatch(id_):
+                return self.send_error(400)
+            if error := dataset_error(fields):
+                return self.send_json({"error": error}, 400)
+            return self.send_json(self.store.update(kind, id_, fields, by=self.user["name"], replace=True))
         if kind == "scene" and fields.get("registered") and not SCENE_ID.fullmatch(id_):
             return self.send_error(400)
         if kind == "scene" and set(fields) == {"name"}:  # display name only: stored here, no repo files rewritten
@@ -1453,8 +1528,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json({"error": "名称最多 60 个字"}, 400)
             return self.send_json(self.store.update(kind, id_, {"name": fields["name"].strip()}, by=self.user["name"]))
         if kind == "object" and "hidden" in fields:  # off the platform's lists only: assets and repo files untouched
-            if not self.user["admin"]:
-                return self.send_json({"error": "只有管理员可以隐藏物体"}, 403)
+            if not self.user["sim_admin"]:
+                return self.send_json({"error": "只有仿真平台管理员可以隐藏物体"}, 403)
             if set(fields) != {"hidden"} or not isinstance(fields["hidden"], bool):
                 return self.send_json({"error": "隐藏请求只能带 hidden（true 或 false）"}, 400)
             if not self.store.get(kind, id_):
@@ -1486,8 +1561,8 @@ class Handler(BaseHTTPRequestHandler):
             profile = load_json(rsi_profile.PROFILES_DIR / id_ / "randomization.json")
             return self.send_json(self.store.set_auto(kind, id_, "randomization", profile))
         if kind == "library":
-            if not self.user["admin"]:
-                return self.send_json({"error": "只有管理员可以管理资产库"}, 403)
+            if not self.user["sim_admin"]:
+                return self.send_json({"error": "只有仿真平台管理员可以管理资产库"}, 403)
             if not LIBRARY_ID.fullmatch(id_) or id_ in BUILTIN_LIBRARIES or not str(fields.get("name", "")).strip():
                 return self.send_json({"error": "编号用小写字母、数字、- 或 _，不能和内置库重名；名称必填"}, 400)
         if kind == "evaluation":
@@ -1569,9 +1644,14 @@ class Handler(BaseHTTPRequestHandler):
         kind, id_ = self.target()
         if not kind:
             return self.send_error(400)
+        if kind == "dataset":
+            if not self.user["ds_admin"]:
+                return self.send_json({"error": "只有数据集管理员可以修改数据集"}, 403)
+            self.store.delete(kind, id_)  # a catalog entry falls back to the inventory; an added one is gone
+            return self.send_json({"ok": True})
         if kind == "scene":  # admins only; removes the whole scene directory: registration and photos
-            if not self.user["admin"]:
-                return self.send_json({"error": "只有管理员可以删除场景"}, 403)
+            if not self.user["sim_admin"]:
+                return self.send_json({"error": "只有仿真平台管理员可以删除场景"}, 403)
             if (SCENE_CFG_DIR / f"{id_.removeprefix('robodojo_')}.yml").is_file() and id_.startswith("robodojo_"):
                 return self.send_json({"error": "RoboDojo 自带场景在 env_cfg/scene/ 里，请在仓库里改"}, 409)
             folder = build_asset.SCENES_DIR / id_
@@ -1582,8 +1662,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self.send_json({"error": error}, 409)
                 shutil.rmtree(folder)
         if kind == "object" and OBJECT_ID.fullmatch(id_):
-            if not self.user["admin"]:
-                return self.send_json({"error": "只有管理员可以删除物体"}, 403)
+            if not self.user["sim_admin"]:
+                return self.send_json({"error": "只有仿真平台管理员可以删除物体"}, 403)
             error = object_delete_blocker(id_, self.store.list("object"))
             if error:
                 return self.send_json({"error": error}, 409)
@@ -1740,7 +1820,7 @@ def main():
     )
     parser.add_argument("--add-user", metavar="USERNAME", help="create the account or reset its password, then exit")
     parser.add_argument("--name", help="with --add-user: display name stamped on that account's changes")
-    parser.add_argument("--admin", action="store_true", help="with --add-user: admins manage accounts in the page")
+    parser.add_argument("--admin", action="store_true", help="with --add-user: system admin (manages accounts)")
     parser.add_argument("--remove-user", metavar="USERNAME", help="delete the account, then exit")
     parser.add_argument("--list-users", action="store_true", help="list the accounts, then exit")
     args = parser.parse_args()

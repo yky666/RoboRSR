@@ -339,6 +339,9 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .src-real { background: var(--info-soft); color: var(--info); }
 .src-sim { background: light-dark(#F3EEFF, #231A38); color: light-dark(#6D28D9, #C4B5FD); }
 .src-ego { background: var(--accent-soft); color: var(--accent-text); }
+.src-mixed { background: light-dark(#E6F6F4, #0F2624); color: light-dark(#0F766E, #5EEAD4); }
+.src-asset { background: var(--ok-soft); color: var(--ok); }
+.src-unknown { background: var(--todo-soft); color: var(--todo); box-shadow: inset 0 0 0 1px var(--primary-line); }
 .ds-n { margin: 0; font-size: 22px; font-weight: 700; }
 .ds-n .num { margin-left: 2px; color: var(--muted); font-size: 14px; font-weight: 500; }
 .ds-note { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-size: 12px; }
@@ -721,6 +724,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
     <symbol id="i-cube" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M12 22V12"/><path d="m3 7 9 5 9-5"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.7 18-8-14a2 2 0 0 0-3.5 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
     <symbol id="i-arrow-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
     <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></symbol>
     <symbol id="i-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></symbol>
@@ -1131,7 +1135,7 @@ window.addEventListener('resize', () => segSlide());
 // are hidden (actions, uploads, bulk ticks) or locked (record fields stay readable and copyable)
 const GUEST_HIDE = /^(setQA|reviewRecord|bulk\w+|save\w+|remove\w+|delete\w+|gen\w+|unregisterTask|toggleTag|sync|setReal|resetPassword|openNew\w+|confirmObjectModeling|addExtra|addBuiltScenes|discardDraft)\(/;
 function guestLock(root) {
-  if (!ME?.guest || !root) return;
+  if (!ME?.guest || !root || (UI.tab === 'datasets' && ME.ds_admin)) return;  // a guest here may still run the datasets
   root.querySelectorAll('button[onclick]').forEach((b) => { if (GUEST_HIDE.test(b.getAttribute('onclick'))) b.hidden = true; });
   root.querySelectorAll('[data-open^="new-"], [data-open="libraries"], input[type=file], .osel, [data-sel], [data-ids]').forEach((el) => { (el.closest('label') || el).hidden = true; });
   root.querySelectorAll('[data-f]').forEach((el) => {
@@ -1184,8 +1188,8 @@ function renderNav() {
   ];
   $('#nav').innerHTML = items.map(([tab, label, icon, n]) => `<a class="nav-item" href="#${tab}" ${UI.tab === tab ? 'aria-current="page"' : ''}>${ic(icon, 'ic-lg')}<span>${label}</span>${
     tab === 'qa' ? (n ? `<span class="badge" title="待审回合">${n}</span>` : '')
-    : tab === 'scenes' && ME?.admin && scenesToReview() ? `<span class="badge" title="${n} 个场景，${scenesToReview()} 个待审核">${scenesToReview()}</span>`
-    : tab === 'objects' && ME?.admin && toReview() ? `<span class="badge" title="${n} 件物体，${toReview()} 件待审核">${toReview()}</span>`
+    : tab === 'scenes' && ME?.sim_admin && scenesToReview() ? `<span class="badge" title="${n} 个场景，${scenesToReview()} 个待审核">${scenesToReview()}</span>`
+    : tab === 'objects' && ME?.sim_admin && toReview() ? `<span class="badge" title="${n} 件物体，${toReview()} 件待审核">${toReview()}</span>`
     : (n !== '' ? `<span class="count">${n}</span>` : '')}</a>`).join('');
   $('#sync-btn').innerHTML = UI.syncing ? `${ic('refresh', 'spin')}同步中…` : `${ic('refresh')}同步项目数据`;
   $('#sync-btn').disabled = UI.syncing;
@@ -1194,7 +1198,7 @@ function renderNav() {
   $('#source').title = source;
   $('#source').innerHTML = `<span class="dot ${INFO.assets_ok ? 'ok' : 'warn'}" aria-hidden="true"></span><span class="sr-only">${esc(source)}</span>`;
   $('#me').title = ME ? `${ME.name}（${ME.username}）` : '';
-  $('#me').innerHTML = ME ? `${ME.guest ? `<span class="tag guest-tag" title="访客账号只能查看，不能修改">${ic('eye', 'ic-sm')}访客 · 只读</span>` : ''}<span class="avatar" aria-hidden="true">${esc([...ME.name][0] || '?')}</span>
+  $('#me').innerHTML = ME ? `${ME.guest ? `<span class="tag guest-tag" title="在仿真平台只能查看，不能修改">${ic('eye', 'ic-sm')}访客 · 只读</span>` : ''}<span class="avatar" aria-hidden="true">${esc([...ME.name][0] || '?')}</span>
     <span class="me-name"><b>${esc(ME.name)}</b><small>${esc(ME.username)}</small></span><span class="sp"></span>
     ${ME.admin ? `<a class="btn btn-icon btn-ghost" href="#users" aria-label="成员管理" title="成员管理 · ${USERS.length} 个账号" ${UI.tab === 'users' ? 'aria-current="page"' : ''}>${ic('users')}</a>` : ''}
     <button class="btn btn-icon btn-ghost" type="button" data-open="account" aria-label="修改密码" title="修改密码">${ic('key')}</button>
@@ -1267,7 +1271,7 @@ function drawerPrototype(d) {
 
 // ---------- datasets: public catalog with local-copy inventory; publisher descriptions keep their original scope ----------
 let DS_INVENTORY_DATE = '2026-10-29', DS_INVENTORY = null, DS_INVENTORY_ERROR = '';
-let DATASETS = [
+const DS_TEMPLATES = [
   {id: 'agibot-world-beta', name: 'AgiBot World Beta', org: '智元机器人 AgiBot', url: 'https://huggingface.co/datasets/agibot-world/AgiBotWorld-Beta',
     episodes: null, hours: null, size: "49,561.637 GB", tb: 49.561637004,
     inventoryNote: "原始 tar 仓库的逻辑体量；尚未逐包核算完整回合和时长。另有转换副本 153,394 条、2,521.364 h，仅为已转换子集，与原始包重叠。",
@@ -1449,6 +1453,9 @@ let DATASETS = [
     f: {source: ['ego'], domain: [], space: [], form: ['human'], robot: [], manip: [],
       skill: [], format: [], license: ['unknown'], platform: ['hf'], local: ['complete']}},
 ];
+// DS_BASE: the catalog (templates, or the inventory once loaded); DS_EDITS: dataset docs from the platform, a dataset
+// admin's edits over a catalog entry or a whole entry they added (custom); DATASETS: what the page shows
+let DS_BASE = DS_TEMPLATES, DATASETS = DS_TEMPLATES, DS_EDITS = [];
 // facets: [key, title, look, options]; a dataset matches a facet when any of its values is picked (OR within, AND across)
 const DS_FACETS = [
   ['source', '数据类型', 'chips', [['real', '真机采集'], ['sim', '仿真生成'], ['ego', 'Ego · 人类示范'], ['mixed', '真实 + 仿真'], ['asset', '资产'], ['unknown', '待确认']]],
@@ -1484,7 +1491,7 @@ function applyDatasetInventory(snapshot) {
   const invalid = () => { throw new Error('数据盘点文件格式或覆盖数量不完整'); };
   if (snapshot.schemaVersion !== 1 || !Array.isArray(snapshot.groups) || !snapshot.groups.length ||
       !Number.isInteger(snapshot.recordCount) || !/^\d{4}-\d{2}-\d{2}$/.test(snapshot.date)) invalid();
-  const templates = new Map(DATASETS.map((d) => [d.id, d])), ids = new Set(), records = new Set();
+  const templates = new Map(DS_TEMPLATES.map((d) => [d.id, d])), ids = new Set(), records = new Set();
   const numeric = (v) => v === null || (Number.isFinite(v) && v >= 0);
   const total = (rows, key) => rows.some((v) => v[key] !== null) ? rows.reduce((s, v) => s + (v[key] || 0), 0) : null;
   const catalog = snapshot.groups.map((g) => {
@@ -1511,10 +1518,27 @@ function applyDatasetInventory(snapshot) {
       inventoryNote: '按版本明细中的「计入口径」汇总已知部分；未选择的同源副本不重复累计，未知值不作零。目录体量保留全部副本，可能重叠。'};
   });
   if (records.size !== snapshot.recordCount) invalid();
-  DATASETS = catalog;
+  DS_BASE = catalog;
+  dsMergeEdits();
   DS_INVENTORY = snapshot;
   DS_INVENTORY_DATE = snapshot.date;
   DS_INVENTORY_ERROR = '';
+}
+const DS_TEXT = ['name', 'org', 'url', 'desc', 'note'];  // note is the entry's inventoryNote
+const DS_BLANK = () => ({name: '', org: '', url: '', desc: '', inventoryNote: '', episodes: null, hours: null, tb: 0, size: '—',
+  f: {...Object.fromEntries(DS_FACETS.map(([k]) => [k, []])), source: ['unknown'], license: ['unknown'], local: ['none']}});
+function dsWithEdit(d, e) {
+  if (!e) return d;
+  const f = {...d.f, ...e.f};
+  if (!f.source?.length) f.source = ['unknown'];
+  return {...d, ...Object.fromEntries(DS_TEXT.filter((k) => k in e).map((k) => [k === 'note' ? 'inventoryNote' : k, e[k]])),
+    ...('episodes' in e && {episodes: e.episodes}), ...('hours' in e && {hours: e.hours}),
+    ...('gb' in e && {tb: (e.gb || 0) / 1000, size: e.gb === null ? '—' : `${exact(e.gb)} GB`}), f, edit: e};
+}
+function dsMergeEdits() {
+  const edits = new Map(DS_EDITS.map((e) => [e.id, e])), known = new Set(DS_BASE.map((d) => d.id));
+  DATASETS = [...DS_BASE.map((d) => dsWithEdit(d, edits.get(d.id))),
+    ...DS_EDITS.filter((e) => e.custom && !known.has(e.id)).map((e) => dsWithEdit({...DS_BLANK(), id: e.id, custom: true}, e))];
 }
 async function loadDatasetInventory() {
   try { applyDatasetInventory(await api(file(`${INFO.root}/output/dataset_inventory.json`), {cache: 'no-cache'})); }
@@ -1607,17 +1631,22 @@ function viewDatasets() {
         <div class="ds-bar"><h2 class="ds-n">数据集 <span class="num">${shown.length}</span></h2>
           <button type="button" class="btn btn-sm" onclick="dsClear()" ${active.length || f.q ? '' : 'disabled'}>${ic('rotate', 'ic-sm')}重置</button>
           <span class="ds-note">${DS_INVENTORY ? `${DS_INVENTORY.recordCount} 条版本记录均已归组；搜索也匹配版本名称` : '公开目录缓存'}</span><span class="sp"></span>
-          ${searchBox('ds-q', f.q, 'UI.ds.q', '搜索数据集')}${dropdown('ds-sort', '排序', DS_SORT, f.sort, (v) => { UI.ds.sort = v; })}<div class="views" role="group" aria-label="视图">${views}</div></div>
+          ${searchBox('ds-q', f.q, 'UI.ds.q', '搜索数据集')}${dropdown('ds-sort', '排序', DS_SORT, f.sort, (v) => { UI.ds.sort = v; })}<div class="views" role="group" aria-label="视图">${views}</div>
+          ${ME?.ds_admin ? `<button type="button" class="btn btn-primary" onclick="newDataset()">${ic('plus')}新增数据集</button>` : ''}</div>
         ${active.length ? `<div class="ds-active">${active.map(([label, undo]) => `<button type="button" class="tag ds-x" onclick="${undo}" aria-label="移除筛选 ${esc(label)}">${esc(label)}${ic('close', 'ic-sm')}</button>`).join('')}</div>` : ''}
         ${!shown.length ? `<div class="card">${empty('database', '没有匹配的数据集', '放宽筛选条件，或点「重置」')}</div>`
           : f.view === 'list' ? dsTable(shown) : `<div class="grid ds-grid">${shown.map(dsCard).join('')}</div>`}
-        <p class="hint" style="margin-top:20px">仅作示意，未支撑实际业务：分类标签为初稿。本地统计更新于 ${DS_INVENTORY_DATE}，体量按逻辑字节计算（1 GB = 10^9 B），保留全部目录副本，可能重叠。已知时长可能只覆盖子集，空白表示尚未可靠核实；不同合集可能重叠，合计不代表独立演示数；未物理删除的质检排除项仍计入。</p></section></div></div>`;
+        <p class="hint" style="margin-top:20px">仅作示意，未支撑实际业务：分类标签为初稿，数据集管理员可在详情里修改。本地统计更新于 ${DS_INVENTORY_DATE}，体量按逻辑字节计算（1 GB = 10^9 B），保留全部目录副本，可能重叠。已知时长可能只覆盖子集，空白表示尚未可靠核实；不同合集可能重叠，合计不代表独立演示数；未物理删除的质检排除项仍计入。</p></section></div></div>`;
 }
 function drawerDataset(d) {
+  if (!d) return {title: '记录不存在', body: ''};
+  if (UI.dsEdit === d.id && ME?.ds_admin) return drawerDatasetEdit(d);
   const host = d.url.includes('huggingface') ? 'Hugging Face' : 'ModelScope';
+  const admin = !ME?.ds_admin ? '' : `<button class="btn" type="button" onclick="UI.dsEdit = '${esc(d.id)}'; render()">${ic('edit')}编辑</button>${d.edit
+    ? `<button class="btn" type="button" data-id="${esc(d.id)}" onclick="removeDataset(this.dataset.id)">${ic(d.custom ? 'trash' : 'rotate')}${d.custom ? '删除' : '恢复盘点值'}</button>` : ''}`;
   return {title: d.name, sub: d.org,
-    actions: d.url ? `<a class="btn" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">${ic('external')}在 ${host} 打开</a>` : '',
-    body: `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px">${d.f.source.map(dsSrcBadge).join('')}${dsLabels(d, 'skill').map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+    actions: `${admin}${d.url ? `<a class="btn" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">${ic('external')}在 ${host} 打开</a>` : ''}`,
+    body: `${d.edit ? `<p class="hint" style="margin:0 0 10px">${d.custom ? '数据集管理员新增' : '数据集管理员改过'} · ${esc(d.edit._by || '')} · ${fmtTime(d.edit._at)}</p>` : ''}<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px">${d.f.source.map(dsSrcBadge).join('')}${dsLabels(d, 'skill').map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
       <p style="margin:0 0 14px;line-height:1.7">${esc(d.desc)}</p>
       ${stats([['已知 Episode', dsEpText(d)], ['已知时长', dsHoursText(d)], ['本地体量', dsSizeText(d)]])}
       ${dsExact(d) ? `<p class="hint" style="margin:6px 0 0">精确值：${esc(dsExact(d))}</p>` : ''}
@@ -1630,6 +1659,71 @@ function drawerDataset(d) {
         `<dt>${title}</dt><dd>${dsLabels(d, k).map((x) => esc(x)).join('、') || '<span class="muted">待补</span>'}</dd>`).join('')}</dl>`)}
       ${sec(`${ic('database')}获取`, `<dl class="kv"><dt>来源</dt><dd>${d.url ? `<a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" class="mono small">${esc(d.url.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : '未登记公开来源'}</dd>
         <dt>本地副本</dt><dd>${esc(dsLabels(d, 'local').join(''))}</dd></dl>`)}`};
+}
+// dataset admins: the edit is stored on the platform over the catalog entry; a field left as the catalog has it, or a
+// number left blank, follows the inventory. An added entry (custom) has no inventory: blank numbers are unknown
+const dsCatalog = (id) => DS_BASE.find((x) => x.id === id);
+function drawerDatasetEdit(d) {
+  const b = dsCatalog(d.id) || DS_BLANK(), e = d.edit || {}, fld = wzFld;
+  const input = (k, v, attrs = '') => `<input id="dse-${k}" value="${esc(v)}" autocomplete="off" ${attrs}>`;
+  const numHint = (v, unit) => (d.custom || !dsCatalog(d.id) ? '留空表示未知' : `留空用盘点值${v == null ? '（未知）' : `（${exact(v)}${unit}）`}`);
+  const number = (k, label, v, base, unit) => fld(`dse-${k}`, label, input(k, k in e ? v ?? '' : '', 'type="number" min="0" step="any" class="num"'), {hint: numHint(base, unit)});
+  const facets = DS_FACETS.map(([k, title, , options]) => `<div class="fld wide"><label>${title}</label><div class="toggles">${options.map(([v, label]) =>
+    `<label class="toggle"><input type="checkbox" data-dsf="${k}" value="${v}" ${(d.f[k] || []).includes(v) ? 'checked' : ''}><span>${ic('check')}${esc(label)}</span></label>`).join('')}</div></div>`).join('');
+  return {title: d.custom && !d.edit ? '新增数据集' : `编辑 · ${d.name}`, sub: d.custom ? '数据集管理员新增的条目，不在本地盘点里' : '修改存在平台上，盘点文件不变；「恢复盘点值」撤销全部修改',
+    actions: `<button class="btn btn-primary" type="button" data-id="${esc(d.id)}" onclick="saveDataset(this.dataset.id)">${ic('check')}保存</button>
+      <button class="btn" type="button" onclick="${DATASETS.some((x) => x.id === d.id) ? 'UI.dsEdit = null; render()' : 'closeDrawer()'}">取消</button>`,
+    body: `<p id="dse-err" class="field-error" role="alert"></p>
+      ${wzGroup('基本信息', `<div class="wz-grid">${fld('dse-name', '名称', input('name', d.name, 'maxlength="80"'), {req: true})}${fld('dse-org', '发布机构', input('org', d.org, 'maxlength="80"'))}
+        ${fld('dse-url', '来源链接', input('url', d.url, 'maxlength="300" class="mono" placeholder="https://"'), {wide: true})}
+        ${fld('dse-desc', '简介', `<textarea id="dse-desc" rows="3" maxlength="1000">${esc(d.desc)}</textarea>`, {wide: true})}
+        ${fld('dse-note', '本地统计口径', `<textarea id="dse-note" rows="3" maxlength="1000">${esc(d.inventoryNote)}</textarea>`, {wide: true})}</div>`)}
+      ${wzGroup('统计', `<div class="wz-grid">${number('episodes', '已知 Episode', e.episodes, b.episodes, '')}${number('hours', '已知时长（h）', e.hours, b.hours, ' h')}
+        ${number('gb', '本地体量（GB）', e.gb, b.tb > 0 ? b.tb * 1000 : null, ' GB')}</div>`)}
+      ${wzGroup('分类', `<div class="wz-grid">${facets}</div>`)}`};
+}
+function newDataset() {  // the drawer shows a blank entry under this id; nothing is listed until it is saved
+  const id = `ds-${Date.now().toString(36)}`;
+  UI.dsEdit = id;
+  openDrawer('dataset', id);
+}
+async function saveDataset(id) {
+  const custom = !dsCatalog(id), b = dsCatalog(id) || DS_BLANK(), patch = custom ? {custom: true} : {}, err = $('#dse-err');
+  for (const k of DS_TEXT) {
+    const v = $(`#dse-${k}`).value.trim();
+    if (custom || v !== ((k === 'note' ? b.inventoryNote : b[k]) || '')) patch[k] = v;
+  }
+  for (const k of ['episodes', 'hours', 'gb']) {
+    const v = $(`#dse-${k}`).value.trim();
+    if (v === '') continue;
+    if (!(Number(v) >= 0)) { err.textContent = '统计数字要是非负数，未知就留空'; return $(`#dse-${k}`).focus(); }
+    patch[k] = Number(v);
+  }
+  const f = {};
+  for (const [k] of DS_FACETS) {
+    const picked = [...$$(`[data-dsf="${k}"]:checked`)].map((c) => c.value);
+    if (custom || [...picked].sort().join() !== [...(b.f[k] || [])].sort().join()) f[k] = picked;
+  }
+  if (Object.keys(f).length) patch.f = f;
+  if (!(patch.name ?? b.name)) { err.textContent = '名称不能为空'; return $('#dse-name').focus(); }
+  const url = `/api/items?kind=dataset&id=${encodeURIComponent(id)}`;
+  try {
+    if (Object.keys(patch).length) DS_EDITS = [...DS_EDITS.filter((x) => x.id !== id), await api(url, {method: 'PUT', body: JSON.stringify(patch)})];
+    else { await api(url, {method: 'DELETE'}); DS_EDITS = DS_EDITS.filter((x) => x.id !== id); }  // nothing differs: no edit kept
+  } catch (e) { err.textContent = e.message; return; }
+  dsMergeEdits();
+  UI.dsEdit = null;
+  render();
+  toast(Object.keys(patch).length ? '已保存' : '和盘点值一致，未保留修改');
+}
+async function removeDataset(id) {
+  const d = DATASETS.find((x) => x.id === id);
+  if (!confirm(d.custom ? `删除新增的数据集「${d.name}」？` : `撤销「${d.name}」上的全部修改，恢复盘点值？`)) return;
+  try { await api(`/api/items?kind=dataset&id=${encodeURIComponent(id)}`, {method: 'DELETE'}); } catch (e) { return toast(`操作失败：${e.message}`, true); }
+  DS_EDITS = DS_EDITS.filter((x) => x.id !== id);
+  dsMergeEdits();
+  if (d.custom) closeDrawer(); else render();
+  toast(d.custom ? '已删除' : '已恢复盘点值');
 }
 
 // ---------- overview ----------
@@ -1750,7 +1844,7 @@ function viewScenes() {
   const statusBar = `<div class="toolbar lib-status"><div class="segctl" role="group" aria-label="按审核状态查看场景">
       ${[['', '全部', all.length], ...Object.entries(REVIEW).map(([k, [, label]]) => [k, label, counts[k]])].map(([k, label, c]) => `<button type="button"
         aria-pressed="${f === k}" onclick="UI.sceneStatus = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
-      <span class="muted small">${ME?.admin ? '待审核的场景在详情里给出结论' : '审核由管理员完成'}；场景模型重建后自动回到待审核；工况变体跟随源场景</span></div>`;
+      <span class="muted small">${ME?.sim_admin ? '待审核的场景在详情里给出结论' : '审核由管理员完成'}；场景模型重建后自动回到待审核；工况变体跟随源场景</span></div>`;
   return `<div class="page">${pageHead('场景重建', `real2sim/scenes/ 下 ${all.length} 个孪生场景 · 目标 7 个（3 个孪生 + 2 个训练用泛化 + 2 个保留）。新场景先登记：至少 ${MIN_SCENE_PHOTOS} 张照片加卷尺实测`,
     `<button class="btn btn-primary" type="button" onclick="openNewScene(this)">${ic('plus')}登记场景</button>`)}
     ${all.length ? statusBar : ''}
@@ -1983,7 +2077,7 @@ function sceneDrawerView(d) {
   if (isBench(d)) return drawerBenchScene(d);
   const a = d.auto, dir = rel(a.path), rs = evalStages(SCENE_STAGES, d);
   // modeled scenes live in code and git (USD, build_asset.py SCENES, env configs): the server refuses to delete them
-  const actions = ME?.admin && !a.configs?.length && !a.rooms?.length
+  const actions = ME?.sim_admin && !a.configs?.length && !a.rooms?.length
     ? `<button class="btn" type="button" data-id="${esc(d.id)}" onclick="removeScene(this.dataset.id)">${ic('trash')}删除场景</button>` : '';
   if (d.registered && !a.built) {
     return {
@@ -2166,7 +2260,7 @@ function robotWizError() {
 async function createRobot(btn) {
   if (wizBlocked()) return;
   const [e, field] = robotWizError();  // the last step is not checked by wizGo
-  if (e && !ME?.admin) { $('#no-err').textContent = e; $(field)?.focus(); return; }
+  if (e && !ME?.sim_admin) { $('#no-err').textContent = e; $(field)?.focus(); return; }
   const id = $('#nr-id').value.trim(), value = (sel) => $(sel).value.trim();
   const reg = {name: value('#nr-name'), name_en: value('#nr-name-en'), model: value('#nr-model'), variant: value('#nr-variant'), dof: value('#nr-dof'),
     end_effector: value('#nr-ee'), control_hz: ntNum($('#nr-hz').value), cameras: value('#nr-cameras'), urdf: value('#nr-urdf'), units: value('#nr-units'), notes: value('#nr-notes')};
@@ -2261,7 +2355,7 @@ function evalBrief(d) {  // the task for a coding agent that deploys and evaluat
 }
 function drawerEval(d) {
   const r = d.reg || {}, res = d.auto.result, eps = evalEps(d), [sr, how] = evalOverall(d);
-  const canDelete = ME?.admin || d.submitter === ME?.username;
+  const canDelete = ME?.sim_admin || d.submitter === ME?.username;
   return {
     title: evalName(d), sub: `${d.id} · ${EVAL_STATUS[d.status] || d.status || '—'} · 提交人 ${memberName(d.submitter) || '—'}`,
     actions: canDelete ? `<button class="btn" type="button" data-id="${esc(d.id)}" onclick="removeDoc('evaluation', this.dataset.id)">${ic('trash')}删除</button>` : '',
@@ -2471,7 +2565,7 @@ function libSection(lib, docs) {
   const statusBar = r2s ? `<div class="toolbar lib-status"><div class="segctl" role="group" aria-label="按审核状态查看">
       ${[['', '全部', n], ...Object.entries(REVIEW).map(([k, [, label]]) => [k, label, counts[k]])].map(([k, label, c]) => `<button type="button"
         aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
-      <span class="muted small">${ME?.admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核；只数本体，变体跟随本体审核</span><span class="sp"></span>${pickAll}</div>`
+      <span class="muted small">${ME?.sim_admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核；只数本体，变体跟随本体审核</span><span class="sp"></span>${pickAll}</div>`
     : pickAll ? `<div class="toolbar lib-status"><span class="sp"></span>${pickAll}</div>` : '';
   const none = f.q || f.photo || f.phys || f.hidden || f.status || f.owner ?
  empty('search', '没有符合条件的物体', '调整筛选条件')
@@ -2494,19 +2588,19 @@ function objBulkBar() {
   if (!n) return '';
   const pending = bulkPending().length, none = pending ? '' : 'disabled title="选中的物体里没有待审核的本体"';
   const cancel = `<span class="bulk-sep" aria-hidden="true"></span><button class="btn btn-icon" type="button" title="取消选择" aria-label="取消选择" onclick="UI.osel.clear(); UI.bulk.reject = false; render()">${ic('x')}</button>`;
-  if (ME?.admin && UI.bulk.reject) {
+  if (ME?.sim_admin && UI.bulk.reject) {
     return `<div class="bulkbar obj-bulk" role="region" aria-label="批量退回"><span class="bulk-count"><b>${pending}</b>件退回</span>
       <input id="bulk-note" type="text" placeholder="退回原因（必填，写进每件的审核记录）" aria-label="退回原因" value="${esc(UI.bulk.note)}" oninput="UI.bulk.note = this.value">
       <button class="btn btn-primary" type="button" onclick="bulkReview('reject')">确认退回</button>
       <button class="btn" type="button" onclick="UI.bulk.reject = false; render()">返回</button></div>`;
   }
-  return `<div class="bulkbar obj-bulk" role="region" aria-label="批量操作"><span class="bulk-count"><b>${n}</b>已选</span>${ME?.admin ? `<span class="bulk-hint">待审核 ${pending}</span>` : ''}
+  return `<div class="bulkbar obj-bulk" role="region" aria-label="批量操作"><span class="bulk-count"><b>${n}</b>已选</span>${ME?.sim_admin ? `<span class="bulk-hint">待审核 ${pending}</span>` : ''}
     <span class="bulk-sep" aria-hidden="true"></span>
-    ${ME?.admin ? `<button class="btn" type="button" ${none} onclick="bulkReview('approve')">${ic('check')}通过</button>
+    ${ME?.sim_admin ? `<button class="btn" type="button" ${none} onclick="bulkReview('approve')">${ic('check')}通过</button>
     <button class="btn" type="button" ${none} title="写明原因后退回重建" onclick="UI.bulk.reject = true; render(); $('#bulk-note')?.focus()">${ic('x')}退回</button><span class="bulk-sep" aria-hidden="true"></span>` : ''}
     ${dropdown('bulk-owner', '重建负责人', Object.entries(memberOpts()), UI.bulk.owner, (v) => { UI.bulk.owner = v; })}
     <button class="btn" type="button" onclick="bulkOwner()">${ic('users')}指派</button>
-    ${ME?.admin ? `<span class="bulk-sep" aria-hidden="true"></span><button class="btn bulk-danger" type="button" ${bulkDeletable().length ? '' : 'disabled title="选中的物体都不能删除：已建模、任务在用或有没选中的变体"'} onclick="bulkDelete()">${ic('trash')}删除</button>` : ''}${cancel}</div>`;
+    ${ME?.sim_admin ? `<span class="bulk-sep" aria-hidden="true"></span><button class="btn bulk-danger" type="button" ${bulkDeletable().length ? '' : 'disabled title="选中的物体都不能删除：已建模、任务在用或有没选中的变体"'} onclick="bulkDelete()">${ic('trash')}删除</button>` : ''}${cancel}</div>`;
 }
 async function bulkReview(action) {
   const docs = bulkPending(), skipped = UI.osel.size - docs.length, note = action === 'reject' ? UI.bulk.note.trim() : '';
@@ -2563,7 +2657,7 @@ function viewObjects() {
   const f = UI.obj, docs = objList(), objs = live(S.object).filter(isBase);
   return `<div class="page">${pageHead('物体资产', `按资产库分组，点库名收起或展开。G1-D 任务配置里用到的物体自动列出，新的实物孪生先登记。实测值定稿后写回生成脚本和
     <a target="_blank" rel="noopener" href="${file(`${INFO.root}/real2sim/ASSETS.md`)}">real2sim/ASSETS.md</a>`,
-    `${ME?.admin ? `<button class="btn" type="button" data-open="libraries" data-id="all">${ic('layers')}管理资产库</button>` : ''}
+    `${ME?.sim_admin ? `<button class="btn" type="button" data-open="libraries" data-id="all">${ic('layers')}管理资产库</button>` : ''}
     <button class="btn btn-primary" type="button" onclick="openNewObject(this)">${ic('plus')}登记物体</button>`)}
     ${assetsWarning()}
     <div class="toolbar filters">${searchBox('obj-q', f.q, 'UI.obj.q', '搜索 id / 名称 / 任务')}
@@ -2599,7 +2693,7 @@ function reviewPanel(d, kind = 'object') {
   return sec(`${ic('eye')}审核`, `<div class="review-head">${st(s, label)}<span class="small">${esc(why)}</span><span class="sp"></span>
       ${kind === 'object' || d.owner ? `<span class="small muted">重建负责人 ${esc(memberName(d.owner) || '未指派')}</span>` : ''}</div>
     ${r.note && d.review_state !== 'review' ? `<blockquote class="review-note">${esc(r.note)}</blockquote>` : ''}
-    ${!ME?.admin ? '<p class="hint">审核由管理员完成。</p>'
+    ${!ME?.sim_admin ? '<p class="hint">审核由管理员完成。</p>'
     : !built ? ''
     : d.review_state !== 'review' ? `<div style="margin-top:12px"><button class="btn" type="button" data-id="${esc(d.id)}" onclick="reviewRecord('${kind}', this.dataset.id, 'reopen')">
         ${ic('rewind')}${d.review_state === 'done' ? '撤回通过，改回待审核' : '撤回退回，改回待审核'}</button></div>`
@@ -2777,7 +2871,7 @@ function objDeleteBlocker(d, going = new Set()) {  // going: also being deleted 
 }
 const MODELED = 'modeled';  // built into the asset library: not deleted from here, but an admin can hide it
 function objDeleteButton(d) {
-  if (!ME?.admin) return '';
+  if (!ME?.sim_admin) return '';
   if (d.hidden) return `<button class="btn" type="button" data-id="${esc(d.id)}" onclick="hideObject(this.dataset.id, false)">${ic('eye')}取消隐藏</button>`;
   const why = objDeleteBlocker(d);
   if (why === MODELED) return `<button class="btn" type="button" data-id="${esc(d.id)}" title="只从平台列表拿掉，资产库和代码不动，可随时恢复" onclick="hideObject(this.dataset.id, true)">${ic('eye-off')}隐藏</button>`;
@@ -2829,7 +2923,7 @@ function drawerObject(d) {
   return {
     title: objName(d), sub: `${d.id} · ${a.in_library ? '资产库已有' : a.built ? '已建好，未装共享库' : '还没建模'}${a.generator ? ` · ${a.generator}` : ''}`,
     actions: objDeleteButton(d),
-    body: `${materialList()}${d.hidden ? `<div class="callout">${ic('eye-off')}<div>已隐藏：不出现在物体列表和计数里。共享资产库和代码都没动${ME?.admin ? '，点右上「取消隐藏」恢复' : '，管理员可以恢复'}。</div></div>` : ''}${parent ? `<div class="callout">${ic('grid')}<div>这是 ${link('object', parent.id)}（${esc(objName(parent))}）的泛化变体，在物体页收在它的卡片里。</div></div>` : ''}
+    body: `${materialList()}${d.hidden ? `<div class="callout">${ic('eye-off')}<div>已隐藏：不出现在物体列表和计数里。共享资产库和代码都没动${ME?.sim_admin ? '，点右上「取消隐藏」恢复' : '，管理员可以恢复'}。</div></div>` : ''}${parent ? `<div class="callout">${ic('grid')}<div>这是 ${link('object', parent.id)}（${esc(objName(parent))}）的泛化变体，在物体页收在它的卡片里。</div></div>` : ''}
     ${libOf(d) === 'real2sim' ? reviewPanel(d) : ''}${a.built ? '' : brief}${sec('实物参考与模型', `<div class="compare">
       <figure><figcaption>${ic('camera')}实物照片 <span class="muted small">${photos.length} 张</span><span class="sp"></span>
         <label class="btn upload" title="jpg / png / webp，单张 ≤ 25 MB">${ic('upload')}上传<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-id="${esc(d.id)}" onchange="uploadPhotos(this)" aria-label="上传实物照片"></label></figcaption>
@@ -3693,11 +3787,17 @@ function randomPassword() {
   const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
   return Array.from(crypto.getRandomValues(new Uint32Array(12)), (x) => abc[x % abc.length]).join('');
 }
-const newUserForm = () => ({username: '', name: '', password: randomPassword(), role: 'member'});
-const ROLES = {member: '成员', admin: '管理员', guest: '访客（只读）'};
-const roleOf = (u) => (u.admin ? 'admin' : u.guest ? 'guest' : 'member');
+const newUserForm = () => ({username: '', name: '', password: randomPassword(), admin: false, sim: 'member', datasets: 'viewer'});
+// rights per product; a system admin manages accounts and is admin of both products
+const SIM_ROLES = {member: '成员', admin: '管理员', guest: '访客（只读）'};
+const DS_ROLES = {viewer: '查看', admin: '管理员'};
+const SIM_ROLE_HINT = {member: '录入、质检和提交评测', admin: '另外审核物体和场景、删除记录、管理资产库', guest: '只能查看，不能修改'};
+const DS_ROLE_HINT = {viewer: '只能查看数据集', admin: '编辑、新增和删除数据集条目'};
+const simRole = (u) => (u.sim_admin ? 'admin' : u.guest ? 'guest' : 'member');
+const dsRole = (u) => (u.ds_admin ? 'admin' : 'viewer');
+const roleText = (u) => (u.admin ? '系统管理员' : `仿真平台${SIM_ROLES[simRole(u)].replace('（只读）', '')} · 数据集${DS_ROLES[dsRole(u)]}`);
 function viewUsers() {
-  if (!ME?.admin) return `<div class="page">${pageHead('成员管理', '')}<div class="card">${empty('users', '需要管理员权限', '账号由平台管理员创建和管理')}</div></div>`;
+  if (!ME?.admin) return `<div class="page">${pageHead('成员管理', '')}<div class="card">${empty('users', '需要系统管理员权限', '账号由系统管理员创建和管理')}</div></div>`;
   const nu = UI.nu ||= newUserForm();
   const cred = UI.cred ? `<div class="callout ok">${ic('check')}<div style="flex:1;min-width:0"><b>${esc(UI.cred.text)}</b>，把下面的登录信息发给对方。密码只显示这一次，忘了只能重置。
     <div style="margin-top:8px">${code(`地址：${location.origin}\n账号：${UI.cred.username}\n密码：${UI.cred.password}`)}</div></div>
@@ -3707,16 +3807,22 @@ function viewUsers() {
     return `<tr data-user="${who}"><td><span class="mono t-main">${who}</span>${self ? ' <span class="tag">你</span>' : ''}</td>
       <td><input type="text" value="${esc(u.name)}" maxlength="32" aria-label="${who} 的显示名" style="width:100%;max-width:220px"
         onchange="editUser(this.closest('tr').dataset.user, {name: this.value})"></td>
-      <td><select aria-label="${who} 的角色" ${self ? 'disabled title="不能取消自己的管理员权限"' : ''}
-        onchange="editUser(this.closest('tr').dataset.user, {role: this.value})">${opts(ROLES, roleOf(u))}</select></td>
+      <td><label class="nowrap"><input type="checkbox" ${u.admin ? 'checked' : ''} aria-label="${who} 是系统管理员" ${self ? 'disabled title="不能取消自己的系统管理员权限"' : ''}
+        onchange="editUser(this.closest('tr').dataset.user, this.checked ? {admin: true} : {admin: false, sim: 'admin', datasets: 'admin'})"> 系统管理员</label></td>
+      ${[['sim', '仿真平台', SIM_ROLES, simRole(u)], ['datasets', '数据集', DS_ROLES, dsRole(u)]].map(([k, label, roles, v]) =>
+        `<td><select aria-label="${who} 的${label}角色" ${u.admin ? 'disabled title="系统管理员在各板块都是管理员"' : ''}
+          onchange="editUser(this.closest('tr').dataset.user, {${k}: this.value})">${opts(roles, v)}</select></td>`).join('')}
       <td class="nowrap"><button class="btn" type="button" ${self ? 'disabled title="修改自己的密码用侧栏的钥匙按钮"' : ''}
         onclick="resetPassword(this.closest('tr').dataset.user)">${ic('key')}重置密码</button>
         <button class="btn btn-icon" type="button" aria-label="删除 ${who}" title="删除账号" ${self ? 'disabled' : ''}
         onclick="deleteUser(this.closest('tr').dataset.user)">${ic('trash')}</button></td></tr>`;
   }).join('');
-  return `<div class="page">${pageHead('成员管理', `${USERS.length} 个账号，仿真平台和数据集通用 · 每人用自己的账号登录，录入和质检结论按显示名署名；改名或删号不会改动已有记录上的署名`)}
+  const seg = (k, roles, label) => `<div class="field">${label}<div class="segctl" role="group" aria-label="新账号的${label}角色">${Object.entries(roles).map(([v, text]) =>
+    `<button type="button" aria-pressed="${nu[k] === v}" onclick="UI.nu.${k} = '${v}'; render()">${text}</button>`).join('')}</div>
+    <small>${(k === 'sim' ? SIM_ROLE_HINT : DS_ROLE_HINT)[nu[k]]}</small></div>`;
+  return `<div class="page">${pageHead('成员管理', `${USERS.length} 个账号，仿真平台和数据集通用、权限分开 · 系统管理员管理账号，在两个板块都是管理员；其他账号在每个板块单独设角色。录入和质检结论按显示名署名；改名或删号不会改动已有记录上的署名`)}
   ${cred}<div class="grid users">
-    <div class="table-wrap"><table><thead><tr><th>账号</th><th>显示名</th><th>角色</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>账号</th><th>显示名</th><th>系统</th><th>仿真平台</th><th>数据集</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table></div>
     <section class="card"><div class="card-h"><h2>新建账号</h2></div><div class="card-b">
       <form class="stack" onsubmit="event.preventDefault(); createUser()">
         <label class="field">用户名<input id="nu-user" value="${esc(nu.username)}" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false"
@@ -3724,9 +3830,8 @@ function viewUsers() {
         <label class="field">显示名<input id="nu-name" value="${esc(nu.name)}" maxlength="32" placeholder="署名用，如 张三" oninput="UI.nu.name = this.value"></label>
         <label class="field">初始密码<span class="pw-row"><input id="nu-pw" class="mono" value="${esc(nu.password)}" autocomplete="off" spellcheck="false" oninput="UI.nu.password = this.value">
           <button class="btn btn-icon" type="button" aria-label="换一个随机密码" title="换一个随机密码" onclick="UI.nu.password = $('#nu-pw').value = randomPassword()">${ic('refresh')}</button></span></label>
-        <div class="field">角色<div class="segctl" role="group" aria-label="新账号角色">${Object.entries(ROLES).map(([k, label]) =>
-          `<button type="button" aria-pressed="${nu.role === k}" onclick="UI.nu.role = '${k}'; render()">${label}</button>`).join('')}</div>
-          <small>${{member: '可以录入、质检和提交评测', admin: '另外可以审核物体、管理账号', guest: '只能查看，不能做任何修改'}[nu.role]}</small></div>
+        <label class="nowrap"><input type="checkbox" ${nu.admin ? 'checked' : ''} onchange="UI.nu.admin = this.checked; render()"> 系统管理员<small class="muted">（管理账号，两个板块都是管理员）</small></label>
+        ${nu.admin ? '' : seg('sim', SIM_ROLES, '仿真平台') + seg('datasets', DS_ROLES, '数据集')}
         <p id="nu-err" class="field-error" role="alert"></p>
         <button class="btn btn-primary" type="submit">${ic('plus')}创建账号</button>
       </form></div></section>
@@ -3735,7 +3840,7 @@ function viewUsers() {
 
 // ---------- actions ----------
 async function api(url, options = {}) {
-  if (ME?.guest && (options.method || 'GET') !== 'GET' && !['/api/logout', '/api/password'].includes(url)) {
+  if (ME?.guest && (options.method || 'GET') !== 'GET' && !['/api/logout', '/api/password'].includes(url) && !url.startsWith('/api/items?kind=dataset&')) {
     toast('访客账号只能查看，不能修改', true);
     throw new Error('访客账号只能查看');
   }
@@ -3811,7 +3916,7 @@ function drawerAccount() {
     <input id="${id}" type="password" autocomplete="${auto}" aria-describedby="pw-err" style="width:100%">
     <button class="btn btn-icon" type="button" aria-label="显示密码" aria-pressed="false" onclick="togglePw(this)">${ic('eye')}</button></span></div>`;
   return {
-    title: ME.name, sub: `账号 ${ME.username}${ME.admin ? '（管理员）' : ''} · 录入和质检结论以「${ME.name}」署名`,
+    title: ME.name, sub: `账号 ${ME.username}（${roleText(ME)}） · 录入和质检结论以「${ME.name}」署名`,
     body: sec('修改密码', `<form class="form" onsubmit="event.preventDefault(); changePassword()">
       ${pw('pw-old', '当前密码', 'current-password')}${pw('pw-new', '新密码', 'new-password')}${pw('pw-again', '再输一次', 'new-password')}
       <span></span><div class="ctl"><p id="pw-err" class="field-error" role="alert"></p></div>
@@ -3820,7 +3925,7 @@ function drawerAccount() {
 }
 const userApi = (username, options) => api(`/api/users?username=${encodeURIComponent(username)}`, options);
 async function createUser() {
-  const n = UI.nu = {username: $('#nu-user').value.trim(), name: $('#nu-name').value.trim(), password: $('#nu-pw').value, role: UI.nu?.role || 'member'};
+  const n = UI.nu = {...newUserForm(), ...UI.nu, username: $('#nu-user').value.trim(), name: $('#nu-name').value.trim(), password: $('#nu-pw').value};
   try {
     USERS = await api('/api/users', {method: 'POST', body: JSON.stringify(n)});
     UI.cred = {text: `账号 ${n.username} 已创建`, username: n.username, password: n.password};
@@ -3855,7 +3960,9 @@ async function deleteUser(username) {
 }
 async function load() {
   await Promise.all([loadDatasetInventory(), ...KINDS.map(async (k) => { S[k] = await api(`/api/items?kind=${k}`); }), api('/api/items?kind=library').then((l) => { S.library = l; }), api('/api/members').then((m) => { MEMBERS = m; }),
+    api('/api/items?kind=dataset').then((x) => { DS_EDITS = x; }),
     api('/api/materials').then((m) => { MATS = m; }), ...['train', 'exam'].map((p) => api(`/api/rsi-options?pool=${p}`).then((o) => { RSI_OPTS[p] = o; }).catch(() => {}))]);
+  dsMergeEdits();
   UI.loaded = true;
   UI.syncedAt = new Date().toLocaleTimeString('zh-CN', {hour12: false});
   render();
@@ -3946,7 +4053,7 @@ function wizGo(n) {
   else {  // forward: every step passed on the way must be complete; admins may leave fields empty
     while (WIZ_AT < n) {
       [e, bad] = WZ.check();
-      if (e && !ME?.admin) break;
+      if (e && !ME?.sim_admin) break;
       if (e) skipped.push(e);
       [e, bad] = [''];
       WIZ_AT++;
@@ -4308,6 +4415,7 @@ function openDrawer(kind, id, trigger) {
   if (UI.drawer && (UI.drawer.kind !== kind || UI.drawer.id !== id)) stashDraft();
   const wasOpen = Boolean(UI.drawer);
   if (UI.drawer?.id !== id) delete UI.vpick[id];  // a freshly opened object shows its own render
+  if (UI.dsEdit !== id) UI.dsEdit = null;  // another record opens in view mode
 
   UI.drawer = {kind, id};
   if (!wasOpen) UI.drawerRet = trigger || document.activeElement;
@@ -4318,6 +4426,7 @@ function closeDrawer() {
   if (!UI.drawer) return;
   if (stashDraft()) toast('没提交的内容已暂存，重新点登记按钮可以继续填写');
   UI.drawer = null;
+  UI.dsEdit = null;
   render();
   UI.drawerRet?.focus?.();
 }
@@ -4325,12 +4434,13 @@ function renderDrawer() {
   const dr = $('#drawer'), x = UI.drawer;
   $('#scrim').classList.toggle('on', Boolean(x));
   if (!x) { dr.classList.remove('on'); dr.dataset.k = ''; return; }
-  const key = `${x.kind}|${x.id}`;
+  const dsEditing = x.kind === 'dataset' && UI.dsEdit === x.id;
+  const key = `${x.kind}|${x.id}${dsEditing ? '|edit' : ''}`;
   const wizard = x.kind.startsWith('new-');
-  if ((wizard || x.kind === 'account' || x.kind === 'libraries') && dr.dataset.k === key) return;  // keep typed input
+  if ((wizard || dsEditing || x.kind === 'account' || x.kind === 'libraries') && dr.dataset.k === key) return;  // keep typed input
   const d = S[x.kind]?.find((y) => y.id === x.id);
   const view = x.kind === 'new-object' ? drawerNewObject() : x.kind === 'new-scene' ? drawerNewScene() : x.kind === 'new-task' ? drawerNewTask() : x.kind === 'new-robot' ? drawerNewRobot() : x.kind === 'new-eval' ? drawerNewEval() : x.kind === 'account' ? drawerAccount() : x.kind === 'libraries' ? drawerLibraries()
-    : x.kind === 'dataset' ? drawerDataset(DATASETS.find((y) => y.id === x.id))
+    : x.kind === 'dataset' ? drawerDataset(DATASETS.find((y) => y.id === x.id) || (dsEditing ? {...DS_BLANK(), id: x.id, custom: true} : undefined))
     : d ? {scene: drawerScene, object: drawerObject, task: drawerTask, embodiment: drawerRobot, evaluation: drawerEval, prototype: drawerPrototype}[x.kind](d) : {title: '记录不存在', body: ''};
   const scroll = dr.dataset.k === key ? $('#drawer .dr-b')?.scrollTop : 0;
   dr.innerHTML = `<div class="dr-h"><div style="min-width:0;flex:1"><h2 id="drawer-title">${esc(view.title)}</h2>${view.sub ? `<p>${esc(view.sub)}</p>` : ''}</div>
