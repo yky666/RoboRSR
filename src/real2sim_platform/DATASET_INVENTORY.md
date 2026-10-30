@@ -14,6 +14,10 @@ JSON 顶层为 `schemaVersion: 1`、`date`（YYYY-MM-DD）、`recordCount`、`me
 `state`、`episodes`、`hours`、`gb`、`selectedEpisodes`、`selectedHours`、`note` 和 `selectionNote`。
 数值只能是非负数或 `null`；所有版本数必须等于 `recordCount`，每条原记录恰好保留一次。
 
+组可选 `declared`：发布方自己给的总量（数据集卡片、仓库 `meta/info.json`、论文），字段 `episodes`、`hours`（至少一个非空）、
+`url`（必填，https）、`quote`（含数字的原文）、`unit`、`scope`、`qualifier`（约 / 超过 等）、`derived`、`note`、`checked`（查证日期）。
+只在本地值未知时显示并标「官方」，不进入 `selected*`，也不计入顶部合计；不能推算，查不到就不写。
+
 - `episodes/hours/gb` 保留原记录；原记录完整时长未知时，不能用部分实测覆盖它。
 - `selectedEpisodes/selectedHours` 明确此次归组汇总选了哪些值。重复格式/分辨率/已知子集保留明细，选择值为空，并写明原因。
 - 部分实测时长可以单列选入，但必须在 `selectionNote` 说明覆盖量与缺口。
