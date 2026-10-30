@@ -13,6 +13,7 @@ from pathlib import Path
 import sys
 import tempfile
 import threading
+from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import server
@@ -416,6 +417,14 @@ def test_http():
         front = tmp / "scenes/real_scene9_kitchen/reference/front.webp"
         assert status == 200 and json.loads(body)["path"] == str(front)
         assert request("POST", "/api/photo?kind=scene&id=Rigid/cup/00000&name=a.jpg", b"jpg")[0] == 400
+        status, body, _ = request("POST", f"/api/mesh?id=real_scene9_kitchen&name={quote('../扫描 1.GLB')}", b"glTF")
+        mesh = tmp / "scenes/real_scene9_kitchen/mesh/扫描_1.glb"
+        assert status == 200 and json.loads(body)["path"] == str(mesh) and mesh.read_bytes() == b"glTF"
+        assert request("POST", "/api/mesh?id=real_scene9_kitchen&name=room.gltf", b"{}")[0] == 400  # needs side files
+        assert request("POST", "/api/mesh?id=real_scene7_nowhere&name=a.glb", b"glTF")[0] == 400
+        assert request("POST", "/api/photo?kind=scene&id=real_scene9_kitchen&name=a.glb", b"glTF")[0] == 400
+        assert server.scan_scenes()["real_scene9_kitchen"]["meshes"] == [{"path": str(mesh), "size": 4}]
+        assert request("DELETE", f"/api/photo?path={quote(str(mesh))}")[0] == 200 and not mesh.exists()
         found = server.scan_scenes()["real_scene9_kitchen"]
         assert found["registered"] and not found["built"] and len(found["photos"]) == 1
         assert found["renders"] == [] and found["model"] is None

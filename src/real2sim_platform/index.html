@@ -552,6 +552,10 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .drop.over, .drop:hover { border-color: var(--ring); background: var(--primary-soft); }
 .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .drop:focus-within { outline: 2px solid var(--ring); outline-offset: 2px; }
+.mesh-list { display: grid; gap: 6px; margin-top: 10px; }
+.mesh-list:empty { display: none; }
+.mesh-row { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 4px 4px 4px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); font-size: 13px; }
+.mesh-row .mono { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .wz-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
 .wz-thumbs:not(:empty) { margin-top: 12px; }
 .wz-thumb { position: relative; margin: 0; }
@@ -1758,11 +1762,12 @@ function viewScenes() {
 const cmText = (v, suffix = ' cm') => (num(v) ? `${v}${suffix}` : null);
 function sceneBrief(d) {  // the task for a coding agent that builds this scene twin; skipped fields are left out
   const r = d.reg || {}, a = d.auto, dir = `real2sim/scenes/${d.id}`, photos = (a.photos || []).map(base), slug = d.id.replace(/^real_scene\d+_/, '');
+  const meshes = (a.meshes || []).map((m) => `${base(m.path)}（${fileSize(m.size)}）`);
   const fact = (k, ...parts) => (parts.some((p) => p !== null && p !== undefined && p !== '') ? `- ${k}：${parts.filter((p) => p !== null && p !== undefined && p !== '').join('，')}` : null);
   return [
     `为 RoboDojo 建一个真实工位的数字孪生场景 ${d.id}（${sceneName(d)}），按仓库里 real2sim/scenes/SKILL.md 的流程做（现场采集规范、建模、叠图检查、接入和登记）。先 git fetch，从最新的 origin/main 开独立 worktree 和短分支再读它：本地 main 可能落后。`,
     '',
-    `输入：${dir}/registration.json（平台登记信息，卷尺实测已按 scene_spec.json 的格式写好）和 ${dir}/reference/ 下的 ${photos.length} 张照片${photos.length ? `（${photos.join('、')}）` : ''}。这些文件在平台所在机器的 ${INFO.data_root || INFO.root}/${dir}/（平台的登记，只读），本机没有就先把这个目录同步过来。`,
+    `输入：${dir}/registration.json（平台登记信息，卷尺实测已按 scene_spec.json 的格式写好）和 ${dir}/reference/ 下的 ${photos.length} 张照片${photos.length ? `（${photos.join('、')}）` : ''}${meshes.length ? `，以及 ${dir}/mesh/ 下的 ${meshes.length} 个网格文件（${meshes.join('、')}）` : ''}。这些文件在平台所在机器的 ${INFO.data_root || INFO.root}/${dir}/（平台的登记，只读），本机没有就先把这个目录同步过来。`,
     '',
     '登记信息：',
     fact('名称', sceneName(d), r.name_en), fact('类型 / 地点', r.scene_type, r.location), fact('用途', PURPOSES[r.purpose]),
@@ -1779,6 +1784,20 @@ function sceneBrief(d) {  // the task for a coding agent that builds this scene 
     fact('灯光', r.light_sources, cmText(r.color_temp_k, ' K'), cmText(r.lux, ' lux'), r.daylight && DAYLIGHT[r.daylight]),
     fact('机器人相机画面', r.robot_frames ? '已用头部左眼和腕部相机拍了画面并记下关节角，可用于叠图' : null),
     fact('计划任务', (r.tasks || []).join('、')), fact('建模要求', r.requirements), fact('备注', r.notes),
+    '',
+    '按多角度照片精确建模：',
+    `- 每张照片都参与拟合，不只挑一两张：先求出每张照片的相机位姿和焦距（${r.charuco ? '有标定板，先用 scripts/scenes/charuco.py solve' : `没有标定板，用照片里的桌角、桌沿${meshes.length ? '和网格上能对应的点' : ''}拟合`}），再在每张照片上标桌角和桌沿，联合拟合相机和尺寸，逐张看重投影残差，残差明显偏大的照片先查标注和相机，不要直接剔除。`,
+    '- 建好后按这些相机位姿把场景渲染出来，和原照片逐张叠图对比：桌沿、桌角、桌腿 / 柜体、墙角和每个固定物的轮廓都要对上；对不上就改几何，不要靠改相机凑。',
+    '- 外观逐张核对：桌面、地面、墙面的颜色、纹理、粗糙度和反光取照片里的实际表现（墙面用纯色，颜色取照片中值）；照片里看得见的固定物（显示器、隔板、插线板、柜子、门、白板）都要建，位置和尺寸从照片里量，看不清的列进 PLAN.md 待确认，不要编。',
+    '- 照片之间不一致（家具挪过、光照不同）时，以正前方（机器人站位）和最近拍的照片为准，在 PLAN.md 写明取舍。',
+    ...(meshes.length ? [
+      '',
+      `用网格文件（${dir}/mesh/）：`,
+      '- 先核对单位（mm / cm / m）、上方向（Y-up 要转成 Z-up）和整体比例：用卷尺实测的桌面离地高、长、宽检查，差超过 2 cm 先找原因（单位、扫描漂移、桌子挪过），不要整体缩放凑数；和卷尺冲突时以卷尺为准，在 scene_spec.json 的 scale_basis 写明。',
+      '- 用它做几何先验：桌面平面和高度、四条桌沿、桌腿 / 柜体、墙面和地面的位置、固定物的位置和尺寸，都从网格上量，再和照片拟合结果互相校验；网格和照片能对应的点（桌角等）也可以约束相机位姿。',
+      '- 不要把原始扫描直接当仿真资产：扫描有孔洞、噪声、浮块和烘焙进去的光照。桌面、墙、地面按网格拟合成干净的参数化几何；形状复杂的固定物可以从网格裁出来、减面后做视觉网格，碰撞体另做凸包并满足下面的顶点上限。',
+      '- 点云（ply / e57）只用来量位置和尺寸。网格文件太大不进仓库：在 PLAN.md 记下用了哪个文件、它的 sha256 和对齐变换。',
+    ] : []),
     '',
     '验收：',
     `1. 从最接近的已有场景复制目录开始（real_scene3_lab 是照片拟合的最新写法），在 ${dir}/ 下写 fit_photo.py、build_scene.py、check_scene.py、preview.py 和 PLAN.md；${r.charuco ? '先用 scripts/scenes/charuco.py solve 求出每张照片的相机位姿，作为强先验。' : '没有标定板，相机位姿从照片里的桌角和桌沿拟合。'}`,
@@ -1972,6 +1991,7 @@ function sceneDrawerView(d) {
       body: `${sec(`${ic('terminal')}建模任务（给 coding agent）`, `<p class="hint" style="margin:0 0 8px">登记信息已写入
         <a target="_blank" rel="noopener" href="${file(`${a.path}/registration.json`)}">${esc(dir)}/registration.json</a>，和照片在同一目录。把下面这段交给 coding agent；建好后同步，验收进度自动更新。</p>${code(sceneBrief(d))}`)}
       ${sec(`${ic('camera')}参考照片`, scenePhotos(d))}
+      ${sec(`${ic('cube')}网格文件`, sceneMeshes(d))}
       ${sec('验收进度', `${progress(rs)}<div style="height:10px"></div>${stageList(rs)}`)}
       ${sec('登记信息', sceneRegForm(d))}`,
     };
@@ -2889,6 +2909,56 @@ const wzFoot = (onDone, label) => `<div class="wz-foot"><button id="wiz-back" cl
       <p id="no-err" class="field-error" role="alert"></p>
       <button id="wiz-next" class="btn btn-primary" type="button" onclick="wizGo(WIZ_AT + 1)">下一步${ic('arrow-r')}</button>
       <button id="wiz-done" class="btn btn-primary" type="button" onclick="${onDone}(this)">${ic('check')}${label}</button></div>`;
+// a scene's scan or CAD (server MESH_SUFFIXES): phone / LiDAR scans, photogrammetry and CAD exports
+const MESH_EXT = ['.glb', '.usdz', '.usd', '.usdc', '.usda', '.obj', '.fbx', '.ply', '.stl', '.e57', '.zip'];
+const MESH_MAX = 2 * 1024 ** 3;
+const MESH_HINT = 'glb / usdz / usd / obj / fbx / ply / stl / e57；gltf、带贴图的 obj 打成 zip · 单个 ≤ 2 GB';
+const meshDrop = () => `<label class="drop" ondragover="event.preventDefault(); this.classList.add('over')" ondragleave="this.classList.remove('over')"
+        ondrop="event.preventDefault(); this.classList.remove('over'); addMeshes(event.dataTransfer.files)">
+        <span class="drop-ic">${ic('cube')}</span><b>拖入网格文件，或点击选择</b><small>手机 / LiDAR 扫描（Polycam、Scaniverse、RealityScan、RoomPlan）、摄影测量或 CAD 导出，作为建模的几何参考 · ${MESH_HINT}</small>
+        <input type="file" accept="${MESH_EXT.join(',')}" multiple onchange="addMeshes(this.files); this.value = ''" aria-label="选择网格文件"></label>`;
+const fileSize = (n) => (n >= 1024 ** 3 ? `${(n / 1024 ** 3).toFixed(2)} GB` : n >= 1024 ** 2 ? `${(n / 1024 ** 2).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
+const meshExt = (name) => (/\.[^.]+$/.exec(name.toLowerCase()) || [''])[0];
+function addMeshes(files) {
+  for (const f of files) {
+    if (!MESH_EXT.includes(meshExt(f.name))) { toast(`${f.name}：不支持这种格式，可用 ${MESH_HINT}`, true); continue; }
+    if (f.size > MESH_MAX) { toast(`${f.name} 超过 2 GB，已跳过`, true); continue; }
+    if (!NEW_MESHES.some((m) => m.name === f.name && m.size === f.size)) NEW_MESHES.push(f);
+  }
+  renderNewMeshes();
+}
+function renderNewMeshes() {
+  const box = $('#ns-meshes');
+  if (box) box.innerHTML = NEW_MESHES.map((f, i) => `<div class="mesh-row">${ic('cube', 'ic-sm')}<span class="mono">${esc(f.name)}</span><span class="muted small">${fileSize(f.size)}</span><span class="sp"></span>
+    <button class="btn btn-icon" type="button" aria-label="移除 ${esc(f.name)}" onclick="NEW_MESHES.splice(${i}, 1); renderNewMeshes()">${ic('x')}</button></div>`).join('');
+}
+async function uploadMeshes(id, files) {
+  let n = 0;
+  for (const f of files) {
+    toast(`正在上传网格 ${f.name}（${fileSize(f.size)}）…`);
+    const r = await fetch(`/api/mesh?id=${encodeURIComponent(id)}&name=${encodeURIComponent(f.name)}`, {method: 'POST', body: f});
+    if (!r.ok) throw new Error(`${f.name}：${(await r.json().catch(() => ({}))).error || r.status}`);
+    n++;
+  }
+  return n;
+}
+async function uploadSceneMeshes(input) {
+  const files = [...input.files].filter((f) => MESH_EXT.includes(meshExt(f.name)) && f.size <= MESH_MAX);
+  if (files.length < input.files.length) toast(`有 ${input.files.length - files.length} 个文件格式不支持或超过 2 GB，已跳过`, true);
+  if (!files.length) return;
+  try {
+    const n = await uploadMeshes(input.dataset.id, files);
+    await sync(true);
+    toast(`已上传 ${n} 个网格文件`);
+  } catch (err) { toast(`上传失败：${err.message}`, true); }
+}
+function sceneMeshes(d) {
+  const meshes = d.auto.meshes || [];
+  return `<div class="toolbar" style="margin-bottom:8px"><span class="small muted">${meshes.length ? `${meshes.length} 个` : '没有，可选'} · 扫描或 CAD，建模时作几何参考</span><span class="sp"></span>
+    <label class="btn upload" title="${esc(MESH_HINT)}">${ic('upload')}上传<input type="file" accept="${MESH_EXT.join(',')}" multiple data-id="${esc(d.id)}" onchange="uploadSceneMeshes(this)" aria-label="上传网格文件"></label></div>
+    ${meshes.length ? `<div class="mesh-list">${meshes.map((m) => `<div class="mesh-row">${ic('cube', 'ic-sm')}<a class="mono" href="${file(m.path)}" download>${esc(base(m.path))}</a><span class="muted small">${fileSize(m.size)}</span><span class="sp"></span>
+      <button class="btn btn-icon" type="button" data-path="${esc(m.path)}" onclick="deletePhoto(this.dataset.path, '网格文件')" aria-label="删除 ${esc(base(m.path))}">${ic('trash', 'ic-sm')}</button></div>`).join('')}</div>` : ''}`;
+}
 const photoDrop = (hint) => `<label class="drop" ondragover="event.preventDefault(); this.classList.add('over')" ondragleave="this.classList.remove('over')"
         ondrop="event.preventDefault(); this.classList.remove('over'); addPhotos(event.dataTransfer.files)">
         <span class="drop-ic">${ic('camera')}</span><b>拖入照片，或点击选择</b><small>${hint}</small>
@@ -2949,7 +3019,8 @@ function drawerNewScene() {
       ${fld('ns-location', '地点', text('ns-location', '楼栋、房间号'))}
       ${fld('ns-purpose', '用途', `<select id="ns-purpose">${opts({'': '未定', ...PURPOSES}, 'twin')}</select>`, {wide: true, hint: '月度目标 7 个场景：3 个孪生 + 2 个训练用泛化 + 2 个保留'})}</div>`)}
     ${group(`多角度照片 <span class="opt">至少 ${MIN_SCENE_PHOTOS} 张</span>`, `${photoDrop(`${SCENE_PHOTO_HINT} · jpg / png / webp · 单张 ≤ 25 MB`)}
-      <p id="ns-photo-count" class="small txt-bad" style="margin:10px 0 0">已选 0 张 / 至少 ${MIN_SCENE_PHOTOS} 张</p>`)}`)}
+      <p id="ns-photo-count" class="small txt-bad" style="margin:10px 0 0">已选 0 张 / 至少 ${MIN_SCENE_PHOTOS} 张</p>`)}
+    ${group('网格文件 <span class="opt">可选</span>', `${meshDrop()}<div id="ns-meshes" class="mesh-list"></div>`)}`)}
     ${pane(1, `${group('桌面（卷尺）', `<div class="wz-grid">
       ${fld('ns-top', '桌面离地高度', unit('ns-top', 'cm', 'step="0.1"'), {req: true})}
       ${fld('ns-thick', '桌面厚度', unit('ns-thick', 'cm', 'step="0.1"'))}
@@ -3836,7 +3907,7 @@ async function removeScene(id) {
   closeDrawer();
   toast(`已删除场景 ${id}`);
 }
-let NEW_PHOTOS = [], WIZ_AT = 0, WZ = null;  // the open registration wizard: photos picked so far, current step, {steps, check}
+let NEW_PHOTOS = [], NEW_MESHES = [], WIZ_AT = 0, WZ = null;  // the open registration wizard: photos picked so far, current step, {steps, check}
 async function openNewObject(btn) {
   try { IDX = await api('/api/object-indices'); } catch (err) { return toast(`读取编号失败：${err.message}`, true); }
   if (restoreDraft('new-object', btn)) return;
@@ -3895,6 +3966,7 @@ function wizGo(n) {
 function openNewScene(btn) {
   if (restoreDraft('new-scene', btn)) return;
   NEW_PHOTOS = [];
+  NEW_MESHES = [];
   WZ = {steps: SCENE_WIZ, check: sceneWizError, idCheck: sceneIdError};
   WIZ_AT = 0;
   openDrawer('new-scene', 'new', btn);
@@ -3948,10 +4020,11 @@ async function createScene(btn) {
   try {
     await api(`/api/items?kind=scene&id=${encodeURIComponent(id)}`, {method: 'PUT', body: JSON.stringify({registered: true, reg})});
     const n = await uploadFiles(id, NEW_PHOTOS, 'scene');
+    const m = NEW_MESHES.length ? await uploadMeshes(id, NEW_MESHES) : 0;
     await sync(true);
     openDrawer('scene', id);
     delete DRAFTS['new-scene'];
-    toast(`已登记 ${id}，上传 ${n} 张照片；请在抽屉核对字段后确认生成 prompt`);
+    toast(`已登记 ${id}，上传 ${n} 张照片${m ? `、${m} 个网格文件` : ''}；请在抽屉核对字段后确认生成 prompt`);
   } catch (e) {
     err.textContent = `登记失败：${e.message}`;
     btn.disabled = false;
@@ -4041,12 +4114,12 @@ async function uploadPhotos(input) {
     toast(`已上传 ${n} 张照片`);
   } catch (err) { toast(`上传失败：${err.message}`, true); }
 }
-async function deletePhoto(path) {
-  if (!confirm(`删除照片 ${base(path)}？`)) return;
+async function deletePhoto(path, what = '照片') {
+  if (!confirm(`删除${what} ${base(path)}？`)) return;
   try {
     await api(`/api/photo?path=${encodeURIComponent(path)}`, {method: 'DELETE'});
     await sync(true);
-    toast('照片已删除');
+    toast(`${what}已删除`);
   } catch (err) { toast(`删除失败：${err.message}`, true); }
 }
 function fieldPatch(doc, field, value) {
@@ -4209,13 +4282,13 @@ function stashDraft() {  // true if the open wizard's form was kept
   if (!x?.kind.startsWith('new-') || dr.dataset.k !== `${x.kind}|new`) return false;
   if (!wizardDirty(x.kind)) { delete DRAFTS[x.kind]; return false; }
   $('#obj-preview').hidden = true;
-  DRAFTS[x.kind] = {nodes: [...dr.childNodes], state: {WIZ_AT, WZ, NT, NE, NEW_PHOTOS}};
+  DRAFTS[x.kind] = {nodes: [...dr.childNodes], state: {WIZ_AT, WZ, NT, NE, NEW_PHOTOS, NEW_MESHES}};
   return true;
 }
 function restoreDraft(kind, btn) {  // true if the wizard reopened with its kept form
   const draft = DRAFTS[kind], dr = $('#drawer');
   if (!draft) return false;
-  ({WIZ_AT, WZ, NT, NE, NEW_PHOTOS} = draft.state);
+  ({WIZ_AT, WZ, NT, NE, NEW_PHOTOS, NEW_MESHES = []} = draft.state);
   dr.replaceChildren(...draft.nodes);
   dr.dataset.k = `${kind}|new`;  // renderDrawer keeps a wizard whose key is unchanged
   openDrawer(kind, 'new', btn);
