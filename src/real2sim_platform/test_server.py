@@ -13,6 +13,7 @@ from pathlib import Path
 import sys
 import tempfile
 import threading
+from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import server
@@ -419,6 +420,14 @@ def test_http():
         front = tmp / "scenes/real_scene9_kitchen/reference/front.webp"
         assert status == 200 and json.loads(body)["path"] == str(front)
         assert request("POST", "/api/photo?kind=scene&id=Rigid/cup/00000&name=a.jpg", b"jpg")[0] == 400
+        status, body, _ = request("POST", f"/api/mesh?id=real_scene9_kitchen&name={quote('../扫描 1.GLB')}", b"glTF")
+        mesh = tmp / "scenes/real_scene9_kitchen/mesh/扫描_1.glb"
+        assert status == 200 and json.loads(body)["path"] == str(mesh) and mesh.read_bytes() == b"glTF"
+        assert request("POST", "/api/mesh?id=real_scene9_kitchen&name=room.gltf", b"{}")[0] == 400  # needs side files
+        assert request("POST", "/api/mesh?id=real_scene7_nowhere&name=a.glb", b"glTF")[0] == 400
+        assert request("POST", "/api/photo?kind=scene&id=real_scene9_kitchen&name=a.glb", b"glTF")[0] == 400
+        assert server.scan_scenes()["real_scene9_kitchen"]["meshes"] == [{"path": str(mesh), "size": 4}]
+        assert request("DELETE", f"/api/photo?path={quote(str(mesh))}")[0] == 200 and not mesh.exists()
         found = server.scan_scenes()["real_scene9_kitchen"]
         assert found["registered"] and not found["built"] and len(found["photos"]) == 1
         assert found["renders"] == [] and found["model"] is None
@@ -844,6 +853,13 @@ def test_object_review_and_libraries(tmp_path, monkeypatch):
         assert call("bob", "PUT", obj, {"photo_order": "c.jpg"})[0] == 400
         doc = call("bob", "PUT", obj, {"photo_order": ["c.jpg", "a.jpg"]})[1]
         assert doc["auto"]["photos"] == ["/r/c.jpg", "/r/a.jpg", "/r/b.jpg"]  # unlisted ones stay at the end
+
+        assert call("bob", "PUT", obj, {"hidden": True})[0] == 403  # hiding is for admins
+        assert call("boss", "PUT", obj, {"hidden": "yes"})[0] == 400
+        assert call("boss", "PUT", obj, {"hidden": True, "name": "x"})[0] == 400  # a hide request carries nothing else
+        assert call("boss", "PUT", "/api/items?kind=object&id=Rigid/none/00000", {"hidden": True})[0] == 404
+        assert call("boss", "PUT", obj, {"hidden": True})[1]["hidden"] is True
+        assert call("boss", "PUT", obj, {"hidden": False})[1]["hidden"] is False
 
         store.sync("object", {oid: {"built": True, "check": {"checked_at": "t2"}}})  # rebuilt: review again
         assert server.review_state(store.get("object", oid)) == "review"

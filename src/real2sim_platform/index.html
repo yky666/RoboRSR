@@ -167,16 +167,24 @@ main { flex: 1; min-width: 0; padding: 36px 40px 72px; }
 .lib > summary .lib-desc { flex-basis: 100%; padding-left: 26px; font-weight: 400; letter-spacing: 0; }
 .lib-status { margin-bottom: 12px; flex-wrap: wrap; }
 /* floats over the page so ticking the first object does not push the cards under the pointer */
-.obj-bulk { position: fixed; bottom: 16px; left: 50%; z-index: 15; width: min(720px, calc(100vw - 32px)); transform: translateX(-50%); border-radius: 14px; box-shadow: var(--shadow-3); }
-.page:has(.obj-bulk) { padding-bottom: 140px; }
-
-.obj-bulk { width: min(900px, calc(100vw - 32px)); }
-.obj-bulk select { min-height: 30px; }
-.obj-bulk input[type=text] { flex: 1; min-width: 200px; min-height: 30px; border-color: transparent; color: var(--text); }
+.bulkbar.obj-bulk { position: fixed; bottom: 28px; left: 50%; z-index: 15; flex-wrap: nowrap; width: max-content; max-width: calc(100vw - 32px); padding: 6px 6px 6px 8px;
+  border-color: var(--border-strong); border-radius: 16px; background: var(--glass); box-shadow: var(--shadow-3), 0 1px 2px light-dark(rgba(17, 17, 19, .06), rgba(0, 0, 0, .3));
+  transform: translateX(-50%); backdrop-filter: blur(16px) saturate(1.4); animation: bulk-in .22s cubic-bezier(.2, .8, .2, 1); }
+@keyframes bulk-in { from { opacity: 0; transform: translate(-50%, 14px); } }
+@media (max-width: 760px) { .bulkbar.obj-bulk { flex-wrap: wrap; } }
+.page:has(.obj-bulk) { padding-bottom: 110px; }
+.obj-bulk .btn { border-color: transparent; background: transparent; box-shadow: none; }
+.obj-bulk .btn:hover:not(:disabled) { background: var(--surface-3); }
+.obj-bulk .btn-primary, .obj-bulk .btn-primary:hover:not(:disabled) { background: var(--primary); color: var(--on-primary); }
 .obj-bulk .dd-btn { min-height: 30px; }
-.bulk-hint { color: color-mix(in srgb, var(--on-primary) 65%, transparent); font-size: 12px; }
-.bulk-sep { width: 1px; height: 18px; margin: 0 2px; background: color-mix(in srgb, var(--on-primary) 25%, transparent); }
+.obj-bulk input[type=text] { width: min(340px, 50vw); min-height: 30px; }
+.bulk-count { display: inline-flex; align-items: center; gap: 6px; padding-right: 4px; font-weight: 600; white-space: nowrap; }
+.bulk-count b { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font: 600 12px var(--mono); }
+.bulk-hint { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.bulk-sep { flex: none; width: 1px; height: 20px; margin: 0 4px; background: var(--border-strong); }
 .bulkbar .btn:disabled { opacity: .45; }
+.obj-bulk .bulk-danger { color: var(--bad); }
+.obj-bulk .bulk-danger:hover:not(:disabled) { background: var(--bad-soft); }
 .osel { flex: none; width: 18px; height: 18px; margin: 0; cursor: pointer; }
 
 .review-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -547,6 +555,10 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .drop.over, .drop:hover { border-color: var(--ring); background: var(--primary-soft); }
 .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .drop:focus-within { outline: 2px solid var(--ring); outline-offset: 2px; }
+.mesh-list { display: grid; gap: 6px; margin-top: 10px; }
+.mesh-list:empty { display: none; }
+.mesh-row { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 4px 4px 4px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); font-size: 13px; }
+.mesh-row .mono { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .wz-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
 .wz-thumbs:not(:empty) { margin-top: 12px; }
 .wz-thumb { position: relative; margin: 0; }
@@ -655,9 +667,8 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .qa-list { max-height: calc(100vh - var(--top) - 210px); }
 .qa-panel { position: sticky; top: calc(var(--top) + 20px); }
 @media (max-width: 1200px) { .qa { grid-template-columns: 1fr; } .qa-panel { position: static; } .qa-list { max-height: 460px; } }
-.bulkbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px 8px 0 0; background: var(--primary); color: var(--on-primary); font-size: 13px; }
-.bulkbar .btn { min-height: 30px; border-color: color-mix(in srgb, var(--on-primary) 35%, transparent); background: color-mix(in srgb, var(--on-primary) 8%, transparent); color: var(--on-primary); }
-.bulkbar .btn:hover { background: color-mix(in srgb, var(--on-primary) 18%, transparent); }
+.bulkbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 8px 6px 12px; border: 1px solid var(--border); border-radius: 12px 12px 0 0; background: var(--surface-2); color: var(--text); font-size: 13px; }
+.bulkbar .btn { min-height: 30px; }
 .videos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .videos figure { position: relative; margin: 0; }
 .videos video { display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 8px; background: #000; }
@@ -788,7 +799,8 @@ const num = (v) => v !== null && v !== undefined && v !== '' && !Number.isNaN(Nu
 const pct = (x) => (num(x) ? `${Math.round(x * 100)}%` : '—');
 const sum = (xs) => xs.reduce((a, b) => a + b, 0);
 const fmtTime = (t) => (t ? new Date(t * 1000).toLocaleString('zh-CN', {hour12: false}) : '');
-const live = (xs) => xs.filter((d) => !d.auto?.missing);
+// hidden objects (admins took them off the lists; assets untouched) drop out of every list and count too
+const live = (xs) => xs.filter((d) => !d.auto?.missing && !d.hidden);
 const group = (xs, key) => xs.reduce((m, x) => ((m[key(x)] ||= []).push(x), m), {});
 const rel = (p) => (p && INFO.root && p.startsWith(`${INFO.root}/`) ? p.slice(INFO.root.length + 1) : p);
 const base = (p) => String(p).split('/').pop();
@@ -807,7 +819,7 @@ const UI = {
   dd: '',  // id of the open dropdown menu
   qaRate: 1,  // playback speed of the QA videos, kept when another episode is picked
   vpick: {},  // object drawer id -> the variant whose render is previewed in it
-  obj: {q: '', photo: false, status: '', owner: '', phys: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
+  obj: {q: '', photo: false, status: '', owner: '', phys: '', hidden: false, view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
   qa: {task: '', config: '', policy: '', result: '', status: 'pending'},
 };
 let INFO = {};
@@ -1844,11 +1856,12 @@ function viewScenes() {
 const cmText = (v, suffix = ' cm') => (num(v) ? `${v}${suffix}` : null);
 function sceneBrief(d) {  // the task for a coding agent that builds this scene twin; skipped fields are left out
   const r = d.reg || {}, a = d.auto, dir = `real2sim/scenes/${d.id}`, photos = (a.photos || []).map(base), slug = d.id.replace(/^real_scene\d+_/, '');
+  const meshes = (a.meshes || []).map((m) => `${base(m.path)}（${fileSize(m.size)}）`);
   const fact = (k, ...parts) => (parts.some((p) => p !== null && p !== undefined && p !== '') ? `- ${k}：${parts.filter((p) => p !== null && p !== undefined && p !== '').join('，')}` : null);
   return [
     `为 RoboDojo 建一个真实工位的数字孪生场景 ${d.id}（${sceneName(d)}），按仓库里 real2sim/scenes/SKILL.md 的流程做（现场采集规范、建模、叠图检查、接入和登记）。先 git fetch，从最新的 origin/main 开独立 worktree 和短分支再读它：本地 main 可能落后。`,
     '',
-    `输入：${dir}/registration.json（平台登记信息，卷尺实测已按 scene_spec.json 的格式写好）和 ${dir}/reference/ 下的 ${photos.length} 张照片${photos.length ? `（${photos.join('、')}）` : ''}。这些文件在平台所在机器的 ${INFO.data_root || INFO.root}/${dir}/（平台的登记，只读），本机没有就先把这个目录同步过来。`,
+    `输入：${dir}/registration.json（平台登记信息，卷尺实测已按 scene_spec.json 的格式写好）和 ${dir}/reference/ 下的 ${photos.length} 张照片${photos.length ? `（${photos.join('、')}）` : ''}${meshes.length ? `，以及 ${dir}/mesh/ 下的 ${meshes.length} 个网格文件（${meshes.join('、')}）` : ''}。这些文件在平台所在机器的 ${INFO.data_root || INFO.root}/${dir}/（平台的登记，只读），本机没有就先把这个目录同步过来。`,
     '',
     '登记信息：',
     fact('名称', sceneName(d), r.name_en), fact('类型 / 地点', r.scene_type, r.location), fact('用途', PURPOSES[r.purpose]),
@@ -1865,6 +1878,20 @@ function sceneBrief(d) {  // the task for a coding agent that builds this scene 
     fact('灯光', r.light_sources, cmText(r.color_temp_k, ' K'), cmText(r.lux, ' lux'), r.daylight && DAYLIGHT[r.daylight]),
     fact('机器人相机画面', r.robot_frames ? '已用头部左眼和腕部相机拍了画面并记下关节角，可用于叠图' : null),
     fact('计划任务', (r.tasks || []).join('、')), fact('建模要求', r.requirements), fact('备注', r.notes),
+    '',
+    '按多角度照片精确建模：',
+    `- 每张照片都参与拟合，不只挑一两张：先求出每张照片的相机位姿和焦距（${r.charuco ? '有标定板，先用 scripts/scenes/charuco.py solve' : `没有标定板，用照片里的桌角、桌沿${meshes.length ? '和网格上能对应的点' : ''}拟合`}），再在每张照片上标桌角和桌沿，联合拟合相机和尺寸，逐张看重投影残差，残差明显偏大的照片先查标注和相机，不要直接剔除。`,
+    '- 建好后按这些相机位姿把场景渲染出来，和原照片逐张叠图对比：桌沿、桌角、桌腿 / 柜体、墙角和每个固定物的轮廓都要对上；对不上就改几何，不要靠改相机凑。',
+    '- 外观逐张核对：桌面、地面、墙面的颜色、纹理、粗糙度和反光取照片里的实际表现（墙面用纯色，颜色取照片中值）；照片里看得见的固定物（显示器、隔板、插线板、柜子、门、白板）都要建，位置和尺寸从照片里量，看不清的列进 PLAN.md 待确认，不要编。',
+    '- 照片之间不一致（家具挪过、光照不同）时，以正前方（机器人站位）和最近拍的照片为准，在 PLAN.md 写明取舍。',
+    ...(meshes.length ? [
+      '',
+      `用网格文件（${dir}/mesh/）：`,
+      '- 先核对单位（mm / cm / m）、上方向（Y-up 要转成 Z-up）和整体比例：用卷尺实测的桌面离地高、长、宽检查，差超过 2 cm 先找原因（单位、扫描漂移、桌子挪过），不要整体缩放凑数；和卷尺冲突时以卷尺为准，在 scene_spec.json 的 scale_basis 写明。',
+      '- 用它做几何先验：桌面平面和高度、四条桌沿、桌腿 / 柜体、墙面和地面的位置、固定物的位置和尺寸，都从网格上量，再和照片拟合结果互相校验；网格和照片能对应的点（桌角等）也可以约束相机位姿。',
+      '- 不要把原始扫描直接当仿真资产：扫描有孔洞、噪声、浮块和烘焙进去的光照。桌面、墙、地面按网格拟合成干净的参数化几何；形状复杂的固定物可以从网格裁出来、减面后做视觉网格，碰撞体另做凸包并满足下面的顶点上限。',
+      '- 点云（ply / e57）只用来量位置和尺寸。网格文件太大不进仓库：在 PLAN.md 记下用了哪个文件、它的 sha256 和对齐变换。',
+    ] : []),
     '',
     '验收：',
     `1. 从最接近的已有场景复制目录开始（real_scene3_lab 是照片拟合的最新写法），在 ${dir}/ 下写 fit_photo.py、build_scene.py、check_scene.py、preview.py 和 PLAN.md；${r.charuco ? '先用 scripts/scenes/charuco.py solve 求出每张照片的相机位姿，作为强先验。' : '没有标定板，相机位姿从照片里的桌角和桌沿拟合。'}`,
@@ -2058,6 +2085,7 @@ function sceneDrawerView(d) {
       body: `${sec(`${ic('terminal')}建模任务（给 coding agent）`, `<p class="hint" style="margin:0 0 8px">登记信息已写入
         <a target="_blank" rel="noopener" href="${file(`${a.path}/registration.json`)}">${esc(dir)}/registration.json</a>，和照片在同一目录。把下面这段交给 coding agent；建好后同步，验收进度自动更新。</p>${code(sceneBrief(d))}`)}
       ${sec(`${ic('camera')}参考照片`, scenePhotos(d))}
+      ${sec(`${ic('cube')}网格文件`, sceneMeshes(d))}
       ${sec('验收进度', `${progress(rs)}<div style="height:10px"></div>${stageList(rs)}`)}
       ${sec('登记信息', sceneRegForm(d))}`,
     };
@@ -2458,7 +2486,7 @@ const mm = (size, digits = 0) => (Array.isArray(size) ? size.map((v) => (v * 100
 const objName = (d) => d.name || d.auto.name || d.auto.category;
 // generalization variants (metadata.json "variant_of") sit on their base object's card
 const baseOf = (d) => (d.auto.variant_of && d.auto.variant_of !== d.id ? S.object.find((x) => x.id === d.auto.variant_of) : null);
-const variantsOf = (id) => S.object.filter((x) => x.auto.variant_of === id && x.id !== id);
+const variantsOf = (id) => S.object.filter((x) => x.auto.variant_of === id && x.id !== id && !x.hidden);
 // object counts are of base objects only; a variant is not reviewed on its own and shows its base's review state
 const isBase = (d) => !baseOf(d);
 const stateOf = (d) => (baseOf(d) || d).review_state;
@@ -2502,12 +2530,12 @@ const toReview = () => live(S.object).filter((d) => isBase(d) && libOf(d) === 'r
 const ownerText = (d) => (d.owner ? memberName(d.owner) : libOf(d) === 'real2sim' ? '未指派负责人' : '');
 function objList() {
   const f = UI.obj, q = f.q.toLowerCase();
-  return S.object.filter((d) => (!f.photo || hasPhotoReference(d)) && (!f.phys || (f.phys === 'flex') === isFlex(d)) && (!f.owner || (f.owner === '-' ? !d.owner : d.owner === f.owner))
+  return S.object.filter((d) => Boolean(d.hidden) === f.hidden && (!f.photo || hasPhotoReference(d)) && (!f.phys || (f.phys === 'flex') === isFlex(d)) && (!f.owner || (f.owner === '-' ? !d.owner : d.owner === f.owner))
     && (!q || `${d.id} ${d.name || ''} ${d.auto.name || ''} ${(d.auto.tasks || []).join(' ')}`.toLowerCase().includes(q)))
     .sort((x, y) => Number(ownObj(y)) - Number(ownObj(x)) || x.id.localeCompare(y.id));
 }
 // a variant never gets its own card: its base's card shows whenever the base or any of its variants is in the list
-const cardDocs = (docs) => [...new Set(docs.map((d) => baseOf(d) || d))];
+const cardDocs = (docs) => (UI.obj.hidden ? docs : [...new Set(docs.map((d) => baseOf(d) || d))]);  // hidden: each its own card
 function objBody(docs) {
   return UI.obj.view === 'cards' ? `<div class="grid cards">${cardDocs(docs).map((d) => {
       const rs = evalStages(OBJ_STAGES, d);
@@ -2539,7 +2567,7 @@ function libSection(lib, docs) {
         aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
       <span class="muted small">${ME?.sim_admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核；只数本体，变体跟随本体审核</span><span class="sp"></span>${pickAll}</div>`
     : pickAll ? `<div class="toolbar lib-status"><span class="sp"></span>${pickAll}</div>` : '';
-  const none = f.q || f.photo || f.phys || f.status || f.owner ?
+  const none = f.q || f.photo || f.phys || f.hidden || f.status || f.owner ?
  empty('search', '没有符合条件的物体', '调整筛选条件')
     : lib.custom ? empty('box', '库里还没有物体', '登记物体后，在物体详情的「资产库」里选这个库') : empty('box', '还没有物体', '点「登记物体」新建');
   return `<details class="lib" data-lib="${esc(lib.id)}" ${f.closed.has(lib.id) ? '' : 'open'} ontoggle="toggleLib(this)">
@@ -2559,18 +2587,20 @@ function objBulkBar() {
   const n = UI.osel.size;
   if (!n) return '';
   const pending = bulkPending().length, none = pending ? '' : 'disabled title="选中的物体里没有待审核的本体"';
-  const cancel = `<button class="btn" type="button" onclick="UI.osel.clear(); UI.bulk.reject = false; render()">取消选择</button>`;
+  const cancel = `<span class="bulk-sep" aria-hidden="true"></span><button class="btn btn-icon" type="button" title="取消选择" aria-label="取消选择" onclick="UI.osel.clear(); UI.bulk.reject = false; render()">${ic('x')}</button>`;
   if (ME?.sim_admin && UI.bulk.reject) {
-    return `<div class="bulkbar obj-bulk" role="region" aria-label="批量退回"><b>退回 ${pending} 件</b>
+    return `<div class="bulkbar obj-bulk" role="region" aria-label="批量退回"><span class="bulk-count"><b>${pending}</b>件退回</span>
       <input id="bulk-note" type="text" placeholder="退回原因（必填，写进每件的审核记录）" aria-label="退回原因" value="${esc(UI.bulk.note)}" oninput="UI.bulk.note = this.value">
-      <button class="btn" type="button" onclick="bulkReview('reject')">${ic('x')}确认退回</button>
+      <button class="btn btn-primary" type="button" onclick="bulkReview('reject')">确认退回</button>
       <button class="btn" type="button" onclick="UI.bulk.reject = false; render()">返回</button></div>`;
   }
-  return `<div class="bulkbar obj-bulk" role="region" aria-label="批量操作"><b>已选 ${n} 件</b>${ME?.sim_admin ? `<span class="bulk-hint">待审核 ${pending}</span>` : ''}<span class="sp"></span>
-    ${ME?.sim_admin ? `<button class="btn" type="button" ${none} onclick="bulkReview('approve')">${ic('check')}批量通过</button>
-    <button class="btn" type="button" ${none} onclick="UI.bulk.reject = true; render(); $('#bulk-note')?.focus()">${ic('x')}批量退回…</button><span class="bulk-sep" aria-hidden="true"></span>` : ''}
+  return `<div class="bulkbar obj-bulk" role="region" aria-label="批量操作"><span class="bulk-count"><b>${n}</b>已选</span>${ME?.sim_admin ? `<span class="bulk-hint">待审核 ${pending}</span>` : ''}
+    <span class="bulk-sep" aria-hidden="true"></span>
+    ${ME?.sim_admin ? `<button class="btn" type="button" ${none} onclick="bulkReview('approve')">${ic('check')}通过</button>
+    <button class="btn" type="button" ${none} title="写明原因后退回重建" onclick="UI.bulk.reject = true; render(); $('#bulk-note')?.focus()">${ic('x')}退回</button><span class="bulk-sep" aria-hidden="true"></span>` : ''}
     ${dropdown('bulk-owner', '重建负责人', Object.entries(memberOpts()), UI.bulk.owner, (v) => { UI.bulk.owner = v; })}
-    <button class="btn" type="button" onclick="bulkOwner()">${ic('users')}批量指派</button>${cancel}</div>`;
+    <button class="btn" type="button" onclick="bulkOwner()">${ic('users')}指派</button>
+    ${ME?.sim_admin ? `<span class="bulk-sep" aria-hidden="true"></span><button class="btn bulk-danger" type="button" ${bulkDeletable().length ? '' : 'disabled title="选中的物体都不能删除：已建模、任务在用或有没选中的变体"'} onclick="bulkDelete()">${ic('trash')}删除</button>` : ''}${cancel}</div>`;
 }
 async function bulkReview(action) {
   const docs = bulkPending(), skipped = UI.osel.size - docs.length, note = action === 'reject' ? UI.bulk.note.trim() : '';
@@ -2586,6 +2616,28 @@ async function bulkReview(action) {
   UI.bulk = {...UI.bulk, reject: false, note: ''};
   render();
   toast(ok === docs.length ? `已${action === 'approve' ? '通过' : '退回'} ${ok} 件` : `${ok}/${docs.length} 件成功，其余失败`, ok !== docs.length);
+}
+// ticked objects that may go: variants come first, so a base whose variants are all ticked can go after them
+function bulkDeletable() {
+  const picked = [...UI.osel].map((id) => S.object.find((d) => d.id === id)).filter(Boolean);
+  const going = new Set(picked.map((d) => d.id));
+  return picked.filter((d) => !objDeleteBlocker(d, going)).sort((x, y) => Number(isBase(x)) - Number(isBase(y)));
+}
+async function bulkDelete() {
+  const docs = bulkDeletable(), skipped = UI.osel.size - docs.length;
+  if (!docs.length || !confirm(`删除 ${docs.length} 件物体？登记信息和 real2sim/objects/ 下它们的照片、渲染图会一起删除，不能恢复。`
+    + (skipped ? `\n另外 ${skipped} 件不能删除（已建模、任务在用或有没选中的变体），会跳过；已建模的可以在详情里「隐藏」。` : ''))) return;
+  let ok = 0;
+  for (const d of docs) {
+    try {
+      await api(`/api/items?kind=object&id=${encodeURIComponent(d.id)}`, {method: 'DELETE'});
+      S.object = S.object.filter((x) => x.id !== d.id);
+      UI.osel.delete(d.id);
+      ok += 1;
+    } catch (err) { toast(`删除 ${d.id} 失败：${err.message}`, true); }
+  }
+  render();
+  if (ok) toast(ok === docs.length ? `已删除 ${ok} 件物体` : `${ok}/${docs.length} 件已删除，其余失败`, ok !== docs.length);
 }
 async function bulkOwner() {
   const ids = [...UI.osel], owner = UI.bulk.owner, who = owner ? memberName(owner) : '未指派';
@@ -2613,6 +2665,7 @@ function viewObjects() {
       <div class="segctl" role="group" aria-label="按物理类型筛选">${[['', '全部'], ['rigid', '刚体'], ['flex', '柔性']].map(([k, label]) => `<button type="button"
         aria-pressed="${f.phys === k}" onclick="UI.obj.phys = '${k}'; render()">${label}${k ? ` <span class="num muted">${objs.filter((o) => (k === 'flex') === isFlex(o)).length}</span>` : ''}</button>`).join('')}</div>
       <button type="button" class="pill-toggle" aria-pressed="${Boolean(f.photo)}" onclick="UI.obj.photo = !UI.obj.photo; render()">${ic(f.photo ? 'check' : 'image', 'ic-sm')}只看有照片参考</button>
+      ${S.object.some((o) => o.hidden) || f.hidden ? `<button type="button" class="pill-toggle" aria-pressed="${f.hidden}" onclick="UI.obj.hidden = !UI.obj.hidden; render()">${ic(f.hidden ? 'check' : 'eye-off', 'ic-sm')}已隐藏 ${S.object.filter((o) => o.hidden).length}</button>` : ''}
       <span class="sp"></span><span class="muted small">${docs.filter(isBase).length} 件 · 照片参考 ${objs.filter(hasPhotoReference).length}（已归档 ${objs.filter((o) => o.auto.photos?.length).length}） · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span>
       <div class="segctl" role="group" aria-label="显示方式">
         <button type="button" aria-pressed="${f.view === 'cards'}" onclick="setObjView('cards')">${ic('grid', 'ic-sm')} 卡片</button>
@@ -2809,19 +2862,29 @@ function flexibleBrief(d) {
     '刚体 check_object.py 不能作为柔性验收。另写 preview/deformable_check.json，包含网格 SHA、登记指纹和每项检查的状态及证据；材料未标定不得标通过。', ''];
 }
 function modelingBrief(d) { return d.modeling?.prompt || ''; }
-function objDeleteBlocker(d) {
-  const a = d.auto, variants = variantsOf(d.id).map((v) => v.id);
+function objDeleteBlocker(d, going = new Set()) {  // going: also being deleted now, so not in the way
+  const a = d.auto, variants = variantsOf(d.id).map((v) => v.id).filter((v) => !going.has(v));
   if ((a.tasks || []).length) return `任务 ${a.tasks.join('、')} 在用这个物体`;
   if (variants.length) return `它有泛化变体 ${variants.join('、')}，先删变体`;
-  if (a.generator || a.in_library) return '已建模的物体由代码和共享资产库管理，请在仓库里删除';
+  if (a.generator || a.in_library) return MODELED;
   return '';
 }
+const MODELED = 'modeled';  // built into the asset library: not deleted from here, but an admin can hide it
 function objDeleteButton(d) {
   if (!ME?.sim_admin) return '';
+  if (d.hidden) return `<button class="btn" type="button" data-id="${esc(d.id)}" onclick="hideObject(this.dataset.id, false)">${ic('eye')}取消隐藏</button>`;
   const why = objDeleteBlocker(d);
+  if (why === MODELED) return `<button class="btn" type="button" data-id="${esc(d.id)}" title="只从平台列表拿掉，资产库和代码不动，可随时恢复" onclick="hideObject(this.dataset.id, true)">${ic('eye-off')}隐藏</button>`;
   // a blocked delete still answers a click with its reason: a tooltip alone is easy to miss
   return why ? `<button class="btn" type="button" aria-disabled="true" title="${esc(why)}" data-why="不能删除：${esc(why)}" onclick="toast(this.dataset.why, true)">${ic('trash')}删除物体</button>`
     : `<button class="btn" type="button" data-id="${esc(d.id)}" onclick="removeObject(this.dataset.id)">${ic('trash')}删除物体</button>`;
+}
+async function hideObject(id, on) {
+  const d = S.object.find((x) => x.id === id);
+  if (on && !confirm(`隐藏「${objName(d)}」？\n只从平台的列表和计数里拿掉，共享资产库和代码都不动；在物体页「已隐藏」里可以恢复。`)) return;
+  if (!await save('object', id, {hidden: on}, true)) return;
+  if (on) closeDrawer(); else render();
+  toast(on ? `已隐藏「${objName(d)}」，在物体页「已隐藏」里恢复` : `已恢复「${objName(d)}」`);
 }
 async function confirmObjectModeling(id) {
   try {
@@ -2860,7 +2923,7 @@ function drawerObject(d) {
   return {
     title: objName(d), sub: `${d.id} · ${a.in_library ? '资产库已有' : a.built ? '已建好，未装共享库' : '还没建模'}${a.generator ? ` · ${a.generator}` : ''}`,
     actions: objDeleteButton(d),
-    body: `${materialList()}${parent ? `<div class="callout">${ic('grid')}<div>这是 ${link('object', parent.id)}（${esc(objName(parent))}）的泛化变体，在物体页收在它的卡片里。</div></div>` : ''}
+    body: `${materialList()}${d.hidden ? `<div class="callout">${ic('eye-off')}<div>已隐藏：不出现在物体列表和计数里。共享资产库和代码都没动${ME?.sim_admin ? '，点右上「取消隐藏」恢复' : '，管理员可以恢复'}。</div></div>` : ''}${parent ? `<div class="callout">${ic('grid')}<div>这是 ${link('object', parent.id)}（${esc(objName(parent))}）的泛化变体，在物体页收在它的卡片里。</div></div>` : ''}
     ${libOf(d) === 'real2sim' ? reviewPanel(d) : ''}${a.built ? '' : brief}${sec('实物参考与模型', `<div class="compare">
       <figure><figcaption>${ic('camera')}实物照片 <span class="muted small">${photos.length} 张</span><span class="sp"></span>
         <label class="btn upload" title="jpg / png / webp，单张 ≤ 25 MB">${ic('upload')}上传<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-id="${esc(d.id)}" onchange="uploadPhotos(this)" aria-label="上传实物照片"></label></figcaption>
@@ -2940,6 +3003,56 @@ const wzFoot = (onDone, label) => `<div class="wz-foot"><button id="wiz-back" cl
       <p id="no-err" class="field-error" role="alert"></p>
       <button id="wiz-next" class="btn btn-primary" type="button" onclick="wizGo(WIZ_AT + 1)">下一步${ic('arrow-r')}</button>
       <button id="wiz-done" class="btn btn-primary" type="button" onclick="${onDone}(this)">${ic('check')}${label}</button></div>`;
+// a scene's scan or CAD (server MESH_SUFFIXES): phone / LiDAR scans, photogrammetry and CAD exports
+const MESH_EXT = ['.glb', '.usdz', '.usd', '.usdc', '.usda', '.obj', '.fbx', '.ply', '.stl', '.e57', '.zip'];
+const MESH_MAX = 2 * 1024 ** 3;
+const MESH_HINT = 'glb / usdz / usd / obj / fbx / ply / stl / e57；gltf、带贴图的 obj 打成 zip · 单个 ≤ 2 GB';
+const meshDrop = () => `<label class="drop" ondragover="event.preventDefault(); this.classList.add('over')" ondragleave="this.classList.remove('over')"
+        ondrop="event.preventDefault(); this.classList.remove('over'); addMeshes(event.dataTransfer.files)">
+        <span class="drop-ic">${ic('cube')}</span><b>拖入网格文件，或点击选择</b><small>手机 / LiDAR 扫描（Polycam、Scaniverse、RealityScan、RoomPlan）、摄影测量或 CAD 导出，作为建模的几何参考 · ${MESH_HINT}</small>
+        <input type="file" accept="${MESH_EXT.join(',')}" multiple onchange="addMeshes(this.files); this.value = ''" aria-label="选择网格文件"></label>`;
+const fileSize = (n) => (n >= 1024 ** 3 ? `${(n / 1024 ** 3).toFixed(2)} GB` : n >= 1024 ** 2 ? `${(n / 1024 ** 2).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
+const meshExt = (name) => (/\.[^.]+$/.exec(name.toLowerCase()) || [''])[0];
+function addMeshes(files) {
+  for (const f of files) {
+    if (!MESH_EXT.includes(meshExt(f.name))) { toast(`${f.name}：不支持这种格式，可用 ${MESH_HINT}`, true); continue; }
+    if (f.size > MESH_MAX) { toast(`${f.name} 超过 2 GB，已跳过`, true); continue; }
+    if (!NEW_MESHES.some((m) => m.name === f.name && m.size === f.size)) NEW_MESHES.push(f);
+  }
+  renderNewMeshes();
+}
+function renderNewMeshes() {
+  const box = $('#ns-meshes');
+  if (box) box.innerHTML = NEW_MESHES.map((f, i) => `<div class="mesh-row">${ic('cube', 'ic-sm')}<span class="mono">${esc(f.name)}</span><span class="muted small">${fileSize(f.size)}</span><span class="sp"></span>
+    <button class="btn btn-icon" type="button" aria-label="移除 ${esc(f.name)}" onclick="NEW_MESHES.splice(${i}, 1); renderNewMeshes()">${ic('x')}</button></div>`).join('');
+}
+async function uploadMeshes(id, files) {
+  let n = 0;
+  for (const f of files) {
+    toast(`正在上传网格 ${f.name}（${fileSize(f.size)}）…`);
+    const r = await fetch(`/api/mesh?id=${encodeURIComponent(id)}&name=${encodeURIComponent(f.name)}`, {method: 'POST', body: f});
+    if (!r.ok) throw new Error(`${f.name}：${(await r.json().catch(() => ({}))).error || r.status}`);
+    n++;
+  }
+  return n;
+}
+async function uploadSceneMeshes(input) {
+  const files = [...input.files].filter((f) => MESH_EXT.includes(meshExt(f.name)) && f.size <= MESH_MAX);
+  if (files.length < input.files.length) toast(`有 ${input.files.length - files.length} 个文件格式不支持或超过 2 GB，已跳过`, true);
+  if (!files.length) return;
+  try {
+    const n = await uploadMeshes(input.dataset.id, files);
+    await sync(true);
+    toast(`已上传 ${n} 个网格文件`);
+  } catch (err) { toast(`上传失败：${err.message}`, true); }
+}
+function sceneMeshes(d) {
+  const meshes = d.auto.meshes || [];
+  return `<div class="toolbar" style="margin-bottom:8px"><span class="small muted">${meshes.length ? `${meshes.length} 个` : '没有，可选'} · 扫描或 CAD，建模时作几何参考</span><span class="sp"></span>
+    <label class="btn upload" title="${esc(MESH_HINT)}">${ic('upload')}上传<input type="file" accept="${MESH_EXT.join(',')}" multiple data-id="${esc(d.id)}" onchange="uploadSceneMeshes(this)" aria-label="上传网格文件"></label></div>
+    ${meshes.length ? `<div class="mesh-list">${meshes.map((m) => `<div class="mesh-row">${ic('cube', 'ic-sm')}<a class="mono" href="${file(m.path)}" download>${esc(base(m.path))}</a><span class="muted small">${fileSize(m.size)}</span><span class="sp"></span>
+      <button class="btn btn-icon" type="button" data-path="${esc(m.path)}" onclick="deletePhoto(this.dataset.path, '网格文件')" aria-label="删除 ${esc(base(m.path))}">${ic('trash', 'ic-sm')}</button></div>`).join('')}</div>` : ''}`;
+}
 const photoDrop = (hint) => `<label class="drop" ondragover="event.preventDefault(); this.classList.add('over')" ondragleave="this.classList.remove('over')"
         ondrop="event.preventDefault(); this.classList.remove('over'); addPhotos(event.dataTransfer.files)">
         <span class="drop-ic">${ic('camera')}</span><b>拖入照片，或点击选择</b><small>${hint}</small>
@@ -3000,7 +3113,8 @@ function drawerNewScene() {
       ${fld('ns-location', '地点', text('ns-location', '楼栋、房间号'))}
       ${fld('ns-purpose', '用途', `<select id="ns-purpose">${opts({'': '未定', ...PURPOSES}, 'twin')}</select>`, {wide: true, hint: '月度目标 7 个场景：3 个孪生 + 2 个训练用泛化 + 2 个保留'})}</div>`)}
     ${group(`多角度照片 <span class="opt">至少 ${MIN_SCENE_PHOTOS} 张</span>`, `${photoDrop(`${SCENE_PHOTO_HINT} · jpg / png / webp · 单张 ≤ 25 MB`)}
-      <p id="ns-photo-count" class="small txt-bad" style="margin:10px 0 0">已选 0 张 / 至少 ${MIN_SCENE_PHOTOS} 张</p>`)}`)}
+      <p id="ns-photo-count" class="small txt-bad" style="margin:10px 0 0">已选 0 张 / 至少 ${MIN_SCENE_PHOTOS} 张</p>`)}
+    ${group('网格文件 <span class="opt">可选</span>', `${meshDrop()}<div id="ns-meshes" class="mesh-list"></div>`)}`)}
     ${pane(1, `${group('桌面（卷尺）', `<div class="wz-grid">
       ${fld('ns-top', '桌面离地高度', unit('ns-top', 'cm', 'step="0.1"'), {req: true})}
       ${fld('ns-thick', '桌面厚度', unit('ns-thick', 'cm', 'step="0.1"'))}
@@ -3900,7 +4014,7 @@ async function removeScene(id) {
   closeDrawer();
   toast(`已删除场景 ${id}`);
 }
-let NEW_PHOTOS = [], WIZ_AT = 0, WZ = null;  // the open registration wizard: photos picked so far, current step, {steps, check}
+let NEW_PHOTOS = [], NEW_MESHES = [], WIZ_AT = 0, WZ = null;  // the open registration wizard: photos picked so far, current step, {steps, check}
 async function openNewObject(btn) {
   try { IDX = await api('/api/object-indices'); } catch (err) { return toast(`读取编号失败：${err.message}`, true); }
   if (restoreDraft('new-object', btn)) return;
@@ -3959,6 +4073,7 @@ function wizGo(n) {
 function openNewScene(btn) {
   if (restoreDraft('new-scene', btn)) return;
   NEW_PHOTOS = [];
+  NEW_MESHES = [];
   WZ = {steps: SCENE_WIZ, check: sceneWizError, idCheck: sceneIdError};
   WIZ_AT = 0;
   openDrawer('new-scene', 'new', btn);
@@ -4012,10 +4127,11 @@ async function createScene(btn) {
   try {
     await api(`/api/items?kind=scene&id=${encodeURIComponent(id)}`, {method: 'PUT', body: JSON.stringify({registered: true, reg})});
     const n = await uploadFiles(id, NEW_PHOTOS, 'scene');
+    const m = NEW_MESHES.length ? await uploadMeshes(id, NEW_MESHES) : 0;
     await sync(true);
     openDrawer('scene', id);
     delete DRAFTS['new-scene'];
-    toast(`已登记 ${id}，上传 ${n} 张照片；请在抽屉核对字段后确认生成 prompt`);
+    toast(`已登记 ${id}，上传 ${n} 张照片${m ? `、${m} 个网格文件` : ''}；请在抽屉核对字段后确认生成 prompt`);
   } catch (e) {
     err.textContent = `登记失败：${e.message}`;
     btn.disabled = false;
@@ -4105,12 +4221,12 @@ async function uploadPhotos(input) {
     toast(`已上传 ${n} 张照片`);
   } catch (err) { toast(`上传失败：${err.message}`, true); }
 }
-async function deletePhoto(path) {
-  if (!confirm(`删除照片 ${base(path)}？`)) return;
+async function deletePhoto(path, what = '照片') {
+  if (!confirm(`删除${what} ${base(path)}？`)) return;
   try {
     await api(`/api/photo?path=${encodeURIComponent(path)}`, {method: 'DELETE'});
     await sync(true);
-    toast('照片已删除');
+    toast(`${what}已删除`);
   } catch (err) { toast(`删除失败：${err.message}`, true); }
 }
 function fieldPatch(doc, field, value) {
@@ -4273,13 +4389,13 @@ function stashDraft() {  // true if the open wizard's form was kept
   if (!x?.kind.startsWith('new-') || dr.dataset.k !== `${x.kind}|new`) return false;
   if (!wizardDirty(x.kind)) { delete DRAFTS[x.kind]; return false; }
   $('#obj-preview').hidden = true;
-  DRAFTS[x.kind] = {nodes: [...dr.childNodes], state: {WIZ_AT, WZ, NT, NE, NEW_PHOTOS}};
+  DRAFTS[x.kind] = {nodes: [...dr.childNodes], state: {WIZ_AT, WZ, NT, NE, NEW_PHOTOS, NEW_MESHES}};
   return true;
 }
 function restoreDraft(kind, btn) {  // true if the wizard reopened with its kept form
   const draft = DRAFTS[kind], dr = $('#drawer');
   if (!draft) return false;
-  ({WIZ_AT, WZ, NT, NE, NEW_PHOTOS} = draft.state);
+  ({WIZ_AT, WZ, NT, NE, NEW_PHOTOS, NEW_MESHES = []} = draft.state);
   dr.replaceChildren(...draft.nodes);
   dr.dataset.k = `${kind}|new`;  // renderDrawer keeps a wizard whose key is unchanged
   openDrawer(kind, 'new', btn);

@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-30
-本会话分支：`chongzheng/platform-dataset-admin`（worktree `../RoboDojo-dataset-admin`，基于 `origin/main@1567d3e`）：数据集标签补色、数据集管理员可在平台上改数据集、权限按仿真平台 / 数据集分开（「最近任务」第一节），未合并、未部署。上一个会话 `chongzheng/platform-isolation`：数采平台和 `5090-2` 上的工作区隔离，PR #50 已合并，10-30 00:23 线上已切换。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
+本会话分支：`chongzheng/platform-dataset-admin`（worktree `../RoboDojo-dataset-admin`，基于 `origin/main@bb9985d`）：数据集标签补色、数据集管理员可在平台上改数据集、权限按仿真平台 / 数据集分开（「最近任务」第一节），未合并、未部署。上一个会话 `chongzheng/platform-isolation`：数采平台和 `5090-2` 上的工作区隔离，PR #50 已合并，10-30 00:23 线上已切换。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -44,7 +44,7 @@
 
 - **用户要求**：数据集页有的类型标签没有底色；数据集应能由管理员在平台上修改；角色要细，仿真平台和数据集各有独立的管理员权限。
 - **标签**：CSS 只给 `src-real/sim/ego` 配了色，盘点里的 `mixed`（真实 + 仿真）、`asset`（资产）、`unknown`（待确认）没有。补了青、绿、灰描边三种。
-- **权限**（`server.py` `Store`，`users` 表加 `sim_admin`、`ds_admin` 两列，启动时自动加）：`admin` 列现在是系统管理员（管理账号，两个板块都是管理员）；仿真平台角色是 管理员（`sim_admin`）/ 成员 / 访客（`guest`），数据集角色是 管理员（`ds_admin`）/ 查看。`/api/me`、`/api/users` 返回的是生效权限（系统管理员的 `sim_admin`、`ds_admin` 恒为真）。原来所有 `user["admin"]` 的内容权限（审核、删场景 / 物体 / 回合 / 研究资产 / 资产库、删别人的评测）改成 `sim_admin`；成员管理只认 `admin`。账号接口用 `{admin, sim: admin|member|guest, datasets: admin|viewer}`，旧的 `role` 字段去掉了（只有本页面用）。仿真平台访客发写请求仍被统一拦下，只有 `kind=dataset` 的写请求放过，由数据集接口自己检查 `ds_admin`，所以「仿真平台访客 + 数据集管理员」可行。
+- **权限**（`server.py` `Store`，`users` 表加 `sim_admin`、`ds_admin` 两列，启动时自动加）：`admin` 列现在是系统管理员（管理账号，两个板块都是管理员）；仿真平台角色是 管理员（`sim_admin`）/ 成员 / 访客（`guest`），数据集角色是 管理员（`ds_admin`）/ 查看。`/api/me`、`/api/users` 返回的是生效权限（系统管理员的 `sim_admin`、`ds_admin` 恒为真）。原来所有 `user["admin"]` 的内容权限（审核、隐藏物体、批量删除、删场景 / 物体 / 回合 / 研究资产 / 资产库、删别人的评测）改成 `sim_admin`；成员管理只认 `admin`。账号接口用 `{admin, sim: admin|member|guest, datasets: admin|viewer}`，旧的 `role` 字段去掉了（只有本页面用）。仿真平台访客发写请求仍被统一拦下，只有 `kind=dataset` 的写请求放过，由数据集接口自己检查 `ds_admin`，所以「仿真平台访客 + 数据集管理员」可行。
   - **迁移**：线上原有管理员都变成系统管理员，权限不变；成员、访客在数据集都是查看。要拆成「只管仿真」的管理员，在成员管理里取消「系统管理员」（页面同时把两个板块设为管理员，权限不会掉），再按需把数据集改回查看。
 - **数据集编辑**（新 kind `dataset`，只写平台数据库，不写文件）：一条记录只存管理员改过、和盘点不同的字段（名称、机构、链接、简介、统计口径、Episode / 时长 / 体量、各分类），PUT 整条替换（`Store.update(replace=True)`），字段白名单校验（`dataset_error`）。页面 `DS_TEMPLATES`（写死的公开目录）→ `DS_BASE`（盘点加载后）→ 叠加 `DS_EDITS` 得到 `DATASETS`。详情抽屉对数据集管理员有「编辑」「恢复盘点值」（删掉修改记录），工具栏有「新增数据集」（`custom: true` 的整条记录，可删）。统计数留空即沿用盘点值。盘点重新生成时组 `id` 要保持不变，否则旧修改失效（写进了 `DATASET_INVENTORY.md`）。没做版本级（`versions[]`）的编辑。
 - **验证**：本机 uv 临时环境 `bash scripts/check.sh` 通过（91 passed、1 skipped，含新增的权限迁移、分板块权限、数据集校验 / 替换 / 删除测试，`test_dataset_catalog.cjs` 通过）。本机起临时实例（`/tmp` 数据库、造的 6 组盘点，测完删除）在浏览器里走通：系统管理员在成员管理里把账号设成「仿真平台访客 + 数据集管理员」；该账号在数据集页能编辑、恢复、新增，在物体页仍然只读（同步、登记按钮隐藏）；「仿真平台管理员 + 数据集查看」的账号看不到编辑和新增，接口返回 403，也进不了成员管理。六种类型标签在日间和夜间主题下都有底色。没部署，线上没动。
@@ -81,12 +81,32 @@
 - **AGENTS.md** 加了「Data Platform on `5090-2` (`r2s`)」：各目录谁写、`r2s` 都在 `5090-2` 上以 root 跑、读登记 / 发布产出 / 装库后扫描 / 部署的命令和例子。
 - **风险**：切换后直接往 `/root/RoboDojo/real2sim` 放的渲染平台看不到，要 `r2s publish`；`/root/RoboDojo_assets` 镜像不再用，可以删；状态目录本身 root 仍能手改，靠文档约束；`rollback` 不回退状态目录，要回退数据用 `backups/`。
 
+### Fluid/wuliangye 封面用上游五粮液瓶（2026-10-30 10:0x）
+
+- `Fluid/wuliangye/00000` 是上游的通用粒子液体（材质 `Linen_Blue`，蓝色），名字来自上游 `pour_liquid_into_cup` 里装它的五粮液瓶 `Rigid/wuliangye/00000`（不透明白瓷瓶，不在我们平台上）；G1-D 两个倒水任务拿它当冷水壶 `pitcher/00002` 里的水（标签 `water`）。用户选封面用五粮液瓶：`render_model.py` 静态渲染瓶子，`r2s publish` 成 `state/real2sim/objects/Fluid/wuliangye/00000/preview/00_bottle.png`（文件名写明是瓶子）。
+- 试过但没入库：把流体倒进容器静置后渲染（隔离目录 `/data/robodojo-runs/fluid-render-20261030/`）。冷水壶里液体正常（4872 粒子全在壶内，液面约 2.3 cm），但壶盖和把手出现黑斑，只在场景里有粒子系统时出现（空壶静态渲染正常），换 Fabric / GPU 管线 / 调高 RTX 折射反射次数都没消；透明塑料杯装不下（溢出），白水杯渲染全灰。以后要做流体封面先查这个黑斑。
+
+### 登记场景可选上传网格文件；场景 prompt 加网格用法和照片精确建模（2026-10-30 09:5x）
+
+- **用户要求**：登记场景除多角度照片外，可选上传网格文件（判断类型、设准入）；prompt 增加利用网格和按多角度照片精确建模的部分。
+- **准入**（`server.MESH_SUFFIXES`，前端 `MESH_EXT` 同步）：`.glb .usdz .usd .usdc .usda .obj .fbx .ply .stl .e57 .zip`，单个 ≤ 2 GB（`MAX_MESH`）。不收 `.gltf`（带外部 bin / 贴图，单文件不完整，要打 zip），带贴图的 obj 也打 zip；ply / e57 覆盖点云和 3DGS。
+- **服务端**：`POST /api/mesh?id=<scene>&name=` 只给已存在的场景目录，按 1 MB 分块写 `.part` 再改名（不整块读进内存），文件名清洗、重名加序号，错误返回中文 JSON；存 `real2sim/scenes/<id>/mesh/`（状态目录，智能体按 AGENTS.md 读登记时一起 rsync，不进仓库）。扫描给场景加 `auto.meshes`（路径、字节数）。`DELETE /api/photo` 也能删 `mesh/` 下的准入文件，只限场景目录。访客照旧不能写。
+- **前端**：登记向导第一步照片下面加「网格文件 可选」投放区（格式不对、超 2 GB 当场提示），列出待传文件可移除，登记时照片之后上传；草稿保留 `NEW_MESHES`。场景抽屉「参考照片」下加「网格文件」段：列表（可下载）、上传、删除。
+- **prompt**（`sceneBrief`）：输入里列网格文件和大小；新增「按多角度照片精确建模」（每张照片参与拟合、逐张看残差、按求出的位姿渲染叠图对比、外观和固定物逐张核对、照片矛盾的取舍）；有网格时再加「用网格文件」（核对单位 / 上方向 / 比例，与卷尺差 > 2 cm 先查原因、冲突以卷尺为准，作几何先验，不直接当仿真资产，点云只量位置尺寸，PLAN.md 记文件、sha256 和对齐变换）。数值阈值沿用 SKILL（卷尺 < 1 cm、叠图 < 5 px），没有另造。`real2sim/scenes/SKILL.md` 平台登记和建模两段同步写了网格。
+- 验证：`test_server.py` 补了网格上传（中文和空格文件名清洗、`.gltf` 拒收、不存在的场景、照片接口不收 glb、扫描字段、删除）；浏览器里走了向导投放区（glb、大写 PLY 收下，gltf 提示）和临时场景的抽屉列表与 prompt，临时场景已删。
+
+### 已建模物体可「隐藏」；批量操作栏改成浮动工具栏（2026-10-30 09:3x）
+
+- **隐藏**（用户选的：已建模物体不删，只从平台拿掉，资产和代码不耦合也不动）：已建模（有生成脚本或已在资产库）、没有任务在用、没有变体的物体，管理员看到的按钮从禁用的「删除物体」变成「隐藏」；隐藏后详情顶部有说明、按钮变「取消隐藏」。服务端 `PUT /api/items` 带 `{"hidden": bool}` 走单独分支：只有管理员（403）、只能带这一个字段（400）、物体要存在（404），只写数据库，不重写 `spec.json`。前端 `live()` 排除隐藏的，所以导航计数、总览、待审核数、任务向导的物体选择都不含它；`variantsOf` 不含隐藏的变体；物体页有「已隐藏 N」开关，打开时只列隐藏的物体（变体不收进本体卡片）。为什么不做真删除：平台进程对共享资产库只读（PR #50 的沙箱），资产库改动要审批；用户考虑后先只做隐藏。
+- **浮动工具栏**（用户反馈黑色操作栏难看、没贴底）：物体页勾选后的批量栏改成底部居中的浅色毛玻璃胶囊（`--glass` + 模糊 + `--shadow-3`，离底 28px，出现时上滑），左边数字徽标「3 已选」、待审核数，按钮去边框分组（通过 / 退回… | 负责人 + 指派 | ×）。原来 `.bulkbar` 写在 `.obj-bulk` 后面、同级优先级，把圆角、背景、内边距盖掉了，现在浮动规则用 `.bulkbar.obj-bulk`。质检页的批量栏（列表顶部）同样从黑底改成浅灰底。之后按用户反馈：「退回…」去掉省略号（被当成没显示全）；管理员多一个红色「删除」，只删选中里能删的（与单件删除同一套 `objDeleteBlocker`；一起选中的变体不算阻碍，先删变体再删本体），已建模、任务在用的跳过并在确认框里说明，提示可以「隐藏」；没有能删的时按钮禁用。浏览器里用两个临时登记加一个已建模物体核对过：删 2 跳 1，服务端也没了，已建模的留在选择里。
+- 本机：`test_server.py` 补了隐藏接口的 403/400/404/往返；浏览器里用管理员走了一遍隐藏 → 列表和计数少一件（69 → 68）→「已隐藏 1」里能看到 → 取消隐藏恢复；勾选 3 件截图核对浮动栏位置（距底 28px）和样式。
+
 ### 柔性物体补模型图、登记种类；非孪生保存不再删手写 spec.json（2026-10-30 00:5x）
 
 - **用户要求**：补上可变形纸杯的模型图；毛绒卡皮巴拉和 FEM 软块登记成实心软体。
 - **新脚本 `scripts/objects/render_model.py`**：柔性资产不能按刚体加载，`check_object.py` 跑不了。它按 `check_object.py` 单件视图的地面、灯光、机位和 640×480 渲染，把 USD 引用进来按包围盒放到地面上，不步进仿真（静止形状），写 `preview/00_model.png`。在 `5090-2` 隔离目录 `/data/robodojo-runs/flex-model-render-20261030/` 用 GPU 0 渲染了 `Dynamic/paper_cup/00000`、`Dynamic/soft_block/00000`（包围盒 87.9×87.9×136、100³ mm，与 metadata 一致；目测与刚体纸杯 `sim.png` 风格一致），`r2s publish` 发布（只增不删，测试图都还在）。卡皮巴拉已有 `00_sim.png`，没重渲。`scripts/objects/SKILL.md` 和建模 prompt 的柔性段指向这个脚本。
 - **登记种类**：照 `r2s scan` 的做法用首个管理员的临时会话调平台 `PUT /api/items`（只改 `deformable.family`，其余字段原样带回）：纸杯 `bag → shell`，卡皮巴拉、软块 `null → volume`；署名是「管理员」。扫描后纸杯、卡皮巴拉的柔性验收按新种类重算为待验收（多了「压缩与回弹」）。
-- **发现的平台 bug（已修）**：`write_spec` 对非孪生物体一律删 `spec.json`，所以保存软块（`twin: false`，`asset_origin: simulation_reference`）时把杨开元手写的 `state/real2sim/objects/Dynamic/soft_block/00000/spec.json` 删了。数据库记录完整，页面不受影响；原文件还在 `/root/RoboDojo/real2sim/objects/Dynamic/soft_block/00000/spec.json`（工作区未入库）。修复：只删自己写的（带 `"twin": true`），手写的留着；`test_server.py` 补了这一条。状态目录里那份没有手工恢复（AGENTS.md 不许手改状态目录，`r2s publish` 也拒绝写 `spec.json`），要恢复需要用户点头。
+- **发现的平台 bug（已修）**：`write_spec` 对非孪生物体一律删 `spec.json`，所以保存软块（`twin: false`，`asset_origin: simulation_reference`）时把杨开元手写的 `state/real2sim/objects/Dynamic/soft_block/00000/spec.json` 删了。数据库记录完整，页面不受影响；原文件还在 `/root/RoboDojo/real2sim/objects/Dynamic/soft_block/00000/spec.json`（工作区未入库）。修复：只删自己写的（带 `"twin": true`），手写的留着；`test_server.py` 补了这一条。状态目录里那份不恢复（用户 10-30 09:11 决定；数据库记录完整，平台不依赖它）。
 
 ### 物体资产：刚体 / 柔性筛选、柔性封面与形变测试分开（2026-10-30 00:4x）
 

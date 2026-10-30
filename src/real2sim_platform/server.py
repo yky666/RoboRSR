@@ -90,6 +90,10 @@ EVAL_ID = re.compile(r"[a-z0-9][a-z0-9_-]*")  # also the policy name in eval_res
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}
 SERVED_SUFFIXES = IMAGE_SUFFIXES | {".mp4", ".webm", ".md", ".json", ".glb"}
 MAX_UPLOAD = 25 << 20
+# a scene's scan or CAD, optional next to its photos: one self-contained file each (a .gltf with side files goes
+# in a .zip, as does an .obj with its .mtl and textures)
+MESH_SUFFIXES = {".glb", ".usdz", ".usd", ".usdc", ".usda", ".obj", ".fbx", ".ply", ".stl", ".e57", ".zip"}
+MAX_MESH = 2 << 30
 # photos and videos: fresh for a minute, then shown from cache at once while the ETag is rechecked in the background;
 # private, because they are only served to signed-in users
 FILE_CACHE = "private, max-age=60, stale-while-revalidate=604800"
@@ -374,6 +378,11 @@ def scan_scenes():
             "scripts": sorted(p.name for p in d.glob("*.py")),
             "docs": sorted(str(p) for p in d.glob("*.md")),
             "photos": images(d / "reference"),
+            "meshes": [
+                {"path": str(p), "size": p.stat().st_size}
+                for p in sorted((d / "mesh").glob("*"))
+                if p.is_file() and p.suffix.lower() in MESH_SUFFIXES
+            ],
             "registered": (d / "registration.json").is_file(),
             "previews": sorted(str(p) for p in (d / "preview").glob("*.jpg")),
             "renders": images(d / "preview" / "render"),  # scripts/scenes/render_scenes.py
@@ -1404,9 +1413,11 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json({"ok": True})
         if url.path == "/api/scan":
             return self.send_json(scan(self.store, *self.scan_args))
+        query = {k: v[0] for k, v in parse_qs(url.query).items()}
+        if url.path == "/api/mesh":
+            return self.upload_mesh(query.get("id", ""), Path(query.get("name", "")).name)
         if url.path != "/api/photo":
             return self.send_error(404)
-        query = {k: v[0] for k, v in parse_qs(url.query).items()}
         oid, name = query.get("id", ""), Path(query.get("name", "")).name
         size, suffix = int(self.headers.get("Content-Length", 0)), Path(name).suffix.lower()
         owner = {"scene": (SCENE_ID, build_asset.SCENES_DIR), "embodiment": (EMBODIMENT_ID, EMBODIMENTS_DIR)}
@@ -1430,6 +1441,37 @@ class Handler(BaseHTTPRequestHandler):
                     self.store._put("object", doc)
                     write_spec(doc)
         self.send_json({"path": str(path)})
+
+    def upload_mesh(self, sid, name):
+        """A scene's scan or CAD into real2sim/scenes/<id>/mesh/, streamed: these run to gigabytes."""
+        size, suffix = int(self.headers.get("Content-Length", 0)), Path(name).suffix.lower()
+        if not SCENE_ID.fullmatch(sid) or not (build_asset.SCENES_DIR / sid).is_dir():
+            return self.send_json({"error": f"没有场景 {sid}"}, 400)
+        if suffix not in MESH_SUFFIXES:
+            allowed = "、".join(sorted(MESH_SUFFIXES))
+            return self.send_json({"error": f"不支持 {suffix or '无扩展名'}，可用 {allowed}"}, 400)
+        if not 0 < size <= MAX_MESH:
+            return self.send_json({"error": f"网格文件要在 {MAX_MESH >> 30} GB 以内"}, 400)
+        folder = build_asset.SCENES_DIR / sid / "mesh"
+        folder.mkdir(exist_ok=True)
+        stem = re.sub(r"[^\w.-]", "_", Path(name).stem)[:80] or "mesh"
+        path, n = folder / f"{stem}{suffix}", 1
+        while path.exists():
+            path, n = folder / f"{stem}-{n}{suffix}", n + 1
+        tmp = path.with_name(f".{path.name}.part")
+        try:
+            with tmp.open("wb") as out:
+                left = size
+                while left:
+                    chunk = self.rfile.read(min(left, 1 << 20))
+                    if not chunk:
+                        raise ConnectionError("upload ended early")
+                    out.write(chunk)
+                    left -= len(chunk)
+            tmp.rename(path)
+        finally:
+            tmp.unlink(missing_ok=True)
+        self.send_json({"path": str(path), "size": size})
 
     def verdict(self, current, fields, follows=None):
         """Turn review_action/review_note in `fields` into a stored review entry (admins only). Replies and returns
@@ -1485,6 +1527,15 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(fields["name"], str) or len(fields["name"].strip()) > 60:
                 return self.send_json({"error": "名称最多 60 个字"}, 400)
             return self.send_json(self.store.update(kind, id_, {"name": fields["name"].strip()}, by=self.user["name"]))
+        if kind == "object" and "hidden" in fields:  # off the platform's lists only: assets and repo files untouched
+            if not self.user["sim_admin"]:
+                return self.send_json({"error": "只有仿真平台管理员可以隐藏物体"}, 403)
+            if set(fields) != {"hidden"} or not isinstance(fields["hidden"], bool):
+                return self.send_json({"error": "隐藏请求只能带 hidden（true 或 false）"}, 400)
+            if not self.store.get(kind, id_):
+                return self.send_json({"error": f"没有物体 {id_}"}, 404)
+            doc = self.store.update(kind, id_, fields, by=self.user["name"])
+            return self.send_json(public_object(doc, variant_base(doc, lambda i: self.store.get("object", i))))
         if kind == "object" and "deformable" in fields:
             if error := deformables.validate(fields["deformable"]):
                 return self.send_json({"error": error}, 400)
@@ -1580,7 +1631,11 @@ class Handler(BaseHTTPRequestHandler):
             return self.accounts("DELETE")
         if url.path == "/api/photo":
             path = Path(parse_qs(url.query).get("path", [""])[0]).resolve()
-            photo = path.parent.name == "reference" and path.suffix.lower() in IMAGE_SUFFIXES
+            photo = (path.parent.name == "reference" and path.suffix.lower() in IMAGE_SUFFIXES) or (
+                path.parent.name == "mesh"
+                and path.suffix.lower() in MESH_SUFFIXES
+                and path.is_relative_to(build_asset.SCENES_DIR.resolve())
+            )
             owners = (OBJECTS_DIR.resolve(), build_asset.SCENES_DIR.resolve(), EMBODIMENTS_DIR.resolve())
             if not (photo and path.is_file() and any(path.is_relative_to(d) for d in owners)):
                 return self.send_error(400)
