@@ -49,6 +49,7 @@
 - **平台**：`scan_objects` 把 `description.json` 的 `names` 放进 `auto.names`（不影响审核签名）。物体卡片和列表在 id 下显示「大类 杯子 · 金属杯」，搜索也匹配这些名称；详情「基本信息」后加「指令名称」一节，一张表列本体和全部变体的大类、简、中、详（中文在上、英文在下），旧格式整行显示，没写名称的标「还没有指令名称」；官方资产没有名称时不显示这一节。建模 prompt 的「指令名称」一节按新格式改了，版本号仍是 `real-object-v3`（只改了说明文字，已确认的登记不用重新确认）。
 - **共享库**（用户这次要求更新完备物体）：`5090-2:/data/robodojo-assets/Assets/Object/Real2Sim` 下名称表里有的 95 件写入（83 件完备里在库的，加 20 个关节瓶子；量杯 `00000/00001`、马克杯 6 件不在库）。这 95 个文件都和 `scenes-complete-20261030`、`scenes-overlay-baseline-20261030` 两个隔离目录硬链接，所以每个都写成新文件再替换（保留 uid 1008 和原权限 644/664），隔离目录里的副本没变。备份 `/data/robodojo-assets/backups/description-before-name-levels-20261030-170527.tar.gz`，回滚就在 `Object/Real2Sim` 下解开它。
 - **验证**：本机 `bash scripts/check.sh`（用 uv 临时装依赖、ruff 0.11.7）91 passed、1 skipped；`test_object_names.py` 改成新格式，`test_server.py` 加了 `auto.names` 的断言；页面脚本 `node --check`。本机临时平台（金属杯、篮子两族的真实 `description.json`）浏览器里看了卡片和详情的「指令名称」表。运行时取名函数从源码抽出来用假对象跑了新格式、旧格式、无名称三种。`5090-2`（隔离目录 `/data/robodojo-runs/name-levels-20261030-170527/`）：95 件和备份逐个对比只有 `names` 变了，`RoboDojo` 环境里 `load_desc_info` 回读 95/95 一致。没跑 Isaac 任务（任务里还没有用这些物体的 `<标签>` 占位符）。
+- **部署**（10-30 17:1x）：[PR #60](https://github.com/Zheng-Chong/RoboRSR/pull/60) 合并（`2979935`），`r2s deploy 2979935`（上一个 release `8b2a527`，回滚 `r2s rollback`），`r2s scan` 后页面 200、未登录 401。线上 83 件完备物体审核状态不变，75 件带大类和名称；量杯 `00000/00001`、马克杯 `00000–00005` 这 8 件不在共享库、没有 `description.json`，详情里显示「还没有指令名称」，装库后 `apply` 再 `r2s scan` 就有。
 
 ### 修办公室、吧台的照片叠图（2026-10-30 11:3x–13:0x，`chongzheng/scenes-overlay-fix`）
 
