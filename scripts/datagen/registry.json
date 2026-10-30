@@ -61,7 +61,7 @@
       "location": {"host": "5090-2", "run": "/data/robodojo-runs/office-beans-random-20261019", "path": "output/office_beans/collection_v3/lerobot"},
       "published": "ModelScope dataset ChongZheng/g1d_office_pour_beans_random_hand_yaw_100 (private), 17 data files checked against local sha256",
       "validation": "exporter read-back 100 / 39827; recount of all 67200 beans over each episode's last 30 frames, none left or spilled; 20-bin coverage of the four position coordinates and 18 yaw bins; max final-second cup tilt 29.88 deg; LeRobot reader decoded 600 first/last frames",
-      "notes": "Rendered with the office lights before the 2026-10-30 photo match (sun 3000, bluish fills and dome); the office twin is darker and warmer since (head camera median L* 47.5 -> 31.4), so evaluating a policy trained on it in g1d / g1d_beans_collect also shifts the images."
+      "notes": "Rendered with the office lights before the 2026-10-30 photo match (sun 3000, bluish fills and dome); the office twin is darker and warmer since (head camera median L* 47.5 -> 31.4), so evaluating a policy trained on it in g1d / g1d_beans_collect also shifts the images. Also collected on the 0.68 m office table at lift 0; since 2026-10-30 the table is 0.715 m (fitted to the photos), 1.186 x 0.590 m, with the lift column 0.035 m higher, so the arms reach the tabletop as before but the cameras see it 3.5 cm closer."
     },
     {
       "name": "g1d_office_pour_all_red_beans_measuring_cups_100",
@@ -81,7 +81,7 @@
       "location": {"host": "5090-2", "run": "/data/robodojo-runs/office-beans-measured-20261019", "path": "output/office_beans/collection_v2/lerobot"},
       "published": "ModelScope dataset ChongZheng/g1d_office_pour_all_red_beans_measuring_cups_100 (private), 16 data files checked against local sha256",
       "validation": "exporter read-back 100 / 40279 frames; independent recount of every bean over each episode's last 30 frames; LeRobot 0.4.4 loader decoded first and last frame of every episode (final_validation.json, sha256.json in the dataset)",
-      "notes": "Rendered with the office lights before the 2026-10-30 photo match, as g1d_office_pour_beans_random_hand_yaw_100."
+      "notes": "Rendered with the office lights before the 2026-10-30 photo match and on the 0.68 m table before the 2026-10-30 table fit, as g1d_office_pour_beans_random_hand_yaw_100."
     },
     {
       "name": "g1d_office_pour_all_red_beans_old_cups",

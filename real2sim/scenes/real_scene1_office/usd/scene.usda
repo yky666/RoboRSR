@@ -38,7 +38,7 @@ def Xform "World"
         )
         {
             float xformOp:rotateZ = 0
-            double3 xformOp:translate = (0.03, 0.028, 0.68)
+            double3 xformOp:translate = (0.03, 0.028, 0.715)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
         }
 
@@ -47,7 +47,7 @@ def Xform "World"
         )
         {
             float xformOp:rotateZ = 0
-            double3 xformOp:translate = (-0.158, -0.175, 0.68)
+            double3 xformOp:translate = (-0.158, -0.175, 0.715)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
         }
 
@@ -56,7 +56,7 @@ def Xform "World"
         )
         {
             float xformOp:rotateZ = 0
-            double3 xformOp:translate = (0.165, -0.168, 0.68)
+            double3 xformOp:translate = (0.165, -0.168, 0.715)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
         }
 
@@ -65,7 +65,7 @@ def Xform "World"
         )
         {
             float xformOp:rotateZ = 130
-            double3 xformOp:translate = (-0.406, -0.086, 0.68)
+            double3 xformOp:translate = (-0.406, -0.086, 0.715)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
         }
 
@@ -74,7 +74,7 @@ def Xform "World"
         )
         {
             float xformOp:rotateZ = 0
-            double3 xformOp:translate = (-0.238, 0.11, 0.68)
+            double3 xformOp:translate = (-0.238, 0.11, 0.715)
             uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
         }
     }

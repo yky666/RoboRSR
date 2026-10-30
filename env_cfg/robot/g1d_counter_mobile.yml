@@ -9,6 +9,6 @@ robots:
     # reset pushed it out to here, so it starts here
     default_root_pos: [0.0, -0.853, 0.1115],
     default_root_rot: [0.707, 0, 0, 0.707],
-    # Countertop 0.833 m is 0.153 m above the office table: raise the lift column by as much.
+    # Countertop 0.833 m is 0.153 m above 0.68 m (the office table until 2026-10-30): raise the lift column by as much.
     init_joint_pos: {LZ_mt_Joint: 0.0765, LZ_it_Joint: 0.0765}
   }

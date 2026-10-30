@@ -24,7 +24,9 @@ OBS = HERE.parent
 OUT = HERE / "usd"
 TEX = OUT / "textures"
 
-TABLE = dict(length=1.20, width=0.62, top_z=0.68, thickness=0.025, corner_r=0.05,
+# Length, width and top height fitted to the table's edges in photos p0-p4 through the SfM cameras (fit_table.py,
+# 2026-10-30; the priors were 1.20 x 0.62 x 0.68 m).
+TABLE = dict(length=1.186, width=0.590, top_z=0.715, thickness=0.025, corner_r=0.05,
              column_x=0.42, foot_len=0.56)
 
 # Object poses: base center (x, y) on the table top, yaw in degrees about +Z.
