@@ -425,3 +425,7 @@ agent 照着反馈迭代，优化目标就是"真机可执行"而不只是仿真
 ## 许可证
 
 沿用 RoboDojo 的 [MIT License](LICENSE)。
+
+### 湿巾袋研究资产
+
+`python scripts/objects/make_wipe_bag.py Assets/Object/Real2Sim/Rigid` 生成本体与三个外观变体；再运行 `python scripts/objects/object_names.py apply Assets/Object/Real2Sim`。需要 Isaac/PhysX FEM GPU 环境。完整复验命令和限制见 `real2sim/prototypes/wipe_bag_measured/REPORT.md`，未通过基础资产验收。
