@@ -422,6 +422,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 @media (prefers-reduced-motion: reduce) { .fgroup > summary .chev { transition: none; } }
 @media (max-width: 1100px) { .ds-hero { grid-template-columns: 1fr; } }
 @media (max-width: 720px) { .ds-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ds-hero h1 { font-size: 28px; } }
+@media (max-width: 900px) { .ds-table .ds-wide { display: none; } }
 .cards { grid-template-columns: repeat(auto-fill, minmax(min(100%, 228px), 1fr)); }
 .mcard { overflow: hidden; cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .2s; }
 .mcard:hover { border-color: var(--primary-line); box-shadow: var(--shadow-2); transform: translateY(-2px); }
@@ -1613,11 +1614,14 @@ function dsCard(d) {
     <div class="ds-foot"><span>许可 ${esc(dsLabels(d, 'license').join(' / '))}</span><span title="${esc(dsExact(d))}">${esc(dsSizeText(d))}</span></div></article>`;
 }
 function dsTable(rows) {
-  return `<div class="table-wrap"><table class="ds-table"><thead><tr><th>数据集</th><th>类型</th><th>形态 / 本体</th><th class="num">已知 Episode</th><th class="num">已知时长</th><th class="num">本地体量</th><th>许可</th><th>本地</th></tr></thead><tbody>
+  // the figures come right after the type, so a narrow screen shows them without scrolling sideways
+  return `<div class="table-wrap"><table class="ds-table"><thead><tr><th>数据集</th><th>类型</th><th class="num">Episode</th><th class="num">时长</th><th class="num">本地体量</th><th class="ds-wide">形态 / 本体</th><th class="ds-wide">许可</th><th>本地</th></tr></thead><tbody>
     ${rows.map((d) => `<tr data-open="dataset" data-id="${esc(d.id)}" tabindex="0"><td><div class="t-main">${esc(d.name)}</div><div class="t-sub">${esc(d.org)}</div></td>
-      <td><div class="chips">${d.f.source.map(dsSrcBadge).join('')}</div></td><td class="small">${esc([...dsLabels(d, 'form'), ...dsLabels(d, 'robot')].join(' · ') || '—')}</td>
+      <td><div class="chips">${d.f.source.map(dsSrcBadge).join('')}</div></td>
       ${dsNumCell(d, 'episodes', dsEpText(d), exact(d.episodes))}${dsNumCell(d, 'hours', dsHoursText(d), exact(d.hours, ' h'))}<td class="num nowrap" title="${esc(d.tb > 0 ? exact(d.tb * 1000, ' GB') : '')}">${esc(dsSizeText(d))}</td>
-      <td class="small nowrap">${esc(dsLabels(d, 'license').join(' / '))}</td><td class="small nowrap">${esc(dsLabels(d, 'local').join(''))}</td></tr>`).join('')}</tbody></table></div>`;
+      <td class="small ds-wide">${esc([...dsLabels(d, 'form'), ...dsLabels(d, 'robot')].join(' · ') || '—')}</td>
+      <td class="small nowrap ds-wide">${esc(dsLabels(d, 'license').join(' / '))}</td><td class="small nowrap">${esc(dsLabels(d, 'local').join(''))}</td></tr>`).join('')}</tbody></table></div>
+    <p class="hint">Episode、时长列里灰色斜体「官方」是发布方声明的数字，本地未核实，不计入合计；没有前缀的是本地统计。</p>`;
 }
 function viewDatasets() {
   const f = UI.ds, by = {rec: () => 0, episodes: (x, y) => (y.episodes || 0) - (x.episodes || 0), size: (x, y) => y.tb - x.tb, name: (x, y) => x.name.localeCompare(y.name)}[f.sort];
