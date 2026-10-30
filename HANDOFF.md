@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-30
-本会话分支：`chongzheng/platform-dataset-admin`（worktree `../RoboDojo-dataset-admin`，基于 `origin/main@bb9985d`）：数据集标签补色、数据集管理员可在平台上改数据集、权限按仿真平台 / 数据集分开（「最近任务」第一节），[PR #52](https://github.com/Zheng-Chong/RoboRSR/pull/52) 已合并（`5a8e312`），10-30 10:1x 已 `r2s deploy`。上一个会话 `chongzheng/platform-isolation`：数采平台和 `5090-2` 上的工作区隔离，PR #50 已合并，10-30 00:23 线上已切换。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
+本会话分支：`chongzheng/scenes-complete-steps`（worktree `../RoboDojo-scenes-complete`，基于 `origin/main@5184359`）：平台上 4 个「完备」场景的离线检查、灯光对色、照片叠图、Isaac 渲染验证、装共享库，并在平台标记（「最近任务」第一节）。再上一个会话 `chongzheng/platform-dataset-admin`：数据集标签补色、数据集管理员可在平台上改数据集、权限按仿真平台 / 数据集分开，[PR #52](https://github.com/Zheng-Chong/RoboRSR/pull/52) 已合并（`5a8e312`），10-30 10:1x 已 `r2s deploy`。更早的会话 `chongzheng/platform-isolation`：数采平台和 `5090-2` 上的工作区隔离，PR #50 已合并，10-30 00:23 线上已切换。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -15,7 +15,7 @@
   - 头部用双目的左眼 `cam_head`（棋盘格标定 fx≈279.5，宇树合同外参），两个腕部相机 fx≈314；投影到真机画面核对过（误差 0.4–3.6 px）。
   - 关节驱动参数（刚度 4400、阻尼 40）和夹爪力是拍定的，没做系统辨识。夹爪从 10-21 起改为每指刚度 3.6e4 N/m、上限 55 N，是按真机 kp 估算的（见「剩余事项」），之前是 1e4 和 20 N；官方规格（零售商转载）是 5–120 N 可调。开合速度从 10-23 起限到每指 0.064 m/s（真机遥操作数据的合爪速度；之前是 URDF 的 0.2 m/s，即 Dex1-1 最快档）。两项在 10-27 一起合进 `main`（PR #24、#26）。仿真里能读到夹持力：`obs["gripper_force"]`（指垫 ContactSensor，单位 N，不进数据集）。同事把"相机+动作标定工具包"作为 `g1d_calib_toolkit_20261019.zip` 传到了仓库根目录，还没接入。
   - 构建：`python scripts/g1d/build_asset.py`（读 `real2sim/robot/g1d_v4`）。下载官方资产后先跑一次 `utils/update_embodiment_config_path.py`。
-- **场景**（`real2sim/scenes/`）：env 配置 `g1d` 是办公室，`g1d_counter` 是吧台（移动版 `g1d_counter_mobile` 加了左侧客区；10-28 起过道里有高吧台和绿色岛台，见「最近任务」第一节），`g1d_lab` 是公司实验室，`g1d_school` 是学校实验室绿幕桌，`g1d_shenzhen_lab` 是深圳实验室办公桌。前三个从照片拟合，尺度靠先验；学校的来自同事用真机相机画面拟合的 MuJoCo 孪生；深圳实验室是第一个按平台登记、用卷尺定尺度的场景（卷尺三项通过，站位和叠图待做），10-27 起按房间全景补成整层房间。其余都没有卷尺实测，都没有叠图验收。状态汇总：`python scripts/scenes/acceptance.py`（目前全部 pending）。新场景先在数采平台登记（≥ 5 张照片 + 卷尺实测，写 `registration.json`），再按 `real2sim/scenes/SKILL.md` 交给 coding agent 建模。新场景先在数采平台「登记场景」（至少 5 张照片 + 卷尺实测，写 `real2sim/scenes/<场景>/registration.json`），再按 `real2sim/scenes/SKILL.md` 建模。
+- **场景**（`real2sim/scenes/`）：env 配置 `g1d` 是办公室，`g1d_counter` 是吧台（移动版 `g1d_counter_mobile` 加了左侧客区；10-28 起过道里有高吧台和绿色岛台，见「最近任务」第一节），`g1d_lab` 是公司实验室，`g1d_school` 是学校实验室绿幕桌，`g1d_shenzhen_lab` 是深圳实验室办公桌。前三个从照片拟合，尺度靠先验；学校的来自同事用真机相机画面拟合的 MuJoCo 孪生；深圳实验室是第一个按平台登记、用卷尺定尺度的场景（卷尺三项通过，站位和叠图待做），10-27 起按房间全景补成整层房间。其余都没有卷尺实测，都没有机器人相机叠图。状态汇总：`python scripts/scenes/acceptance.py`（按机器人相机和现场记录的口径，目前全部 pending）。10-30 起办公室、吧台、上海实验室、深圳实验室有手机照片叠图（`scene_spec.json` 的 `photo_overlay`：上海 2.8 px、深圳 3.7 px 通过，吧台 9.1 px、办公室 21 px 不通过）和 RTX 照片对色（`lighting.photo_match`），办公室、吧台的灯光按对色改过，四个场景的共享库都和 `main` 一致。新场景先在数采平台登记（≥ 5 张照片 + 卷尺实测，写 `registration.json`），再按 `real2sim/scenes/SKILL.md` 交给 coding agent 建模。新场景先在数采平台「登记场景」（至少 5 张照片 + 卷尺实测，写 `real2sim/scenes/<场景>/registration.json`），再按 `real2sim/scenes/SKILL.md` 建模。
 - **物体**：每件资产的来源和匹配程度看 `real2sim/ASSETS.md`。按数采平台的登记（`real2sim/objects/<id>/spec.json` + 照片）给实物建模，交给 coding agent 时按 `scripts/objects/SKILL.md`；平台物体页生成的「建模任务」文本第一行就指向它。
   - 量杯、塑料马克杯、红豆有实测尺寸和质量。量杯 `00002–00005`、马克杯 `00001–00005` 是估计的泛化变体。
   - 共享资产库缺 `measuring_cup`、`plastic_mug`，以及量杯任务的布局。
@@ -39,6 +39,24 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 平台「完备」场景的验收五项（2026-10-30 10:0x–11:1x，`chongzheng/scenes-complete-steps`）
+
+- **用户要求**：BanzhiFlywheel 仿真平台下已完备的场景，做完离线检查、灯光建模、叠图、Isaac 渲染验证和入资产库，并在平台上标完成。「完备」= 管理员审核通过、模型签名未变，当时是办公室 `real_scene1_office`、吧台 `real_scene2_counter`、上海实验室 `real_scene3_lab`、深圳实验室 `real_scene5_shenzhen_lab`。用户定的口径：没有机器人相机画面，叠图用手机照片和拟合相机，如实记录误差，< 5 px 且 ≥ 3 个视角才算通过；灯光在 RTX 下从照片机位渲染、和照片对色，对上了才勾；办公室新灯光也装共享库（已发布的两批办公室数据是旧灯光下采集的，登记表已注明）。
+- **离线检查**：四个场景 `check_scene.py` 全部通过（31 / 26 / 24 / 28）。吧台原来唯一的失败项是检查本身过时：它按默认站位 y = −0.73 判断，而 `g1d_counter` 早就后移到 −0.80；改成按吧台实际站位和 Room 位置判断，不动模型。
+- **照片叠图**：只看桌面角点和桌沿。上海、深圳、吧台用 `fit_photo.json` 的残差（相机就是用这些标注拟合的，属于样本内误差）；办公室的照片 / 视频帧只有 SfM 相机，新增 `real_scene1_office/overlay_photos.py`，沿投影桌沿的法线找图像边缘（样本外）。结果：上海 4 视角最大 2.8 px，深圳 5 视角最大 3.7 px，吧台桌面只出现在 2 张照片里、最大 9.1 px，办公室 5 视角最大 21 px（多数边偏 10–20 px）。记在 `scene_spec.json` 新增的 `photo_overlay` 字段；`overlay` 仍只留给机器人相机叠图，`acceptance.py` 不受影响。
+- **RTX 照片对色**：`render_scenes.py --photos` 为每张照片建一台相机（取 `preview/photo_cameras.json`，由三个场景的 `preview.py` 写出；办公室直接读 SfM 相机，再加上 `ROOM_SHIFT`），输出「照片 | RTX」对比图 `preview/render/sim_photo_<照片>.jpg`，文件名排在 `sim.jpg` 之后，不影响封面。指标：整幅 CIELAB 中位数，对所有照片取平均，目标 |ΔL\*| ≤ 5、|Δb\*| ≤ 3。
+  - 上海 45.8 / 照片 43.1、深圳 63.6 / 66.3，已达标，没改灯。
+  - 吧台原来 44.2 / 56.5，偏暗：顶灯 6000 → 18000、5000 → 5500 K，穹顶光 150 → 450，之后 56.7 / 56.5，b\* 21.0 / 18.8。
+  - 办公室原来 52.9 / 33.3，地毯近白、偏冷：太阳 3000 → 450 并调暖，窗户补光 400 / 250 → 60 / 37.5 并改成暖白，穹顶光保持 150、改为暖白，之后 37.5 / 33.3，b\* 1.0 / 4.0（正好在 3 的边界上）。穹顶光不能降：它也是窗洞里看到的天空，降到 37.5 时窗外变成褐色（左腕画面 L\* 从 48 掉到 17）。
+  - 办公室机器人画面（`g1d` 拾取 seed 0，中位 L\*）：头部 47.5 → 31.4，第三人称 65.1 → 49.4，左腕 47.8 → 48.6。
+  - 两个场景重建后只有 `usd/lights.usda` 变了，`scene.usda` 不变，所以模型签名和「完备」状态都没变；本机 OpenCV 重新编码的贴图、浮点级不同的 `usd/objects/` 已还原，`parts.json` 重新生成，与原来一致。
+- **Isaac**：`5090-2` 隔离目录 `/data/robodojo-runs/scenes-complete-20261030/`（GPU 7；子模块软链接到 `office-beans-random-20261019`；`Assets/` 是共享库的硬链接副本，改动前先删链接再拷贝）。四个场景都跑了照片机位渲染；新灯光下 `g1d`、`g1d_counter` 的 `g1d_general_pickup` seed 0 都是 `success_rate` 1.0、`eval_time` 1，新 Room 下吧台的 `g1d_stack_blocks` 也是 1.0；办公室、吧台的封面重新渲染。灯光标定用的是临时脚本（本机 worktree `.cache/calib_lights.py`，不入库），在一个进程里按倍率缩放所有 UsdLux 灯并渲染。
+- **共享库**：上海、深圳原本就和仓库逐文件一致。吧台库里还是 10-16 的旧版（没有岛台、客区、椅子预览），办公室换了灯。在隔离目录验证后，把 `Room/real_scene1`、`Room/real_scene2` 用 `rsync --delete` 整目录替换（写新 inode，别人硬链接的副本不受影响）。旧版备份在 `/data/robodojo-assets/backups/backup-shared-room12-relight-20261030-105847.tgz`。之后四个 Room 都和 worktree 逐文件 sha256 一致，然后 `r2s scan`。
+  - `g1d_counter` 布局没有重新生成：当前代码生成要用到 `measuring_cup/00001`，共享库里没有，`build_layouts` 在隔离目录里中途退出，正是 SKILL 里警告的情况。桌高、Room 位置都没变，所以保留库里原来的 574 个布局。`g1d_counter_mobile` 布局和 `lounge_chair` 仍然不在共享库。
+- **平台**：`r2s publish` 了改动的场景文件（`scene_spec.json`、`check_report.json`、`lights.usda`、脚本）和四个场景的 `preview/render/`。用第一个管理员的临时会话（同 `r2s scan` 的做法）PUT：`lighting`、`isaac`、`shared` 为 true，`overlay_px` / `overlay_views` 分别为办公室 21 / 5、吧台 9.1 / 2、上海 2.8 / 4、深圳 3.7 / 5，备注里追加一段说明（照片叠图不是机器人相机、对色结果和改动）。之后四个场景仍是「完备」。平台验收进度：上海、深圳只剩「尺寸实测」待办（深圳缺桌沿站位）；办公室、吧台的叠图显示不通过，尺寸实测待办。
+- **验证**：本机 `bash scripts/check.sh` 91 passed、1 skipped；四个 `check_scene.py`；`acceptance.py` 能读新字段。没在浏览器里看平台页面，只用数据库核对了字段和审核状态。
+- **风险**：照片对色受手机自动曝光和白平衡影响，只能作参考；办公室 b\* 刚好在边界上。灯光、Isaac 两项都没和真机头部画面比过。办公室新灯光让已发布的两批数据（旧灯光）在 `g1d` / `g1d_beans_collect` 下评估时画面会有偏移。
 
 ### 数据集：标签补色、管理员可改、权限按板块分开（2026-10-30 00:4x–01:0x，`chongzheng/platform-dataset-admin`，PR #52 已合并并部署）
 
@@ -1030,8 +1048,10 @@
 - **新流水线还没跑过整批**：collection_v3 是用旧采集器采的，下一批数据应该改用 `scripts/datagen/run_batch.py`。
 - **学校场景**：桌面高度和底盘偏航都依赖假设（零升降、12 号电机即躯干偏航），要用卷尺和叠图核对；从 sys01 拷真机头部和腕部画面（`outputs/g1d-real2sim`）做叠图。杯盘要在数采平台登记实测后，按 `scripts/objects/SKILL.md` 重建。
 - **共享库的倒豆布局过期**：`g1d`、`g1d_counter`、`g1d_lab` 的倒水、杯对杯布局是旧豆子参数（4 mm，`particle_mass` 6e-5），和当前 `build_asset.py`（5.6 mm）不一致；`g1d_shenzhen_lab` 已是新参数。要统一，就在隔离目录重跑 `build_asset.py`，经同意后替换（先备份）。
-- **深圳实验室**：已合并、部署，10-27 装进共享库（整层房间版）；灯光没在 RTX 下按 IMG_4916 重新对色；站位卷尺（桌沿到根节点、横向偏移）和三视角叠图后，`acceptance.py` 才能通过。
-- **场景**：除深圳实验室外没有卷尺实测，都没有叠图；`real_scene1` 和 09-21 那次真机运行时的摆放不一样，那批画面不能用来叠图。下次去现场按 `real2sim/scenes/SKILL.md` 一次采齐。
+- **深圳实验室**：已合并、部署，10-27 装进共享库（整层房间版）；10-30 RTX 照片对色达标（L\* 63.6 / 66.3），照片叠图 3.7 px；站位卷尺（桌沿到根节点、横向偏移）和机器人相机三视角叠图后，`acceptance.py` 才能通过。
+- **办公室灯光**（10-30）：按照片对色调暗、调暖后装进共享库；两批已发布的办公室倒豆数据是旧灯光下采集的，用它们训练的策略在 `g1d` / `g1d_beans_collect` 下评估时，画面会有偏移（头部 L\* 47.5 → 31.4）。要严格复现旧画面，用备份 `backup-shared-room12-relight-20261030-105847.tgz` 里的 `Room/real_scene1`。
+- **照片叠图不通过的两个场景**：办公室桌面 21 px（尺度只靠先验，桌子尺寸可能偏小），吧台 9.1 px 且只有 2 个视角；都要卷尺实测或补照片再修。
+- **场景**：除深圳实验室外没有卷尺实测，都没有机器人相机叠图；`real_scene1` 和 09-21 那次真机运行时的摆放不一样，那批画面不能用来叠图。下次去现场按 `real2sim/scenes/SKILL.md` 一次采齐。
 - **夹爪参数**：10-21 按下面的估算改成每指刚度 3.6e4 N/m、上限 55 N（之前 1e4、20 N）。**已有的两份 100 条量杯数据和 10-22 的深圳 500 条杯或马克杯数据（`g1d_shenzhen_pour_beans_cup_or_mug_500`）都是在旧参数下采的**，现在的 env 和它们不再完全一致；评估用这两份数据训练的策略时，要知道夹爪变了（夹持时的开度不变，力变大）。
   - **真机设定**（10-21 在 `ssh unitree` 上只读查看）：遥操作采集（`~/g1d_infra/teleop/robot_control/robot_arm.py`）、策略评测客户端（`~/client/jepa_g1d_client/g1d_jepa_client.py`、`motus_client`），以及 unitree_lerobot 官方的 `Dex1_1_Gripper_Controller`，用的都是电机层 PD：`kp=5.0`、`kd=0.05`、`tau=0`，读数 q 范围 0（闭合）到 5.36（张开）。每步指令都裁到当前位置附近：遥操作 ±0.18 rad（再加平滑滤波），评测客户端闭合时最多超前 0.3 rad（`GRIP_SQUEEZE`）。没有显式的力矩上限，真正决定夹持力的是 kp 乘以这个误差上限：遥操作最多约 0.9 N·m，评测最多约 1.5 N·m。
   - **换算成指尖力（估计，没实测）**：假设 q 和指尖行程成线性（每指 44.5 mm 对应 5.36 rad，约 8.3 mm/rad），一个电机同时推两指，那么每指的力约等于 60 × τ：遥操作约 55 N，评测约 90 N；每指的等效刚度约 3.6e4 N/m（仿真是 1e4）。没算传动效率和摩擦，实际会低一些。线性假设本身也没标定过（见下面的「真机对齐」）。
@@ -1056,6 +1076,7 @@
 
 ## 下一会话
 
+0. 场景验收（`chongzheng/scenes-complete-steps`）：四个完备场景的灯光、Isaac、共享库已在平台标完成；剩下的要去现场：卷尺（桌高、长宽、桌沿到根节点）、机器人头部 / 腕部画面加关节角（`overlay.py`，写进 `overlay`），以及灯光现场记录；办公室、吧台的照片叠图要修几何。
 0. 数据集管理（PR #52，已部署）：在成员管理里按人设两个板块的角色（原 2 个管理员现在是系统管理员）。
 0. 物体指令名称（`chongzheng/objects-instruction-names`）：合并、部署数采平台后，管理员对已确认的登记重新点确认（prompt v3）；共享库已装的 38 件已写入，其余物体装库时跑 `apply`；`z/objects-*` 分支合并时检查名称表是否仍对得上这些分支的变体；实现 `g1d_pour_beans_any_cups` 时指令写成 `<source_cup>`、`<target_cup>`。
 0. 物体 prompt v2（`chongzheng/platform-prompt-labels`）：合并后部署数采平台，管理员对东方树叶、农夫山泉等已确认的登记重新点确认；再按新 prompt 重做农夫山泉 00000 的照片标签（东方树叶等 `z/objects-plastic-bottle-00006` 合并后复核）。
@@ -1073,6 +1094,7 @@
 
 ## 最近历史
 
+- 2026-10-30：平台四个完备场景（办公室、吧台、上海 / 深圳实验室）做完离线检查、RTX 照片对色、照片叠图、Isaac 验证和装库，并在平台标记。办公室、吧台的灯光按照片改过，吧台新版 Room（岛台、客区）进了共享库。
 - 2026-10-30：数采平台权限按板块分开（系统管理员 / 仿真平台管理员·成员·访客 / 数据集管理员·查看），数据集管理员可在平台上编辑、新增数据集条目，数据集类型标签补色。
 - 2026-10-29：物体指令名称：`description.json` 新增 `names`（中英文各至少 5 个，从简到详），给 54 件完备物体和 13 个关节瓶子写好（`scripts/objects/object_names.json`），指令模板的 `<标签>` 按语言取名称并跳过两个物体共有的名称；建模 prompt 升到 `real-object-v3`。
 - 2026-10-28：物体建模 prompt 升到 `real-object-v2`：实物标签必须从照片做贴图，交付同视角照片对照图；v1 确认需重新确认。

@@ -158,18 +158,25 @@ def load_photo(name):
     return cv2.resize(img, None, fx=k, fy=k, interpolation=cv2.INTER_AREA)
 
 
+def photo_camera(name, eye, R, hfov_deg, size):
+    """A photo's camera for scripts/scenes/render_scenes.py --photos."""
+    return dict(image=f"reference/{name}", eye=[float(v) for v in eye], R=np.asarray(R).tolist(),
+                hfov_deg=float(hfov_deg), size=list(size))
+
+
 def main():
     (HERE / "preview").mkdir(exist_ok=True)
     scene = load_scene()
     fit = json.loads((HERE / "fit_photo.json").read_text())  # phone poses fitted by fit_photo.py
     fixed = [o for o in scene if o["path"].startswith(("/World/Table/", "/World/Cabinet/"))]
-    rows = []
+    rows, cams = [], {}
     for name in (k for k in fit if k.startswith("IMG_")):
         cam = fit[name]
         w, h = cam["size"]
         R = cv2.Rodrigues(np.array(cam["rvec"]))[0]
         eye = -R.T @ np.array(cam["tvec"])
         hfov = math.degrees(2 * math.atan(w / 2 / fit["focal_px"]))
+        cams[name] = photo_camera(name, eye, R, hfov, (w, h))
         view = cv2.cvtColor(render(scene, eye=eye, target=None, hfov_deg=hfov, size=(w, h), R=R), cv2.COLOR_RGB2BGR)
         photo = load_photo(name)
         mask = render(fixed, eye=eye, target=None, hfov_deg=hfov, size=(w, h), bg=(0, 0, 1), R=R)
@@ -196,6 +203,7 @@ def main():
     rows = []
     for name, cam in sorted(room_fit["cameras"].items()):
         R, eye = cv2.Rodrigues(np.array(cam["rvec"]))[0], np.array(cam["eye"])
+        cams[name] = photo_camera(name, eye, R, hfov, (1024, 768))
         view = cv2.cvtColor(
             render(scene, eye=eye, target=None, hfov_deg=hfov, size=(1024, 768), R=R), cv2.COLOR_RGB2BGR
         )
@@ -209,6 +217,7 @@ def main():
         cv2.resize(np.vstack(rows), None, fx=0.5, fy=0.5),
         [cv2.IMWRITE_JPEG_QUALITY, 85],
     )
+    (HERE / "preview" / "photo_cameras.json").write_text(json.dumps(cams, indent=1))
     # Estimated G1-D head camera: root 0.13 m behind the table edge, head ~0.15 m ahead of the root, ~1.25 m high
     # (+0.07 m lift), pitched 47.6 deg down (scripts/g1d/left_robot_config.yml), ~96 deg h-FOV as in the sim config.
     front = json.loads((USD / "build_params.json").read_text())["table"]["front_y"]

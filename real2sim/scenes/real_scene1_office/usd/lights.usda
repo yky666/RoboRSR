@@ -11,17 +11,17 @@ def Xform "Lights"
     def DistantLight "Sun"
     {
         float inputs:angle = 0.53
-        color3f inputs:color = (1, 0.95, 0.88)
-        float inputs:intensity = 3000
+        color3f inputs:color = (1, 0.88, 0.74)
+        float inputs:intensity = 450
         quatf xformOp:orient = (-0.101383165, -0.045855552, 0.40954712, 0.9054777)
         uniform token[] xformOpOrder = ["xformOp:orient"]
     }
 
     def RectLight "WindowFillNorth"
     {
-        color3f inputs:color = (0.92, 0.96, 1)
+        color3f inputs:color = (1, 0.94, 0.86)
         float inputs:height = 1.31
-        float inputs:intensity = 400
+        float inputs:intensity = 60
         float inputs:width = 3.93
         float3 xformOp:rotateXYZ = (-90, 0, 0)
         double3 xformOp:translate = (-1.525, 1.83, 2.145)
@@ -30,9 +30,9 @@ def Xform "Lights"
 
     def RectLight "WindowFillEast"
     {
-        color3f inputs:color = (0.92, 0.96, 1)
+        color3f inputs:color = (1, 0.94, 0.86)
         float inputs:height = 1.31
-        float inputs:intensity = 250
+        float inputs:intensity = 37.5
         float inputs:width = 2.84
         float3 xformOp:rotateXYZ = (-90, 0, -90)
         double3 xformOp:translate = (2.0100000000000002, -0.13, 2.145)
@@ -59,7 +59,7 @@ def Xform "Lights"
 
     def DomeLight "AmbientDome"
     {
-        color3f inputs:color = (0.9, 0.93, 1)
+        color3f inputs:color = (1, 0.95, 0.88)
         float inputs:intensity = 150
     }
 }
