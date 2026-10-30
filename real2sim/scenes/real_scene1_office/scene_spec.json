@@ -7,7 +7,7 @@
     "reference/v*.jpg"
   ],
   "reconstruction": "SfM from a 16.5 s phone video and 5 photos (PLAN.md, REPORT.md); build_scene.py, check_scene.py",
-  "scale_basis": "estimated: three agreeing priors, white desk 1.20 m long, orange desk 0.75 m high, 0.50 m carpet tiles",
+  "scale_basis": "estimated: three agreeing priors, white desk 1.20 m long, orange desk 0.75 m high, 0.50 m carpet tiles; tabletop 1.186 x 0.590 m, top 0.715 m fitted to the photos through the SfM cameras (fit_table.py, 2026-10-30), so in the SfM scale, not tape-measured",
   "measurements": {
     "table_top_z": null,
     "table_length": null,
@@ -17,32 +17,41 @@
   },
   "overlay": [],
   "photo_overlay": {
-    "method": "phone photos and video frames with their SfM cameras (reference/cameras_scene.json, not fitted to the table, so out-of-sample); tabletop edges found along the projected ones by overlay_photos.py; p0 and v0400 have no edge whose points agree; not the robot-camera overlay (overlay)",
+    "method": "fit_table.py: the table's length, width, top height and pose fitted to its edges in photos p0-p4 through the SfM cameras (reference/cameras_scene.json, not fitted to the table); these views are video frames left out of the fit, so out-of-sample; per frame the largest median offset of its tabletop sides. Frames not framing the table centre do not count (v0040, 8 px: only the shaded left end at the border). Not the robot-camera overlay (overlay)",
     "date": "2026-10-30",
     "views": [
       {
-        "image": "reference/p1_2a4974.jpg",
-        "max_px": 21.0
-      },
-      {
-        "image": "reference/p2_6dda6d.jpg",
-        "max_px": 20.0
-      },
-      {
-        "image": "reference/p4_cf220a.jpg",
-        "max_px": 19.5
-      },
-      {
-        "image": "reference/v0160.jpg",
-        "max_px": 6.0
-      },
-      {
         "image": "reference/v0260.jpg",
-        "max_px": 12.5
+        "max_px": 0.5
+      },
+      {
+        "image": "reference/v0280.jpg",
+        "max_px": 0.5
+      },
+      {
+        "image": "reference/v0300.jpg",
+        "max_px": 4.0
+      },
+      {
+        "image": "reference/v0340.jpg",
+        "max_px": 1.8
+      },
+      {
+        "image": "reference/v0420.jpg",
+        "max_px": 2.5
+      },
+      {
+        "image": "reference/v0460.jpg",
+        "max_px": 2.7
+      },
+      {
+        "image": "reference/v0480.jpg",
+        "max_px": 2.5
       }
     ],
-    "max_px": 21.0,
-    "status": "fail"
+    "max_px": 4.0,
+    "status": "pass",
+    "before": "1.20 x 0.62 x 0.68 m priors: 10.8-15 px on the same frames"
   },
   "lighting": {
     "status": "estimated",

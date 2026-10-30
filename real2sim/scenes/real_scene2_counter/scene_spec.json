@@ -33,7 +33,8 @@
       }
     ],
     "max_px": 9.1,
-    "status": "fail"
+    "status": "fail",
+    "blocker": "2026-10-30 refit attempts: a counter-front skew fits to 0, per-photo focal and principal point or radial distortion leave the countertop at 6.7-8.2 px in photo.jpg; weighting the countertop pixels to get under 5 px stretches the counter 2.432 -> 2.575 m and the slab 6.3 -> 7.4 cm and pushes the shelves to 14 px, not taken. Only photo.jpg and photo2.jpg frame the countertop; in the island photos the bar hides it or it sits at the border (island_end ~6.5 px, island_left 3-9 px along the lower slab edge). Needs 3+ more photos of the counter, or tape on length, depth, height"
   },
   "lighting": {
     "status": "estimated",

@@ -3,9 +3,9 @@
  "scale_correction": 1.0,
  "meters_per_sfm_unit": 0.151,
  "table": {
-  "length": 1.2,
-  "width": 0.62,
-  "top_z": 0.68,
+  "length": 1.186,
+  "width": 0.59,
+  "top_z": 0.715,
   "thickness": 0.025,
   "corner_r": 0.05,
   "column_x": 0.42,
