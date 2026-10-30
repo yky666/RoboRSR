@@ -40,6 +40,14 @@
 
 ## 最近任务
 
+### 数据集本地全量扫描（2026-10-30 22:4x 起，后台进行中，`chongzheng/datasets-local-scan`）
+
+- **用户要求**：需要解压的数据集解压并统计，大的开后台慢慢完备。剩下 37 组「压缩分片 / 非标准格式」合计约 147 TB（dsw-4 `/mnt/data/datasets`，ossfs）。决定：不整份解压落盘（会翻倍占用），**按流解压**逐成员统计，只把 LeRobot `meta/*.json(l)`、每包文件清单存到 `/mnt/data/datasets/_stats/<数据集>/`，数据集目录本身不写。
+- **脚本**（`scripts/datasets/`，在 dsw-4 上是 `/root/ds_scan.py`、`/root/ds_report.py`）：`ds_scan.py archive|dir` 每个压缩包或每 500 个文件一个单元、结果一个 JSON，重跑跳过已完成；parquet 读行数和时间戳，HDF5 成员临时落到 `/root/scan_tmp` 读形状后删除，每包抽 3 个 MP4 读 fps，mcap / ROS bag 读首尾时间戳。`ds_report.py` 汇总成 `summary.json`；`ds_apply.py` 写进盘点（只有扫完的才计入；机器人轨迹计 Episode 和时长，人类视频只计时长，导航 / 动捕 / 点追踪只写原记录；说明写在可替换的 `【本地扫描 …】` 块里，每次同步重算）；`ds_sync.sh` 在能同时连 dsw-4 和 5090-2 的机器上跑：汇总 → 写盘点 → `test_dataset_catalog.cjs` 校验 → `r2s publish`。
+- **两条队列**（dsw-4，`nice 15` + `ionice idle`，日志 `/root/scan_queue_{a,b}.log`，脚本同目录 `queue_unpacked.sh` / `queue_archives.sh`）：A 是已解开但没统计过的（maniskill-fail、libero_fail、RoboFAC、ViFailback、fractal、LET、RoboMIND 散 HDF5、BiPlay HDF5、tracker-pov 13451 个 MP4、10Kh 102170 个 mcap）；B 是压缩包，从小到大（LIBERO-plus、RoboCasa、VITRA、VLAC-Cut-Benchmark、lingbot 1.6 TB、VLAC-FullData 0.95 TB、RDT 0.7 TB 单流、RoboMIND v1.0 11.8 TB、AgiBotWorld2026 9.4 TB，然后是导航 / 人体动作 / 点追踪）。单流约 130 MB/s（lingbot 一包：141 条、75006 帧，和包内 `info.json` 完全一致）。
+- **已发布**（22:5x）：maniskill-fail 4950 条 / 5.91 h（HDF5 帧数 ÷ 视频 30 fps）；LIBERO-plus、RoboCasa 的本地压缩包只有场景 / 模型资产，状态改成「仅资产（非轨迹）」。
+- **没做**：RoboMIND2.0（92 TB，还在普查目录）、BiPlay 的 TFRecord、OmniWorld 子集（在 `InternRobotics/OmniWorld-*`）、tracker-pov 的两个 parquet 元数据。5090-2 连不到 dsw-4，定时同步跑在本机（Mac 睡眠就停），重跑：`sh scripts/datasets/ds_sync.sh`。
+
 ### 物体名称：大类 + 3 级（2026-10-30 16:5x–17:3x，`chongzheng/objects-name-levels`）
 
 - **用户要求**：每个物体和它的变体有 3 个从简到详的名称，再加一个大类名称；把平台上已经完备的物体都更新，平台上也要显示这个泛化名称（大类）。起因是用户发现平台物体名字大量重复（2251 件里 34 个名字被 215 件共用，61 件没名字，`Rigid/block/00005–00019` 自动名是 "smartwatch"），这些不是本次范围，没改。
