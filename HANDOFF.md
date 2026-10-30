@@ -51,6 +51,14 @@
 - **合并时**：`main` 上新加的隐藏物体、批量删除两处权限也改成 `sim_admin`。
 - **部署**（10-30 10:1x，`r2s deploy 5a8e312`，上一个 release `d11da55`，回滚 `r2s rollback`）：`users` 表已加两列；13 个账号里原有 2 个管理员成为系统管理员，其余成员在数据集为查看；`/api/info` 未登录 401，日志无报错。还没给任何人单独分配仿真平台管理员或数据集管理员，要在成员管理里按人设。
 
+### 湿巾袋实测研究资产（2026-10-30，liuxiaofan/objects-wipe-bag）
+
+- 输入只读取自 `/data/r2s-platform/state/`；revision `13fbcc90080f426434b76059f60cf51ffa0631d4e1dbac275c8f89dda584d8d5`，三张照片校验一致。独立运行目录 `/data/robodojo-runs/wipe-bag-20261030`，最终资产 `ovl08/Rigid/wipe_bag/00000–00003`。
+- `make_wipe_bag.py`：190×96.02×38 mm、240.2 g，独立翻盖与三块实拍贴图；三个颜色/粗糙度变体，形状尺寸质量继承。名称各语言各五条，apply/check 通过。FEM 工厂显式后端接入 Rigid ID；适配器复用已有研究实现并纳入此分支。
+- 最终 native validation08、四次独立 reload08、replay08、mesh08、clamp08 均通过；CPU scripts/check.sh 通过（初始 LFS 指针已 materialize，保留失败日志）。定量结果、全部名称和 SHA 在 `real2sim/prototypes/wipe_bag_measured/REPORT.md` / `native_report.json`。
+- 整包等效 FEM，未标定材料；翻盖随 bulk 变形，没有独立刚体/铰链物理；夹板代理有下方支撑，非机器人抓取。底面、反侧、开盖照片缺失，外观待审核。仅研究资产，未装共享库；后续补照片及独立翻盖/完整机器人场景验证。
+
+
 ### 裁纸刀本体和三个颜色变体（2026-10-30，codex/objects-paper-knife-00000）
 
 - 隔离目录 `/data/robodojo-runs/paper-knife-20261029`，worktree基于origin/main；生成器 `make_paper_knife.py`，原生工厂接触验证 `check_paper_knife.py`。输入、四张原图、照片派生贴图、独立名称条目及REPORT/delivery_report已归档。
