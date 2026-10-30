@@ -1410,6 +1410,15 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(fields["name"], str) or len(fields["name"].strip()) > 60:
                 return self.send_json({"error": "名称最多 60 个字"}, 400)
             return self.send_json(self.store.update(kind, id_, {"name": fields["name"].strip()}, by=self.user["name"]))
+        if kind == "object" and "hidden" in fields:  # off the platform's lists only: assets and repo files untouched
+            if not self.user["admin"]:
+                return self.send_json({"error": "只有管理员可以隐藏物体"}, 403)
+            if set(fields) != {"hidden"} or not isinstance(fields["hidden"], bool):
+                return self.send_json({"error": "隐藏请求只能带 hidden（true 或 false）"}, 400)
+            if not self.store.get(kind, id_):
+                return self.send_json({"error": f"没有物体 {id_}"}, 404)
+            doc = self.store.update(kind, id_, fields, by=self.user["name"])
+            return self.send_json(public_object(doc, variant_base(doc, lambda i: self.store.get("object", i))))
         if kind == "object" and "deformable" in fields:
             if error := deformables.validate(fields["deformable"]):
                 return self.send_json({"error": error}, 400)

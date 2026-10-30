@@ -167,15 +167,21 @@ main { flex: 1; min-width: 0; padding: 36px 40px 72px; }
 .lib > summary .lib-desc { flex-basis: 100%; padding-left: 26px; font-weight: 400; letter-spacing: 0; }
 .lib-status { margin-bottom: 12px; flex-wrap: wrap; }
 /* floats over the page so ticking the first object does not push the cards under the pointer */
-.obj-bulk { position: fixed; bottom: 16px; left: 50%; z-index: 15; width: min(720px, calc(100vw - 32px)); transform: translateX(-50%); border-radius: 14px; box-shadow: var(--shadow-3); }
-.page:has(.obj-bulk) { padding-bottom: 140px; }
-
-.obj-bulk { width: min(900px, calc(100vw - 32px)); }
-.obj-bulk select { min-height: 30px; }
-.obj-bulk input[type=text] { flex: 1; min-width: 200px; min-height: 30px; border-color: transparent; color: var(--text); }
+.bulkbar.obj-bulk { position: fixed; bottom: 28px; left: 50%; z-index: 15; flex-wrap: nowrap; width: max-content; max-width: calc(100vw - 32px); padding: 6px 6px 6px 8px;
+  border-color: var(--border-strong); border-radius: 16px; background: var(--glass); box-shadow: var(--shadow-3), 0 1px 2px light-dark(rgba(17, 17, 19, .06), rgba(0, 0, 0, .3));
+  transform: translateX(-50%); backdrop-filter: blur(16px) saturate(1.4); animation: bulk-in .22s cubic-bezier(.2, .8, .2, 1); }
+@keyframes bulk-in { from { opacity: 0; transform: translate(-50%, 14px); } }
+@media (max-width: 760px) { .bulkbar.obj-bulk { flex-wrap: wrap; } }
+.page:has(.obj-bulk) { padding-bottom: 110px; }
+.obj-bulk .btn { border-color: transparent; background: transparent; box-shadow: none; }
+.obj-bulk .btn:hover:not(:disabled) { background: var(--surface-3); }
+.obj-bulk .btn-primary, .obj-bulk .btn-primary:hover:not(:disabled) { background: var(--primary); color: var(--on-primary); }
 .obj-bulk .dd-btn { min-height: 30px; }
-.bulk-hint { color: color-mix(in srgb, var(--on-primary) 65%, transparent); font-size: 12px; }
-.bulk-sep { width: 1px; height: 18px; margin: 0 2px; background: color-mix(in srgb, var(--on-primary) 25%, transparent); }
+.obj-bulk input[type=text] { width: min(340px, 50vw); min-height: 30px; }
+.bulk-count { display: inline-flex; align-items: center; gap: 6px; padding-right: 4px; font-weight: 600; white-space: nowrap; }
+.bulk-count b { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font: 600 12px var(--mono); }
+.bulk-hint { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.bulk-sep { flex: none; width: 1px; height: 20px; margin: 0 4px; background: var(--border-strong); }
 .bulkbar .btn:disabled { opacity: .45; }
 .osel { flex: none; width: 18px; height: 18px; margin: 0; cursor: pointer; }
 
@@ -652,9 +658,8 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .qa-list { max-height: calc(100vh - var(--top) - 210px); }
 .qa-panel { position: sticky; top: calc(var(--top) + 20px); }
 @media (max-width: 1200px) { .qa { grid-template-columns: 1fr; } .qa-panel { position: static; } .qa-list { max-height: 460px; } }
-.bulkbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px 8px 0 0; background: var(--primary); color: var(--on-primary); font-size: 13px; }
-.bulkbar .btn { min-height: 30px; border-color: color-mix(in srgb, var(--on-primary) 35%, transparent); background: color-mix(in srgb, var(--on-primary) 8%, transparent); color: var(--on-primary); }
-.bulkbar .btn:hover { background: color-mix(in srgb, var(--on-primary) 18%, transparent); }
+.bulkbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 8px 6px 12px; border: 1px solid var(--border); border-radius: 12px 12px 0 0; background: var(--surface-2); color: var(--text); font-size: 13px; }
+.bulkbar .btn { min-height: 30px; }
 .videos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .videos figure { position: relative; margin: 0; }
 .videos video { display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 8px; background: #000; }
@@ -784,7 +789,8 @@ const num = (v) => v !== null && v !== undefined && v !== '' && !Number.isNaN(Nu
 const pct = (x) => (num(x) ? `${Math.round(x * 100)}%` : '—');
 const sum = (xs) => xs.reduce((a, b) => a + b, 0);
 const fmtTime = (t) => (t ? new Date(t * 1000).toLocaleString('zh-CN', {hour12: false}) : '');
-const live = (xs) => xs.filter((d) => !d.auto?.missing);
+// hidden objects (admins took them off the lists; assets untouched) drop out of every list and count too
+const live = (xs) => xs.filter((d) => !d.auto?.missing && !d.hidden);
 const group = (xs, key) => xs.reduce((m, x) => ((m[key(x)] ||= []).push(x), m), {});
 const rel = (p) => (p && INFO.root && p.startsWith(`${INFO.root}/`) ? p.slice(INFO.root.length + 1) : p);
 const base = (p) => String(p).split('/').pop();
@@ -803,7 +809,7 @@ const UI = {
   dd: '',  // id of the open dropdown menu
   qaRate: 1,  // playback speed of the QA videos, kept when another episode is picked
   vpick: {},  // object drawer id -> the variant whose render is previewed in it
-  obj: {q: '', photo: false, status: '', owner: '', phys: '', view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
+  obj: {q: '', photo: false, status: '', owner: '', phys: '', hidden: false, view: localStorage.objView || 'cards', closed: new Set((() => { try { return JSON.parse(localStorage.objLibClosed || '[]'); } catch { return []; } })())},
   qa: {task: '', config: '', policy: '', result: '', status: 'pending'},
 };
 let INFO = {};
@@ -2364,7 +2370,7 @@ const mm = (size, digits = 0) => (Array.isArray(size) ? size.map((v) => (v * 100
 const objName = (d) => d.name || d.auto.name || d.auto.category;
 // generalization variants (metadata.json "variant_of") sit on their base object's card
 const baseOf = (d) => (d.auto.variant_of && d.auto.variant_of !== d.id ? S.object.find((x) => x.id === d.auto.variant_of) : null);
-const variantsOf = (id) => S.object.filter((x) => x.auto.variant_of === id && x.id !== id);
+const variantsOf = (id) => S.object.filter((x) => x.auto.variant_of === id && x.id !== id && !x.hidden);
 // object counts are of base objects only; a variant is not reviewed on its own and shows its base's review state
 const isBase = (d) => !baseOf(d);
 const stateOf = (d) => (baseOf(d) || d).review_state;
@@ -2408,12 +2414,12 @@ const toReview = () => live(S.object).filter((d) => isBase(d) && libOf(d) === 'r
 const ownerText = (d) => (d.owner ? memberName(d.owner) : libOf(d) === 'real2sim' ? '未指派负责人' : '');
 function objList() {
   const f = UI.obj, q = f.q.toLowerCase();
-  return S.object.filter((d) => (!f.photo || hasPhotoReference(d)) && (!f.phys || (f.phys === 'flex') === isFlex(d)) && (!f.owner || (f.owner === '-' ? !d.owner : d.owner === f.owner))
+  return S.object.filter((d) => Boolean(d.hidden) === f.hidden && (!f.photo || hasPhotoReference(d)) && (!f.phys || (f.phys === 'flex') === isFlex(d)) && (!f.owner || (f.owner === '-' ? !d.owner : d.owner === f.owner))
     && (!q || `${d.id} ${d.name || ''} ${d.auto.name || ''} ${(d.auto.tasks || []).join(' ')}`.toLowerCase().includes(q)))
     .sort((x, y) => Number(ownObj(y)) - Number(ownObj(x)) || x.id.localeCompare(y.id));
 }
 // a variant never gets its own card: its base's card shows whenever the base or any of its variants is in the list
-const cardDocs = (docs) => [...new Set(docs.map((d) => baseOf(d) || d))];
+const cardDocs = (docs) => (UI.obj.hidden ? docs : [...new Set(docs.map((d) => baseOf(d) || d))]);  // hidden: each its own card
 function objBody(docs) {
   return UI.obj.view === 'cards' ? `<div class="grid cards">${cardDocs(docs).map((d) => {
       const rs = evalStages(OBJ_STAGES, d);
@@ -2445,7 +2451,7 @@ function libSection(lib, docs) {
         aria-pressed="${f.status === k}" onclick="UI.obj.status = '${k}'; render()">${label} <span class="num muted">${c}</span></button>`).join('')}</div>
       <span class="muted small">${ME?.admin ? '待审核的物体在详情顶部给出结论' : '审核由管理员完成'}；模型重建后自动回到待审核；只数本体，变体跟随本体审核</span><span class="sp"></span>${pickAll}</div>`
     : pickAll ? `<div class="toolbar lib-status"><span class="sp"></span>${pickAll}</div>` : '';
-  const none = f.q || f.photo || f.phys || f.status || f.owner ?
+  const none = f.q || f.photo || f.phys || f.hidden || f.status || f.owner ?
  empty('search', '没有符合条件的物体', '调整筛选条件')
     : lib.custom ? empty('box', '库里还没有物体', '登记物体后，在物体详情的「资产库」里选这个库') : empty('box', '还没有物体', '点「登记物体」新建');
   return `<details class="lib" data-lib="${esc(lib.id)}" ${f.closed.has(lib.id) ? '' : 'open'} ontoggle="toggleLib(this)">
@@ -2465,18 +2471,19 @@ function objBulkBar() {
   const n = UI.osel.size;
   if (!n) return '';
   const pending = bulkPending().length, none = pending ? '' : 'disabled title="选中的物体里没有待审核的本体"';
-  const cancel = `<button class="btn" type="button" onclick="UI.osel.clear(); UI.bulk.reject = false; render()">取消选择</button>`;
+  const cancel = `<span class="bulk-sep" aria-hidden="true"></span><button class="btn btn-icon" type="button" title="取消选择" aria-label="取消选择" onclick="UI.osel.clear(); UI.bulk.reject = false; render()">${ic('x')}</button>`;
   if (ME?.admin && UI.bulk.reject) {
-    return `<div class="bulkbar obj-bulk" role="region" aria-label="批量退回"><b>退回 ${pending} 件</b>
+    return `<div class="bulkbar obj-bulk" role="region" aria-label="批量退回"><span class="bulk-count"><b>${pending}</b>件退回</span>
       <input id="bulk-note" type="text" placeholder="退回原因（必填，写进每件的审核记录）" aria-label="退回原因" value="${esc(UI.bulk.note)}" oninput="UI.bulk.note = this.value">
-      <button class="btn" type="button" onclick="bulkReview('reject')">${ic('x')}确认退回</button>
+      <button class="btn btn-primary" type="button" onclick="bulkReview('reject')">确认退回</button>
       <button class="btn" type="button" onclick="UI.bulk.reject = false; render()">返回</button></div>`;
   }
-  return `<div class="bulkbar obj-bulk" role="region" aria-label="批量操作"><b>已选 ${n} 件</b>${ME?.admin ? `<span class="bulk-hint">待审核 ${pending}</span>` : ''}<span class="sp"></span>
-    ${ME?.admin ? `<button class="btn" type="button" ${none} onclick="bulkReview('approve')">${ic('check')}批量通过</button>
-    <button class="btn" type="button" ${none} onclick="UI.bulk.reject = true; render(); $('#bulk-note')?.focus()">${ic('x')}批量退回…</button><span class="bulk-sep" aria-hidden="true"></span>` : ''}
+  return `<div class="bulkbar obj-bulk" role="region" aria-label="批量操作"><span class="bulk-count"><b>${n}</b>已选</span>${ME?.admin ? `<span class="bulk-hint">待审核 ${pending}</span>` : ''}
+    <span class="bulk-sep" aria-hidden="true"></span>
+    ${ME?.admin ? `<button class="btn" type="button" ${none} onclick="bulkReview('approve')">${ic('check')}通过</button>
+    <button class="btn" type="button" ${none} onclick="UI.bulk.reject = true; render(); $('#bulk-note')?.focus()">${ic('x')}退回…</button><span class="bulk-sep" aria-hidden="true"></span>` : ''}
     ${dropdown('bulk-owner', '重建负责人', Object.entries(memberOpts()), UI.bulk.owner, (v) => { UI.bulk.owner = v; })}
-    <button class="btn" type="button" onclick="bulkOwner()">${ic('users')}批量指派</button>${cancel}</div>`;
+    <button class="btn" type="button" onclick="bulkOwner()">${ic('users')}指派</button>${cancel}</div>`;
 }
 async function bulkReview(action) {
   const docs = bulkPending(), skipped = UI.osel.size - docs.length, note = action === 'reject' ? UI.bulk.note.trim() : '';
@@ -2519,6 +2526,7 @@ function viewObjects() {
       <div class="segctl" role="group" aria-label="按物理类型筛选">${[['', '全部'], ['rigid', '刚体'], ['flex', '柔性']].map(([k, label]) => `<button type="button"
         aria-pressed="${f.phys === k}" onclick="UI.obj.phys = '${k}'; render()">${label}${k ? ` <span class="num muted">${objs.filter((o) => (k === 'flex') === isFlex(o)).length}</span>` : ''}</button>`).join('')}</div>
       <button type="button" class="pill-toggle" aria-pressed="${Boolean(f.photo)}" onclick="UI.obj.photo = !UI.obj.photo; render()">${ic(f.photo ? 'check' : 'image', 'ic-sm')}只看有照片参考</button>
+      ${S.object.some((o) => o.hidden) || f.hidden ? `<button type="button" class="pill-toggle" aria-pressed="${f.hidden}" onclick="UI.obj.hidden = !UI.obj.hidden; render()">${ic(f.hidden ? 'check' : 'eye-off', 'ic-sm')}已隐藏 ${S.object.filter((o) => o.hidden).length}</button>` : ''}
       <span class="sp"></span><span class="muted small">${docs.filter(isBase).length} 件 · 照片参考 ${objs.filter(hasPhotoReference).length}（已归档 ${objs.filter((o) => o.auto.photos?.length).length}） · 渲染 ${objs.filter((o) => o.auto.renders?.length).length}</span>
       <div class="segctl" role="group" aria-label="显示方式">
         <button type="button" aria-pressed="${f.view === 'cards'}" onclick="setObjView('cards')">${ic('grid', 'ic-sm')} 卡片</button>
@@ -2719,15 +2727,25 @@ function objDeleteBlocker(d) {
   const a = d.auto, variants = variantsOf(d.id).map((v) => v.id);
   if ((a.tasks || []).length) return `任务 ${a.tasks.join('、')} 在用这个物体`;
   if (variants.length) return `它有泛化变体 ${variants.join('、')}，先删变体`;
-  if (a.generator || a.in_library) return '已建模的物体由代码和共享资产库管理，请在仓库里删除';
+  if (a.generator || a.in_library) return MODELED;
   return '';
 }
+const MODELED = 'modeled';  // built into the asset library: not deleted from here, but an admin can hide it
 function objDeleteButton(d) {
   if (!ME?.admin) return '';
+  if (d.hidden) return `<button class="btn" type="button" data-id="${esc(d.id)}" onclick="hideObject(this.dataset.id, false)">${ic('eye')}取消隐藏</button>`;
   const why = objDeleteBlocker(d);
+  if (why === MODELED) return `<button class="btn" type="button" data-id="${esc(d.id)}" title="只从平台列表拿掉，资产库和代码不动，可随时恢复" onclick="hideObject(this.dataset.id, true)">${ic('eye-off')}隐藏</button>`;
   // a blocked delete still answers a click with its reason: a tooltip alone is easy to miss
   return why ? `<button class="btn" type="button" aria-disabled="true" title="${esc(why)}" data-why="不能删除：${esc(why)}" onclick="toast(this.dataset.why, true)">${ic('trash')}删除物体</button>`
     : `<button class="btn" type="button" data-id="${esc(d.id)}" onclick="removeObject(this.dataset.id)">${ic('trash')}删除物体</button>`;
+}
+async function hideObject(id, on) {
+  const d = S.object.find((x) => x.id === id);
+  if (on && !confirm(`隐藏「${objName(d)}」？\n只从平台的列表和计数里拿掉，共享资产库和代码都不动；在物体页「已隐藏」里可以恢复。`)) return;
+  if (!await save('object', id, {hidden: on}, true)) return;
+  if (on) closeDrawer(); else render();
+  toast(on ? `已隐藏「${objName(d)}」，在物体页「已隐藏」里恢复` : `已恢复「${objName(d)}」`);
 }
 async function confirmObjectModeling(id) {
   try {
@@ -2766,7 +2784,7 @@ function drawerObject(d) {
   return {
     title: objName(d), sub: `${d.id} · ${a.in_library ? '资产库已有' : a.built ? '已建好，未装共享库' : '还没建模'}${a.generator ? ` · ${a.generator}` : ''}`,
     actions: objDeleteButton(d),
-    body: `${materialList()}${parent ? `<div class="callout">${ic('grid')}<div>这是 ${link('object', parent.id)}（${esc(objName(parent))}）的泛化变体，在物体页收在它的卡片里。</div></div>` : ''}
+    body: `${materialList()}${d.hidden ? `<div class="callout">${ic('eye-off')}<div>已隐藏：不出现在物体列表和计数里。共享资产库和代码都没动${ME?.admin ? '，点右上「取消隐藏」恢复' : '，管理员可以恢复'}。</div></div>` : ''}${parent ? `<div class="callout">${ic('grid')}<div>这是 ${link('object', parent.id)}（${esc(objName(parent))}）的泛化变体，在物体页收在它的卡片里。</div></div>` : ''}
     ${libOf(d) === 'real2sim' ? reviewPanel(d) : ''}${a.built ? '' : brief}${sec('实物参考与模型', `<div class="compare">
       <figure><figcaption>${ic('camera')}实物照片 <span class="muted small">${photos.length} 张</span><span class="sp"></span>
         <label class="btn upload" title="jpg / png / webp，单张 ≤ 25 MB">${ic('upload')}上传<input type="file" accept="image/jpeg,image/png,image/webp" multiple data-id="${esc(d.id)}" onchange="uploadPhotos(this)" aria-label="上传实物照片"></label></figcaption>

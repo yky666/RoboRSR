@@ -804,6 +804,13 @@ def test_object_review_and_libraries(tmp_path, monkeypatch):
         doc = call("bob", "PUT", obj, {"photo_order": ["c.jpg", "a.jpg"]})[1]
         assert doc["auto"]["photos"] == ["/r/c.jpg", "/r/a.jpg", "/r/b.jpg"]  # unlisted ones stay at the end
 
+        assert call("bob", "PUT", obj, {"hidden": True})[0] == 403  # hiding is for admins
+        assert call("boss", "PUT", obj, {"hidden": "yes"})[0] == 400
+        assert call("boss", "PUT", obj, {"hidden": True, "name": "x"})[0] == 400  # a hide request carries nothing else
+        assert call("boss", "PUT", "/api/items?kind=object&id=Rigid/none/00000", {"hidden": True})[0] == 404
+        assert call("boss", "PUT", obj, {"hidden": True})[1]["hidden"] is True
+        assert call("boss", "PUT", obj, {"hidden": False})[1]["hidden"] is False
+
         store.sync("object", {oid: {"built": True, "check": {"checked_at": "t2"}}})  # rebuilt: review again
         assert server.review_state(store.get("object", oid)) == "review"
 
