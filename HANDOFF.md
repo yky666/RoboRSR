@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-30
-本会话分支：`chongzheng/platform-dataset-admin`（worktree `../RoboDojo-dataset-admin`，基于 `origin/main@bb9985d`）：数据集标签补色、数据集管理员可在平台上改数据集、权限按仿真平台 / 数据集分开（「最近任务」第一节），未合并、未部署。上一个会话 `chongzheng/platform-isolation`：数采平台和 `5090-2` 上的工作区隔离，PR #50 已合并，10-30 00:23 线上已切换。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
+本会话分支：`chongzheng/platform-dataset-admin`（worktree `../RoboDojo-dataset-admin`，基于 `origin/main@bb9985d`）：数据集标签补色、数据集管理员可在平台上改数据集、权限按仿真平台 / 数据集分开（「最近任务」第一节），[PR #52](https://github.com/Zheng-Chong/RoboRSR/pull/52) 已合并（`5a8e312`），10-30 10:1x 已 `r2s deploy`。上一个会话 `chongzheng/platform-isolation`：数采平台和 `5090-2` 上的工作区隔离，PR #50 已合并，10-30 00:23 线上已切换。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -40,14 +40,16 @@
 
 ## 最近任务
 
-### 数据集：标签补色、管理员可改、权限按板块分开（2026-10-30 00:4x–01:0x，`chongzheng/platform-dataset-admin`，未合并、未部署）
+### 数据集：标签补色、管理员可改、权限按板块分开（2026-10-30 00:4x–01:0x，`chongzheng/platform-dataset-admin`，PR #52 已合并并部署）
 
 - **用户要求**：数据集页有的类型标签没有底色；数据集应能由管理员在平台上修改；角色要细，仿真平台和数据集各有独立的管理员权限。
 - **标签**：CSS 只给 `src-real/sim/ego` 配了色，盘点里的 `mixed`（真实 + 仿真）、`asset`（资产）、`unknown`（待确认）没有。补了青、绿、灰描边三种。
 - **权限**（`server.py` `Store`，`users` 表加 `sim_admin`、`ds_admin` 两列，启动时自动加）：`admin` 列现在是系统管理员（管理账号，两个板块都是管理员）；仿真平台角色是 管理员（`sim_admin`）/ 成员 / 访客（`guest`），数据集角色是 管理员（`ds_admin`）/ 查看。`/api/me`、`/api/users` 返回的是生效权限（系统管理员的 `sim_admin`、`ds_admin` 恒为真）。原来所有 `user["admin"]` 的内容权限（审核、隐藏物体、批量删除、删场景 / 物体 / 回合 / 研究资产 / 资产库、删别人的评测）改成 `sim_admin`；成员管理只认 `admin`。账号接口用 `{admin, sim: admin|member|guest, datasets: admin|viewer}`，旧的 `role` 字段去掉了（只有本页面用）。仿真平台访客发写请求仍被统一拦下，只有 `kind=dataset` 的写请求放过，由数据集接口自己检查 `ds_admin`，所以「仿真平台访客 + 数据集管理员」可行。
   - **迁移**：线上原有管理员都变成系统管理员，权限不变；成员、访客在数据集都是查看。要拆成「只管仿真」的管理员，在成员管理里取消「系统管理员」（页面同时把两个板块设为管理员，权限不会掉），再按需把数据集改回查看。
 - **数据集编辑**（新 kind `dataset`，只写平台数据库，不写文件）：一条记录只存管理员改过、和盘点不同的字段（名称、机构、链接、简介、统计口径、Episode / 时长 / 体量、各分类），PUT 整条替换（`Store.update(replace=True)`），字段白名单校验（`dataset_error`）。页面 `DS_TEMPLATES`（写死的公开目录）→ `DS_BASE`（盘点加载后）→ 叠加 `DS_EDITS` 得到 `DATASETS`。详情抽屉对数据集管理员有「编辑」「恢复盘点值」（删掉修改记录），工具栏有「新增数据集」（`custom: true` 的整条记录，可删）。统计数留空即沿用盘点值。盘点重新生成时组 `id` 要保持不变，否则旧修改失效（写进了 `DATASET_INVENTORY.md`）。没做版本级（`versions[]`）的编辑。
-- **验证**：本机 uv 临时环境 `bash scripts/check.sh` 通过（91 passed、1 skipped，含新增的权限迁移、分板块权限、数据集校验 / 替换 / 删除测试，`test_dataset_catalog.cjs` 通过）。本机起临时实例（`/tmp` 数据库、造的 6 组盘点，测完删除）在浏览器里走通：系统管理员在成员管理里把账号设成「仿真平台访客 + 数据集管理员」；该账号在数据集页能编辑、恢复、新增，在物体页仍然只读（同步、登记按钮隐藏）；「仿真平台管理员 + 数据集查看」的账号看不到编辑和新增，接口返回 403，也进不了成员管理。六种类型标签在日间和夜间主题下都有底色。没部署，线上没动。
+- **验证**：本机 uv 临时环境 `bash scripts/check.sh` 通过（91 passed、1 skipped，含新增的权限迁移、分板块权限、数据集校验 / 替换 / 删除测试，`test_dataset_catalog.cjs` 通过）。本机起临时实例（`/tmp` 数据库、造的 6 组盘点，测完删除）在浏览器里走通：系统管理员在成员管理里把账号设成「仿真平台访客 + 数据集管理员」；该账号在数据集页能编辑、恢复、新增，在物体页仍然只读（同步、登记按钮隐藏）；「仿真平台管理员 + 数据集查看」的账号看不到编辑和新增，接口返回 403，也进不了成员管理。六种类型标签在日间和夜间主题下都有底色。
+- **合并时**：`main` 上新加的隐藏物体、批量删除两处权限也改成 `sim_admin`。
+- **部署**（10-30 10:1x，`r2s deploy 5a8e312`，上一个 release `d11da55`，回滚 `r2s rollback`）：`users` 表已加两列；13 个账号里原有 2 个管理员成为系统管理员，其余成员在数据集为查看；`/api/info` 未登录 401，日志无报错。还没给任何人单独分配仿真平台管理员或数据集管理员，要在成员管理里按人设。
 
 ### 裁纸刀本体和三个颜色变体（2026-10-30，codex/objects-paper-knife-00000）
 
@@ -1045,7 +1047,7 @@
 
 ## 下一会话
 
-0. 数据集管理（`chongzheng/platform-dataset-admin`）：开 PR、合并后 `r2s deploy <sha>`；部署后在成员管理里按人设两个板块的角色（原管理员现在都是系统管理员）。
+0. 数据集管理（PR #52，已部署）：在成员管理里按人设两个板块的角色（原 2 个管理员现在是系统管理员）。
 0. 物体指令名称（`chongzheng/objects-instruction-names`）：合并、部署数采平台后，管理员对已确认的登记重新点确认（prompt v3）；共享库已装的 38 件已写入，其余物体装库时跑 `apply`；`z/objects-*` 分支合并时检查名称表是否仍对得上这些分支的变体；实现 `g1d_pour_beans_any_cups` 时指令写成 `<source_cup>`、`<target_cup>`。
 0. 物体 prompt v2（`chongzheng/platform-prompt-labels`）：合并后部署数采平台，管理员对东方树叶、农夫山泉等已确认的登记重新点确认；再按新 prompt 重做农夫山泉 00000 的照片标签（东方树叶等 `z/objects-plastic-bottle-00006` 合并后复核）。
 0. RSI：先读 `rsi/AGENTS.md`。资产分池、ManiTwin 干扰物、Poly Haven HDR 已完成（见「最近任务」前两节），新资产在 `5090-2:/data/robodojo-runs/rsi-assets-20261024/`，用 `rsi_assets.py link` 合并进运行目录。下一步按优先级：材质（Poly Haven PBR 贴图转 MDL，官方材质被三套评测集用完了）→ 房间变体（新材质给 `Simple_Room` 换墙面）→ GSO 的鞋和玩具 → 任务物体的新实例 → 12 个 `_random` 任务基础版的 X5 脚本专家。每次加完新资产都要重跑 `rsi_assets.py scan` 并把 `pools.json` 入库。
