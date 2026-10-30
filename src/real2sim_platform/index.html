@@ -2508,6 +2508,13 @@ async function createEval(btn) {
 // ---------- objects ----------
 const mm = (size, digits = 0) => (Array.isArray(size) ? size.map((v) => (v * 1000).toFixed(digits)).join(' × ') : '—');
 const objName = (d) => d.name || d.auto.name || d.auto.category;
+// instruction names (description.json "names"): a category, what the object generalizes to, and three brief to detailed
+const objCat = (d) => d.auto.names?.category?.zh || d.auto.names?.category?.en || '';
+const catLine = (d) => (objCat(d) ? `大类 ${objCat(d)}${d.auto.names.zh?.[0] ? ` · ${d.auto.names.zh[0]}` : ''}` : '');
+const namesText = (d) => {
+  const n = d.auto.names || {};
+  return [n.category?.zh, n.category?.en, ...(n.zh || []), ...(n.en || [])].filter(Boolean).join(' ');
+};
 // generalization variants (metadata.json "variant_of") sit on their base object's card
 const baseOf = (d) => (d.auto.variant_of && d.auto.variant_of !== d.id ? S.object.find((x) => x.id === d.auto.variant_of) : null);
 const variantsOf = (id) => S.object.filter((x) => x.auto.variant_of === id && x.id !== id && !x.hidden);
@@ -2555,7 +2562,7 @@ const ownerText = (d) => (d.owner ? memberName(d.owner) : libOf(d) === 'real2sim
 function objList() {
   const f = UI.obj, q = f.q.toLowerCase();
   return S.object.filter((d) => Boolean(d.hidden) === f.hidden && (!f.photo || hasPhotoReference(d)) && (!f.phys || (f.phys === 'flex') === isFlex(d)) && (!f.owner || (f.owner === '-' ? !d.owner : d.owner === f.owner))
-    && (!q || `${d.id} ${d.name || ''} ${d.auto.name || ''} ${(d.auto.tasks || []).join(' ')}`.toLowerCase().includes(q)))
+    && (!q || `${d.id} ${d.name || ''} ${d.auto.name || ''} ${namesText(d)} ${(d.auto.tasks || []).join(' ')}`.toLowerCase().includes(q)))
     .sort((x, y) => Number(ownObj(y)) - Number(ownObj(x)) || x.id.localeCompare(y.id));
 }
 // a variant never gets its own card: its base's card shows whenever the base or any of its variants is in the list
@@ -2566,13 +2573,14 @@ function objBody(docs) {
       return `<article class="card mcard" data-open="object" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="打开物体 ${esc(d.id)}">${objMedia(d)}
         <div class="mcard-b"><div class="mcard-t">${objCheck(d)}<b>${esc(objName(d))}</b>${reviewChip(d)}</div>
           <div class="small muted mono" style="margin-top:-4px">${esc(d.id)}</div>
+          ${catLine(d) ? `<div class="small">${esc(catLine(d))}</div>` : ''}
           <div class="small muted">${measured(d) ? `实测 ${esc(dimText(d))}` : `模型 ${mm(d.auto.size)} mm${d.twin ? ' · 未实测' : ''}`}</div>
           ${ownerText(d) ? `<div class="small ${d.owner ? '' : 'muted'}">${ic('users', 'ic-sm')} ${esc(ownerText(d))}</div>` : ''}${progress(rs)}</div></article>`;
     }).join('')}</div>`
     : `<div class="table-wrap"><table><thead><tr><th style="width:36px"></th><th></th><th>物体</th><th>任务配置（标签）</th><th class="num">模型尺寸 mm</th><th class="num">质量 g</th><th>实测</th><th style="min-width:170px">流程</th></tr></thead><tbody>
       ${docs.map((d) => `<tr data-open="object" data-id="${esc(d.id)}" tabindex="0" class="${UI.drawer?.id === d.id ? 'sel' : ''}">
         <td>${objCheck(d)}</td><td>${objMedia(d, true)}</td>
-        <td><div class="t-main">${esc(objName(d))} ${reviewChip(d)} ${missingBadge(d)} ${flexPill(d)}</div><div class="t-sub mono">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div>${ownerText(d) ? `<div class="t-sub">${esc(ownerText(d))}</div>` : ''}</td>
+        <td><div class="t-main">${esc(objName(d))} ${reviewChip(d)} ${missingBadge(d)} ${flexPill(d)}</div><div class="t-sub mono">${esc(d.id)}${baseOf(d) ? ` · 变体，本体 ${esc(d.auto.variant_of)}` : ''}</div>${catLine(d) ? `<div class="t-sub">${esc(catLine(d))}</div>` : ''}${ownerText(d) ? `<div class="t-sub">${esc(ownerText(d))}</div>` : ''}</td>
         <td class="small">${(d.auto.tasks || []).map(esc).join('<br>') || '<span class="muted">—</span>'}<div class="t-sub mono">${esc((d.auto.labels || []).join(', '))}</div></td>
         <td class="num small">${mm(d.auto.size)}</td><td class="num small">${num(d.auto.mass) ? (d.auto.mass * 1000).toFixed(0) : '—'}</td>
         <td class="small">${measured(d) ? `${esc(dimText(d))}<div class="t-sub">${d.real_mass} g</div>` : '<span class="muted">—</span>'}</td>
@@ -2934,6 +2942,24 @@ function modelingPanel(d) {
     ${r.confirmed ? `<div class="sub-h">统一建模 prompt<span class="hint">复制给建模 agent；登记或照片改了会自动失效</span></div>${code(modelingBrief(d), '复制建模 prompt', mdHighlight)}` : ''}`);
 }
 
+// the instruction names of an object's whole family (base and variants), the drawer's object in bold
+function namesSec(d, family) {
+  const cell = (zh, en, short) => `<td${short ? ' style="white-space:nowrap"' : ''}>${esc(zh || '—')}${en ? `<div class="t-sub">${esc(en)}</div>` : ''}</td>`;
+  const rows = family.map((v) => {
+    const n = v.auto.names || {}, zh = n.zh || [], en = n.en || [];
+    const tag = v === family[0] ? '本体' : `变体 ${Number(v.id.split('/').pop())}`;
+    const who = `<td class="small" style="white-space:nowrap">${v === d ? `<b>${tag}</b>` : link('object', v.id, tag)}</td>`;
+    if (!zh.length && !en.length) return `<tr>${who}<td colspan="4" class="muted small">还没有指令名称</td></tr>`;
+    if (!n.category) return `<tr>${who}<td class="muted">—</td><td colspan="3">${esc(zh.join(' / '))}<div class="t-sub">${esc(en.join(' / '))}</div></td></tr>`;
+    return `<tr>${who}${cell(n.category.zh, n.category.en, true)}${[0, 1, 2].map((i) => cell(zh[i], en[i], i === 0)).join('')}</tr>`;
+  });
+  const named = family.filter((v) => v.auto.names?.zh || v.auto.names?.en), old = named.some((v) => !v.auto.names.category);
+  if (!named.length && libOf(d) !== 'real2sim') return '';
+  return sec('指令名称', `<div class="table-wrap"><table class="plain"><thead><tr><th style="width:64px"></th><th>大类</th><th>简</th><th>中</th><th>详</th></tr></thead>
+    <tbody>${rows.join('')}</tbody></table></div>
+    <p class="hint">任务指令里的 &lt;标签&gt; 每回合从大类和三个名称里按句子语言取一个，同一句里两个物体共有的名称不用；最详细的名称在所有物体里唯一。${old ? '没有大类的是旧格式（5 个以上名称）。' : ''}名称写在 scripts/objects/object_names.json，用 object_names.py apply 写进 description.json。</p>`);
+}
+
 function drawerObject(d) {
   const a = d.auto, c = dimCheck(d), rs = evalStages(OBJ_STAGES, d), photos = a.photos || [];
   const parent = baseOf(d), root = parent || d, family = [root, ...variantsOf(root.id)];
@@ -2973,6 +2999,7 @@ function drawerObject(d) {
       ${row('建模方式', 'method', sel(d, 'method', METHODS))}
       ${row('重建负责人', 'owner', sel(d, 'owner', memberOpts(d.owner)), '负责建模的人；退回重建后由他修改')}
       ${row('资产库', 'library', sel(d, 'library', {'': `按来源自动（${libName(autoLib(d))}）`, ...Object.fromEntries(libraries().map((l) => [l.id, l.name]))}), '决定物体页里放在哪一组；Real2Sim 组的物体要经管理员审核')}</div>`)}
+    ${namesSec(d, family)}
     ${flexibleFields(d)}
     ${sec('实物测量', `<div class="form">
       ${row('材质', 'material', inp(d, 'material', 'text', 'list="dl-materials" placeholder="如 PP 塑料、玻璃"'))}
@@ -3373,7 +3400,7 @@ const PICK = {
   obj: {
     all: () => live(S.object).sort((x, y) => Number(ownObj(y)) - Number(ownObj(x)) || x.id.localeCompare(y.id)),
     get: (id) => S.object.find((x) => x.id === id), name: objName, img: objImage, icon: 'cube',
-    text: (o) => `${o.id} ${objName(o)} ${o.name_en || ''} ${o.auto.category}`,
+    text: (o) => `${o.id} ${objName(o)} ${o.name_en || ''} ${o.auto.category} ${namesText(o)}`,
     empty: '没有匹配的物体；新物体先在「物体资产」登记',
     card: (o) => `<div class="small">${measured(o) ? `实测 ${esc(dimText(o))} mm · ${o.real_mass} g` : `仿真 ${mm(o.auto.size)} mm${num(o.auto.mass) ? ` · ${(o.auto.mass * 1000).toFixed(0)} g` : ''}`}</div>
       <div class="small muted">${o.auto.in_library ? '资产库已有' : o.auto.built ? '已建好，未装共享库' : '还没建模'}${o.auto.renders?.length ? '' : o.auto.photos?.length ? ' · 图为实拍' : ''}</div>`,

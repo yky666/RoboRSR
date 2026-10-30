@@ -1,7 +1,7 @@
 # Project Handoff
 
 更新时间：2026-10-30
-本会话分支：`chongzheng/scenes-overlay-fix`（worktree `../RoboDojo-overlay-fix`，基于 `origin/main@7c12f06`）：修办公室和吧台的照片叠图，办公室桌子按照片重新拟合、已装库，吧台没修（「最近任务」第一节）。上一个会话 `chongzheng/scenes-complete-steps`（[PR #56](https://github.com/Zheng-Chong/RoboRSR/pull/56)）：平台上 4 个「完备」场景的离线检查、灯光对色、照片叠图、Isaac 渲染验证、装共享库，并在平台标记（「最近任务」第二节）。再上一个会话 `chongzheng/platform-dataset-admin`：数据集标签补色、数据集管理员可在平台上改数据集、权限按仿真平台 / 数据集分开，[PR #52](https://github.com/Zheng-Chong/RoboRSR/pull/52) 已合并（`5a8e312`），10-30 10:1x 已 `r2s deploy`。更早的会话 `chongzheng/platform-isolation`：数采平台和 `5090-2` 上的工作区隔离，PR #50 已合并，10-30 00:23 线上已切换。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
+本会话分支：`chongzheng/objects-name-levels`（worktree `../RoboDojo-name-levels`，基于 `origin/main@8b2a527`）：物体指令名称改成「大类 + 3 个从简到详的名称」，平台 83 件完备物体都写好并装进共享库，平台物体卡片和详情显示大类和名称（「最近任务」第一节）。上一个会话 `chongzheng/scenes-overlay-fix`：修办公室和吧台的照片叠图，办公室桌子按照片重新拟合、已装库，吧台没修（「最近任务」第二节）。再上一个会话 `chongzheng/scenes-complete-steps`（[PR #56](https://github.com/Zheng-Chong/RoboRSR/pull/56)）：平台上 4 个「完备」场景的离线检查、灯光对色、照片叠图、Isaac 渲染验证、装共享库，并在平台标记（「最近任务」第三节）。更早的会话 `chongzheng/platform-dataset-admin`：数据集标签补色、数据集管理员可在平台上改数据集、权限按仿真平台 / 数据集分开，[PR #52](https://github.com/Zheng-Chong/RoboRSR/pull/52) 已合并（`5a8e312`），10-30 10:1x 已 `r2s deploy`。更早的会话 `chongzheng/platform-isolation`：数采平台和 `5090-2` 上的工作区隔离，PR #50 已合并，10-30 00:23 线上已切换。之前的会话（场景 3D 预览、场景审核、办公室布局、物体指令名称、BanzhiFlywheel 改版等）都已进 `main` 并部署，见「最近任务」。下行保留主线历史。
 主线历史：G1-D 桌面版 / 移动版（[PR #17](https://github.com/Zheng-Chong/RoboRSR/pull/17)）已于 2026-10-21 合并进 `main`。深圳实验室场景（[PR #22](https://github.com/Zheng-Chong/RoboRSR/pull/22)）已于 2026-10-21 合并（`2975b4a`）并部署到数采平台。更早：流水线规范化（[PR #1](https://github.com/Zheng-Chong/RoboRSR/pull/1)）和学校场景接入（[PR #2](https://github.com/Zheng-Chong/RoboRSR/pull/2)）都已于 2026-10-20 合并，短分支已删除。
 当前目标：
 - **榜单冲分（2026-10-22 起，20 天）**：用本平台做多轮 Coding Agent 仿真数据 → 评测 → 对抗式（找失败、补难例和恢复数据）迭代，提高 OpenWAM、pi0.5 在上游 RoboDojo 榜单（54 个 dual X5 任务）上的成功率。用户确认：榜单允许用自生成数据训练；训练在 dsw-4（一轮 ≤ 1 天）。见「最近任务」第一节。
@@ -23,7 +23,7 @@
   - 耳机充电盒 `airpods/00000`：第一件按 `scripts/objects/SKILL.md` 从平台登记建的物体，实测尺寸和质量，已装共享库。
   - 农夫山泉塑料瓶 `Clutter/plastic_bottle/00000` 和 5 个泛化变体：按平台登记建，带盖、贴图标签；另有能拧盖的 `Articulation/plastic_bottle/0000{0..5}`。都已装共享库（2026-10-23，见「最近任务」）。
   - 自建物体写的 `friction` 不生效：运行时只读 `physics.static_friction` 和 `dynamic_friction`。
-  - 指令名称：`scripts/objects/object_names.json` 给平台上 54 件完备物体（含变体）和 13 个能拧盖的瓶子写了中英文各 5–6 个从简到详的名称，`object_names.py apply` 写进 `description.json` 的 `names`，指令模板的 `<标签>` 从中取词（10-29，见「最近任务」第一节）。共享库里已装的 38 件已写入。
+  - 指令名称：每个物体和变体有一个大类名称（泛化名称，如 杯子 / cup）和中英文各 3 个从简到详的名称，写在 `scripts/objects/object_names.json`，`object_names.py apply` 写进 `description.json` 的 `names`（`{"category": {...}, "en": [3], "zh": [3]}`），指令模板的 `<标签>` 从大类和这 3 个名称里取词。平台 83 件完备物体（含变体）都有，共享库里已装的 95 件（含关节瓶子）已写入；平台物体卡片显示大类，详情列出全族名称（10-30，「最近任务」第一节）。
 - **任务和脚本专家**（`scripts/g1d/scripted_demo.py`）：
   - 拾取、叠块：三个场景 seed 0 都成功。
   - 杯对杯倒豆、量杯对倒：部分 seed 成功。
@@ -39,6 +39,16 @@
   - 仿真环境 `/root/miniconda3/envs/RoboDojo`；导出环境 `robodojo-lerobot`（lerobot 0.4.4，10-19 补装了 h5py 3.16，`pip -i` 用清华镜像）；上传环境 `/data/robodojo-runs/ms-venv`；运行目录在 `/data/robodojo-runs/`。
 
 ## 最近任务
+
+### 物体名称：大类 + 3 级（2026-10-30 16:5x–17:3x，`chongzheng/objects-name-levels`）
+
+- **用户要求**：每个物体和它的变体有 3 个从简到详的名称，再加一个大类名称；把平台上已经完备的物体都更新，平台上也要显示这个泛化名称（大类）。起因是用户发现平台物体名字大量重复（2251 件里 34 个名字被 215 件共用，61 件没名字，`Rigid/block/00005–00019` 自动名是 "smartwatch"），这些不是本次范围，没改。
+- **格式**（取代 10-29 的 5–6 级）：`description.json` 的 `names` 是 `{"category": {"en": "cup", "zh": "杯子"}, "en": [3], "zh": [3]}`。3 级是：类别名（金属杯）→ 加上同族里区分它的属性（上宽下窄的铝杯）→ 全表唯一的完整短语。`object_names.py check` 要求有大类、正好 3 个、大类不和名称重复也不比第一级长、按长度不减、措辞（无冠词、位置、比较级）、第三级全表唯一。旧条目机械转换：第 1 个 → 大类，第 2、4、末个 → 3 级（第 4 个是带区分属性的那级）；裁纸刀 4 件的中间级原来相同，改成按挂孔边框颜色区分（这一族换色时保留边框色）。
+- **新写的 29 件**：完备但 10-29 之后才做的纸杯 `Clutter/paper_cup/00000–00006`（柔性版 `Dynamic/paper_cup/00000` 写成别名）、塑料瓶 `Clutter/plastic_bottle/00013–00019`（加 `Articulation` 别名）、篮子 `Rigid/basket/00000–00013`。依据共享库里的 caption 和描述；这三族没开 `rt_color`，名称里可以写颜色。篮子 `00000、00002–00007` 原来有同事生成脚本写的 5 级名称（有 "perforated perforated" 这类重复），已覆盖。名称表共 111 条（含 21 条别名）。
+- **运行时**（向后兼容）：`layout_manager.get_label_descriptions` 返回 `[大类, *3 级]`；没有 `category` 的旧格式原样返回，没有 `names` 仍用 `description`。`desc_manager` 照旧跳过同一句里两个物体共有的名称（两只量杯只剩第 2、3 级）。
+- **平台**：`scan_objects` 把 `description.json` 的 `names` 放进 `auto.names`（不影响审核签名）。物体卡片和列表在 id 下显示「大类 杯子 · 金属杯」，搜索也匹配这些名称；详情「基本信息」后加「指令名称」一节，一张表列本体和全部变体的大类、简、中、详（中文在上、英文在下），旧格式整行显示，没写名称的标「还没有指令名称」；官方资产没有名称时不显示这一节。建模 prompt 的「指令名称」一节按新格式改了，版本号仍是 `real-object-v3`（只改了说明文字，已确认的登记不用重新确认）。
+- **共享库**（用户这次要求更新完备物体）：`5090-2:/data/robodojo-assets/Assets/Object/Real2Sim` 下名称表里有的 95 件写入（83 件完备里在库的，加 20 个关节瓶子；量杯 `00000/00001`、马克杯 6 件不在库）。这 95 个文件都和 `scenes-complete-20261030`、`scenes-overlay-baseline-20261030` 两个隔离目录硬链接，所以每个都写成新文件再替换（保留 uid 1008 和原权限 644/664），隔离目录里的副本没变。备份 `/data/robodojo-assets/backups/description-before-name-levels-20261030-170527.tar.gz`，回滚就在 `Object/Real2Sim` 下解开它。
+- **验证**：本机 `bash scripts/check.sh`（用 uv 临时装依赖、ruff 0.11.7）91 passed、1 skipped；`test_object_names.py` 改成新格式，`test_server.py` 加了 `auto.names` 的断言；页面脚本 `node --check`。本机临时平台（金属杯、篮子两族的真实 `description.json`）浏览器里看了卡片和详情的「指令名称」表。运行时取名函数从源码抽出来用假对象跑了新格式、旧格式、无名称三种。`5090-2`（隔离目录 `/data/robodojo-runs/name-levels-20261030-170527/`）：95 件和备份逐个对比只有 `names` 变了，`RoboDojo` 环境里 `load_desc_info` 回读 95/95 一致。没跑 Isaac 任务（任务里还没有用这些物体的 `<标签>` 占位符）。
 
 ### 修办公室、吧台的照片叠图（2026-10-30 11:3x–13:0x，`chongzheng/scenes-overlay-fix`）
 
@@ -233,17 +243,14 @@
 
 - **起因**（用户）：每个物体和变体要有多条从简到详的名称，填进训练指令做泛化、提高指令遵循；应在建模 prompt 里就设计好，并给现有完备物体补上。
 - **发现**：指令模板的 `<label>` 原来由 `layout_manager.get_label_descriptions` 从 `description.json` 的 `description`（5 句英文长描述）里随机取一句填入，填进去的是整句而不是名称。现有任务只有 `general_pickup` 用了占位符（单个 `<target>`），G1-D 任务都是固定句子。
-- **数据格式**：`description.json` 新增 `names: {"en": [...], "zh": [...]}`，每种至少 5 个，顺序是大类泛称 → 类别名 → 加一个显著属性 → 加两三个区分属性 → 在同族里唯一的完整短语。名称必须是名词短语（不带冠词、数量词、位置、比较级、任务角色）；登记开了 `rt_color` 的族（金属杯、陶瓷杯、马克杯整件换色，农夫山泉族只换瓶盖）不写会被换掉的颜色。
+- **数据格式**：`description.json` 新增 `names`（10-30 起改为大类 + 3 级，见「最近任务」第一节）。名称必须是名词短语（不带冠词、数量词、位置、比较级、任务角色）；登记开了 `rt_color` 的族（金属杯、陶瓷杯、马克杯整件换色，农夫山泉族只换瓶盖）不写会被换掉的颜色。
 - **来源与写入**：名称表是入库的 `scripts/objects/object_names.json`（键是资产 id，Articulation 瓶子写成 Clutter id 的别名），由 `object_names.py apply <物体根目录>` 写进资产，`check` 校验条数、顺序（英文词数和中文字数不减）、措辞，以及最详细的名称全表唯一。没有改生成脚本，因为金属杯、陶瓷杯、垃圾盒、新版塑料杯的脚本还在同事的 `z/objects-*` 分支上没合进 `main`。代价是重新生成后必须再跑一次 `apply`（已写进 SKILL 的第 6 步和「常见坑」）。
 - **运行时**（向后兼容）：`load_desc_info` 读 `names`；`get_label_descriptions(..., lang=None)` 有对应语言的名称就返回名称，否则仍返回 `description`；`desc_manager` 按模板里有没有汉字选 `zh`/`en`，同一模板里两个物体共有的名称（如两只量杯共有的 "cup"、"measuring cup"、"plastic measuring cup"）跳过，只剩能区分的几级。官方资产没有 `names`，行为不变。
 - **prompt**：`object_registration.py` 升到 `real-object-v3`，新增「指令名称」一节，交付清单加上名称表条目和 `description.json` 的 `names`。旧版确认的记录需要管理员重新点确认才会拿到新 prompt（和 v2 一样）。同步改了 `ASSET_WORKFLOW.md`、`scripts/objects/SKILL.md`、`scripts/datagen/SKILL.md`，平台任务抽屉的实现文本也要求候选物体写成 `<角色标签>`。
 - **覆盖范围**：平台 `review_state == done` 的 54 件，即金属杯 7、农夫山泉和东方树叶两族瓶子共 13、陶瓷杯 7、量杯 6、桌面垃圾盒 7、塑料杯 `00001–00007`、马克杯 6、红豆 1，另加 13 个 Articulation 瓶子。名称依据各资产 `description.json` 的 caption 和描述（共享库里有的取共享库，否则取最新的隔离运行目录），并与同事分支生成脚本里的变体参数核对过。
 - **验证**：本机 ruff 0.11.7、`git diff --check`，`test_object_names.py` 5 项（名称表合规、校验器能拦住错误、`apply` 只加 `names`、别名、真实 `DescManager` 在中英文模板下两只量杯都只用能区分的名称），`test_server.py` 13 项。`5090-2` 隔离目录 `/data/robodojo-runs/object-names-20261029-010544/`：把 67 件真实的 `description.json` 拷进 `obj/`（原件留在 `obj.before/`），在 `RoboDojo` 环境里跑 `apply` 和 `load_desc_info` 回读，67/67 写入，除 `names` 外字段不变，回读一致。没跑 Isaac 任务（没有任务用到这些物体的占位符）。
 - **共享库**（09:10，用户同意）：对 `5090-2:/data/robodojo-assets/Assets/Object/Real2Sim` 跑 `apply`，写了已装的 38 件（瓶子 Clutter、Articulation 各 13 个，量杯 `00002–00005`，塑料杯 `00001–00007`，红豆）。逐个和备份对比：除 `names` 外不变，属主（uid 1008）和权限 644 不变。备份 `/data/robodojo-assets/backups/description-before-names-20261029-091001.tar.gz`，回滚就在 `Object/Real2Sim` 下解开它。
-- **剩余**：
-  - 金属杯、陶瓷杯、垃圾盒、马克杯、量杯 `00000/00001` 不在共享库，装库时要跑 `apply`。
-  - 平台读的元数据镜像 `/root/RoboDojo_assets` 没动，平台也不显示名称；物体页的建模阶段不检查 `names`。
-  - Notion 记录待补录：授权后工具没加载出来，草稿在 worktree 的 `.cache/notion_draft_object_names.md`（不入库）。
+- **剩余**：10-30 已用新格式重写共享库并在平台显示（「最近任务」第一节）。Notion 记录待补录：草稿在 worktree 的 `.cache/notion_draft_object_names.md`（不入库）。
 
 ### 数采平台加载提速 + 筛选栏统一（2026-10-29 00:3x，`chongzheng/platform-banzhi-flywheel`）
 
@@ -1108,7 +1115,7 @@
 
 0. 场景验收（`chongzheng/scenes-complete-steps`）：四个完备场景的灯光、Isaac、共享库已在平台标完成；剩下的要去现场：卷尺（桌高、长宽、桌沿到根节点）、机器人头部 / 腕部画面加关节角（`overlay.py`，写进 `overlay`），以及灯光现场记录；吧台的照片叠图要补照片或卷尺后再拟合；办公室几何改过，请管理员在平台上重新审核。
 0. 数据集管理（PR #52，已部署）：在成员管理里按人设两个板块的角色（原 2 个管理员现在是系统管理员）。
-0. 物体指令名称（`chongzheng/objects-instruction-names`）：合并、部署数采平台后，管理员对已确认的登记重新点确认（prompt v3）；共享库已装的 38 件已写入，其余物体装库时跑 `apply`；`z/objects-*` 分支合并时检查名称表是否仍对得上这些分支的变体；实现 `g1d_pour_beans_any_cups` 时指令写成 `<source_cup>`、`<target_cup>`。
+0. 物体指令名称（大类 + 3 级，`chongzheng/objects-name-levels`）：量杯 `00000/00001`、马克杯 6 件装库时跑 `apply`；新物体完备前在 `object_names.json` 补条目（`check` 会拦格式），重新生成过的物体要再 `apply`。同事的篮子、纸杯、塑料瓶生成脚本（不在 `main`）重跑会写回旧的 5 级名称或丢掉 `names`，重跑后要 `apply`。`z/objects-*` 分支合并时检查名称表是否对得上变体；实现 `g1d_pour_beans_any_cups` 时指令写成 `<source_cup>`、`<target_cup>`。
 0. 物体 prompt v2（`chongzheng/platform-prompt-labels`）：合并后部署数采平台，管理员对东方树叶、农夫山泉等已确认的登记重新点确认；再按新 prompt 重做农夫山泉 00000 的照片标签（东方树叶等 `z/objects-plastic-bottle-00006` 合并后复核）。
 0. RSI：先读 `rsi/AGENTS.md`。资产分池、ManiTwin 干扰物、Poly Haven HDR 已完成（见「最近任务」前两节），新资产在 `5090-2:/data/robodojo-runs/rsi-assets-20261024/`，用 `rsi_assets.py link` 合并进运行目录。下一步按优先级：材质（Poly Haven PBR 贴图转 MDL，官方材质被三套评测集用完了）→ 房间变体（新材质给 `Simple_Room` 换墙面）→ GSO 的鞋和玩具 → 任务物体的新实例 → 12 个 `_random` 任务基础版的 X5 脚本专家。每次加完新资产都要重跑 `rsi_assets.py scan` 并把 `pools.json` 入库。
 0. 榜单：基线已停（16:35，用户要求），先问用户是否续跑；续跑后收两份基线（`smoke_results/baseline_*_20261022.md`，核对每个任务 `eval_time >= 1`），按任务对比 OpenWAM / pi0.5 / 有无官方数据；看失败视频做归类；然后开始把 `collect.py` 和插件接口推广到 dual X5，按优先级给无官方数据的任务写专家。
@@ -1124,6 +1131,7 @@
 
 ## 最近历史
 
+- 2026-10-30：物体指令名称改为大类 + 中英文各 3 级，83 件完备物体写好并装共享库（95 个文件），平台物体卡片显示大类、详情列全族名称。
 - 2026-10-30：办公室桌子按照片拟合成 1.186 × 0.590 × 0.715 m（原先验 1.20 × 0.62 × 0.68），升降柱和 `g1d` 布局 +3.5 cm，已装库，照片叠图 4.0 px；吧台现有照片修不了叠图，要补拍。
 - 2026-10-30：平台四个完备场景（办公室、吧台、上海 / 深圳实验室）做完离线检查、RTX 照片对色、照片叠图、Isaac 验证和装库，并在平台标记。办公室、吧台的灯光按照片改过，吧台新版 Room（岛台、客区）进了共享库。
 - 2026-10-30：数采平台权限按板块分开（系统管理员 / 仿真平台管理员·成员·访客 / 数据集管理员·查看），数据集管理员可在平台上编辑、新增数据集条目，数据集类型标签补色。

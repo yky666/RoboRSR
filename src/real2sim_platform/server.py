@@ -645,7 +645,8 @@ def scan_objects(assets, tasks, keep):
         flexible_check = load_json(OBJECTS_DIR / oid / "preview" / "deformable_check.json") or {}
         object_spec = load_json(OBJECTS_DIR / oid / "spec.json") or {}
         flexible_profile = object_spec.get("deformable")
-        names = ((load_json(d / "description.json") or {}).get("caption") or {}).get("name") or [None]
+        description = load_json(d / "description.json") or {}
+        names = (description.get("caption") or {}).get("name") or [None]
         library = d.parent.parent.parent.name if d.exists() else None  # Real2Sim, RoboDojo, or None: not built yet
         pattern = re.compile(rf"Rigid/{category}\b|\"{category}\"")
         # the benchmark's own objects have no generator here, however loosely a script names their category
@@ -664,6 +665,8 @@ def scan_objects(assets, tasks, keep):
             "generator": generator.relative_to(ROOT).as_posix() if generator else None,
             "in_library": meta is not None,
             "name": names[0],
+            # instruction names: category + three brief to detailed per language (scripts/objects/object_names.py)
+            "names": description.get("names") or {},
             "built": meta is not None or bool(check),
             "check": check,
             "deformable_check": flexible_check,
