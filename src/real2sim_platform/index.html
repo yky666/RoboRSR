@@ -342,6 +342,7 @@ table.plain th, table.plain td { position: static; padding: 7px 8px; background:
 .src-mixed { background: light-dark(#E6F6F4, #0F2624); color: light-dark(#0F766E, #5EEAD4); }
 .src-asset { background: var(--ok-soft); color: var(--ok); }
 .src-unknown { background: var(--todo-soft); color: var(--todo); box-shadow: inset 0 0 0 1px var(--primary-line); }
+.ds-decl { color: var(--muted); font-style: italic; }
 .ds-n { margin: 0; font-size: 22px; font-weight: 700; }
 .ds-n .num { margin-left: 2px; color: var(--muted); font-size: 14px; font-weight: 500; }
 .ds-note { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-size: 12px; }
@@ -1481,8 +1482,13 @@ const fmtCount = (n) => (n == null ? '—' : n >= 1e8 ? `${sig3(n / 1e8)} 亿` :
 const fmtHours = (h) => (h == null ? '—' : h > 0 && h < 1 ? `${Math.max(1, Math.round(h * 60))} 分钟` : `${sig3(h)} h`);
 const fmtGB = (gb) => (gb == null ? '—' : gb >= 1e6 ? `${sig3(gb / 1e6)} PB` : gb >= 1e3 ? `${sig3(gb / 1e3)} TB` : gb >= 1 ? `${sig3(gb)} GB` : `${sig3(gb * 1e3)} MB`);
 const exact = (v, unit = '') => (v == null ? '' : `${v.toLocaleString(undefined, {maximumFractionDigits: 3})}${unit}`);
-const dsEpText = (d) => d.epText || fmtCount(d.episodes);
-const dsHoursText = (d) => fmtHours(d.hours);
+// the publisher's own total (dataset card, info.json, paper) stands in where the local figure is unknown; it is never
+// added to the local totals, and is labelled 官方 wherever it shows
+const dsDecl = (d, k) => d[k] == null && d.declared?.[k] != null;
+const dsEpText = (d) => d.epText || (dsDecl(d, 'episodes') ? `${d.declared.qualifier || ''}${fmtCount(d.declared.episodes)}` : fmtCount(d.episodes));
+const dsHoursText = (d) => (dsDecl(d, 'hours') ? `${d.declared.qualifier || ''}${fmtHours(d.declared.hours)}` : fmtHours(d.hours));
+const dsStatLabel = (d, k) => (dsDecl(d, k) ? `官方${k === 'hours' ? '时长' : ' Episode'}` : `已知${k === 'hours' ? '时长' : ' Episode'}`);
+const dsNumCell = (d, k, text, exactText) => `<td class="num nowrap" title="${esc(dsDecl(d, k) ? `发布方声明，未本地核实：${exact(d.declared[k], k === 'hours' ? ' h' : '')}` : exactText)}">${dsDecl(d, k) ? `<span class="ds-decl">官方 ${esc(text)}</span>` : esc(text)}</td>`;
 const kpiUnit = (text) => text.replace(/ ([^\d\s,.]+)$/, '<small>$1</small>');
 const dsSizeText = (d) => (d.tb > 0 ? fmtGB(d.tb * 1000) : (d.size || '—').split(' · ')[0]);
 const dsExact = (d) => [d.episodes != null && `${exact(d.episodes)} Episode`, d.hours != null && exact(d.hours, ' h'), d.tb > 0 && exact(d.tb * 1000, ' GB')].filter(Boolean).join(' · ');
@@ -1504,6 +1510,9 @@ function applyDatasetInventory(snapshot) {
           (v.url && !/^https:\/\/(www\.)?(huggingface\.co|modelscope\.cn)\//.test(v.url))) invalid();
       records.add(v.id);
     }
+    const dec = g.declared;
+    if (dec != null && (typeof dec !== 'object' || !numeric(dec.episodes ?? null) || !numeric(dec.hours ?? null) ||
+        (dec.episodes == null && dec.hours == null) || !/^https:\/\//.test(dec.url || ''))) invalid();
     const base = templates.get(g.templateId), versions = g.versions, gb = total(versions, 'gb');
     const sources = [...new Set(versions.map((v) => v.source))];
     const urls = versions.map((v) => v.url).filter(Boolean), url = base?.url || urls[0] || '';
@@ -1514,7 +1523,7 @@ function applyDatasetInventory(snapshot) {
         source: base?.f.source || sources, license: base?.f.license || ['unknown'], local: [local],
         platform: [...new Set(urls.map((u) => u.includes('huggingface.co') ? 'hf' : 'ms'))]},
       episodes: total(versions, 'selectedEpisodes'), hours: total(versions, 'selectedHours'), tb: (gb || 0) / 1000,
-      size: gb === null ? '—' : `${gb.toLocaleString(undefined, {maximumFractionDigits: 3})} GB`, versions,
+      size: gb === null ? '—' : `${gb.toLocaleString(undefined, {maximumFractionDigits: 3})} GB`, versions, declared: dec || null,
       inventoryNote: '按版本明细中的「计入口径」汇总已知部分；未选择的同源副本不重复累计，未知值不作零。目录体量保留全部副本，可能重叠。'};
   });
   if (records.size !== snapshot.recordCount) invalid();
@@ -1600,14 +1609,14 @@ function dsCard(d) {
     <div><b class="ds-name">${esc(d.name)}</b><div class="ds-org">${esc(d.org)}</div></div>
     ${meta ? `<div class="ds-meta">${esc(meta)}</div>` : ''}
     <p class="ds-desc">${esc(d.desc)}</p>
-    ${stats([['已知 Episode', dsEpText(d)], ['已知时长', dsHoursText(d)]])}
+    ${stats([[dsStatLabel(d, 'episodes'), dsEpText(d)], [dsStatLabel(d, 'hours'), dsHoursText(d)]])}
     <div class="ds-foot"><span>许可 ${esc(dsLabels(d, 'license').join(' / '))}</span><span title="${esc(dsExact(d))}">${esc(dsSizeText(d))}</span></div></article>`;
 }
 function dsTable(rows) {
   return `<div class="table-wrap"><table class="ds-table"><thead><tr><th>数据集</th><th>类型</th><th>形态 / 本体</th><th class="num">已知 Episode</th><th class="num">已知时长</th><th class="num">本地体量</th><th>许可</th><th>本地</th></tr></thead><tbody>
     ${rows.map((d) => `<tr data-open="dataset" data-id="${esc(d.id)}" tabindex="0"><td><div class="t-main">${esc(d.name)}</div><div class="t-sub">${esc(d.org)}</div></td>
       <td><div class="chips">${d.f.source.map(dsSrcBadge).join('')}</div></td><td class="small">${esc([...dsLabels(d, 'form'), ...dsLabels(d, 'robot')].join(' · ') || '—')}</td>
-      <td class="num" title="${esc(exact(d.episodes))}">${dsEpText(d)}</td><td class="num" title="${esc(exact(d.hours, ' h'))}">${dsHoursText(d)}</td><td class="num nowrap" title="${esc(d.tb > 0 ? exact(d.tb * 1000, ' GB') : '')}">${esc(dsSizeText(d))}</td>
+      ${dsNumCell(d, 'episodes', dsEpText(d), exact(d.episodes))}${dsNumCell(d, 'hours', dsHoursText(d), exact(d.hours, ' h'))}<td class="num nowrap" title="${esc(d.tb > 0 ? exact(d.tb * 1000, ' GB') : '')}">${esc(dsSizeText(d))}</td>
       <td class="small nowrap">${esc(dsLabels(d, 'license').join(' / '))}</td><td class="small nowrap">${esc(dsLabels(d, 'local').join(''))}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function viewDatasets() {
@@ -1622,7 +1631,7 @@ function viewDatasets() {
     `<button type="button" class="btn btn-icon btn-ghost" aria-pressed="${f.view === k}" aria-label="${label}" title="${label}" onclick="UI.ds.view = '${k}'; render()">${ic(icon)}</button>`).join('');
   return `<div class="page">
     <section class="ds-hero"><div><div class="ds-eyebrow">BanzhiFlywheel · Datasets</div><h1>具身数据清单<span class="ds-demo" title="页面内容为人工整理的示例，没有接入实际业务">${ic('alert', 'ic-sm')}仅作示意，未支撑实际业务</span></h1>
-      <p>${DS_INVENTORY ? `完整纳入 ${DS_INVENTORY.recordCount} 条具名盘点记录，按系列归为 ${DATASETS.length} 组，覆盖公开数据、自采数据、视频和资产。` : '公开目录缓存。'}统计更新于 ${DS_INVENTORY_DATE}；每组保留全部版本，汇总只计选定的已知部分。</p></div>
+      <p>${DS_INVENTORY ? `完整纳入 ${DS_INVENTORY.recordCount} 条具名盘点记录，按系列归为 ${DATASETS.length} 组，覆盖公开数据、自采数据、视频和资产。` : '公开目录缓存。'}统计更新于 ${DS_INVENTORY_DATE}；每组保留全部版本，汇总只计选定的已知部分。${(() => { const n = DATASETS.filter((d) => dsDecl(d, 'episodes') || dsDecl(d, 'hours')).length; return n ? `另有 ${n} 组本地未知的数字用发布方声明补位，标「官方」，不计入合计。` : ''; })()}</p></div>
       <div class="ds-kpis"><div><span>数据集系列</span><b>${DATASETS.length}</b></div><div><span>归组已知 Episode</span><b title="${sum('episodes').toLocaleString()} 条；按版本选择汇总，合集之间仍可能重叠，视频片段另列">${kpiUnit(fmtCount(sum('episodes')))}</b></div>
         <div><span>归组已知时长</span><b title="${sum('hours').toLocaleString(undefined, {maximumFractionDigits: 3})} h；含部分实测，未完成跨合集内容去重">${kpiUnit(fmtHours(sum('hours')))}</b></div><div><span>有本地副本 / 元数据</span><b>${DATASETS.filter((d) => d.f.local[0] !== 'none').length}<small>/ ${DATASETS.length}</small></b></div></div></section>
     ${DS_INVENTORY_ERROR ? `<p class="callout">${esc(DS_INVENTORY_ERROR)}</p>` : ''}<p class="hint">${esc(DS_INVENTORY?.method || '缓存目录范围有限，不代表全部本地数据。')}</p>
@@ -1638,6 +1647,16 @@ function viewDatasets() {
           : f.view === 'list' ? dsTable(shown) : `<div class="grid ds-grid">${shown.map(dsCard).join('')}</div>`}
         <p class="hint" style="margin-top:20px">仅作示意，未支撑实际业务：分类标签为初稿，数据集管理员可在详情里修改。本地统计更新于 ${DS_INVENTORY_DATE}，体量按逻辑字节计算（1 GB = 10^9 B），保留全部目录副本，可能重叠。已知时长可能只覆盖子集，空白表示尚未可靠核实；不同合集可能重叠，合计不代表独立演示数；未物理删除的质检排除项仍计入。</p></section></div></div>`;
 }
+function dsDeclaredSec(x) {
+  const q = x.qualifier || '', host = x.url.replace(/^https:\/\/(www\.)?/, '').split('/')[0];
+  return sec('发布方声明 · 未本地核实', `<dl class="kv">
+    <dt>Episode</dt><dd>${x.episodes == null ? '<span class="muted">未声明</span>' : `<span title="${esc(exact(x.episodes))}">${esc(q + fmtCount(x.episodes))}</span>`}${x.unit ? ` <span class="muted small">${esc(x.unit)}</span>` : ''}</dd>
+    <dt>时长</dt><dd>${x.hours == null ? '<span class="muted">未声明</span>' : `<span title="${esc(exact(x.hours, ' h'))}">${esc(q + fmtHours(x.hours))}</span>`}${x.derived ? ` <span class="muted small">${esc(x.derived)}</span>` : ''}</dd>
+    ${x.scope ? `<dt>范围</dt><dd>${esc(x.scope)}</dd>` : ''}
+    <dt>来源</dt><dd><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(host)} ${ic('external', 'ic-sm')}</a>${x.checked ? ` <span class="muted small">查证于 ${esc(x.checked)}</span>` : ''}</dd>
+    ${x.quote ? `<dt>原文</dt><dd class="small">“${esc(x.quote)}”</dd>` : ''}${x.note ? `<dt>备注</dt><dd class="small">${esc(x.note)}</dd>` : ''}</dl>
+    <p class="hint">发布方给出的总量，口径可能和本地副本不同；只在本地值未知时显示，不计入页面顶部的已知合计。</p>`);
+}
 function drawerDataset(d) {
   if (!d) return {title: '记录不存在', body: ''};
   if (UI.dsEdit === d.id && ME?.ds_admin) return drawerDatasetEdit(d);
@@ -1648,7 +1667,8 @@ function drawerDataset(d) {
     actions: `${admin}${d.url ? `<a class="btn" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer">${ic('external')}在 ${host} 打开</a>` : ''}`,
     body: `${d.edit ? `<p class="hint" style="margin:0 0 10px">${d.custom ? '数据集管理员新增' : '数据集管理员改过'} · ${esc(d.edit._by || '')} · ${fmtTime(d.edit._at)}</p>` : ''}<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px">${d.f.source.map(dsSrcBadge).join('')}${dsLabels(d, 'skill').map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
       <p style="margin:0 0 14px;line-height:1.7">${esc(d.desc)}</p>
-      ${stats([['已知 Episode', dsEpText(d)], ['已知时长', dsHoursText(d)], ['本地体量', dsSizeText(d)]])}
+      ${stats([[dsStatLabel(d, 'episodes'), dsEpText(d)], [dsStatLabel(d, 'hours'), dsHoursText(d)], ['本地体量', dsSizeText(d)]])}
+      ${d.declared ? dsDeclaredSec(d.declared) : ''}
       ${dsExact(d) ? `<p class="hint" style="margin:6px 0 0">精确值：${esc(dsExact(d))}</p>` : ''}
       ${sec('本地统计口径 · ' + DS_INVENTORY_DATE, `<p style="line-height:1.7">${esc(d.inventoryNote)}</p>`)}
       ${d.versions ? sec(`版本与子集 · ${d.versions.length} 条`, d.versions.map((v) => `<details class="card" style="margin:10px 0;padding:12px"><summary><b>${esc(v.name)}</b> · ${esc(v.state || '待确认')}</summary>
