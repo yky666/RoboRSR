@@ -1,83 +1,453 @@
 {
     "Clutter/metal_cup/00000": {
-        "en": ["cup", "metal cup", "aluminium cup", "tapered aluminium cup", "tapered aluminium tumbler with a rolled rim"],
-        "zh": ["杯子", "金属杯", "铝制杯子", "上宽下窄的铝杯", "杯口卷边、上宽下窄的铝制杯"]
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["metal cup", "tapered aluminium cup", "tapered aluminium tumbler with a rolled rim"],
+        "zh": ["金属杯", "上宽下窄的铝杯", "杯口卷边、上宽下窄的铝制杯"]
     },
     "Clutter/metal_cup/00001": {
-        "en": ["cup", "metal cup", "small metal cup", "small stainless steel espresso cup", "small stainless steel espresso cup with a rolled rim"],
-        "zh": ["杯子", "金属杯", "小号金属杯", "不锈钢小咖啡杯", "杯口卷边的不锈钢意式浓缩咖啡小杯"]
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["metal cup", "small stainless steel espresso cup", "small stainless steel espresso cup with a rolled rim"],
+        "zh": ["金属杯", "不锈钢小咖啡杯", "杯口卷边的不锈钢意式浓缩咖啡小杯"]
     },
     "Clutter/metal_cup/00002": {
-        "en": ["cup", "metal cup", "tall metal tumbler", "tall powder-coated aluminium tumbler", "tall tapered powder-coated aluminium tumbler with a rolled rim"],
-        "zh": ["杯子", "金属杯", "高身金属杯", "高身喷涂铝杯", "杯口卷边、上宽下窄的高身喷涂铝杯"]
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["metal cup", "tall powder-coated aluminium tumbler", "tall tapered powder-coated aluminium tumbler with a rolled rim"],
+        "zh": ["金属杯", "高身喷涂铝杯", "杯口卷边、上宽下窄的高身喷涂铝杯"]
     },
     "Clutter/metal_cup/00003": {
-        "en": ["cup", "metal cup", "steel cup", "polished stainless steel cup", "straight polished stainless steel camping cup"],
-        "zh": ["杯子", "金属杯", "不锈钢杯", "抛光不锈钢杯", "直筒抛光不锈钢露营杯"]
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["metal cup", "polished stainless steel cup", "straight polished stainless steel camping cup"],
+        "zh": ["金属杯", "抛光不锈钢杯", "直筒抛光不锈钢露营杯"]
     },
     "Clutter/metal_cup/00004": {
-        "en": ["cup", "metal cup", "square metal cup", "rounded square copper-lined cup", "tapered rounded square metal cup with a copper lining"],
-        "zh": ["杯子", "金属杯", "方形金属杯", "圆角方形铜内胆杯", "上宽下窄、铜内胆的圆角方形金属杯"]
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["metal cup", "rounded square copper-lined cup", "tapered rounded square metal cup with a copper lining"],
+        "zh": ["金属杯", "圆角方形铜内胆杯", "上宽下窄、铜内胆的圆角方形金属杯"]
     },
     "Clutter/metal_cup/00005": {
-        "en": ["cup", "metal cup", "wide low metal cup", "wide low anodized aluminium cup", "wide low anodized aluminium cup with a rolled rim"],
-        "zh": ["杯子", "金属杯", "矮胖金属杯", "宽口矮身阳极氧化铝杯", "杯口卷边的宽口矮身阳极氧化铝杯"]
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["metal cup", "wide low anodized aluminium cup", "wide low anodized aluminium cup with a rolled rim"],
+        "zh": ["金属杯", "宽口矮身阳极氧化铝杯", "杯口卷边的宽口矮身阳极氧化铝杯"]
     },
     "Clutter/metal_cup/00006": {
-        "en": ["cup", "metal cup", "enamel cup", "bellied enamel metal cup", "bellied enamel tulip cup with a rolled rim"],
-        "zh": ["杯子", "金属杯", "搪瓷杯", "鼓肚搪瓷金属杯", "杯口卷边的鼓肚郁金香形搪瓷杯"]
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["metal cup", "bellied enamel metal cup", "bellied enamel tulip cup with a rolled rim"],
+        "zh": ["金属杯", "鼓肚搪瓷金属杯", "杯口卷边的鼓肚郁金香形搪瓷杯"]
+    },
+    "Clutter/paper_cup/00000": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["paper cup", "black paper cup", "tall matte black paper coffee cup with a white rim"],
+        "zh": ["纸杯", "黑色纸杯", "白色杯口的高款哑光黑色咖啡纸杯"]
+    },
+    "Clutter/paper_cup/00001": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["paper cup", "white paper cup", "tall plain white single-wall paper cup"],
+        "zh": ["纸杯", "白色纸杯", "高款纯白色单层纸杯"]
+    },
+    "Clutter/paper_cup/00002": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["paper cup", "kraft paper cup", "medium kraft brown paper coffee cup"],
+        "zh": ["纸杯", "牛皮纸杯", "中号牛皮纸色咖啡纸杯"]
+    },
+    "Clutter/paper_cup/00003": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["paper cup", "small red paper cup", "small red paper espresso cup with a white inside"],
+        "zh": ["纸杯", "红色小纸杯", "内壁白色的红色意式浓缩小纸杯"]
+    },
+    "Clutter/paper_cup/00004": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["paper cup", "navy paper cup", "short wide navy blue paper cup"],
+        "zh": ["纸杯", "藏青色纸杯", "矮胖宽口的藏青色纸杯"]
+    },
+    "Clutter/paper_cup/00005": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["paper cup", "green double-wall cup", "tall sage green double-wall paper cup"],
+        "zh": ["纸杯", "绿色双层纸杯", "高款灰绿色双层隔热纸杯"]
+    },
+    "Clutter/paper_cup/00006": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["paper cup", "tall yellow paper cup", "extra tall mustard yellow paper cup"],
+        "zh": ["纸杯", "黄色高纸杯", "特高款芥末黄纸杯"]
     },
     "Clutter/plastic_bottle/00000": {
-        "en": ["bottle", "water bottle", "plastic water bottle", "Nongfu Spring bottle", "clear plastic water bottle", "clear Nongfu Spring water bottle with a red and white label"],
-        "zh": ["瓶子", "水瓶", "塑料水瓶", "农夫山泉水瓶", "透明塑料矿泉水瓶", "红白标签的农夫山泉透明矿泉水瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["water bottle", "Nongfu Spring bottle", "clear Nongfu Spring water bottle with a red and white label"],
+        "zh": ["水瓶", "农夫山泉水瓶", "红白标签的农夫山泉透明矿泉水瓶"]
     },
     "Clutter/plastic_bottle/00001": {
-        "en": ["bottle", "water bottle", "small water bottle", "small clear plastic water bottle", "small clear water bottle with a blue and white label"],
-        "zh": ["瓶子", "水瓶", "小瓶矿泉水", "小号透明塑料水瓶", "蓝白标签的小号透明矿泉水瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["water bottle", "small clear plastic water bottle", "small clear water bottle with a blue and white label"],
+        "zh": ["水瓶", "小号透明塑料水瓶", "蓝白标签的小号透明矿泉水瓶"]
     },
     "Clutter/plastic_bottle/00002": {
-        "en": ["bottle", "water bottle", "large water bottle", "large light blue plastic water bottle", "tall light blue tinted water bottle with a green and white label"],
-        "zh": ["瓶子", "水瓶", "大瓶矿泉水", "淡蓝色大号塑料水瓶", "绿白标签的淡蓝色高身大号矿泉水瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["water bottle", "large light blue plastic water bottle", "tall light blue tinted water bottle with a green and white label"],
+        "zh": ["水瓶", "淡蓝色大号塑料水瓶", "绿白标签的淡蓝色高身大号矿泉水瓶"]
     },
     "Clutter/plastic_bottle/00003": {
-        "en": ["bottle", "drink bottle", "square plastic bottle", "frosted square drink bottle", "frosted rounded square bottle with a black and orange label"],
-        "zh": ["瓶子", "饮料瓶", "方形塑料瓶", "磨砂方形饮料瓶", "黑橙标签的磨砂圆角方形饮料瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["drink bottle", "frosted square drink bottle", "frosted rounded square bottle with a black and orange label"],
+        "zh": ["饮料瓶", "磨砂方形饮料瓶", "黑橙标签的磨砂圆角方形饮料瓶"]
     },
     "Clutter/plastic_bottle/00004": {
-        "en": ["bottle", "soda bottle", "green soda bottle", "green plastic soda bottle", "green tinted soda bottle with an hourglass waist and a blue and yellow label"],
-        "zh": ["瓶子", "汽水瓶", "绿色汽水瓶", "绿色塑料汽水瓶", "蓝黄标签、中间收腰的绿色汽水瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["soda bottle", "green plastic soda bottle", "green tinted soda bottle with an hourglass waist and a blue and yellow label"],
+        "zh": ["汽水瓶", "绿色塑料汽水瓶", "蓝黄标签、中间收腰的绿色汽水瓶"]
     },
     "Clutter/plastic_bottle/00005": {
-        "en": ["bottle", "juice bottle", "amber juice bottle", "short wide-mouth juice bottle", "short amber wide-mouth juice bottle with an orange and white label"],
-        "zh": ["瓶子", "果汁瓶", "琥珀色果汁瓶", "矮胖的宽口果汁瓶", "橙白标签的琥珀色矮胖宽口果汁瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["juice bottle", "short wide-mouth juice bottle", "short amber wide-mouth juice bottle with an orange and white label"],
+        "zh": ["果汁瓶", "矮胖的宽口果汁瓶", "橙白标签的琥珀色矮胖宽口果汁瓶"]
     },
     "Clutter/plastic_bottle/00006": {
-        "en": ["bottle", "tea bottle", "plastic tea bottle", "Oriental Leaf tea bottle", "clear square plastic tea bottle", "clear chamfered square Oriental Leaf tea bottle with a green neck label"],
-        "zh": ["瓶子", "茶饮料瓶", "塑料茶饮瓶", "东方树叶茶饮料", "透明方形塑料茶饮瓶", "瓶颈有绿色标签的透明倒角方形东方树叶茶饮料瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["tea bottle", "Oriental Leaf tea bottle", "clear chamfered square Oriental Leaf tea bottle with a green neck label"],
+        "zh": ["茶饮料瓶", "东方树叶茶饮料", "瓶颈有绿色标签的透明倒角方形东方树叶茶饮料瓶"]
     },
     "Clutter/plastic_bottle/00007": {
-        "en": ["bottle", "tea bottle", "tall tea bottle", "tall jasmine tea bottle", "tall clear chamfered square jasmine tea bottle with light green labels"],
-        "zh": ["瓶子", "茶饮料瓶", "高瓶茶饮料", "高瓶茉莉花茶饮料", "浅绿标签的高身透明倒角方形茉莉花茶瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["tea bottle", "tall jasmine tea bottle", "tall clear chamfered square jasmine tea bottle with light green labels"],
+        "zh": ["茶饮料瓶", "高瓶茉莉花茶饮料", "浅绿标签的高身透明倒角方形茉莉花茶瓶"]
     },
     "Clutter/plastic_bottle/00008": {
-        "en": ["bottle", "tea bottle", "oolong tea bottle", "short amber oolong tea bottle", "short amber chamfered square oolong tea bottle with cream and brown labels"],
-        "zh": ["瓶子", "茶饮料瓶", "乌龙茶饮料瓶", "矮身琥珀色乌龙茶瓶", "米棕色标签的矮身琥珀色倒角方形乌龙茶瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["tea bottle", "short amber oolong tea bottle", "short amber chamfered square oolong tea bottle with cream and brown labels"],
+        "zh": ["茶饮料瓶", "矮身琥珀色乌龙茶瓶", "米棕色标签的矮身琥珀色倒角方形乌龙茶瓶"]
     },
     "Clutter/plastic_bottle/00009": {
-        "en": ["bottle", "tea bottle", "lychee tea bottle", "clear lychee black tea bottle", "clear rounded square lychee black tea bottle with red labels"],
-        "zh": ["瓶子", "茶饮料瓶", "荔枝红茶瓶", "透明荔枝红茶饮料瓶", "红色标签的透明圆角方形荔枝红茶瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["tea bottle", "clear lychee black tea bottle", "clear rounded square lychee black tea bottle with red labels"],
+        "zh": ["茶饮料瓶", "透明荔枝红茶饮料瓶", "红色标签的透明圆角方形荔枝红茶瓶"]
     },
     "Clutter/plastic_bottle/00010": {
-        "en": ["bottle", "tea bottle", "frosted tea bottle", "frosted rock tea bottle", "frosted soft-cornered square tea bottle with black and gold labels"],
-        "zh": ["瓶子", "茶饮料瓶", "磨砂茶饮瓶", "磨砂岩茶饮料瓶", "黑金标签的磨砂圆角方形岩茶瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["tea bottle", "frosted rock tea bottle", "frosted soft-cornered square tea bottle with black and gold labels"],
+        "zh": ["茶饮料瓶", "磨砂岩茶饮料瓶", "黑金标签的磨砂圆角方形岩茶瓶"]
     },
     "Clutter/plastic_bottle/00011": {
-        "en": ["bottle", "tea bottle", "lemon tea bottle", "octagonal lemon tea bottle", "clear octagonal lemon tea bottle with yellow and blue labels"],
-        "zh": ["瓶子", "茶饮料瓶", "柠檬茶瓶", "八角形柠檬茶瓶", "黄蓝标签的透明八角形柠檬茶瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["tea bottle", "octagonal lemon tea bottle", "clear octagonal lemon tea bottle with yellow and blue labels"],
+        "zh": ["茶饮料瓶", "八角形柠檬茶瓶", "黄蓝标签的透明八角形柠檬茶瓶"]
     },
     "Clutter/plastic_bottle/00012": {
-        "en": ["bottle", "tea bottle", "mini tea bottle", "mini peach oolong tea bottle", "small clear chamfered square peach oolong tea bottle with pink labels"],
-        "zh": ["瓶子", "茶饮料瓶", "迷你茶饮瓶", "迷你白桃乌龙茶瓶", "粉色标签的小号透明倒角方形白桃乌龙茶瓶"]
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["tea bottle", "mini peach oolong tea bottle", "small clear chamfered square peach oolong tea bottle with pink labels"],
+        "zh": ["茶饮料瓶", "迷你白桃乌龙茶瓶", "粉色标签的小号透明倒角方形白桃乌龙茶瓶"]
+    },
+    "Clutter/plastic_bottle/00013": {
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["plastic bottle", "clear oval bottle", "clear pebbled oval plastic bottle with a wide white cap"],
+        "zh": ["塑料瓶", "透明椭圆瓶", "宽白盖的透明颗粒纹椭圆塑料瓶"]
+    },
+    "Clutter/plastic_bottle/00014": {
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["plastic bottle", "small blue oval bottle", "small light blue pebbled oval bottle with a blue cap"],
+        "zh": ["塑料瓶", "蓝色小椭圆瓶", "蓝盖的浅蓝色颗粒纹小椭圆瓶"]
+    },
+    "Clutter/plastic_bottle/00015": {
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["plastic bottle", "clear rectangular bottle", "smooth clear rounded rectangular bottle with a black cap"],
+        "zh": ["塑料瓶", "透明方瓶", "黑盖的光面透明圆角长方形塑料瓶"]
+    },
+    "Clutter/plastic_bottle/00016": {
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["plastic bottle", "frosted white bottle", "frosted milky white oval bottle with an orange cap"],
+        "zh": ["塑料瓶", "磨砂白瓶", "橙盖的磨砂乳白色椭圆塑料瓶"]
+    },
+    "Clutter/plastic_bottle/00017": {
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["plastic bottle", "large amber bottle", "tall amber pebbled oval bottle with a white cap"],
+        "zh": ["塑料瓶", "大号琥珀色瓶", "白盖的高身琥珀色颗粒纹椭圆瓶"]
+    },
+    "Clutter/plastic_bottle/00018": {
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["plastic bottle", "squat green bottle", "short green tinted pebbled oval flask with a green cap"],
+        "zh": ["塑料瓶", "矮胖绿色瓶", "绿盖的矮胖淡绿色颗粒纹椭圆扁瓶"]
+    },
+    "Clutter/plastic_bottle/00019": {
+        "category": {"en": "bottle", "zh": "瓶子"},
+        "en": ["plastic bottle", "slim pink bottle", "slim pink tinted oval bottle that narrows toward the bottom"],
+        "zh": ["塑料瓶", "细长粉色瓶", "下端收窄、粉盖的细长淡粉色椭圆瓶"]
+    },
+    "Rigid/basket/00000": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "cream storage basket", "cream perforated storage basket with grey grips"],
+        "zh": ["收纳篮", "米黄色收纳篮", "带灰色把手的米黄色镂空收纳篮"]
+    },
+    "Rigid/basket/00001": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "light blue storage basket", "light blue rectangular storage basket with four rows of round holes"],
+        "zh": ["收纳篮", "浅蓝色收纳篮", "四排圆孔的浅蓝色长方形收纳篮"]
+    },
+    "Rigid/basket/00002": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "powder blue storage basket", "powder blue perforated storage basket with grey grips"],
+        "zh": ["收纳篮", "粉蓝色收纳篮", "带灰色把手的粉蓝色镂空收纳篮"]
+    },
+    "Rigid/basket/00003": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "deep grey storage basket", "deep light grey perforated storage basket with grey grips"],
+        "zh": ["收纳篮", "深款浅灰收纳篮", "带灰色把手的深款浅灰色镂空收纳篮"]
+    },
+    "Rigid/basket/00004": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "shallow pink storage basket", "shallow blush pink perforated storage basket with grey grips"],
+        "zh": ["收纳篮", "浅款粉色收纳篮", "带灰色把手的浅款粉色镂空收纳篮"]
+    },
+    "Rigid/basket/00005": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "square mint storage basket", "square mint green perforated storage basket with grey grips"],
+        "zh": ["收纳篮", "方形薄荷绿收纳篮", "带灰色把手的方形薄荷绿镂空收纳篮"]
+    },
+    "Rigid/basket/00006": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "charcoal storage basket", "charcoal matte perforated storage basket with open hand slots"],
+        "zh": ["收纳篮", "炭黑色收纳篮", "两端开把手孔的哑光炭黑色镂空收纳篮"]
+    },
+    "Rigid/basket/00007": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "small white storage basket", "small glossy white perforated storage basket with grey grips"],
+        "zh": ["收纳篮", "白色小收纳篮", "带灰色把手的小号亮白色镂空收纳篮"]
+    },
+    "Rigid/basket/00008": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "deep mint green storage basket", "deep mint green rectangular storage basket with five rows of round holes"],
+        "zh": ["收纳篮", "深款薄荷绿收纳篮", "五排圆孔的深款薄荷绿长方形收纳篮"]
+    },
+    "Rigid/basket/00009": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "shallow rose pink storage basket", "shallow rose pink rectangular storage basket with three rows of round holes"],
+        "zh": ["收纳篮", "浅款玫粉色收纳篮", "三排圆孔的浅款玫粉色长方形收纳篮"]
+    },
+    "Rigid/basket/00010": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "square grey storage basket", "square grey storage basket with four rows of round holes"],
+        "zh": ["收纳篮", "方形灰色收纳篮", "四排圆孔的方形灰色收纳篮"]
+    },
+    "Rigid/basket/00011": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "yellow storage basket", "yellow rectangular storage basket with three rows of oval slots"],
+        "zh": ["收纳篮", "黄色收纳篮", "三排长圆孔的黄色长方形收纳篮"]
+    },
+    "Rigid/basket/00012": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "navy storage basket", "matte navy blue storage basket with a perforated floor"],
+        "zh": ["收纳篮", "藏青色收纳篮", "底部也有孔的哑光藏青色收纳篮"]
+    },
+    "Rigid/basket/00013": {
+        "category": {"en": "basket", "zh": "篮子"},
+        "en": ["storage basket", "clear storage basket", "small translucent storage basket with three rows of square holes"],
+        "zh": ["收纳篮", "透明收纳篮", "三排方孔的小号半透明收纳篮"]
+    },
+    "Rigid/ceramic_cup/00000": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["ceramic cup", "ceramic cup with stepped rings", "glossy glazed ceramic cup whose wall steps out in rings"],
+        "zh": ["陶瓷杯", "环纹阶梯陶瓷杯", "杯壁一圈圈向外阶梯展开的釉面陶瓷杯"]
+    },
+    "Rigid/ceramic_cup/00001": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["ceramic cup", "small smooth porcelain cup", "small plain porcelain cup with a smooth wall and no handle"],
+        "zh": ["陶瓷杯", "素面小瓷杯", "杯壁光滑、没有把手的小号素面瓷杯"]
+    },
+    "Rigid/ceramic_cup/00002": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["ceramic cup", "ringed porcelain tea cup", "porcelain tea cup with four stepped rings"],
+        "zh": ["陶瓷杯", "环纹瓷茶杯", "带四道阶梯环纹的瓷茶杯"]
+    },
+    "Rigid/ceramic_cup/00003": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["ceramic cup", "unglazed clay cup", "unglazed clay cup with three stepped rings and a glazed inside"],
+        "zh": ["陶瓷杯", "素烧陶土杯", "外壁素烧、内壁上釉、带三道阶梯环纹的陶土杯"]
+    },
+    "Rigid/ceramic_cup/00004": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["ceramic cup", "finely ribbed porcelain cup", "glazed porcelain cup with many fine stepped ribs"],
+        "zh": ["陶瓷杯", "细密环纹釉面瓷杯", "杯壁布满细密阶梯环纹的釉面瓷杯"]
+    },
+    "Rigid/ceramic_cup/00005": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["ceramic cup", "wide low stoneware cup", "wide low stoneware tea bowl cup with five stepped rings"],
+        "zh": ["陶瓷杯", "宽口矮身粗陶杯", "带五道阶梯环纹的宽口矮身粗陶茶碗杯"]
+    },
+    "Rigid/ceramic_cup/00006": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["ceramic cup", "barrel-shaped glazed ceramic cup", "glossy barrel-shaped ceramic cup with stepped rings and a narrower rim"],
+        "zh": ["陶瓷杯", "鼓形釉面陶瓷杯", "杯口收窄、带阶梯环纹的亮釉鼓形陶瓷杯"]
+    },
+    "Rigid/measuring_cup/00000": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["measuring cup", "short translucent measuring cup", "short translucent plastic measuring cup marked up to 400 ml"],
+        "zh": ["量杯", "矮的半透明量杯", "刻度到 400 毫升的矮款半透明塑料量杯"]
+    },
+    "Rigid/measuring_cup/00001": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["measuring cup", "tall translucent measuring cup", "tall translucent plastic measuring cup marked up to 500 ml"],
+        "zh": ["量杯", "高的半透明量杯", "刻度到 500 毫升的高款半透明塑料量杯"]
+    },
+    "Rigid/measuring_cup/00002": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["measuring cup", "tall clear plastic measuring cup", "tall clear plastic measuring cup marked up to 500 ml"],
+        "zh": ["量杯", "高的透明塑料量杯", "刻度到 500 毫升的高款透明塑料量杯"]
+    },
+    "Rigid/measuring_cup/00003": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["measuring cup", "extra tall smoky grey measuring cup", "extra tall smoky grey plastic measuring cup marked up to 600 ml"],
+        "zh": ["量杯", "特高的烟灰色量杯", "刻度到 600 毫升的特高烟灰色半透明塑料量杯"]
+    },
+    "Rigid/measuring_cup/00004": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["measuring cup", "short orange plastic measuring cup", "short opaque orange plastic measuring cup marked up to 350 ml"],
+        "zh": ["量杯", "矮的橙色塑料量杯", "刻度到 350 毫升的矮款不透明橙色塑料量杯"]
+    },
+    "Rigid/measuring_cup/00005": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["measuring cup", "light blue plastic measuring cup", "translucent light blue plastic measuring cup marked up to 450 ml"],
+        "zh": ["量杯", "浅蓝色塑料量杯", "刻度到 450 毫升的浅蓝色半透明塑料量杯"]
+    },
+    "Rigid/paper_knife/00000": {
+        "category": {"en": "knife", "zh": "刀具"},
+        "en": ["paper knife", "yellow-rimmed paper knife", "plastic paper knife with ribbed slider and yellow tail rim"],
+        "zh": ["裁纸刀", "黄色挂孔边框的裁纸刀", "带条纹滑块和黄色挂孔边框的塑料裁纸刀"]
+    },
+    "Rigid/paper_knife/00001": {
+        "category": {"en": "knife", "zh": "刀具"},
+        "en": ["paper knife", "ivory-rimmed paper knife", "plastic paper knife with ribbed slider and ivory tail rim"],
+        "zh": ["裁纸刀", "象牙色挂孔边框的裁纸刀", "带条纹滑块和象牙色挂孔边框的塑料裁纸刀"]
+    },
+    "Rigid/paper_knife/00002": {
+        "category": {"en": "knife", "zh": "刀具"},
+        "en": ["paper knife", "orange-rimmed paper knife", "plastic paper knife with ribbed slider and orange tail rim"],
+        "zh": ["裁纸刀", "橙色挂孔边框的裁纸刀", "带条纹滑块和橙色挂孔边框的塑料裁纸刀"]
+    },
+    "Rigid/paper_knife/00003": {
+        "category": {"en": "knife", "zh": "刀具"},
+        "en": ["paper knife", "light gray rimmed paper knife", "plastic paper knife with ribbed slider and light gray tail rim"],
+        "zh": ["裁纸刀", "浅灰色挂孔边框的裁纸刀", "带条纹滑块和浅灰色挂孔边框的塑料裁纸刀"]
+    },
+    "Rigid/plastic_box/00000": {
+        "category": {"en": "box", "zh": "盒子"},
+        "en": ["plastic box", "white plastic storage box", "white square plastic storage box with a thick grey band around its open top"],
+        "zh": ["塑料盒", "白色方形塑料收纳盒", "开口一圈灰色宽边的白色方形塑料桌面收纳盒"]
+    },
+    "Rigid/plastic_box/00001": {
+        "category": {"en": "box", "zh": "盒子"},
+        "en": ["plastic box", "pink square storage box", "pastel pink square plastic box with a white band around its open top"],
+        "zh": ["塑料盒", "粉色方形收纳盒", "开口一圈白边的浅粉色方形塑料收纳盒"]
+    },
+    "Rigid/plastic_box/00002": {
+        "category": {"en": "box", "zh": "盒子"},
+        "en": ["plastic bin", "tall beige rectangular bin", "tall beige rectangular plastic bin with a dark brown band around its open top"],
+        "zh": ["塑料收纳盒", "米色高身长方形收纳盒", "开口一圈深棕色边的米色高身长方形塑料收纳盒"]
+    },
+    "Rigid/plastic_box/00003": {
+        "category": {"en": "tray", "zh": "托盘"},
+        "en": ["plastic tray", "shallow blue plastic tray", "shallow blue rectangular plastic tray with a navy band around its open top"],
+        "zh": ["塑料托盘", "蓝色浅口塑料托盘", "开口一圈藏青色边的蓝色长方形浅口塑料托盘"]
+    },
+    "Rigid/plastic_box/00004": {
+        "category": {"en": "box", "zh": "盒子"},
+        "en": ["plastic box", "yellow round-cornered storage box", "yellow plastic box with big rounded corners and a grey band around its open top"],
+        "zh": ["塑料盒", "黄色大圆角收纳盒", "开口一圈灰边的黄色大圆角塑料收纳盒"]
+    },
+    "Rigid/plastic_box/00005": {
+        "category": {"en": "box", "zh": "盒子"},
+        "en": ["plastic box", "frosted translucent storage box", "frosted translucent square plastic box with a black band around its open top"],
+        "zh": ["塑料盒", "磨砂半透明收纳盒", "开口一圈黑边的磨砂半透明方形塑料收纳盒"]
+    },
+    "Rigid/plastic_box/00006": {
+        "category": {"en": "box", "zh": "盒子"},
+        "en": ["plastic box", "small mint plastic box", "small glossy mint plastic box with a dark green band around its open top"],
+        "zh": ["塑料盒", "薄荷绿小塑料盒", "开口一圈墨绿色边的亮面薄荷绿小号塑料盒"]
+    },
+    "Rigid/plastic_cup/00001": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["plastic cup", "translucent blue plastic tumbler", "frosted translucent sky blue plastic tumbler that widens toward the rim"],
+        "zh": ["塑料杯", "半透明蓝色塑料杯", "上宽下窄的磨砂半透明天蓝色塑料杯"]
+    },
+    "Rigid/plastic_cup/00002": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["plastic cup", "frosted white plastic tumbler", "frosted milky white plastic tumbler that widens toward the rim"],
+        "zh": ["塑料杯", "磨砂白色塑料杯", "上宽下窄的磨砂乳白色塑料杯"]
+    },
+    "Rigid/plastic_cup/00003": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["plastic cup", "small clear plastic cup", "small clear transparent plastic cup without a handle"],
+        "zh": ["塑料杯", "小号透明塑料杯", "没有把手的小号全透明塑料杯"]
+    },
+    "Rigid/plastic_cup/00004": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["plastic cup", "short red party cup", "short wide opaque red plastic party cup"],
+        "zh": ["塑料杯", "矮胖的红色派对杯", "矮胖宽口的不透明红色塑料派对杯"]
+    },
+    "Rigid/plastic_cup/00005": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["plastic cup", "square green plastic cup", "frosted translucent green plastic cup with a rounded square section"],
+        "zh": ["塑料杯", "方形绿色塑料杯", "圆角方形截面的磨砂半透明绿色塑料杯"]
+    },
+    "Rigid/plastic_cup/00006": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["plastic cup", "bellied amber plastic cup", "frosted translucent amber plastic cup with a bellied body"],
+        "zh": ["塑料杯", "鼓肚琥珀色塑料杯", "杯身鼓起的磨砂半透明琥珀色塑料杯"]
+    },
+    "Rigid/plastic_cup/00007": {
+        "category": {"en": "cup", "zh": "杯子"},
+        "en": ["plastic cup", "tall purple plastic cup", "tall slim frosted translucent purple plastic cup"],
+        "zh": ["塑料杯", "高身紫色塑料杯", "细高的磨砂半透明紫色塑料杯"]
+    },
+    "Rigid/plastic_mug/00000": {
+        "category": {"en": "mug", "zh": "杯子"},
+        "en": ["plastic mug", "straight plastic mug with a D-shaped handle", "straight cylindrical plastic mug with a flat D-shaped handle"],
+        "zh": ["马克杯", "带把手的塑料马克杯", "直筒形、带扁平 D 形把手的塑料马克杯"]
+    },
+    "Rigid/plastic_mug/00001": {
+        "category": {"en": "mug", "zh": "杯子"},
+        "en": ["plastic mug", "small plastic kids mug", "small round plastic kids mug with a rounded handle"],
+        "zh": ["马克杯", "塑料儿童小杯", "带圆把手的矮圆塑料儿童杯"]
+    },
+    "Rigid/plastic_mug/00002": {
+        "category": {"en": "mug", "zh": "杯子"},
+        "en": ["plastic mug", "tall flared plastic mug", "tall plastic mug that widens toward the rim with a square-cornered handle"],
+        "zh": ["马克杯", "高身喇叭口塑料杯", "杯口外扩、带方角把手的高身塑料马克杯"]
+    },
+    "Rigid/plastic_mug/00003": {
+        "category": {"en": "mug", "zh": "杯子"},
+        "en": ["coffee mug", "ceramic coffee mug", "thick-walled glazed ceramic coffee mug with a rounded loop handle"],
+        "zh": ["咖啡杯", "陶瓷咖啡马克杯", "厚壁亮釉、带圆环把手的陶瓷咖啡杯"]
+    },
+    "Rigid/plastic_mug/00004": {
+        "category": {"en": "mug", "zh": "杯子"},
+        "en": ["plastic mug", "translucent plastic mug", "straight translucent plastic mug with a D-shaped handle"],
+        "zh": ["马克杯", "半透明塑料马克杯", "直筒形、带 D 形把手的半透明塑料马克杯"]
+    },
+    "Rigid/plastic_mug/00005": {
+        "category": {"en": "mug", "zh": "杯子"},
+        "en": ["plastic mug", "short square plastic mug", "short wide rounded square plastic mug with a flat handle"],
+        "zh": ["马克杯", "矮胖方形塑料杯", "带宽扁把手的矮胖圆角方形塑料马克杯"]
+    },
+    "Rigid/red_bean/00000": {
+        "category": {"en": "bean", "zh": "豆子"},
+        "en": ["red bean", "dark red adzuki bean", "glossy dark red adzuki bean with a white stripe along one side"],
+        "zh": ["红豆", "深红色赤小豆", "侧面带一道白线的亮面深红色赤小豆"]
+    },
+    "Rigid/wipe_bag/00000": {
+        "category": {"en": "bag", "zh": "袋子"},
+        "en": ["wipe bag", "pet wipe bag with white lid", "sealed plastic pet wipe bag with white lid and animal label"],
+        "zh": ["湿巾袋", "带白色翻盖的宠物湿巾袋", "带白色翻盖和动物标签的封口塑料宠物湿巾袋"]
+    },
+    "Rigid/wipe_bag/00001": {
+        "category": {"en": "bag", "zh": "袋子"},
+        "en": ["wipe bag", "pet wipe bag with green lid", "sealed plastic pet wipe bag with green lid and animal label"],
+        "zh": ["湿巾袋", "带绿色翻盖的宠物湿巾袋", "带绿色翻盖和动物标签的封口塑料宠物湿巾袋"]
+    },
+    "Rigid/wipe_bag/00002": {
+        "category": {"en": "bag", "zh": "袋子"},
+        "en": ["wipe bag", "pet wipe bag with red lid", "sealed plastic pet wipe bag with red lid and animal label"],
+        "zh": ["湿巾袋", "带红色翻盖的宠物湿巾袋", "带红色翻盖和动物标签的封口塑料宠物湿巾袋"]
+    },
+    "Rigid/wipe_bag/00003": {
+        "category": {"en": "bag", "zh": "袋子"},
+        "en": ["wipe bag", "pet wipe bag with blue lid", "sealed plastic pet wipe bag with blue lid and animal label"],
+        "zh": ["湿巾袋", "带蓝色翻盖的宠物湿巾袋", "带蓝色翻盖和动物标签的封口塑料宠物湿巾袋"]
     },
     "Articulation/plastic_bottle/00000": "Clutter/plastic_bottle/00000",
     "Articulation/plastic_bottle/00001": "Clutter/plastic_bottle/00001",
@@ -92,220 +462,12 @@
     "Articulation/plastic_bottle/00010": "Clutter/plastic_bottle/00010",
     "Articulation/plastic_bottle/00011": "Clutter/plastic_bottle/00011",
     "Articulation/plastic_bottle/00012": "Clutter/plastic_bottle/00012",
-    "Rigid/ceramic_cup/00000": {
-        "en": ["cup", "ceramic cup", "glazed ceramic cup", "ceramic cup with stepped rings", "glossy glazed ceramic cup whose wall steps out in rings"],
-        "zh": ["杯子", "陶瓷杯", "釉面陶瓷杯", "环纹阶梯陶瓷杯", "杯壁一圈圈向外阶梯展开的釉面陶瓷杯"]
-    },
-    "Rigid/ceramic_cup/00001": {
-        "en": ["cup", "ceramic cup", "small porcelain cup", "small smooth porcelain cup", "small plain porcelain cup with a smooth wall and no handle"],
-        "zh": ["杯子", "陶瓷杯", "小瓷杯", "素面小瓷杯", "杯壁光滑、没有把手的小号素面瓷杯"]
-    },
-    "Rigid/ceramic_cup/00002": {
-        "en": ["cup", "ceramic cup", "porcelain tea cup", "ringed porcelain tea cup", "porcelain tea cup with four stepped rings"],
-        "zh": ["杯子", "陶瓷杯", "瓷茶杯", "环纹瓷茶杯", "带四道阶梯环纹的瓷茶杯"]
-    },
-    "Rigid/ceramic_cup/00003": {
-        "en": ["cup", "ceramic cup", "clay cup", "unglazed clay cup", "unglazed clay cup with three stepped rings and a glazed inside"],
-        "zh": ["杯子", "陶瓷杯", "陶土杯", "素烧陶土杯", "外壁素烧、内壁上釉、带三道阶梯环纹的陶土杯"]
-    },
-    "Rigid/ceramic_cup/00004": {
-        "en": ["cup", "ceramic cup", "ribbed ceramic cup", "finely ribbed porcelain cup", "glazed porcelain cup with many fine stepped ribs"],
-        "zh": ["杯子", "陶瓷杯", "细纹陶瓷杯", "细密环纹釉面瓷杯", "杯壁布满细密阶梯环纹的釉面瓷杯"]
-    },
-    "Rigid/ceramic_cup/00005": {
-        "en": ["cup", "ceramic cup", "low tea cup", "wide low stoneware cup", "wide low stoneware tea bowl cup with five stepped rings"],
-        "zh": ["杯子", "陶瓷杯", "矮茶杯", "宽口矮身粗陶杯", "带五道阶梯环纹的宽口矮身粗陶茶碗杯"]
-    },
-    "Rigid/ceramic_cup/00006": {
-        "en": ["cup", "ceramic cup", "barrel ceramic cup", "barrel-shaped glazed ceramic cup", "glossy barrel-shaped ceramic cup with stepped rings and a narrower rim"],
-        "zh": ["杯子", "陶瓷杯", "鼓形陶瓷杯", "鼓形釉面陶瓷杯", "杯口收窄、带阶梯环纹的亮釉鼓形陶瓷杯"]
-    },
-    "Rigid/measuring_cup/00000": {
-        "en": ["cup", "measuring cup", "plastic measuring cup", "short translucent measuring cup", "short translucent plastic measuring cup marked up to 400 ml"],
-        "zh": ["杯子", "量杯", "塑料量杯", "矮的半透明量杯", "刻度到 400 毫升的矮款半透明塑料量杯"]
-    },
-    "Rigid/measuring_cup/00001": {
-        "en": ["cup", "measuring cup", "plastic measuring cup", "tall translucent measuring cup", "tall translucent plastic measuring cup marked up to 500 ml"],
-        "zh": ["杯子", "量杯", "塑料量杯", "高的半透明量杯", "刻度到 500 毫升的高款半透明塑料量杯"]
-    },
-    "Rigid/measuring_cup/00002": {
-        "en": ["cup", "measuring cup", "clear measuring cup", "tall clear plastic measuring cup", "tall clear plastic measuring cup marked up to 500 ml"],
-        "zh": ["杯子", "量杯", "透明量杯", "高的透明塑料量杯", "刻度到 500 毫升的高款透明塑料量杯"]
-    },
-    "Rigid/measuring_cup/00003": {
-        "en": ["cup", "measuring cup", "grey measuring cup", "extra tall smoky grey measuring cup", "extra tall smoky grey plastic measuring cup marked up to 600 ml"],
-        "zh": ["杯子", "量杯", "灰色量杯", "特高的烟灰色量杯", "刻度到 600 毫升的特高烟灰色半透明塑料量杯"]
-    },
-    "Rigid/measuring_cup/00004": {
-        "en": ["cup", "measuring cup", "orange measuring cup", "short orange plastic measuring cup", "short opaque orange plastic measuring cup marked up to 350 ml"],
-        "zh": ["杯子", "量杯", "橙色量杯", "矮的橙色塑料量杯", "刻度到 350 毫升的矮款不透明橙色塑料量杯"]
-    },
-    "Rigid/measuring_cup/00005": {
-        "en": ["cup", "measuring cup", "blue measuring cup", "light blue plastic measuring cup", "translucent light blue plastic measuring cup marked up to 450 ml"],
-        "zh": ["杯子", "量杯", "蓝色量杯", "浅蓝色塑料量杯", "刻度到 450 毫升的浅蓝色半透明塑料量杯"]
-    },
-    "Rigid/plastic_box/00000": {
-        "en": ["box", "plastic box", "desk bin", "white plastic storage box", "white square plastic storage box with a thick grey band around its open top"],
-        "zh": ["盒子", "塑料盒", "桌面垃圾盒", "白色方形塑料收纳盒", "开口一圈灰色宽边的白色方形塑料桌面收纳盒"]
-    },
-    "Rigid/plastic_box/00001": {
-        "en": ["box", "plastic box", "pink plastic box", "pink square storage box", "pastel pink square plastic box with a white band around its open top"],
-        "zh": ["盒子", "塑料盒", "粉色塑料盒", "粉色方形收纳盒", "开口一圈白边的浅粉色方形塑料收纳盒"]
-    },
-    "Rigid/plastic_box/00002": {
-        "en": ["box", "plastic bin", "tall storage bin", "tall beige rectangular bin", "tall beige rectangular plastic bin with a dark brown band around its open top"],
-        "zh": ["盒子", "塑料收纳盒", "高身收纳盒", "米色高身长方形收纳盒", "开口一圈深棕色边的米色高身长方形塑料收纳盒"]
-    },
-    "Rigid/plastic_box/00003": {
-        "en": ["tray", "plastic tray", "shallow sorting tray", "shallow blue plastic tray", "shallow blue rectangular plastic tray with a navy band around its open top"],
-        "zh": ["托盘", "塑料托盘", "浅口分拣盘", "蓝色浅口塑料托盘", "开口一圈藏青色边的蓝色长方形浅口塑料托盘"]
-    },
-    "Rigid/plastic_box/00004": {
-        "en": ["box", "plastic box", "yellow plastic box", "yellow round-cornered storage box", "yellow plastic box with big rounded corners and a grey band around its open top"],
-        "zh": ["盒子", "塑料盒", "黄色塑料盒", "黄色大圆角收纳盒", "开口一圈灰边的黄色大圆角塑料收纳盒"]
-    },
-    "Rigid/plastic_box/00005": {
-        "en": ["box", "plastic box", "clear storage box", "frosted translucent storage box", "frosted translucent square plastic box with a black band around its open top"],
-        "zh": ["盒子", "塑料盒", "透明收纳盒", "磨砂半透明收纳盒", "开口一圈黑边的磨砂半透明方形塑料收纳盒"]
-    },
-    "Rigid/plastic_box/00006": {
-        "en": ["box", "plastic box", "small desk bin", "small mint plastic box", "small glossy mint plastic box with a dark green band around its open top"],
-        "zh": ["盒子", "塑料盒", "小号桌面盒", "薄荷绿小塑料盒", "开口一圈墨绿色边的亮面薄荷绿小号塑料盒"]
-    },
-    "Rigid/plastic_cup/00001": {
-        "en": ["cup", "plastic cup", "blue plastic cup", "translucent blue plastic tumbler", "frosted translucent sky blue plastic tumbler that widens toward the rim"],
-        "zh": ["杯子", "塑料杯", "蓝色塑料杯", "半透明蓝色塑料杯", "上宽下窄的磨砂半透明天蓝色塑料杯"]
-    },
-    "Rigid/plastic_cup/00002": {
-        "en": ["cup", "plastic cup", "white plastic cup", "frosted white plastic tumbler", "frosted milky white plastic tumbler that widens toward the rim"],
-        "zh": ["杯子", "塑料杯", "白色塑料杯", "磨砂白色塑料杯", "上宽下窄的磨砂乳白色塑料杯"]
-    },
-    "Rigid/plastic_cup/00003": {
-        "en": ["cup", "plastic cup", "clear plastic cup", "small clear plastic cup", "small clear transparent plastic cup without a handle"],
-        "zh": ["杯子", "塑料杯", "透明塑料杯", "小号透明塑料杯", "没有把手的小号全透明塑料杯"]
-    },
-    "Rigid/plastic_cup/00004": {
-        "en": ["cup", "plastic cup", "red plastic cup", "short red party cup", "short wide opaque red plastic party cup"],
-        "zh": ["杯子", "塑料杯", "红色塑料杯", "矮胖的红色派对杯", "矮胖宽口的不透明红色塑料派对杯"]
-    },
-    "Rigid/plastic_cup/00005": {
-        "en": ["cup", "plastic cup", "green plastic cup", "square green plastic cup", "frosted translucent green plastic cup with a rounded square section"],
-        "zh": ["杯子", "塑料杯", "绿色塑料杯", "方形绿色塑料杯", "圆角方形截面的磨砂半透明绿色塑料杯"]
-    },
-    "Rigid/plastic_cup/00006": {
-        "en": ["cup", "plastic cup", "amber plastic cup", "bellied amber plastic cup", "frosted translucent amber plastic cup with a bellied body"],
-        "zh": ["杯子", "塑料杯", "琥珀色塑料杯", "鼓肚琥珀色塑料杯", "杯身鼓起的磨砂半透明琥珀色塑料杯"]
-    },
-    "Rigid/plastic_cup/00007": {
-        "en": ["cup", "plastic cup", "purple plastic cup", "tall purple plastic cup", "tall slim frosted translucent purple plastic cup"],
-        "zh": ["杯子", "塑料杯", "紫色塑料杯", "高身紫色塑料杯", "细高的磨砂半透明紫色塑料杯"]
-    },
-    "Rigid/plastic_mug/00000": {
-        "en": ["mug", "plastic mug", "plastic mug with a handle", "straight plastic mug with a D-shaped handle", "straight cylindrical plastic mug with a flat D-shaped handle"],
-        "zh": ["杯子", "马克杯", "塑料马克杯", "带把手的塑料马克杯", "直筒形、带扁平 D 形把手的塑料马克杯"]
-    },
-    "Rigid/plastic_mug/00001": {
-        "en": ["mug", "plastic mug", "small kids mug", "small plastic kids mug", "small round plastic kids mug with a rounded handle"],
-        "zh": ["杯子", "马克杯", "儿童小杯", "塑料儿童小杯", "带圆把手的矮圆塑料儿童杯"]
-    },
-    "Rigid/plastic_mug/00002": {
-        "en": ["mug", "plastic mug", "tall plastic mug", "tall flared plastic mug", "tall plastic mug that widens toward the rim with a square-cornered handle"],
-        "zh": ["杯子", "马克杯", "高身马克杯", "高身喇叭口塑料杯", "杯口外扩、带方角把手的高身塑料马克杯"]
-    },
-    "Rigid/plastic_mug/00003": {
-        "en": ["mug", "coffee mug", "ceramic mug", "ceramic coffee mug", "thick-walled glazed ceramic coffee mug with a rounded loop handle"],
-        "zh": ["杯子", "咖啡杯", "陶瓷马克杯", "陶瓷咖啡马克杯", "厚壁亮釉、带圆环把手的陶瓷咖啡杯"]
-    },
-    "Rigid/plastic_mug/00004": {
-        "en": ["mug", "plastic mug", "translucent mug", "translucent plastic mug", "straight translucent plastic mug with a D-shaped handle"],
-        "zh": ["杯子", "马克杯", "半透明杯子", "半透明塑料马克杯", "直筒形、带 D 形把手的半透明塑料马克杯"]
-    },
-    "Rigid/plastic_mug/00005": {
-        "en": ["mug", "plastic mug", "square plastic mug", "short square plastic mug", "short wide rounded square plastic mug with a flat handle"],
-        "zh": ["杯子", "马克杯", "方形马克杯", "矮胖方形塑料杯", "带宽扁把手的矮胖圆角方形塑料马克杯"]
-    },
-    "Rigid/red_bean/00000": {
-        "en": ["bean", "red bean", "adzuki bean", "dark red adzuki bean", "glossy dark red adzuki bean with a white stripe along one side"],
-        "zh": ["豆子", "红豆", "赤小豆", "深红色赤小豆", "侧面带一道白线的亮面深红色赤小豆"]
-    },
-    "Rigid/paper_knife/00000": {
-        "en": ["knife", "paper knife", "plastic paper knife", "plastic paper knife with metal guide", "plastic paper knife with ribbed slider and yellow tail rim"],
-        "zh": ["刀具", "裁纸刀", "塑料裁纸刀", "带金属导轨的塑料裁纸刀", "带条纹滑块和黄色挂孔边框的塑料裁纸刀"]
-    },
-    "Rigid/paper_knife/00001": {
-        "en": ["knife", "paper knife", "plastic paper knife", "plastic paper knife with metal guide", "plastic paper knife with ribbed slider and ivory tail rim"],
-        "zh": ["刀具", "裁纸刀", "塑料裁纸刀", "带金属导轨的塑料裁纸刀", "带条纹滑块和象牙色挂孔边框的塑料裁纸刀"]
-    },
-    "Rigid/paper_knife/00002": {
-        "en": ["knife", "paper knife", "plastic paper knife", "plastic paper knife with metal guide", "plastic paper knife with ribbed slider and orange tail rim"],
-        "zh": ["刀具", "裁纸刀", "塑料裁纸刀", "带金属导轨的塑料裁纸刀", "带条纹滑块和橙色挂孔边框的塑料裁纸刀"]
-    },
-    "Rigid/paper_knife/00003": {
-        "en": ["knife", "paper knife", "plastic paper knife", "plastic paper knife with metal guide", "plastic paper knife with ribbed slider and light gray tail rim"],
-        "zh": ["刀具", "裁纸刀", "塑料裁纸刀", "带金属导轨的塑料裁纸刀", "带条纹滑块和浅灰色挂孔边框的塑料裁纸刀"]
-    },
-  "Rigid/wipe_bag/00000": {
-    "en": [
-      "bag",
-      "wipe bag",
-      "pet wipe bag",
-      "pet wipe bag with white lid",
-      "sealed plastic pet wipe bag with white lid and animal label"
-    ],
-    "zh": [
-      "袋子",
-      "湿巾袋",
-      "宠物湿巾袋",
-      "带白色翻盖的宠物湿巾袋",
-      "带白色翻盖和动物标签的封口塑料宠物湿巾袋"
-    ]
-  },
-  "Rigid/wipe_bag/00001": {
-    "en": [
-      "bag",
-      "wipe bag",
-      "pet wipe bag",
-      "pet wipe bag with green lid",
-      "sealed plastic pet wipe bag with green lid and animal label"
-    ],
-    "zh": [
-      "袋子",
-      "湿巾袋",
-      "宠物湿巾袋",
-      "带绿色翻盖的宠物湿巾袋",
-      "带绿色翻盖和动物标签的封口塑料宠物湿巾袋"
-    ]
-  },
-  "Rigid/wipe_bag/00002": {
-    "en": [
-      "bag",
-      "wipe bag",
-      "pet wipe bag",
-      "pet wipe bag with red lid",
-      "sealed plastic pet wipe bag with red lid and animal label"
-    ],
-    "zh": [
-      "袋子",
-      "湿巾袋",
-      "宠物湿巾袋",
-      "带红色翻盖的宠物湿巾袋",
-      "带红色翻盖和动物标签的封口塑料宠物湿巾袋"
-    ]
-  },
-  "Rigid/wipe_bag/00003": {
-    "en": [
-      "bag",
-      "wipe bag",
-      "pet wipe bag",
-      "pet wipe bag with blue lid",
-      "sealed plastic pet wipe bag with blue lid and animal label"
-    ],
-    "zh": [
-      "袋子",
-      "湿巾袋",
-      "宠物湿巾袋",
-      "带蓝色翻盖的宠物湿巾袋",
-      "带蓝色翻盖和动物标签的封口塑料宠物湿巾袋"
-    ]
-  }
+    "Articulation/plastic_bottle/00013": "Clutter/plastic_bottle/00013",
+    "Articulation/plastic_bottle/00014": "Clutter/plastic_bottle/00014",
+    "Articulation/plastic_bottle/00015": "Clutter/plastic_bottle/00015",
+    "Articulation/plastic_bottle/00016": "Clutter/plastic_bottle/00016",
+    "Articulation/plastic_bottle/00017": "Clutter/plastic_bottle/00017",
+    "Articulation/plastic_bottle/00018": "Clutter/plastic_bottle/00018",
+    "Articulation/plastic_bottle/00019": "Clutter/plastic_bottle/00019",
+    "Dynamic/paper_cup/00000": "Clutter/paper_cup/00000"
 }

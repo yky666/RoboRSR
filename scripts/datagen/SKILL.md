@@ -11,7 +11,7 @@ description: 在 RoboDojo 里用脚本专家批量生成 G1-D 仿真示教数据
 
 | 层 | 位置 | 入库 |
 | :-- | :-- | :-- |
-| 任务登记 | `real2sim/tasks/<任务>/registration.json`：数采平台「登记任务」写的中文任务定义、指令转写要求（每种语言 N 条，中文 / 英文）、成功判据、物体角色和候选物体、干扰物、训练 / 保留场景、五个泛化维度的最高档和各档范围、各综合等级和单维度诊断的评测布局数；任务抽屉里有给 coding agent 的实现任务文本。coding agent 从任务定义总结指令并转写，写进同目录的 `instructions.json`（`{"zh": [...], "en": [...]}`），`gen_instruction` 返回这些句子。句子里的物体写成角色标签占位符（如 `<source_cup>`），每回合按句子语言从该物体 `description.json` 的 `names`（从简到详的名称，见 `scripts/objects/SKILL.md`「指令名称」）里取一个填入，两个物体共有的名称不用 | 是 |
+| 任务登记 | `real2sim/tasks/<任务>/registration.json`：数采平台「登记任务」写的中文任务定义、指令转写要求（每种语言 N 条，中文 / 英文）、成功判据、物体角色和候选物体、干扰物、训练 / 保留场景、五个泛化维度的最高档和各档范围、各综合等级和单维度诊断的评测布局数；任务抽屉里有给 coding agent 的实现任务文本。coding agent 从任务定义总结指令并转写，写进同目录的 `instructions.json`（`{"zh": [...], "en": [...]}`），`gen_instruction` 返回这些句子。句子里的物体写成角色标签占位符（如 `<source_cup>`），每回合按句子语言从该物体 `description.json` 的 `names`（大类名称加 3 个从简到详的名称，见 `scripts/objects/SKILL.md`「指令名称」）里取一个填入，两个物体共有的名称不用 | 是 |
 | 流水线代码、任务插件 | `scripts/datagen/`、`scripts/datagen/plugins/<任务>.py`；专家动作在 `scripts/g1d/scripted_demo.py` | 是 |
 | 数据集登记 | `scripts/datagen/registry.json` | 是 |
 | 候选布局、训练分片 | GPU 服务器运行目录的 `Assets/Eval_Layout/RoboDojo/<配置>/<seed>/` | 否 |

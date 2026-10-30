@@ -439,16 +439,18 @@ class LayoutManager:
             return (pos, rot)
 
     def get_label_descriptions(self, env_idx, label=None, inst_name=None, lang=None):
-        """The object's instruction names in `lang` when its description.json has them, else its descriptions."""
+        """The object's instruction names in `lang` (its category name first) when its description.json has them,
+        else its descriptions."""
         metadata = self.get_instance_metadata(env_idx=env_idx, label=label, inst_name=inst_name)
         if metadata is None:
             print(
                 f"No instance found with label {label} or inst_name {inst_name} in env {env_idx} for getting description."
             )
             return []
-        names = (metadata.get("names") or {}).get(lang)
-        if names:
-            return list(names)
+        names = metadata.get("names") or {}
+        if names.get(lang):
+            category = (names.get("category") or {}).get(lang)
+            return [category, *names[lang]] if category else list(names[lang])
         desc_data = deepcopy(metadata.get("description", None))
         if desc_data is None:
             return []

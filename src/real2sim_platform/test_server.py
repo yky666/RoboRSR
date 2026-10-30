@@ -331,6 +331,10 @@ def test_http():
         (built / "metadata.json").write_text(json.dumps({"physics": {"mass": 0.05}, "measurements_mm": {"高": 95.5}}))
         assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["measurements"] == {"高": 95.5}
         assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["library"] == "RoboDojo"
+        assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["names"] == {}
+        names = {"category": {"en": "cup", "zh": "杯子"}, "en": ["a", "b", "c"], "zh": ["甲", "乙", "丙"]}
+        (built / "description.json").write_text(json.dumps({"caption": {"name": ["cup"]}, "names": names}))
+        assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["names"] == names
         twin_dir = tmp / "Object/Real2Sim/Rigid/cup/00005"  # a twin built here: the Real2Sim library, found first
         twin_dir.mkdir(parents=True)
         (twin_dir / "metadata.json").write_text(json.dumps({"physics": {"mass": 0.02}}))
