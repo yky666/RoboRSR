@@ -26,9 +26,47 @@
     }
   },
   "overlay": [],
+  "photo_overlay": {
+    "method": "phone photos, cameras fitted to the same hand-picked pixels (fit_photo.py), so in-sample; tabletop corners and edges only; not the robot-camera overlay (overlay)",
+    "date": "2026-10-30",
+    "views": [
+      {
+        "image": "reference/IMG_4913.jpeg",
+        "max_px": 1.1
+      },
+      {
+        "image": "reference/IMG_4914.jpeg",
+        "max_px": 2.0
+      },
+      {
+        "image": "reference/IMG_4916.jpeg",
+        "max_px": 1.3
+      },
+      {
+        "image": "reference/IMG_4917.jpeg",
+        "max_px": 1.9
+      },
+      {
+        "image": "reference/IMG_4918.jpeg",
+        "max_px": 3.7
+      }
+    ],
+    "max_px": 3.7,
+    "status": "pass"
+  },
   "lighting": {
     "status": "recorded",
-    "note": "registered: ceiling strip lights. Since 2026-10-27 modelled at the photographed positions: three LED strips in the perforated ceiling (RectLight 0.06 m wide, 100000) and five cone-shaped downlights in the back soffit (DiskLight r 0.05 m, 1.6e6, 55 deg), 6000 K, dome 150. Intensities chosen so the irradiance at the desk, back wall and near floor matches the 2026-10-21 RTX colour match (four 1.2 x 0.15 m RectLights at 54000; desk 1.01x, wall 0.74-0.91x, floor 1.24x by numeric integration); the RTX colour match against IMG_4916 has not been redone. Not compared with the head camera"
+    "note": "registered: ceiling strip lights. Since 2026-10-27 modelled at the photographed positions: three LED strips in the perforated ceiling (RectLight 0.06 m wide, 100000) and five cone-shaped downlights in the back soffit (DiskLight r 0.05 m, 1.6e6, 55 deg), 6000 K, dome 150. Intensities chosen so the irradiance at the desk, back wall and near floor matches the 2026-10-21 RTX colour match (four 1.2 x 0.15 m RectLights at 54000; desk 1.01x, wall 0.74-0.91x, floor 1.24x by numeric integration); the RTX colour match against IMG_4916 has not been redone. Not compared with the head camera",
+    "photo_match": {
+      "method": "Isaac RTX from each fitted photo camera (scripts/scenes/render_scenes.py --photos), median CIELAB of photo vs render over the whole frame, averaged over the photos; target |dL*| <= 5, |db*| <= 3; phone auto exposure and white balance make it indicative only",
+      "date": "2026-10-30",
+      "photos": 12,
+      "L_photo": 66.3,
+      "L_render": 63.6,
+      "b_photo": 4.4,
+      "b_render": 2.5,
+      "change": "none"
+    }
   },
   "notes": "Table support registered as four legs; the photos show a lift desk with two T legs, modelled as photographed. Floor registered as grey striped tiles: carpet tiles in the photos, modelled with a carpet patch rectified from IMG_4913. Room from the 2026-10-27 photos: only desks, chairs, the shelf, the railing and turnstile are modelled (no boxes, bags or loose items). In those photos the desk had been pulled off the wall and moved ~0.3 m towards the cabinet; the twin keeps the registered position (fit_photo.py) and anchors the room to the cabinet and wall outlets."
 }

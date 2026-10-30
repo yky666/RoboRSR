@@ -48,6 +48,8 @@ description: 给真实工位建或更新 RoboDojo 数字孪生场景：现场拍
 - 有 `mesh/` 网格时把它当几何先验，不当资产：先核对单位、上方向（Y-up 转 Z-up）和比例，和卷尺差超过 2 cm 先找原因，不要整体缩放凑数，冲突时以卷尺为准；桌面平面、桌沿、桌腿 / 柜体、墙地面和固定物的位置尺寸从网格上量，再和照片拟合互相校验。扫描有孔洞、噪声和烘焙光照，桌面、墙、地面拟合成参数化几何，复杂固定物裁出来减面做视觉网格，碰撞体另做。`PLAN.md` 记下用的文件、sha256 和对齐变换。
 - 碰撞体：每个凸包最多 64 个顶点、单个面最多 32 个顶点，否则不能和颗粒碰撞（吧台场景就有 6–7 个超限，豆子会穿过去）。
 - 灯光放在 Room 里。房间要有天花板，否则 RoboDojo 默认的棕色 HDR 会从上方漏进来，画面偏黄；Isaac 相机没有白平衡，色温要按照片调。
+- 对色：`preview.py` 会写 `preview/photo_cameras.json`（每张照片的拟合相机）；在 GPU 服务器上跑 `render_scenes.py real2sim/scenes/<场景> --photos --device cuda:<卡>`，每张照片得到一张「照片 | RTX」对比图 `preview/render/sim_photo_<照片>.jpg`（只有 SfM 相机 `reference/cameras_scene.json` 的办公室直接读它）。逐张算整幅 CIELAB 中位数，再对所有照片取平均，目标是 |ΔL\*| ≤ 5、|Δb\*| ≤ 3；结果记进 `scene_spec.json` 的 `lighting.photo_match`。手机有自动曝光和白平衡，这个数只能作参考，现场测光记录和机器人头部画面仍然是准绳。窗洞里看到的天空就是穹顶光，把它压暗，窗外会变成褐色。
+- 没有机器人相机画面时，可以先做照片叠图：用拟合好的照片相机投影桌角和桌沿，结果记进 `scene_spec.json` 的 `photo_overlay`，不要写进 `overlay`（`acceptance.py` 把 `overlay` 当成机器人相机叠图）。如果相机就是用同一批标注拟合出来的，误差是样本内的，要注明。
 
 ## 叠图检查
 

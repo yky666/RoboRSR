@@ -202,7 +202,9 @@ SHELF_ITEMS = {
     },
 }
 
-# Not calibrated: 9000 / 4500 K / 250 overexposed the marble and turned the wood orange in the first RTX render.
+# Matched in RTX to the 9 fitted photos (render_scenes.py --photos, 2026-10-30): median L* 56.7 vs 56.5 in the photos,
+# b* 21.0 vs 18.8; 6000 / 5000 K / 150 rendered L* 44. In the first RTX render (counter only, 2026-10-16) 9000 / 4500 K /
+# 250 overexposed the marble and turned the wood orange.
 LIGHTS = dict(
     panels=[
         (-0.6, -0.55),
@@ -213,9 +215,9 @@ LIGHTS = dict(
         (2.8, (GREEN["y0"] + GREEN["y1"]) / 2),
     ],
     panel_size=(1.2, 0.6),
-    intensity=6000.0,
-    color_temperature=5000.0,
-    dome=150.0,
+    intensity=18000.0,
+    color_temperature=5500.0,
+    dome=450.0,
 )
 
 SCALE = 1.0
