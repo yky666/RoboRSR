@@ -177,14 +177,14 @@
    }
   },
   {
-   "name": "G1-D stock stance clears the cabinets (else move the robot back)",
-   "ok": false,
+   "name": "G1-D counter stance clears the cabinets (else move the robot back)",
+   "ok": true,
    "detail": {
     "room_offset_y": -0.32,
     "cabinet_front_in_robodojo": -0.58,
-    "stock_root_y": -0.73,
+    "root_y": -0.8,
     "max_root_y": -0.8,
-    "counter_edge_to_root": 0.2
+    "counter_edge_to_root": 0.201
    }
   },
   {
@@ -248,6 +248,6 @@
   "RTX rendering, exposure and colour match against the photo",
   "real sizes, friction and light intensities (estimates)"
  ],
- "passed": 25,
+ "passed": 26,
  "total": 26
 }

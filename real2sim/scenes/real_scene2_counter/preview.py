@@ -152,16 +152,23 @@ def render(scene, eye, target, hfov_deg, size=(800, 600), bg=(0.0, 0.0, 0.0), R=
     return (np.clip(img, 0, 1) * 255).astype(np.uint8)
 
 
+def photo_camera(name, eye, R, hfov_deg, size):
+    """A photo's camera for scripts/scenes/render_scenes.py --photos."""
+    return dict(image=f"reference/{name}", eye=[float(v) for v in eye], R=np.asarray(R).tolist(),
+                hfov_deg=float(hfov_deg), size=list(size))
+
+
 def main():
     (HERE / "preview").mkdir(exist_ok=True)
     scene = load_scene()
     fit = json.loads((HERE / "fit_photo.json").read_text())  # phone poses fitted by fit_photo.py
     dy = json.loads((USD / "build_params.json").read_text())["table"]["width"] / 2 - 0.30  # fit frame -> scene
-    rows = []
+    rows, cams = [], {}
     for name in ("photo.jpg", "photo2.jpg"):
         cam = fit[name]
         R = cv2.Rodrigues(np.array(cam["rvec"]))[0]
         eye = -R.T @ np.array(cam["tvec"]) + [0, dy, 0]
+        cams[name] = photo_camera(name, eye, R, fit["hfov_deg"], (1024, 768))
         view = render(scene, eye=eye, target=None, hfov_deg=fit["hfov_deg"], size=(1024, 768), R=R)
         rows.append(np.hstack([cv2.imread(str(HERE / "reference" / name)), cv2.cvtColor(view, cv2.COLOR_RGB2BGR)]))
     cv2.imwrite(str(HERE / "preview" / "compare_photo.jpg"), np.vstack(rows), [cv2.IMWRITE_JPEG_QUALITY, 85])
@@ -175,6 +182,7 @@ def main():
     for name, cam in lounge["cameras"].items():
         R = cv2.Rodrigues(np.array(cam["rvec"]))[0]
         eye = -R.T @ np.array(cam["tvec"]) + origin
+        cams[name] = photo_camera(name, eye, R, hfov, (1024, 768))
         view = render(scene, eye=eye, target=None, hfov_deg=hfov, size=(1024, 768), R=R)
         rows.append(np.hstack([cv2.imread(str(HERE / "reference" / name)), cv2.cvtColor(view, cv2.COLOR_RGB2BGR)]))
     cv2.imwrite(str(HERE / "preview" / "compare_lounge.jpg"), np.vstack(rows), [cv2.IMWRITE_JPEG_QUALITY, 80])
@@ -187,10 +195,12 @@ def main():
         R = cv2.Rodrigues(np.array(cam["rvec"]))[0]
         eye = -R.T @ np.array(cam["tvec"])
         hfov = math.degrees(2 * math.atan(w / 2 / island["focal_px"]))
+        cams[name] = photo_camera(name, eye, R, hfov, (w, h))
         view = render(scene, eye=eye, target=None, hfov_deg=hfov, size=(w, h), R=R)
         pair = cv2.resize(np.hstack([photo, cv2.cvtColor(view, cv2.COLOR_RGB2BGR)]), (2 * w * 768 // h, 768))
         rows.append(np.hstack([pair, np.zeros((768, 2048 - pair.shape[1], 3), np.uint8)]))
     cv2.imwrite(str(HERE / "preview" / "compare_island.jpg"), np.vstack(rows), [cv2.IMWRITE_JPEG_QUALITY, 80])
+    (HERE / "preview" / "photo_cameras.json").write_text(json.dumps(cams, indent=1))
     # plan without the ceiling and what hangs from it
     low = [o for o in scene if o["tris"][..., 2].max() < 2.5]
     plan = render(low, eye=(-1.0, -2.6, 13.0), target=(-1.0, -2.59, 0.0), hfov_deg=80, size=(1024, 768))

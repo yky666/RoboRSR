@@ -13,6 +13,7 @@ from pathlib import Path
 import sys
 import tempfile
 import threading
+from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import server
@@ -217,16 +218,18 @@ def test_account_migration():
     old.commit()
     old.close()
     store = server.Store(path)
-    assert store.users() == [{"username": "bob", "name": "Bob", "admin": False, "guest": False}]
-    assert store.check("bob", "password1") == {"username": "bob", "name": "Bob", "admin": False, "guest": False}
-    assert store.edit_user("bob", admin=True) and store.users()[0]["admin"]
+    bob = {"username": "bob", "name": "Bob", "admin": False, "guest": False, "sim_admin": False, "ds_admin": False}
+    assert store.users() == [bob]
+    assert store.check("bob", "password1") == bob
+    everywhere = {"admin": True, "sim_admin": True, "ds_admin": True}
+    assert store.edit_user("bob", admin=True) and store.users()[0] == {**bob, **everywhere}
     assert not store.add_user("bob", "password2") and store.check("bob", "password1")
-    assert store.edit_user("bob", admin=False, guest=True) and store.users()[0]["guest"]
-    assert store.edit_user("bob", admin=True, guest=True) and store.users()[0] == {
-        **store.users()[0],
-        "admin": True,
-        "guest": False,
-    }
+    assert store.edit_user("bob", admin=False, guest=True) and store.users()[0] == {**bob, "guest": True}
+    assert store.edit_user("bob", admin=True, guest=True) and not store.users()[0]["guest"]
+    # rights per product: a dataset admin who is only a guest on the simulation platform, and the reverse
+    assert store.edit_user("bob", admin=False, guest=True, ds_admin=True)
+    assert store.users()[0] == {**bob, "guest": True, "ds_admin": True}
+    assert store.edit_user("bob", sim_admin=True, ds_admin=False) and store.users()[0] == {**bob, "sim_admin": True}
 
 
 def test_http():
@@ -270,7 +273,8 @@ def test_http():
         assert request("GET", "/api/info")[0] == 401 and request("GET", "/api/me")[0] == 401
         assert login("alice", "wrong-pass")[0] == 401 and login("nobody", "password1")[0] == 401
         status, me, cookie = login("alice", "password1")
-        assert status == 200 and me == {"username": "alice", "name": "张三", "admin": True, "guest": False}
+        alice = dict(username="alice", name="张三", admin=True, guest=False, sim_admin=True, ds_admin=True)
+        assert status == 200 and me == alice
         assert cookie.startswith("r2s_session=")
         session["Cookie"] = cookie
         assert json.loads(request("GET", "/api/me")[1])["name"] == "张三"
@@ -327,6 +331,10 @@ def test_http():
         (built / "metadata.json").write_text(json.dumps({"physics": {"mass": 0.05}, "measurements_mm": {"高": 95.5}}))
         assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["measurements"] == {"高": 95.5}
         assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["library"] == "RoboDojo"
+        assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["names"] == {}
+        names = {"category": {"en": "cup", "zh": "杯子"}, "en": ["a", "b", "c"], "zh": ["甲", "乙", "丙"]}
+        (built / "description.json").write_text(json.dumps({"caption": {"name": ["cup"]}, "names": names}))
+        assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["names"] == names
         twin_dir = tmp / "Object/Real2Sim/Rigid/cup/00005"  # a twin built here: the Real2Sim library, found first
         twin_dir.mkdir(parents=True)
         (twin_dir / "metadata.json").write_text(json.dumps({"physics": {"mass": 0.02}}))
@@ -416,6 +424,14 @@ def test_http():
         front = tmp / "scenes/real_scene9_kitchen/reference/front.webp"
         assert status == 200 and json.loads(body)["path"] == str(front)
         assert request("POST", "/api/photo?kind=scene&id=Rigid/cup/00000&name=a.jpg", b"jpg")[0] == 400
+        status, body, _ = request("POST", f"/api/mesh?id=real_scene9_kitchen&name={quote('../扫描 1.GLB')}", b"glTF")
+        mesh = tmp / "scenes/real_scene9_kitchen/mesh/扫描_1.glb"
+        assert status == 200 and json.loads(body)["path"] == str(mesh) and mesh.read_bytes() == b"glTF"
+        assert request("POST", "/api/mesh?id=real_scene9_kitchen&name=room.gltf", b"{}")[0] == 400  # needs side files
+        assert request("POST", "/api/mesh?id=real_scene7_nowhere&name=a.glb", b"glTF")[0] == 400
+        assert request("POST", "/api/photo?kind=scene&id=real_scene9_kitchen&name=a.glb", b"glTF")[0] == 400
+        assert server.scan_scenes()["real_scene9_kitchen"]["meshes"] == [{"path": str(mesh), "size": 4}]
+        assert request("DELETE", f"/api/photo?path={quote(str(mesh))}")[0] == 200 and not mesh.exists()
         found = server.scan_scenes()["real_scene9_kitchen"]
         assert found["registered"] and not found["built"] and len(found["photos"]) == 1
         assert found["renders"] == [] and found["model"] is None
@@ -557,10 +573,11 @@ def test_http():
             return status, json.loads(data)
 
         carol = {"username": "carol", "name": "李四", "password": "password1"}
+        member = {"admin": False, "guest": False, "sim_admin": False, "ds_admin": False}
         assert users("POST", body={**carol, "password": "short"})[0] == 400
         assert users("POST", body={**carol, "username": "a b"})[0] == 400
         status, listed = users("POST", body=carol)
-        assert status == 200 and {"username": "carol", "name": "李四", "admin": False, "guest": False} in listed
+        assert status == 200 and {"username": "carol", "name": "李四", **member} in listed
         assert users("POST", body=carol)[0] == 409
         carol_cookie = login("carol", "password1")[2]
         for method in ("GET", "POST", "PUT", "DELETE"):  # members cannot manage accounts
@@ -573,20 +590,57 @@ def test_http():
         assert users("DELETE", "/api/users?username=alice")[0] == 400
         assert users("PUT", "/api/users?username=nobody", {"name": "x"})[0] == 404
         status, listed = users("PUT", "/api/users?username=carol", {"name": "王五", "password": "password9"})
-        assert status == 200 and {"username": "carol", "name": "王五", "admin": False, "guest": False} in listed
+        assert status == 200 and {"username": "carol", "name": "王五", **member} in listed
         assert request("GET", "/api/me", headers={"Cookie": carol_cookie})[0] == 401  # reset password ends sessions
         carol_cookie = login("carol", "password9")[2]
-        assert users("PUT", "/api/users?username=carol", {"admin": True, "guest": False})[1][1]["admin"]
+        # a simulation-platform admin reviews and deletes there, but neither manages accounts nor edits datasets
+        assert users("PUT", "/api/users?username=carol", {"sim": "admin"})[1][1] == {
+            "username": "carol",
+            "name": "王五",
+            **member,
+            "sim_admin": True,
+        }
+        assert users("GET", cookie=carol_cookie)[0] == 403
+        put_ds = json.dumps({"name": "改名"})
+        assert request("PUT", "/api/items?kind=dataset&id=droid", put_ds, {"Cookie": carol_cookie})[0] == 403
+        assert users("PUT", "/api/users?username=carol", {"sim": "owner"})[0] == 400
+        assert users("PUT", "/api/users?username=carol", {"datasets": "editor"})[0] == 400
+        assert users("PUT", "/api/users?username=carol", {"admin": True})[1][1]["admin"]
         assert users("GET", cookie=carol_cookie)[0] == 200
-        assert users("DELETE", "/api/users?username=carol")[1] == [
-            {"username": "alice", "name": "张三", "admin": True, "guest": False}
-        ]
+        assert users("DELETE", "/api/users?username=carol")[1] == [alice]
         assert request("GET", "/api/me", headers={"Cookie": carol_cookie})[0] == 401
 
-        dave = {"username": "dave", "name": "访客", "password": "password1", "role": "guest"}
-        assert users("POST", body={**dave, "role": "owner"})[0] == 400
-        assert {"username": "dave", "name": "访客", "admin": False, "guest": True} in users("POST", body=dave)[1]
+        # dataset edits: whole edit replaced each time, checked fields only, dataset admins only
+        ds = "/api/items?kind=dataset&id=droid"
+        edit = {"name": "DROID 改", "f": {"source": ["real", "mixed"]}, "episodes": 10, "hours": None}
+        status, doc = users("PUT", ds, edit)
+        assert status == 200 and doc["name"] == "DROID 改" and doc["_by"] == "张三" and doc["hours"] is None
+        status, doc = users("PUT", ds, {"desc": "只改简介"})
+        assert status == 200 and "name" not in doc and doc["desc"] == "只改简介"  # name follows the inventory again
+        for bad in (
+            {"url": "javascript:alert(1)"},
+            {"episodes": -1},
+            {"episodes": True},
+            {"f": {"source": "real"}},
+            {"f": {"source": ["<b>"]}},
+            {"secret": 1},
+            {"name": "x" * 81},
+            {"custom": True, "name": " "},
+        ):
+            assert users("PUT", ds, bad)[0] == 400, bad
+        assert request("PUT", "/api/items?kind=dataset&id=Bad_ID", json.dumps({"desc": "x"}))[0] == 400
+        assert [d["id"] for d in users("GET", "/api/items?kind=dataset")[1]] == ["droid"]
+        assert users("DELETE", ds)[1] == {"ok": True} and users("GET", "/api/items?kind=dataset")[1] == []
+
+        dave = {"username": "dave", "name": "访客", "password": "password1", "sim": "guest", "datasets": "admin"}
+        assert users("POST", body={**dave, "sim": "owner"})[0] == 400
+        assert {"username": "dave", "name": "访客", **member, "guest": True, "ds_admin": True} in users(
+            "POST", body=dave
+        )[1]
         as_dave = {"Cookie": login("dave", "password1")[2]}
+        added = json.dumps({"custom": True, "name": "自采数据", "f": {"source": ["sim"]}})
+        assert request("PUT", "/api/items?kind=dataset&id=ds-own", added, as_dave)[0] == 200  # datasets: admin
+        assert request("DELETE", "/api/items?kind=dataset&id=ds-own", headers=as_dave)[0] == 200
         assert json.loads(request("GET", "/api/me", headers=as_dave)[1])["guest"]
         assert request("GET", "/api/items?kind=task", headers=as_dave)[0] == 200  # a guest reads everything
         status, _, resp = request("PUT", "/api/items?kind=task&id=g1d_stack_blocks", b'{"target": 1}', as_dave)
@@ -596,8 +650,8 @@ def test_http():
         assert request("POST", "/api/users", json.dumps(carol), as_dave)[0] == 403
         new_pw = json.dumps({"old": "password1", "new": "password3"})  # but keeps their own password and session
         assert request("POST", "/api/password", new_pw, as_dave)[0] == 200
-        assert {"username": "dave", "name": "访客", "admin": True, "guest": False} in users(
-            "PUT", "/api/users?username=dave", {"role": "admin"}
+        assert {**alice, "username": "dave", "name": "访客"} in users(
+            "PUT", "/api/users?username=dave", {"admin": True}
         )[1]
         assert users("DELETE", "/api/users?username=dave")[0] == 200
 
@@ -803,6 +857,13 @@ def test_object_review_and_libraries(tmp_path, monkeypatch):
         assert call("bob", "PUT", obj, {"photo_order": "c.jpg"})[0] == 400
         doc = call("bob", "PUT", obj, {"photo_order": ["c.jpg", "a.jpg"]})[1]
         assert doc["auto"]["photos"] == ["/r/c.jpg", "/r/a.jpg", "/r/b.jpg"]  # unlisted ones stay at the end
+
+        assert call("bob", "PUT", obj, {"hidden": True})[0] == 403  # hiding is for admins
+        assert call("boss", "PUT", obj, {"hidden": "yes"})[0] == 400
+        assert call("boss", "PUT", obj, {"hidden": True, "name": "x"})[0] == 400  # a hide request carries nothing else
+        assert call("boss", "PUT", "/api/items?kind=object&id=Rigid/none/00000", {"hidden": True})[0] == 404
+        assert call("boss", "PUT", obj, {"hidden": True})[1]["hidden"] is True
+        assert call("boss", "PUT", obj, {"hidden": False})[1]["hidden"] is False
 
         store.sync("object", {oid: {"built": True, "check": {"checked_at": "t2"}}})  # rebuilt: review again
         assert server.review_state(store.get("object", oid)) == "review"

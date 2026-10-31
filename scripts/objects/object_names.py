@@ -1,10 +1,12 @@
 """Instruction names of the Real2Sim objects: object_names.json -> description.json "names".
 
-Every object and every generalization variant has English and Chinese names, ordered from the bare category to a
-phrase that singles it out within its family ("cup" ... "tall clear plastic measuring cup marked up to 500 ml"). An
-instruction template fills `<label>` with one of them (env/description_manager/desc_manager.py), in the template's
-language. object_names.json maps an asset id to {"en": [...], "zh": [...]}, or to another id with the same names
-(the twist-cap Articulation bottle of a Clutter bottle).
+Every object and every generalization variant has a category name ("cup" / "杯子", what it generalizes to) and three
+names in English and Chinese, brief to detailed: the object's own kind ("metal cup"), that plus what tells it apart in
+its family ("tapered aluminium cup"), and a phrase that singles it out among all objects ("tapered aluminium tumbler
+with a rolled rim"). An instruction template fills `<label>` with the category or one of the names
+(env/description_manager/desc_manager.py), in the template's language. object_names.json maps an asset id to
+{"category": {"en": ..., "zh": ...}, "en": [3], "zh": [3]}, or to another id with the same names (the twist-cap
+Articulation bottle of a Clutter bottle, the deformable twin of a rigid cup).
 
 Generators rewrite description.json without "names": run `apply` after every generation.
 
@@ -20,7 +22,7 @@ import re
 
 TABLE = Path(__file__).with_name("object_names.json")
 LANGS = ("en", "zh")
-MIN_NAMES = 5
+LEVELS = 3
 # a name drops into "pick up the <x>" / "拿起<x>": no article, measure word, final punctuation or place in the scene
 BAD = {
     "en": re.compile(r"^(a|an|the)\b|[.!?]$|\b(left|right|front|back|bigger|smaller|larger)\b", re.I),
@@ -29,13 +31,17 @@ BAD = {
 
 
 def load(path=TABLE):
-    """{asset id: {"en": [...], "zh": [...]}} with aliases resolved."""
+    """{asset id: {"category": {...}, "en": [...], "zh": [...]}} with aliases resolved."""
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     return {oid: raw[v] if isinstance(v, str) else v for oid, v in raw.items()}
 
 
 def length(name, lang):
     return len(name.split()) if lang == "en" else len(name.replace(" ", ""))
+
+
+def bare(name, lang):
+    return isinstance(name, str) and name.strip() == name and bool(name) and not BAD[lang].search(name)
 
 
 def problems(table):
@@ -45,19 +51,21 @@ def problems(table):
         if id(names) in seen:  # an alias
             continue
         seen.add(id(names))
-        if set(names) != set(LANGS):
-            found.append(f"{oid}: languages {sorted(names)}, want {list(LANGS)}")
+        if set(names) != {"category", *LANGS}:
+            found.append(f"{oid}: keys {sorted(names)}, want category, {', '.join(LANGS)}")
             continue
         for lang in LANGS:
-            items = names[lang]
-            if len(items) < MIN_NAMES or len(set(items)) != len(items):
-                found.append(f"{oid} {lang}: want {MIN_NAMES}+ distinct names, got {items}")
-            for name in items:
-                if not name.strip() or name != name.strip() or BAD[lang].search(name):
+            category, items = (names["category"] or {}).get(lang), names[lang]
+            if len(items) != LEVELS or len(set(items)) != LEVELS:
+                found.append(f"{oid} {lang}: want {LEVELS} distinct names, got {items}")
+            for name in [category, *items]:
+                if not bare(name, lang):
                     found.append(f"{oid} {lang}: {name!r} is not a bare noun phrase")
-            sizes = [length(n, lang) for n in items]
-            if sizes != sorted(sizes):
-                found.append(f"{oid} {lang}: not ordered brief to detailed {items}")
+            if category in items:
+                found.append(f"{oid} {lang}: category {category!r} repeats a name")
+            sizes = [length(n, lang) for n in items if isinstance(n, str)]
+            if sizes != sorted(sizes) or (bare(category, lang) and sizes and length(category, lang) > sizes[0]):
+                found.append(f"{oid} {lang}: not ordered brief to detailed {[category, *items]}")
             if items:
                 last[lang].setdefault(items[-1], []).append(oid)
     for lang in LANGS:

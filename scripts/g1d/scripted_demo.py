@@ -125,7 +125,7 @@ BACK_OFF = 0.5
 # Lounge table: root this far outside its rim; the cup set down this far ahead of the root; approach from this far out
 TABLE_STAND, PLACE_AHEAD, APPROACH = 0.20, 0.38, 0.5
 CHAIR_GAP = np.deg2rad(70)  # narrowest gap between the chairs round the table to stand in
-LOUNGE_LIFT = 0.07  # lift column at the 0.75 m table: 0.07 m above the office desk, as the counter's 0.153
+LOUNGE_LIFT = 0.07  # lift column at the 0.75 m table: 0.07 m above 0.68 m, as the counter's 0.153
 CARRY_UP = 0.08  # m the side-grasped cup is lifted off the counter for the drive (clears the chair backs, 0.8 m)
 
 

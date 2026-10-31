@@ -1,0 +1,32 @@
+{
+  "id": "Rigid/wipe_bag/00000",
+  "twin": true,
+  "asset_origin": "physical_object",
+  "name": "湿巾袋",
+  "name_en": "Wipe Bag",
+  "material": "塑料",
+  "color": "紫色白色相间",
+  "mass_g": 240.2,
+  "dimensions_mm": "长度190，宽度96.02，高度38",
+  "features": "不透明",
+  "requirements": "可以夹取",
+  "generalization": {
+    "count": 3,
+    "requirements": "参数由 coding agent 设计，彼此差异明显",
+    "rt_color": true,
+    "color": true,
+    "material": true
+  },
+  "updated_by": "刘小凡",
+  "updated_at": "2026-10-30 09:20:27",
+  "dimension_policy": "measured",
+  "reference_source": "实物照片",
+  "physics_requirements": "塑料袋",
+  "mass_policy": "measured",
+  "modeling_confirmation": {
+    "version": "real-object-v3",
+    "revision": "13fbcc90080f426434b76059f60cf51ffa0631d4e1dbac275c8f89dda584d8d5",
+    "by": "刘小凡",
+    "at": 1793323227.333475
+  }
+}

@@ -59,6 +59,20 @@ run('applyDatasetInventory(partial)');
 assert.equal(run('DATASETS[0].hours'), 0.25);
 assert.equal(run('DATASETS[0].versions[0].hours'), null); // partial timing never fills the unknown complete total
 assert.equal(run('DATASETS[0].episodes'), null); // video clips are not robot episodes
+// publisher-declared totals fill only the unknown figures, are labelled, and never enter the local sums
+context.declared = {schemaVersion: 1, date: '2026-10-30', recordCount: 1, groups: [
+  {id: 'packed', name: 'Packed', versions: [version('tar', {source: 'real', episodes: 5, selectedEpisodes: 5})],
+    declared: {episodes: 107000, hours: 300, qualifier: '约', url: 'https://example.org/card'}},
+]};
+run('applyDatasetInventory(declared)');
+assert.equal(run('dsEpText(DATASETS[0])'), '5'); // a local count wins over the declared one
+assert.equal(run('dsHoursText(DATASETS[0])'), '约300 h');
+assert.equal(run('dsStatLabel(DATASETS[0], "hours")'), '官方时长');
+assert.equal(run('DATASETS[0].hours'), null); // the sum still sees an unknown
+for (const bad of [{episodes: 1}, {episodes: -1, url: 'https://x.org'}, {url: 'https://x.org'}]) {
+  context.bad = {...context.declared, groups: [{...context.declared.groups[0], declared: bad}]};
+  assert.throws(() => run('applyDatasetInventory(bad)')); // needs a source link and at least one figure
+}
 if (process.argv[2]) {
   context.full = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
   run('applyDatasetInventory(full)');

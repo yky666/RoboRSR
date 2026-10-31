@@ -10,10 +10,10 @@ def Xform "Lights"
 {
     def RectLight "CeilingPanel_0"
     {
-        float inputs:colorTemperature = 5000
+        float inputs:colorTemperature = 5500
         bool inputs:enableColorTemperature = 1
         float inputs:height = 0.6
-        float inputs:intensity = 6000
+        float inputs:intensity = 18000
         float inputs:width = 1.2
         double3 xformOp:translate = (-0.6, -0.55, 3.18)
         uniform token[] xformOpOrder = ["xformOp:translate"]
@@ -21,10 +21,10 @@ def Xform "Lights"
 
     def RectLight "CeilingPanel_1"
     {
-        float inputs:colorTemperature = 5000
+        float inputs:colorTemperature = 5500
         bool inputs:enableColorTemperature = 1
         float inputs:height = 0.6
-        float inputs:intensity = 6000
+        float inputs:intensity = 18000
         float inputs:width = 1.2
         double3 xformOp:translate = (0.6, -0.55, 3.18)
         uniform token[] xformOpOrder = ["xformOp:translate"]
@@ -32,10 +32,10 @@ def Xform "Lights"
 
     def RectLight "CeilingPanel_2"
     {
-        float inputs:colorTemperature = 5000
+        float inputs:colorTemperature = 5500
         bool inputs:enableColorTemperature = 1
         float inputs:height = 0.6
-        float inputs:intensity = 6000
+        float inputs:intensity = 18000
         float inputs:width = 1.2
         double3 xformOp:translate = (0, -1.8, 3.18)
         uniform token[] xformOpOrder = ["xformOp:translate"]
@@ -43,10 +43,10 @@ def Xform "Lights"
 
     def RectLight "CeilingPanel_3"
     {
-        float inputs:colorTemperature = 5000
+        float inputs:colorTemperature = 5500
         bool inputs:enableColorTemperature = 1
         float inputs:height = 0.6
-        float inputs:intensity = 6000
+        float inputs:intensity = 18000
         float inputs:width = 1.2
         double3 xformOp:translate = (-3.589, -1.742, 3.18)
         uniform token[] xformOpOrder = ["xformOp:translate"]
@@ -54,10 +54,10 @@ def Xform "Lights"
 
     def RectLight "CeilingPanel_4"
     {
-        float inputs:colorTemperature = 5000
+        float inputs:colorTemperature = 5500
         bool inputs:enableColorTemperature = 1
         float inputs:height = 0.6
-        float inputs:intensity = 6000
+        float inputs:intensity = 18000
         float inputs:width = 1.2
         double3 xformOp:translate = (-5, -1.6, 3.18)
         uniform token[] xformOpOrder = ["xformOp:translate"]
@@ -65,10 +65,10 @@ def Xform "Lights"
 
     def RectLight "CeilingPanel_5"
     {
-        float inputs:colorTemperature = 5000
+        float inputs:colorTemperature = 5500
         bool inputs:enableColorTemperature = 1
         float inputs:height = 0.6
-        float inputs:intensity = 6000
+        float inputs:intensity = 18000
         float inputs:width = 1.2
         double3 xformOp:translate = (2.8, -2.3105, 3.18)
         uniform token[] xformOpOrder = ["xformOp:translate"]
@@ -77,6 +77,6 @@ def Xform "Lights"
     def DomeLight "AmbientDome"
     {
         color3f inputs:color = (0.95, 0.95, 1)
-        float inputs:intensity = 150
+        float inputs:intensity = 450
     }
 }

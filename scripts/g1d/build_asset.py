@@ -48,9 +48,9 @@ G1_DEX1_URDF = "robots/g1_description/g1_29dof_mode_15_with_dex1_1.urdf"
 # (env_cfg/robot/<config>.yml) and the objects move with the robot by `shift`, so its reach is the same everywhere.
 SCENES_DIR = ROOT / "real2sim" / "scenes"
 SCENES = {  # env config: (scene dir, Room category, Room position, object (x, y) shift)
-    "g1d": ("real_scene1_office", "real_scene1", [0.0, -0.29, 0.0], (0.0, 0.0)),
-    "g1d_aurora_lite_ws": ("real_scene1_office", "real_scene1", [0.0, -0.29, 0.0], (0.0, 0.0)),
-    "g1d_mobile": ("real_scene1_office", "real_scene1", [0.0, -0.29, 0.0], (0.0, 0.0)),  # same start pose as g1d
+    "g1d": ("real_scene1_office", "real_scene1", [0.0, -0.305, 0.0], (0.0, 0.0)),
+    "g1d_aurora_lite_ws": ("real_scene1_office", "real_scene1", [0.0, -0.305, 0.0], (0.0, 0.0)),
+    "g1d_mobile": ("real_scene1_office", "real_scene1", [0.0, -0.305, 0.0], (0.0, 0.0)),  # same start pose as g1d
     # floor cabinet: the chassis cannot go under it, so the robot stands 7 cm further back (root y=-0.80)
     "g1d_counter": ("real_scene2_counter", "real_scene2", [-0.35, -0.32, 0.0], (0.0, -0.07)),
     "g1d_counter_mobile": ("real_scene2_counter", "real_scene2", [-0.35, -0.32, 0.0], (0.0, -0.07)),  # + its lounge

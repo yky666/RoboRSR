@@ -4,11 +4,19 @@
 不需要重启服务。该文件不入 Git；不要把私人路径、连接信息或内部来源写进公开 HTML。
 读取失败会明确提示当前只有缓存目录，不将缓存说成完整盘点。
 
+数据集管理员在页面上的修改（名称、机构、链接、简介、口径、三个统计数、各分类）存为平台数据库里的 `dataset` 记录，
+按组 `id` 叠加在盘点之上，只存和盘点不同的字段；盘点文件不变，「恢复盘点值」删掉这条记录。
+管理员新增的条目是 `custom: true` 的整条记录，不在盘点里。重新生成盘点时组 `id` 要保持不变，否则旧修改不再生效。
+
 JSON 顶层为 `schemaVersion: 1`、`date`（YYYY-MM-DD）、`recordCount`、`method` 和 `groups`。
 每组包含唯一 `id`、`name`、可选 `templateId`（沿用公开目录分类）和非空 `versions`。
 每条版本包含唯一 `id`、`name`、公开 `url`（或空串）、`source`（real/sim/ego/mixed/asset/unknown）、
 `state`、`episodes`、`hours`、`gb`、`selectedEpisodes`、`selectedHours`、`note` 和 `selectionNote`。
 数值只能是非负数或 `null`；所有版本数必须等于 `recordCount`，每条原记录恰好保留一次。
+
+组可选 `declared`：发布方自己给的总量（数据集卡片、仓库 `meta/info.json`、论文），字段 `episodes`、`hours`（至少一个非空）、
+`url`（必填，https）、`quote`（含数字的原文）、`unit`、`scope`、`qualifier`（约 / 超过 等）、`derived`、`note`、`checked`（查证日期）。
+只在本地值未知时显示并标「官方」，不进入 `selected*`，也不计入顶部合计；不能推算，查不到就不写。
 
 - `episodes/hours/gb` 保留原记录；原记录完整时长未知时，不能用部分实测覆盖它。
 - `selectedEpisodes/selectedHours` 明确此次归组汇总选了哪些值。重复格式/分辨率/已知子集保留明细，选择值为空，并写明原因。

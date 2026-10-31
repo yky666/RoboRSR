@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser(description="Drop rigid objects on a floor and 
 parser.add_argument("dirs", nargs="+", help="object dirs containing object.usdz and metadata.json")
 parser.add_argument("--seconds", type=float, default=3.0)
 parser.add_argument("--image", help="also render the settled objects to this PNG")
+parser.add_argument("--white-background", action="store_true", help="render object previews on a white floor")
 parser.add_argument(
     "--image-dir",
     help="also render each object alone and write its check result, to <dir>/<type>/<category>/<index>/preview/",
@@ -65,12 +66,18 @@ def main():
     )
     carb.settings.get_settings().set_float("/rtx/translucency/worldEps", 0.0)
     sim = sim_utils.SimulationContext(sim_utils.SimulationCfg(dt=DT, device=args.device, render=render))
-    spacing = SOLO_SPACING if args.image_dir else SPACING
+    spacing = (3.0 if args.white_background else SOLO_SPACING) if args.image_dir else SPACING
     row = (len(args.dirs) - 1) * spacing
     floor = sim_utils.CuboidCfg(  # static box instead of GroundPlaneCfg, which fetches a USD from Nucleus
-        size=(2.0, row + 2.0, 0.02),  # under the whole row of objects
+        size=(200.0, row + 200.0, 0.02)
+        if args.white_background
+        else (2.0, row + 2.0, 0.02),  # under the whole row of objects
         collision_props=sim_utils.CollisionPropertiesCfg(),
-        visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.35, 0.36, 0.38)),
+        visual_material=sim_utils.PreviewSurfaceCfg(
+            diffuse_color=(1.0, 1.0, 1.0) if args.white_background else (0.35, 0.36, 0.38),
+            # An emissive backdrop lights reflective assets through GI and washes out their textures.
+            emissive_color=(0.0, 0.0, 0.0),
+        ),
     )
     floor.func("/World/floor", floor, translation=(0.0, row / 2, -0.01))
     dome = sim_utils.DomeLightCfg(intensity=300.0)  # brighter washes out glass
@@ -87,7 +94,7 @@ def main():
         obj = RigidObject(
             prim_path=f"/World/rigid/{category}/{category}_{idx}_{k}",
             usd_path=str(d / "object.usdz"),
-            inst_config={"physics": {"mass": meta["physics"]["mass"]}},
+            inst_config={"physics": meta["physics"]},
             env_origin=[0.0, 0.0, 0.0],
             default_pos=(0.0, k * spacing, half_h + 0.01),
             default_ori=(1.0, 0.0, 0.0, 0.0),

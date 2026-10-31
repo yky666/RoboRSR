@@ -1,0 +1,77 @@
+{
+  "evaluated_at": "2026-10-22 19:36",
+  "summary": "深圳实验室严格成功 11/49（22%）、任务判据 19/49（39%）（严格成功按目标：量杯 9/24、马克杯 2/25）；办公室严格成功 6/49（12%）、任务判据 10/49（20%）（严格成功按目标：量杯 6/24、马克杯 0/25）。夹爪阈值 0.87，动作块高斯平滑 σ=2、块间混合 8 步。",
+  "runs": [
+    {
+      "task": "g1d_pour_beans_cup_or_mug",
+      "env_cfg": "g1d_shenzhen_lab_beans_collect",
+      "level": "训练场景：深圳实验室",
+      "layouts": 50,
+      "repeats": 1,
+      "episodes": 49,
+      "success_rate": 0.2245,
+      "ci95": [
+        0.13,
+        0.359
+      ],
+      "accepted": 11,
+      "task_success": 19,
+      "task_success_rate": 0.3878,
+      "by_target": {
+        "cup": {
+          "episodes": 24,
+          "accepted": 9,
+          "task_success": 17
+        },
+        "mug": {
+          "episodes": 25,
+          "accepted": 2,
+          "task_success": 2
+        }
+      },
+      "rejected_at_start": 1,
+      "layout_seed": 900,
+      "close_below": 0.87,
+      "grip_rule": "threshold",
+      "mean_chunk_seconds": 0.394,
+      "eval_time": 49,
+      "result_dir": "5090-2:/data/robodojo-runs/sz-cupmug-eval-20261022/output/policy_eval/step2000_sz"
+    },
+    {
+      "task": "g1d_pour_beans_cup_or_mug",
+      "env_cfg": "g1d_beans_collect",
+      "level": "未见场景：办公室",
+      "layouts": 50,
+      "repeats": 1,
+      "episodes": 49,
+      "success_rate": 0.1224,
+      "ci95": [
+        0.057,
+        0.242
+      ],
+      "accepted": 6,
+      "task_success": 10,
+      "task_success_rate": 0.2041,
+      "by_target": {
+        "cup": {
+          "episodes": 24,
+          "accepted": 6,
+          "task_success": 10
+        },
+        "mug": {
+          "episodes": 25,
+          "accepted": 0,
+          "task_success": 0
+        }
+      },
+      "rejected_at_start": 1,
+      "layout_seed": 900,
+      "close_below": 0.87,
+      "grip_rule": "threshold",
+      "mean_chunk_seconds": 0.396,
+      "eval_time": 49,
+      "result_dir": "5090-2:/data/robodojo-runs/sz-cupmug-eval-20261022/output/policy_eval/step2000_office"
+    }
+  ],
+  "issues": "每个布局只跑 1 次，95% 区间按 Wilson 区间算，仍然较宽；颗粒任务的严格判据有方差（同一组动作回放可能差 1 颗豆子）。办公室场景没有对应的训练数据，用来看换场景后的泛化。"
+}
