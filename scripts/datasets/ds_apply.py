@@ -36,9 +36,11 @@ def main(src, sums, dst):
                 changed.append((s["name"], "asset-only"))
             continue
         if not s["complete"]:
+            pending = "、".join(s.get("parts_pending", []))
+            extra = (f"；待扫：{pending}" if pending else "") + (f"；{s['gap']}" if s.get("gap") else "")
             v["note"] = note + (
                 f"【本地扫描 {TODAY} 进行中：已读 {s['units_done']}/{s['units_planned']} 个单元，"
-                f"{s['episodes']} 条、{s['hours']:.1f} h，完成前不计入】"
+                f"{s['episodes']} 条、{s['hours']:.1f} h，完成前不计入{extra}】"
             )
             changed.append((s["name"], f"progress {s['units_done']}/{s['units_planned']}"))
             continue

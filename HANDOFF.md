@@ -40,7 +40,10 @@
 
 ## 最近任务
 
-### 数据集本地全量扫描（2026-10-30 22:4x 起，后台进行中，`chongzheng/datasets-local-scan`）
+### 数据集本地全量扫描（2026-10-30 22:4x 起，10-31 起在 dsw-1 后台进行中）
+
+- **10-31 早上改动**（用户：OSS 并发读写不能超过 8；改在 dsw-1 统计）：dsw-4 上两条队列一共开了 36 个读进程，超了限制，而且 lingbot 最后 8 个包从 23:36 起卡住（OSS 读挂起），已全部停掉。现在只在 **dsw-1**（184 核、无 GPU、同一个 OSS 挂载）跑一条队列 `queue_dsw1.sh`：6 个读进程，其余留给写结果；两遍，第二遍重试失败的。`ds_scan.py` 加了卡住检测（20 分钟没有新成员就杀掉解压进程，记 `.failed`，不算完成）；HDF5 每个 `traj_N` / `data/demo_N` 各算一条（RoboFAC 一个文件 60 条，之前按文件算少了，在重扫）。`ds_report.py` 的“完成”改为：队列脚本里这个数据集的所有部分（散文件、压缩包、视频）都有结束标记、没有 `.failed`、不在已知缺口里（BiPlay 的 TFRecord）。队列脚本和日志都放在 `/mnt/data/datasets/_stats/_logs/`；dsw-1 的日志在 `/root/dsw1_queue.log`，同步时拷过去。
+- **10-31 09:1x 已发布**（已知时长 14691 → 16862 h）：10Kh-RealOmni 102170 条 / 1857.4 h（每个 mcap 的首尾时间戳）、InternData-fractal 63595 / 255.5 h、ViFailback 5202 / 14.41 h（和发布方 info.json 一致）、libero_fail 19500 / 42.3 h、LET 55 个 bag / 0.71 h、maniskill-fail 4950 / 5.9 h；tracker-pov 13451 段 / 1267.7 h 和 VITRA-1M 1222918 条（和发布方数字完全一致）只写原记录（视频 / 人类数据）。RoboFAC、lingbot、RoboMIND v1.0 显示「进行中」，不计入。
 
 - **用户要求**：需要解压的数据集解压并统计，大的开后台慢慢完备。剩下 37 组「压缩分片 / 非标准格式」合计约 147 TB（dsw-4 `/mnt/data/datasets`，ossfs）。决定：不整份解压落盘（会翻倍占用），**按流解压**逐成员统计，只把 LeRobot `meta/*.json(l)`、每包文件清单存到 `/mnt/data/datasets/_stats/<数据集>/`，数据集目录本身不写。
 - **脚本**（`scripts/datasets/`，在 dsw-4 上是 `/root/ds_scan.py`、`/root/ds_report.py`）：`ds_scan.py archive|dir` 每个压缩包或每 500 个文件一个单元、结果一个 JSON，重跑跳过已完成；parquet 读行数和时间戳，HDF5 成员临时落到 `/root/scan_tmp` 读形状后删除，每包抽 3 个 MP4 读 fps，mcap / ROS bag 读首尾时间戳。`ds_report.py` 汇总成 `summary.json`；`ds_apply.py` 写进盘点（只有扫完的才计入；机器人轨迹计 Episode 和时长，人类视频只计时长，导航 / 动捕 / 点追踪只写原记录；说明写在可替换的 `【本地扫描 …】` 块里，每次同步重算）；`ds_sync.sh` 在能同时连 dsw-4 和 5090-2 的机器上跑：汇总 → 写盘点 → `test_dataset_catalog.cjs` 校验 → `r2s publish`。

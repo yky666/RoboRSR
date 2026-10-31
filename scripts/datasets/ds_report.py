@@ -14,20 +14,42 @@ import re
 import sys
 
 OUT = os.environ.get("DS_SCAN_OUT", "/mnt/data/datasets/_stats")
-LOGS = ["/root/scan_queue_a.log", "/root/scan_queue_b.log"]
+LOG_DIR = os.path.join(OUT, "_logs")  # queue scripts and their logs, from every machine that scanned
 EPISODE_PARQUET = re.compile(r"(^|/)data/(chunk-\d+/)?episode_\d+\.parquet$")
+PART = re.compile(r'^s (dir|archive) ("([^"]+)"|(\S+))')
+SUFFIXES = (".mp4", ".unpacked", ".hdf5")
+KNOWN_GAPS = {"BiPlay": "TFRecord 主体还没有解析"}  # parts no queue scans yet: never complete
 
 
-def planned():
-    """Units each dataset was split into, as printed by ds_scan.py when it started."""
-    n = {}
-    for log in LOGS:
-        if os.path.exists(log):
-            for line in open(log, errors="replace"):
-                m = re.match(r"^(.+?): (\d+) units", line)
-                if m:
-                    n[m[1]] = int(m[2])
-    return n
+def base_of(part):
+    for suf in SUFFIXES:
+        if part.endswith(suf):
+            return part[: -len(suf)]
+    return part
+
+
+def queue_state():
+    """Per part: units planned (largest announced), whether a queue finished it; parts listed per dataset."""
+    parts, planned, ended = {}, {}, set()
+    for sh in glob.glob(os.path.join(LOG_DIR, "*.sh")):
+        for line in open(sh, errors="replace"):
+            m = PART.match(line.strip())
+            if m:
+                name = m[3] or m[4]
+                parts.setdefault(base_of(name), set()).add(name)
+    for log in glob.glob(os.path.join(LOG_DIR, "*.log")):
+        for line in open(log, errors="replace"):
+            m = re.match(r"^(.+?): (\d+) units", line)
+            if m:
+                planned[m[1]] = max(planned.get(m[1], 0), int(m[2]))
+            m = re.match(r"^### \S+ end (.+)$", line.strip())
+            if m:
+                rest = m[1]
+                if rest.startswith("dir "):  # "end dir NAME MODE ROOT" (queue A) or "end dir NAME MODE"
+                    rest = re.sub(r"^dir ", "", rest)
+                    rest = re.sub(r" (hdf5|mp4|mcap|bag|parquet)( \S+)?$", "", rest)
+                ended.add(rest)
+    return parts, planned, ended
 
 
 def rate(s):
@@ -69,8 +91,11 @@ def summarize(name):
         "errors": 0,
         "unknown_fps_frames": 0,
     }
-    plan = planned()
-    s["units_planned"] = sum(v for k, v in plan.items() if k == name or k.startswith(name + "."))
+    parts, plan, ended = queue_state()
+    mine = parts.get(name, {name})
+    s["units_planned"] = sum(plan.get(p, 0) for p in mine)
+    s["parts_pending"] = sorted(p for p in mine if p not in ended)
+    s["failed_units"] = sum(len(glob.glob(os.path.join(OUT, glob.escape(p), "units", "*.failed"))) for p in mine)
     comp_fps = Counter()
     for r in load(name + ".mp4"):  # companion videos: fps for this dataset's HDF5 frames
         for row in r.get("rows", []):
@@ -141,6 +166,10 @@ def summarize(name):
                 if f:
                     s["fps"][f] += 1
                 s["how"].add("HDF5 压缩包：每个文件一条，帧数=主数据集第一维，fps 取同包视频")
+            elif r["kinds"].get(".npy"):
+                s["episodes"] += r["kinds"][".npy"]
+                s["unknown_fps_frames"] += 1
+                s["how"].add("npy 标注包：每个 episode 一个 npy，源视频帧率不一，时长留空")
             else:
                 s["how"].add(f"压缩包内容：{dict(r['kinds'])}")
     if s["frames"] and s["hours_known_frames"] < s["frames"] and comp_fps:
@@ -152,16 +181,23 @@ def summarize(name):
     s["fps"] = {str(k): v for k, v in s["fps"].most_common(5)}
     s["how"] = sorted(s["how"])
     s["hours"] = round(s["hours"], 4)
-    s["complete"] = bool(s["units_planned"]) and s["units_done"] >= s["units_planned"]
+    s["gap"] = KNOWN_GAPS.get(name, "")
+    s["complete"] = (
+        bool(s["units_planned"])
+        and s["units_done"] >= s["units_planned"]
+        and not s["parts_pending"]
+        and not s["failed_units"]
+        and not s["gap"]
+    )
     return s
 
 
 def main():
     names = sys.argv[1:] or sorted(
         {
-            os.path.basename(p).split(".mp4")[0].split(".unpacked")[0].split(".hdf5")[0]
+            base_of(os.path.basename(p))
             for p in glob.glob(os.path.join(OUT, "*"))
-            if os.path.isdir(p)
+            if os.path.isdir(p) and not os.path.basename(p).startswith("_")
         }
     )
     for n in names:

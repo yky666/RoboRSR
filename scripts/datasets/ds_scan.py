@@ -23,6 +23,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import threading
 import time
 import zipfile
 
@@ -30,6 +31,9 @@ OUT = os.environ.get("DS_SCAN_OUT", "/mnt/data/datasets/_stats")
 SCRATCH = os.environ.get("DS_SCAN_TMP", "/root/scan_tmp")
 WORKERS = int(os.environ.get("DS_SCAN_WORKERS", "12"))
 MP4_PROBES = 3
+STALL_S = int(os.environ.get("DS_SCAN_STALL", "1200"))  # an archive with no new member for this long is abandoned
+# one episode per group in multi-episode HDF5: robomimic data/demo_N, ManiSkill traj_N
+EPISODE_GROUP = re.compile(r"^(data/demo_\d+|traj_\d+)/actions:")
 KEEP_META = re.compile(
     r"(^|/)(meta/[^/]+\.(json|jsonl)|info\.json|dataset_info\.json|episodes\.jsonl|tasks\.jsonl|stats\.json)$"
 )
@@ -50,20 +54,18 @@ def group_units(files):
 
 
 def opener(parts):
-    """A byte stream of the archive's tar content, and the process feeding it (or None)."""
+    """A byte stream of the archive's tar content, and the processes feeding it (killed when the read stalls)."""
     first = parts[0]
     gz = ".tar.gz" in first or first.endswith(".tgz") or re.search(r"\.tgz\.\d+$", first)
     zst = ".tar.zst" in first or first.endswith(".tzst")
-    if len(parts) == 1 and not (gz or zst):
-        return open(first, "rb"), None
     cat = subprocess.Popen(["cat", *parts], stdout=subprocess.PIPE, bufsize=1 << 20)
     if not (gz or zst):
-        return cat.stdout, cat
+        return cat.stdout, [cat]
     dec = subprocess.Popen(
         ["zstd", "-dcq"] if zst else ["gzip", "-dc"], stdin=cat.stdout, stdout=subprocess.PIPE, bufsize=1 << 20
     )
     cat.stdout.close()
-    return dec.stdout, dec
+    return dec.stdout, [cat, dec]
 
 
 def h5_summary(path):
@@ -87,9 +89,9 @@ def h5_summary(path):
     by_len = Counter()
     for key, n in lens.items():
         by_len[int(key.rsplit(":", 1)[1])] += n
-    demos = sum(1 for k in lens if re.match(r"data/demo_\d+/actions:", k))
+    demos = sum(1 for k in lens if EPISODE_GROUP.match(k))
     frames = (
-        sum(int(k.rsplit(":", 1)[1]) for k in lens if re.match(r"data/demo_\d+/actions:", k))
+        sum(int(k.rsplit(":", 1)[1]) for k in lens if EPISODE_GROUP.match(k))
         if demos
         else (by_len.most_common(1)[0][0] if by_len else 0)
     )
@@ -199,6 +201,7 @@ def take(rec, name, size, read, keep_dir, scratch):
 def scan_archive(name, key, parts):
     out_dir = os.path.join(OUT, name)
     done = os.path.join(out_dir, "units", unit_name(key) + ".json")
+    failed = os.path.join(out_dir, "units", unit_name(key) + ".failed")
     if os.path.exists(done):
         return key, "skip"
     keep_dir = os.path.join(out_dir, "meta", unit_name(key))
@@ -216,21 +219,41 @@ def scan_archive(name, key, parts):
                     listing.write(f"{zi.filename}\t{zi.file_size}\n")
                     take(rec, zi.filename, zi.file_size, lambda zi=zi: zf.read(zi), keep_dir, scratch)
         else:
-            stream, proc = opener(parts)
+            stream, procs = opener(parts)
+            last = [time.time()]
+            stop = threading.Event()
+
+            def watchdog():  # a stalled read (seen on the OSS mount) would otherwise hang the unit forever
+                while not stop.wait(30):
+                    if time.time() - last[0] > STALL_S:
+                        rec["errors"].append(f"stream: stalled {STALL_S}s, abandoned")
+                        for pr in procs:
+                            pr.kill()
+                        return
+
+            threading.Thread(target=watchdog, daemon=True).start()
             with tarfile.open(fileobj=stream, mode="r|") as tf:
                 for m in tf:
+                    last[0] = time.time()
                     if not m.isfile():
                         continue
                     listing.write(f"{m.name}\t{m.size}\n")
                     take(rec, m.name, m.size, lambda m=m: tf.extractfile(m).read(), keep_dir, scratch)
-            if proc:
-                proc.wait()
-                if proc.returncode:
-                    rec["errors"].append(f"decompressor exit {proc.returncode}")
+            stop.set()
+            for pr in procs:
+                pr.wait()
+                if pr.returncode:
+                    rec["errors"].append(f"stream: {pr.args[0]} exit {pr.returncode}")
     except Exception as e:
         rec["errors"].append(f"stream: {type(e).__name__}: {str(e)[:200]}")
     listing.close()
     shutil.rmtree(scratch, ignore_errors=True)
+    if any(e.startswith("stream:") for e in rec["errors"]):  # incomplete read: not a result, retried on the next pass
+        with open(failed, "w") as f:
+            json.dump({"unit": key, "errors": rec["errors"][-3:], "at": time.time()}, f)
+        return key, f"FAILED {rec['errors'][-1][:120]}"
+    if os.path.exists(failed):
+        os.unlink(failed)
     rec.update(unit=key, parts=parts, seconds=round(time.time() - t0), in_bytes=sum(os.path.getsize(p) for p in parts))
     rec["kinds"], rec["bytes"] = dict(rec["kinds"]), dict(rec["bytes"])
     tmp = done + ".tmp"
