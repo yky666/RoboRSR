@@ -11,7 +11,7 @@ COMMON_CHECKS = (
     "deformation",
     "contact",
     "self_collision",
-    "reset_replay",
+    "reset_state",
     "shutdown",
     "material_fit",
 )
@@ -95,6 +95,7 @@ def acceptance(profile, report, mesh_sha256, mass_g=None, dimensions_mm=None):
         "status": status,
         "family": profile["family"],
         "checks": rows,
+        "diagnostics": report.get("diagnostics", {}),
         "mesh_matches": identity_ok,
         "registration_matches": registration_ok,
         "registration_sha256": registration_sha256,

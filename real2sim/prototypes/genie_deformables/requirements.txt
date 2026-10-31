@@ -1,0 +1,6 @@
+newton==1.7.0
+warp-lang==1.17.0
+numpy==2.2.6
+scipy==1.15.3
+usd-core==25.11
+pillow==11.3.0

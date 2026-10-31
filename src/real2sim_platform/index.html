@@ -2872,7 +2872,7 @@ function genBrief(d) {  // brief lines for the generalization asked in step 3 of
   ];
 }
 const FLEX_FAMILIES = {'': '不启用柔性建模', cloth: '布料 / 毛巾', garment: '衣服', rope: '绳子 / 线缆', bag: '布袋 / 薄膜袋', shell: '薄壳 / 纸杯纸盒', volume: '实心软体 / 毛绒海绵'};
-const FLEX_CHECKS = {compression_recovery: '压缩与回弹', geometry_mass: '几何与总质量', deformation: '形变响应', contact: '外部接触', self_collision: '自接触与自交', reset_replay: '复位与重放', shutdown: '运行退出', material_fit: '材料实测校准', seams_openings: '缝线与开口', bend_twist: '弯曲与扭转'};
+const FLEX_CHECKS = {compression_recovery: '压缩与回弹', geometry_mass: '几何与总质量', deformation: '形变响应', contact: '外部接触', self_collision: '自接触与自交', reset_state: '初始状态恢复', reset_replay: '重放诊断（历史）', shutdown: '运行退出', material_fit: '材料实测校准', seams_openings: '缝线与开口', bend_twist: '弯曲与扭转'};
 const FLEX_MEASURES = {thickness_mm: '厚度 (mm)', areal_density_g_m2: '面密度 (g/m²)', diameter_mm: '绳径 (mm)', linear_density_g_m: '线密度 (g/m)'};
 function flexibleFields(d) {
   const a = d.auto.deformable_acceptance;
@@ -2885,12 +2885,12 @@ function flexibleFields(d) {
     </div><p class="hint">沿用本物体的照片、尺寸和质量。数值来源逐项记录；先填依据，再标为实测。后端偏好不代表已验证。</p>
     <div class="table-wrap"><table class="plain"><thead><tr><th>测量</th><th>数值</th><th>来源</th><th>依据</th></tr></thead><tbody>
     ${Object.entries(FLEX_MEASURES).map(([k, label]) => { const f = `deformable.measurements.${k}`; return `<tr><td><label for="${fid(f + '.value')}">${label}</label></td><td>${inp(d, f + '.value', 'number', 'min="0" step="any" aria-label="数值"')}</td><td>${sel(d, f + '.source', {'': '未说明', unmeasured: '待测', estimated: '估计', measured: '实测'}, 'aria-label="来源"')}</td><td>${inp(d, f + '.evidence', 'text', 'placeholder="测量日期 / 记录 / 文件" aria-label="测量依据"')}</td></tr>`; }).join('')}
-    </tbody></table></div>${a ? `<table class="plain"><tbody>${Object.entries(a.checks || {}).map(([k, v]) => `<tr><td>${esc(FLEX_CHECKS[k] || k)}</td><td>${esc({pass: '通过', fail: '失败', pending: '待验收'}[v] || v)}</td></tr>`).join('')}</tbody></table><p class="hint">网格一致：${a.mesh_matches ? '是' : '待核对'}；登记一致：${a.registration_matches ? '是' : '待核对'}；材料标定：${a.material_calibrated ? '已记录' : '未完成'}</p>` : ''}${d.deformable?.family ? `<p class="hint">柔性验收：${esc(a?.status === 'pass' ? '通过' : a?.status === 'fail' ? '有失败项' : '待验收')}。报告使用独立的 deformable_check.json；修改登记后需重新同步核对，已有刚体检查不能使柔性资产自动通过。</p>` : ''}`);
+    </tbody></table></div>${a ? `<table class="plain"><tbody>${Object.entries(a.checks || {}).map(([k, v]) => `<tr><td>${esc(FLEX_CHECKS[k] || k)}</td><td>${esc({pass: '通过', fail: '失败', pending: '待验收'}[v] || v)}</td></tr>`).join('')}</tbody></table>${a.diagnostics?.replay ? `<p class="hint">重放诊断：最大节点偏差 ${Number.isFinite(a.diagnostics.replay.max_node_error_m) ? (a.diagnostics.replay.max_node_error_m * 1000).toFixed(2) + " mm" : "未记录"}。用于重复性分析，不设通用 1 mm 验收门槛。</p>` : ""}<p class="hint">网格一致：${a.mesh_matches ? '是' : '待核对'}；登记一致：${a.registration_matches ? '是' : '待核对'}；材料标定：${a.material_calibrated ? '已记录' : '未完成'}</p>` : ''}${d.deformable?.family ? `<p class="hint">柔性验收：${esc(a?.status === 'pass' ? '通过' : a?.status === 'fail' ? '有失败项' : '待验收')}。报告使用独立的 deformable_check.json；修改登记后需重新同步核对，已有刚体检查不能使柔性资产自动通过。</p>` : ''}`);
 }
 function flexibleBrief(d) {
   if (!d.deformable?.family) return [];
   return ['柔性建模专用要求：', JSON.stringify(d.deformable, null, 2),
-    '按 real2sim/prototypes/softmimicgen/DEFORMABLE_MODELING.md 建模。布/衣/袋保留裁片、开口和接缝；绳使用中心线与截面，单独验证弯曲/扭转。',
+    '按 real2sim/prototypes/deformable_assets/README.md 建模。布/衣/袋保留裁片、开口和接缝；绳使用中心线与截面，单独验证弯曲/扭转。',
     '刚体 check_object.py 不能作为柔性验收。另写 preview/deformable_check.json，包含网格 SHA、登记指纹和每项检查的状态及证据；材料未标定不得标通过。', ''];
 }
 function modelingBrief(d) { return d.modeling?.prompt || ''; }

@@ -443,3 +443,9 @@ agent 照着反馈迭代，优化目标就是"真机可执行"而不只是仿真
 ### 湿巾袋研究资产
 
 `python scripts/objects/make_wipe_bag.py Assets/Object/Real2Sim/Rigid` 生成本体与三个外观变体；再运行 `python scripts/objects/object_names.py apply Assets/Object/Real2Sim`。需要 Isaac/PhysX FEM GPU 环境。完整复验命令和限制见 `real2sim/prototypes/wipe_bag_measured/REPORT.md`，未通过基础资产验收。
+
+### 可选柔性资产生成与检查
+
+平台登记并确认后，可由 agent 使用独立 Newton 环境生成矩形布片/规则软块候选，运行柔性专用检查并渲染接触视频。
+流程、参数来源、布片下垂到球体及自由球撞击软块的命令见 [柔性资产说明](real2sim/prototypes/deformable_assets/README.md)。
+衣服/袋子/绳索仍需专用拓扑；材料标定与机器人操作验证另行完成，软件探针不能替代实物验收。

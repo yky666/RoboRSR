@@ -40,6 +40,15 @@
 
 ## 最近任务
 
+### 柔性物体生成与物理检查（2026-10-30，`yky666/objects-deformable-generation-checks`，[PR #53](https://github.com/Zheng-Chong/RoboRSR/pull/53)，10-31 合并进 `main`）
+
+- 在最新主线上补充可选 Newton/Genie 进程桥、矩形布片与规则软块候选生成器、物理检查及RTX轨迹渲染；没有替换生产 SceneManager 或机器人任务。
+- 沿用平台登记与确认后的 prompt；沿用主线 volume 体积软体类别。柔性提示词独立升级为 `real-object-v3-deformable-v2`，只使柔性旧确认失效；刚体确认版本保持。
+- `reset_state` 检查初始位置/速度恢复；重放偏差改为 `diagnostics.replay`，不设通用1 mm门槛，平台独立展示。不宣称已修复此前 PhysX 表面接触分叉。
+- 新演示：布片固定边下垂到球面；自由球撞击3 kPa候选软块。形变RMS峰值47.588/4.626 mm；软块最小J=0.6794，无翻转；接触关闭对照有差异，未检出溢出，60帧重放偏差0。
+- 检查：scripts/check.sh 92 passed、4 skipped、82 subtests；独立Newton环境8项生成/桥接测试通过。原始报告与视频保留在隔离运行目录，预览通过r2s publish发布；生成结果不入Git或共享库。
+- 入口：`real2sim/prototypes/deformable_assets/README.md`、`VALIDATION.md`。材料标定、完整自交/接缝和机器人操作仍待完成；agent仍需专门构建衣服/袋子/绳索拓扑，不能把原型计入已验收实物资产。
+
 ### GenieSim 公开桌面资产接入（2026-10-29，`codex/geniesim-assets`，[PR #48](https://github.com/Zheng-Chong/RoboRSR/pull/48)，10-31 合并进 `main`）
 
 - 原始来源：ModelScope `agibot_world/GenieSimAssets`，固定 revision `f65609e1c2bb153947ca9eee2ae1dc7392cdf3b7`。许可按仓库 LICENSE / README 的 **CC BY-NC-SA 4.0**，不按网站 Apache 元数据处理。
