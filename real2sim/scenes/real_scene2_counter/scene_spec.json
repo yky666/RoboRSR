@@ -19,9 +19,36 @@
     "table_centre_x_from_robot_root": null
   },
   "overlay": [],
+  "photo_overlay": {
+    "method": "phone photos, cameras fitted to the same hand-picked pixels (fit_photo.py), so in-sample; tabletop corners and edges only; not the robot-camera overlay (overlay)",
+    "date": "2026-10-30",
+    "views": [
+      {
+        "image": "reference/photo.jpg",
+        "max_px": 9.1
+      },
+      {
+        "image": "reference/photo2.jpg",
+        "max_px": 4.4
+      }
+    ],
+    "max_px": 9.1,
+    "status": "fail",
+    "blocker": "2026-10-30 refit attempts: a counter-front skew fits to 0, per-photo focal and principal point or radial distortion leave the countertop at 6.7-8.2 px in photo.jpg; weighting the countertop pixels to get under 5 px stretches the counter 2.432 -> 2.575 m and the slab 6.3 -> 7.4 cm and pushes the shelves to 14 px, not taken. Only photo.jpg and photo2.jpg frame the countertop; in the island photos the bar hides it or it sits at the border (island_end ~6.5 px, island_left 3-9 px along the lower slab edge). Needs 3+ more photos of the counter, or tape on length, depth, height"
+  },
   "lighting": {
     "status": "estimated",
-    "note": "not compared with the head camera"
+    "note": "not compared with the head camera",
+    "photo_match": {
+      "method": "Isaac RTX from each fitted photo camera (scripts/scenes/render_scenes.py --photos), median CIELAB of photo vs render over the whole frame, averaged over the photos; target |dL*| <= 5, |db*| <= 3; phone auto exposure and white balance make it indicative only",
+      "date": "2026-10-30",
+      "photos": 9,
+      "L_photo": 56.5,
+      "L_render": 56.7,
+      "b_photo": 18.8,
+      "b_render": 21.0,
+      "change": "ceiling panels 6000 -> 18000, 5000 -> 5500 K, dome 150 -> 450 (L* 44.2 before)"
+    }
   },
   "notes": "Floor cabinet: the chassis cannot go under it, so the robot stands 7 cm further back (root y = -0.80), lift column raised 0.0765 m each. 6-7 of its convex hulls are not GPU-compatible, so beans fall through them; cam_third is blocked by a board."
 }

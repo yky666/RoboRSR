@@ -1,0 +1,560 @@
+{
+  "asset_id": "Rigid/wipe_bag/00000",
+  "registration_revision": "13fbcc90080f426434b76059f60cf51ffa0631d4e1dbac275c8f89dda584d8d5",
+  "modeling_by": "刘小凡 / Codex",
+  "source_registration": "/data/robodojo-runs/wipe-bag-20261030/real2sim/objects/Rigid/wipe_bag/00000/spec.json",
+  "acceptance": "research_only",
+  "shared_library_installed": false,
+  "measurements": {
+    "measured_mm": {
+      "长度": 190,
+      "宽度": 96.02,
+      "高度": 38
+    },
+    "model_mm": {
+      "长度": 190.0,
+      "宽度": 96.02,
+      "高度": 38.0
+    },
+    "whole_package_mass_g": 240.2
+  },
+  "coordinate_system": "metres, Z up, X length, complete visible bbox centre",
+  "native_reports": {
+    "validation08": {
+      "passed": true,
+      "real_material_calibrated": false,
+      "robot_grasp_validated": false,
+      "initial_nodal_bounds_m": [
+        [
+          [
+            -0.09500321000814438,
+            -0.048034925013780594,
+            0.07930103689432144
+          ]
+        ],
+        [
+          [
+            0.09519001096487045,
+            0.048186421394348145,
+            0.11420426517724991
+          ]
+        ]
+      ],
+      "label_binding_diagnostics": [
+        {
+          "max_rest_error_m": 3.179800655392251e-17,
+          "maximum_outside_weight": 0.42354063243388174
+        },
+        {
+          "max_rest_error_m": 2.881939084222627e-17,
+          "maximum_outside_weight": 0.34904897545847785
+        },
+        {
+          "max_rest_error_m": 3.122502256758253e-17,
+          "maximum_outside_weight": 0.38342969095544777
+        },
+        {
+          "max_rest_error_m": 2.8662335771926895e-17,
+          "maximum_outside_weight": 0.43500087093287165
+        },
+        {
+          "max_rest_error_m": 2.98453111774546e-17,
+          "maximum_outside_weight": 0.3662394399389322
+        },
+        {
+          "max_rest_error_m": 3.122502256758253e-17,
+          "maximum_outside_weight": 0.4006201554359021
+        },
+        {
+          "max_rest_error_m": 2.943923360032078e-17,
+          "maximum_outside_weight": 0.0
+        },
+        {
+          "max_rest_error_m": 2.881939084222627e-17,
+          "maximum_outside_weight": 0.0
+        }
+      ],
+      "solid_blocking": {
+        "passed": true,
+        "method": "physical plate obstructed by FEM packet against floor"
+      },
+      "usd_authored_mass_kg": 0.2402,
+      "factory": "SceneManager.instantiate_object_wrapper",
+      "label_mesh_count": 8,
+      "label_following_max_error_m": 7.831477244302305e-09,
+      "label_max_motion_m": 0.17212903499603271,
+      "label_update_count": 3243,
+      "whole_package_only": true,
+      "thin_film_validated": false,
+      "independent_rigid_lid_validated": false,
+      "object_sha256": "987304b2584900c2e755866f2d5663abfdf3c97c33cefa028d15e681d9038b8e",
+      "wrapper": "DeformableObject",
+      "physics_dt_s": 0.004166666666666667,
+      "nodes": 1619,
+      "finite": true,
+      "minimum_element_jacobian": 0.6098912358283997,
+      "stage_minimum_jacobians": {
+        "drop": 0.7766497731208801,
+        "compression": 0.6098912358283997,
+        "recovery": 0.6205663681030273,
+        "second_drop": 0.7203436493873596
+      },
+      "jacobian_checked_every_step": true,
+      "mass_kg": null,
+      "drop": {
+        "height_m": 0.03477923199534416,
+        "min_z_m": -5.157885425433051e-06,
+        "steps": 720
+      },
+      "compression": {
+        "before_height_m": 0.03478701412677765,
+        "compressed_height_m": 0.029496796429157257,
+        "plate_gap_m": 0.02851174744770105,
+        "ramp_steps": 360,
+        "hold_steps": 240,
+        "method": "physical rigid plate contact, no node pinning"
+      },
+      "recovery": {
+        "height_m": 0.03478330746293068,
+        "steps": 720,
+        "release_ramp_steps": 240
+      },
+      "reset": {
+        "max_nodal_error_m": 8.24175530600435e-09,
+        "max_velocity_m_s": 0.0,
+        "all_nodes_free": true,
+        "second_drop_min_z_m": -3.20198955705564e-06
+      },
+      "visual_callback_cleaned": true
+    },
+    "replay08": {
+      "passed": true,
+      "real_material_calibrated": false,
+      "robot_grasp_validated": false,
+      "initial_nodal_bounds_m": [
+        [
+          [
+            -0.09500321000814438,
+            -0.048034925013780594,
+            0.07930103689432144
+          ]
+        ],
+        [
+          [
+            0.09519001096487045,
+            0.048186421394348145,
+            0.11420426517724991
+          ]
+        ]
+      ],
+      "replay_only": true,
+      "object_sha256": "987304b2584900c2e755866f2d5663abfdf3c97c33cefa028d15e681d9038b8e",
+      "initial_position_error_m": 0.0,
+      "initial_velocities_m_s": [
+        0.0,
+        0.0
+      ],
+      "replay_max_vertex_error_m": 2.3044636691338383e-05,
+      "minimum_element_jacobian": 0.7781299948692322,
+      "visual_callback_cleaned": true
+    },
+    "mesh08": {
+      "passed": true,
+      "real_material_calibrated": false,
+      "robot_grasp_validated": false,
+      "initial_nodal_bounds_m": [
+        [
+          [
+            -0.09500321000814438,
+            -0.048034925013780594,
+            0.07930103689432144
+          ]
+        ],
+        [
+          [
+            0.09519001096487045,
+            0.048186421394348145,
+            0.11420426517724991
+          ]
+        ]
+      ],
+      "mesh_only": true,
+      "object_sha256": "987304b2584900c2e755866f2d5663abfdf3c97c33cefa028d15e681d9038b8e",
+      "simulation_nodes": 1619,
+      "simulation_tetrahedra": 5730,
+      "collision_nodes": 8350,
+      "collision_tetrahedra": 3730,
+      "simulation_mesh_sha256": "a0216db44e121667886148df6590ea10213dc2f2a697237b06f48d189fd20723",
+      "collision_snapshot_sha256": "4c010d8b459e5cb15f78ba4ef21c3aa2ba547a20415fc49eb89fb754cc9a0d66",
+      "collision_snapshot_state": "object-local coordinates after initialization warmup; not undeformed rest",
+      "visual_callback_cleaned": true
+    },
+    "clamp08": {
+      "passed": true,
+      "real_material_calibrated": false,
+      "robot_grasp_validated": false,
+      "initial_nodal_bounds_m": [
+        [
+          [
+            -0.09500321000814438,
+            -0.048034925013780594,
+            0.07930103689432144
+          ]
+        ],
+        [
+          [
+            0.09519001096487045,
+            0.048186421394348145,
+            0.11420426517724991
+          ]
+        ]
+      ],
+      "clamp_only": true,
+      "lift_m": 0.07505107671022415,
+      "released_centre_delta_m": -3.0230730772018433e-06,
+      "jaw_gap_m": 0.03,
+      "commanded_lift_m": 0.08,
+      "method": "physical opposing horizontal plates; lower finger supplies support; no node pinning",
+      "limitations": "support-assisted clamp proxy, not robot frictional grasp or calibrated slip",
+      "minimum_element_jacobian": 0.36091047525405884,
+      "finite": true,
+      "object_sha256": "987304b2584900c2e755866f2d5663abfdf3c97c33cefa028d15e681d9038b8e",
+      "visual_callback_cleaned": true
+    },
+    "reload08_00000": {
+      "passed": true,
+      "real_material_calibrated": false,
+      "robot_grasp_validated": false,
+      "initial_nodal_bounds_m": [
+        [
+          [
+            -0.09500321000814438,
+            -0.048034925013780594,
+            0.07930103689432144
+          ]
+        ],
+        [
+          [
+            0.09519001096487045,
+            0.048186421394348145,
+            0.11420426517724991
+          ]
+        ]
+      ],
+      "reload_only": true,
+      "object_sha256": "987304b2584900c2e755866f2d5663abfdf3c97c33cefa028d15e681d9038b8e",
+      "factory": "SceneManager.instantiate_object_wrapper",
+      "wrapper": "DeformableObject",
+      "usd_mass_properties": [
+        {
+          "prim": "/root/model/geometry/mesh",
+          "value_kg": 0.2401999980211258
+        }
+      ],
+      "usd_material_parameters": [
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:dampingScale",
+          "value": 1.0
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:dynamicFriction",
+          "value": 0.25
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:poissonsRatio",
+          "value": 0.30000001192092896
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:youngsModulus",
+          "value": 80000.0
+        }
+      ],
+      "label_following_max_error_m": 3.026485107267918e-09,
+      "label_update_count": 181,
+      "visual_callback_cleaned": true
+    },
+    "reload08_00001": {
+      "passed": true,
+      "real_material_calibrated": false,
+      "robot_grasp_validated": false,
+      "initial_nodal_bounds_m": [
+        [
+          [
+            -0.09500321000814438,
+            -0.048034925013780594,
+            0.07930103689432144
+          ]
+        ],
+        [
+          [
+            0.09519001096487045,
+            0.048186421394348145,
+            0.11420426517724991
+          ]
+        ]
+      ],
+      "reload_only": true,
+      "object_sha256": "6c93d992aca4f4db868cb9d1004591971dcab936305addeeba253d7e7a35eb98",
+      "factory": "SceneManager.instantiate_object_wrapper",
+      "wrapper": "DeformableObject",
+      "usd_mass_properties": [
+        {
+          "prim": "/root/model/geometry/mesh",
+          "value_kg": 0.2401999980211258
+        }
+      ],
+      "usd_material_parameters": [
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:dampingScale",
+          "value": 1.0
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:dynamicFriction",
+          "value": 0.25
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:poissonsRatio",
+          "value": 0.30000001192092896
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:youngsModulus",
+          "value": 80000.0
+        }
+      ],
+      "label_following_max_error_m": 3.004622330849559e-09,
+      "label_update_count": 181,
+      "visual_callback_cleaned": true
+    },
+    "reload08_00002": {
+      "passed": true,
+      "real_material_calibrated": false,
+      "robot_grasp_validated": false,
+      "initial_nodal_bounds_m": [
+        [
+          [
+            -0.09500321000814438,
+            -0.048034925013780594,
+            0.07930103689432144
+          ]
+        ],
+        [
+          [
+            0.09519001096487045,
+            0.048186421394348145,
+            0.11420426517724991
+          ]
+        ]
+      ],
+      "reload_only": true,
+      "object_sha256": "ca166d2245b58eaeeddc3628ffab3d7018325aeb99029b4d8bb8a0d2060d0b80",
+      "factory": "SceneManager.instantiate_object_wrapper",
+      "wrapper": "DeformableObject",
+      "usd_mass_properties": [
+        {
+          "prim": "/root/model/geometry/mesh",
+          "value_kg": 0.2401999980211258
+        }
+      ],
+      "usd_material_parameters": [
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:dampingScale",
+          "value": 1.0
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:dynamicFriction",
+          "value": 0.25
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:poissonsRatio",
+          "value": 0.30000001192092896
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:youngsModulus",
+          "value": 80000.0
+        }
+      ],
+      "label_following_max_error_m": 2.9699568130132548e-09,
+      "label_update_count": 181,
+      "visual_callback_cleaned": true
+    },
+    "reload08_00003": {
+      "passed": true,
+      "real_material_calibrated": false,
+      "robot_grasp_validated": false,
+      "initial_nodal_bounds_m": [
+        [
+          [
+            -0.09500321000814438,
+            -0.048034925013780594,
+            0.07930103689432144
+          ]
+        ],
+        [
+          [
+            0.09519001096487045,
+            0.048186421394348145,
+            0.11420426517724991
+          ]
+        ]
+      ],
+      "reload_only": true,
+      "object_sha256": "00b0fe6dc4dedb8a555b561bfe519dd912c47c284e4d8102e1f1d0247854f8d8",
+      "factory": "SceneManager.instantiate_object_wrapper",
+      "wrapper": "DeformableObject",
+      "usd_mass_properties": [
+        {
+          "prim": "/root/model/geometry/mesh",
+          "value_kg": 0.2401999980211258
+        }
+      ],
+      "usd_material_parameters": [
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:dampingScale",
+          "value": 1.0
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:dynamicFriction",
+          "value": 0.25
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:poissonsRatio",
+          "value": 0.30000001192092896
+        },
+        {
+          "prim": "/root/model/geometry/material",
+          "attribute": "physxDeformableBodyMaterial:youngsModulus",
+          "value": 80000.0
+        }
+      ],
+      "label_following_max_error_m": 3.0177261156397798e-09,
+      "label_update_count": 181,
+      "visual_callback_cleaned": true
+    }
+  },
+  "names": {
+    "Rigid/wipe_bag/00000": {
+      "en": [
+        "bag",
+        "wipe bag",
+        "pet wipe bag",
+        "pet wipe bag with white lid",
+        "sealed plastic pet wipe bag with white lid and animal label"
+      ],
+      "zh": [
+        "袋子",
+        "湿巾袋",
+        "宠物湿巾袋",
+        "带白色翻盖的宠物湿巾袋",
+        "带白色翻盖和动物标签的封口塑料宠物湿巾袋"
+      ]
+    },
+    "Rigid/wipe_bag/00001": {
+      "en": [
+        "bag",
+        "wipe bag",
+        "pet wipe bag",
+        "pet wipe bag with green lid",
+        "sealed plastic pet wipe bag with green lid and animal label"
+      ],
+      "zh": [
+        "袋子",
+        "湿巾袋",
+        "宠物湿巾袋",
+        "带绿色翻盖的宠物湿巾袋",
+        "带绿色翻盖和动物标签的封口塑料宠物湿巾袋"
+      ]
+    },
+    "Rigid/wipe_bag/00002": {
+      "en": [
+        "bag",
+        "wipe bag",
+        "pet wipe bag",
+        "pet wipe bag with red lid",
+        "sealed plastic pet wipe bag with red lid and animal label"
+      ],
+      "zh": [
+        "袋子",
+        "湿巾袋",
+        "宠物湿巾袋",
+        "带红色翻盖的宠物湿巾袋",
+        "带红色翻盖和动物标签的封口塑料宠物湿巾袋"
+      ]
+    },
+    "Rigid/wipe_bag/00003": {
+      "en": [
+        "bag",
+        "wipe bag",
+        "pet wipe bag",
+        "pet wipe bag with blue lid",
+        "sealed plastic pet wipe bag with blue lid and animal label"
+      ],
+      "zh": [
+        "袋子",
+        "湿巾袋",
+        "宠物湿巾袋",
+        "带蓝色翻盖的宠物湿巾袋",
+        "带蓝色翻盖和动物标签的封口塑料宠物湿巾袋"
+      ]
+    }
+  },
+  "model_sha256": {
+    "Rigid/wipe_bag/00000": "987304b2584900c2e755866f2d5663abfdf3c97c33cefa028d15e681d9038b8e",
+    "Rigid/wipe_bag/00001": "6c93d992aca4f4db868cb9d1004591971dcab936305addeeba253d7e7a35eb98",
+    "Rigid/wipe_bag/00002": "ca166d2245b58eaeeddc3628ffab3d7018325aeb99029b4d8bb8a0d2060d0b80",
+    "Rigid/wipe_bag/00003": "00b0fe6dc4dedb8a555b561bfe519dd912c47c284e4d8102e1f1d0247854f8d8"
+  },
+  "source_sha256": {
+    "scripts/objects/make_wipe_bag.py": "fa5fbedabc83c75e0d1623518b090c02d32226f7a6ab869b68b7f0c48cbb7bde",
+    "scripts/objects/check_wipe_bag.py": "3307e52e930f42058db451bce1e211d0471c2b5bb4856a165649a575ae792ec9",
+    "scripts/objects/render_wipe_bag.py": "deb1ce2937090e06382fb166054974ace2b322279df188a9c8e06bc2a33ea933",
+    "env/scene_manager/scene_manager.py": "c534227536266de3d5b29b3f2048766ded9d2fe6f9286c34bacf805165e7cf97",
+    "env/scene_manager/objects/asset_defaults.py": "d056459f926f89e2de28e4f2f6211b7601a6072109d53c831a86450a16dacbbb",
+    "env/scene_manager/objects/deformable.py": "d3663c854a24bddeb0ac24ac800df4eba878baf221667ff720bb17d652423299",
+    "env/scene_manager/objects/tetra_visuals.py": "22c04121bead7793b77b79d06a7e8cecbcb98485eb1f58ec2f80a3b2e620d856",
+    "env/scene_manager/objects/dynamic.py": "7a4652c649f503681914e37c50c959c7ca8457918bb00628413f4288993f8ea7"
+  },
+  "source_base_commit": "0716311faceb1e1e04838c279a77367aa4e0934b",
+  "cpu_validation": "All checks passed!\n7 files already formatted\n/root/miniconda3/envs/RoboDojo/lib/python3.11/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.8.0) or chardet (7.7.0)/charset_normalizer (3.3.2) doesn't match a supported version!\n  warnings.warn(\n..s..................................................................... [ 78%]\n....................                                           [100%]\n91 passed, 1 skipped, 82 subtests passed in 8.03s\nchecks passed\n",
+  "visual_review": {
+    "status": "pending",
+    "source_photos_checked": 3,
+    "same_view": "approximate views, camera calibration unavailable",
+    "remaining": [
+      "end folds are an approximation",
+      "side film/background boundary remains visible",
+      "lid label includes photographic crease/shading residue",
+      "bottom and opposite long side missing photos",
+      "open-lid interior missing photos"
+    ]
+  },
+  "limitations": [
+    "whole filled packet equivalent FEM, not separately modeled film and contents",
+    "separate lid geometry follows the bulk by tetrahedral embedding; no independent rigid lid or hinge",
+    "collision FEM covers packet bulk, not the separate visible lid envelope",
+    "material stiffness, damping and friction are uncalibrated",
+    "support-assisted plate clamp is not a robot grasp or calibrated slip test",
+    "no full task or real-robot calibration acceptance"
+  ],
+  "failed_or_superseded_runs": [
+    "generate01-05: bbox/export errors; early shutdown masked some exit codes",
+    "generate07: strict bbox centre assertion, 0.015 mm offset",
+    "checks01: CRLF whitespace",
+    "checks02: LFS pointer files; materialized before checks03"
+  ],
+  "photos_use": "real photos support geometry/printing; renders and physical tests are simulation evidence only"
+}

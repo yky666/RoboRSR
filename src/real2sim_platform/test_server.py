@@ -8,10 +8,12 @@ import gzip
 import http.client
 from http.server import ThreadingHTTPServer
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
 import threading
+from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import server
@@ -54,7 +56,7 @@ def test_randomization_profile():
     for d in (
         "Room/Simple_Room_red",
         "Room/Simple_Room_teal",
-        "Material/material_0122",
+        "Material/material_0123",
         "Object/RoboDojo/Clutter/pen/00000",
     ):
         (assets / d).mkdir(parents=True)
@@ -63,7 +65,7 @@ def test_randomization_profile():
     (assets / "Background/studio.hdr").write_text("")
     empty = {"rooms": [], "materials": [], "hdrs": [], "distractors": [], "instances": []}
     tiers = {
-        "seen": ["material:material_0122"],
+        "seen": ["material:material_0123"],
         "t0": [],
         "pools": {
             "train": empty | {"rooms": ["Simple_Room_red"], "hdrs": ["studio.hdr"], "distractors": ["clutter:pen/0"]},
@@ -77,7 +79,7 @@ def test_randomization_profile():
 
     try:
         profile = {"position": True, "color": True, "scale": [0.9, 1.1], "rooms": ["Simple_Room_red"]}
-        profile |= {"tables": ["material_0122"], "background": {"hdrs": ["studio.hdr"], "intensity": [600, 1400]}}
+        profile |= {"tables": ["material_0123"], "background": {"hdrs": ["studio.hdr"], "intensity": [600, 1400]}}
         profile |= {
             "clutter": {"count": [2, 5]},
             "lights": {"count": [1, 2], "types": ["Sphere"]},
@@ -106,12 +108,17 @@ def test_appearance_settings():
         (tmp / scene / "usd/parts.json").write_text((scenes_dir / scene / "usd/parts.json").read_text())
     server.build_asset.SCENES_DIR = tmp
     try:
-        lab = {"fixed": {"floor": "mdl/material_0124", "wall": None, "table_top_z": 0.9}}
-        lab["random"] = {"tabletop": ["original", "real_scene1_office/tabletop/table_white"]}
+        lab = {"fixed": {"floor": "mdl/material_0075", "wall": None, "table_top_z": 0.9}}
+        lab["random"] = {"tabletop": ["original", "mdl/material_0053"]}
         lab["random"]["table_top_z"] = [0.7, 0.95]
         assert server.write_appearance("real_scene3_lab", lab) is None
         written = json.loads((tmp / "real_scene3_lab/appearance.json").read_text())
-        assert written == {"fixed": {"floor": "mdl/material_0124", "table_top_z": 0.9}, "random": lab["random"]}
+        assert written == {"fixed": {"floor": "mdl/material_0075", "table_top_z": 0.9}, "random": lab["random"]}
+        assert "不适合" in server.write_appearance("real_scene3_lab", {"fixed": {"floor": "mdl/material_0004"}})
+        assert "不适合" in server.write_appearance("real_scene3_lab", {"random": {"tabletop": ["mdl/material_0123"]}})
+        materials = {m["id"]: m for m in server.material_library()}
+        assert "tabletop" in materials["mdl/material_0473"]["scene_roles"]["real_scene3_lab"]
+        assert "tabletop" not in materials["mdl/material_0473"]["scene_roles"]["real_scene1_office"]
         assert "没有 nope" in server.write_appearance("real_scene3_lab", {"fixed": {"floor": "nope"}})
         unfit = {"random": {"wall": ["real_scene3_lab/floor/carpet"]}}  # a scene's floor stays a floor
         assert "不适合" in server.write_appearance("real_scene3_lab", unfit)
@@ -119,7 +126,7 @@ def test_appearance_settings():
         assert "两个值" in server.write_appearance("real_scene3_lab", {"random": {"table_top_z": [0.9, None]}})
         assert "数字" in server.write_appearance("real_scene3_lab", {"fixed": {"table_top_z": "0.9"}})
         assert "不能升降" in server.write_appearance("real_scene2_counter", {"fixed": {"table_top_z": 0.9}})
-        assert server.write_appearance("real_scene2_counter", {"fixed": {"tabletop": "mdl/material_0083"}}) is None
+        assert server.write_appearance("real_scene2_counter", {"fixed": {"tabletop": "mdl/material_0084"}}) is None
         assert server.write_appearance("real_scene3_lab", {"fixed": {}, "random": {}}) is None
         assert not (tmp / "real_scene3_lab/appearance.json").exists()  # nothing set: the twin as built
         assert "parts.json" in server.write_appearance("real_scene9_x", {})
@@ -211,16 +218,18 @@ def test_account_migration():
     old.commit()
     old.close()
     store = server.Store(path)
-    assert store.users() == [{"username": "bob", "name": "Bob", "admin": False, "guest": False}]
-    assert store.check("bob", "password1") == {"username": "bob", "name": "Bob", "admin": False, "guest": False}
-    assert store.edit_user("bob", admin=True) and store.users()[0]["admin"]
+    bob = {"username": "bob", "name": "Bob", "admin": False, "guest": False, "sim_admin": False, "ds_admin": False}
+    assert store.users() == [bob]
+    assert store.check("bob", "password1") == bob
+    everywhere = {"admin": True, "sim_admin": True, "ds_admin": True}
+    assert store.edit_user("bob", admin=True) and store.users()[0] == {**bob, **everywhere}
     assert not store.add_user("bob", "password2") and store.check("bob", "password1")
-    assert store.edit_user("bob", admin=False, guest=True) and store.users()[0]["guest"]
-    assert store.edit_user("bob", admin=True, guest=True) and store.users()[0] == {
-        **store.users()[0],
-        "admin": True,
-        "guest": False,
-    }
+    assert store.edit_user("bob", admin=False, guest=True) and store.users()[0] == {**bob, "guest": True}
+    assert store.edit_user("bob", admin=True, guest=True) and not store.users()[0]["guest"]
+    # rights per product: a dataset admin who is only a guest on the simulation platform, and the reverse
+    assert store.edit_user("bob", admin=False, guest=True, ds_admin=True)
+    assert store.users()[0] == {**bob, "guest": True, "ds_admin": True}
+    assert store.edit_user("bob", sim_admin=True, ds_admin=False) and store.users()[0] == {**bob, "sim_admin": True}
 
 
 def test_http():
@@ -264,7 +273,8 @@ def test_http():
         assert request("GET", "/api/info")[0] == 401 and request("GET", "/api/me")[0] == 401
         assert login("alice", "wrong-pass")[0] == 401 and login("nobody", "password1")[0] == 401
         status, me, cookie = login("alice", "password1")
-        assert status == 200 and me == {"username": "alice", "name": "张三", "admin": True, "guest": False}
+        alice = dict(username="alice", name="张三", admin=True, guest=False, sim_admin=True, ds_admin=True)
+        assert status == 200 and me == alice
         assert cookie.startswith("r2s_session=")
         session["Cookie"] = cookie
         assert json.loads(request("GET", "/api/me")[1])["name"] == "张三"
@@ -321,6 +331,10 @@ def test_http():
         (built / "metadata.json").write_text(json.dumps({"physics": {"mass": 0.05}, "measurements_mm": {"高": 95.5}}))
         assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["measurements"] == {"高": 95.5}
         assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["library"] == "RoboDojo"
+        assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["names"] == {}
+        names = {"category": {"en": "cup", "zh": "杯子"}, "en": ["a", "b", "c"], "zh": ["甲", "乙", "丙"]}
+        (built / "description.json").write_text(json.dumps({"caption": {"name": ["cup"]}, "names": names}))
+        assert server.scan_objects(tmp, {}, ["Rigid/cup/00003"])["Rigid/cup/00003"]["names"] == names
         twin_dir = tmp / "Object/Real2Sim/Rigid/cup/00005"  # a twin built here: the Real2Sim library, found first
         twin_dir.mkdir(parents=True)
         (twin_dir / "metadata.json").write_text(json.dumps({"physics": {"mass": 0.02}}))
@@ -410,6 +424,14 @@ def test_http():
         front = tmp / "scenes/real_scene9_kitchen/reference/front.webp"
         assert status == 200 and json.loads(body)["path"] == str(front)
         assert request("POST", "/api/photo?kind=scene&id=Rigid/cup/00000&name=a.jpg", b"jpg")[0] == 400
+        status, body, _ = request("POST", f"/api/mesh?id=real_scene9_kitchen&name={quote('../扫描 1.GLB')}", b"glTF")
+        mesh = tmp / "scenes/real_scene9_kitchen/mesh/扫描_1.glb"
+        assert status == 200 and json.loads(body)["path"] == str(mesh) and mesh.read_bytes() == b"glTF"
+        assert request("POST", "/api/mesh?id=real_scene9_kitchen&name=room.gltf", b"{}")[0] == 400  # needs side files
+        assert request("POST", "/api/mesh?id=real_scene7_nowhere&name=a.glb", b"glTF")[0] == 400
+        assert request("POST", "/api/photo?kind=scene&id=real_scene9_kitchen&name=a.glb", b"glTF")[0] == 400
+        assert server.scan_scenes()["real_scene9_kitchen"]["meshes"] == [{"path": str(mesh), "size": 4}]
+        assert request("DELETE", f"/api/photo?path={quote(str(mesh))}")[0] == 200 and not mesh.exists()
         found = server.scan_scenes()["real_scene9_kitchen"]
         assert found["registered"] and not found["built"] and len(found["photos"]) == 1
         assert found["renders"] == [] and found["model"] is None
@@ -551,10 +573,11 @@ def test_http():
             return status, json.loads(data)
 
         carol = {"username": "carol", "name": "李四", "password": "password1"}
+        member = {"admin": False, "guest": False, "sim_admin": False, "ds_admin": False}
         assert users("POST", body={**carol, "password": "short"})[0] == 400
         assert users("POST", body={**carol, "username": "a b"})[0] == 400
         status, listed = users("POST", body=carol)
-        assert status == 200 and {"username": "carol", "name": "李四", "admin": False, "guest": False} in listed
+        assert status == 200 and {"username": "carol", "name": "李四", **member} in listed
         assert users("POST", body=carol)[0] == 409
         carol_cookie = login("carol", "password1")[2]
         for method in ("GET", "POST", "PUT", "DELETE"):  # members cannot manage accounts
@@ -567,20 +590,57 @@ def test_http():
         assert users("DELETE", "/api/users?username=alice")[0] == 400
         assert users("PUT", "/api/users?username=nobody", {"name": "x"})[0] == 404
         status, listed = users("PUT", "/api/users?username=carol", {"name": "王五", "password": "password9"})
-        assert status == 200 and {"username": "carol", "name": "王五", "admin": False, "guest": False} in listed
+        assert status == 200 and {"username": "carol", "name": "王五", **member} in listed
         assert request("GET", "/api/me", headers={"Cookie": carol_cookie})[0] == 401  # reset password ends sessions
         carol_cookie = login("carol", "password9")[2]
-        assert users("PUT", "/api/users?username=carol", {"admin": True, "guest": False})[1][1]["admin"]
+        # a simulation-platform admin reviews and deletes there, but neither manages accounts nor edits datasets
+        assert users("PUT", "/api/users?username=carol", {"sim": "admin"})[1][1] == {
+            "username": "carol",
+            "name": "王五",
+            **member,
+            "sim_admin": True,
+        }
+        assert users("GET", cookie=carol_cookie)[0] == 403
+        put_ds = json.dumps({"name": "改名"})
+        assert request("PUT", "/api/items?kind=dataset&id=droid", put_ds, {"Cookie": carol_cookie})[0] == 403
+        assert users("PUT", "/api/users?username=carol", {"sim": "owner"})[0] == 400
+        assert users("PUT", "/api/users?username=carol", {"datasets": "editor"})[0] == 400
+        assert users("PUT", "/api/users?username=carol", {"admin": True})[1][1]["admin"]
         assert users("GET", cookie=carol_cookie)[0] == 200
-        assert users("DELETE", "/api/users?username=carol")[1] == [
-            {"username": "alice", "name": "张三", "admin": True, "guest": False}
-        ]
+        assert users("DELETE", "/api/users?username=carol")[1] == [alice]
         assert request("GET", "/api/me", headers={"Cookie": carol_cookie})[0] == 401
 
-        dave = {"username": "dave", "name": "访客", "password": "password1", "role": "guest"}
-        assert users("POST", body={**dave, "role": "owner"})[0] == 400
-        assert {"username": "dave", "name": "访客", "admin": False, "guest": True} in users("POST", body=dave)[1]
+        # dataset edits: whole edit replaced each time, checked fields only, dataset admins only
+        ds = "/api/items?kind=dataset&id=droid"
+        edit = {"name": "DROID 改", "f": {"source": ["real", "mixed"]}, "episodes": 10, "hours": None}
+        status, doc = users("PUT", ds, edit)
+        assert status == 200 and doc["name"] == "DROID 改" and doc["_by"] == "张三" and doc["hours"] is None
+        status, doc = users("PUT", ds, {"desc": "只改简介"})
+        assert status == 200 and "name" not in doc and doc["desc"] == "只改简介"  # name follows the inventory again
+        for bad in (
+            {"url": "javascript:alert(1)"},
+            {"episodes": -1},
+            {"episodes": True},
+            {"f": {"source": "real"}},
+            {"f": {"source": ["<b>"]}},
+            {"secret": 1},
+            {"name": "x" * 81},
+            {"custom": True, "name": " "},
+        ):
+            assert users("PUT", ds, bad)[0] == 400, bad
+        assert request("PUT", "/api/items?kind=dataset&id=Bad_ID", json.dumps({"desc": "x"}))[0] == 400
+        assert [d["id"] for d in users("GET", "/api/items?kind=dataset")[1]] == ["droid"]
+        assert users("DELETE", ds)[1] == {"ok": True} and users("GET", "/api/items?kind=dataset")[1] == []
+
+        dave = {"username": "dave", "name": "访客", "password": "password1", "sim": "guest", "datasets": "admin"}
+        assert users("POST", body={**dave, "sim": "owner"})[0] == 400
+        assert {"username": "dave", "name": "访客", **member, "guest": True, "ds_admin": True} in users(
+            "POST", body=dave
+        )[1]
         as_dave = {"Cookie": login("dave", "password1")[2]}
+        added = json.dumps({"custom": True, "name": "自采数据", "f": {"source": ["sim"]}})
+        assert request("PUT", "/api/items?kind=dataset&id=ds-own", added, as_dave)[0] == 200  # datasets: admin
+        assert request("DELETE", "/api/items?kind=dataset&id=ds-own", headers=as_dave)[0] == 200
         assert json.loads(request("GET", "/api/me", headers=as_dave)[1])["guest"]
         assert request("GET", "/api/items?kind=task", headers=as_dave)[0] == 200  # a guest reads everything
         status, _, resp = request("PUT", "/api/items?kind=task&id=g1d_stack_blocks", b'{"target": 1}', as_dave)
@@ -590,8 +650,8 @@ def test_http():
         assert request("POST", "/api/users", json.dumps(carol), as_dave)[0] == 403
         new_pw = json.dumps({"old": "password1", "new": "password3"})  # but keeps their own password and session
         assert request("POST", "/api/password", new_pw, as_dave)[0] == 200
-        assert {"username": "dave", "name": "访客", "admin": True, "guest": False} in users(
-            "PUT", "/api/users?username=dave", {"role": "admin"}
+        assert {**alice, "username": "dave", "name": "访客"} in users(
+            "PUT", "/api/users?username=dave", {"admin": True}
         )[1]
         assert users("DELETE", "/api/users?username=dave")[0] == 200
 
@@ -695,6 +755,59 @@ def test_physical_source_does_not_require_measurements(tmp_path, monkeypatch):
     assert saved["estimated_dimensions_mm"] == {"X": 356} and saved["estimated_mass_g"] == 450
     assert "mass_g" not in saved and "dimensions_mm" not in saved
     assert not registration.physical_origin({**doc, "twin": False})
+    server.write_spec({**doc, "twin": False})
+    assert not (folder / "spec.json").exists()  # no longer a twin: the spec it wrote goes
+    generic = tmp_path / "registrations/Dynamic/soft_block/00000/spec.json"
+    generic.parent.mkdir(parents=True)
+    generic.write_text(json.dumps({"id": "Dynamic/soft_block/00000", "name": "FEM 软块"}))
+    server.write_spec({"id": "Dynamic/soft_block/00000", "twin": False, "auto": {}})
+    assert generic.exists()  # a generator wrote it: saving a non-twin leaves it alone
+
+
+def test_scene_review(tmp_path, monkeypatch):
+    monkeypatch.setattr(server.build_asset, "SCENES_DIR", tmp_path / "scenes")
+    usd = tmp_path / "scene.usda"
+    usd.write_text("#usda 1.0\n")
+    version = server.scene_model_version(usd)
+    os.utime(usd, (1, 1))  # a stash/pop on the deploy checkout only touches mtimes: not a rebuild
+    assert server.scene_model_version(usd) == version and server.scene_model_version(tmp_path / "none") is None
+    store = server.Store(tmp_path / "db.sqlite3")
+    store.add_user("boss", "password1", "管理员", admin=True)
+    store.add_user("bob", "password1", "成员")
+    sid, var = "real_scene9_test", "g1d_bench_test"
+    store.sync("scene", {sid: {"built": False}, var: {"built": True, "source_scene": sid, "model_version": "v"}})
+    server.Handler.store, server.Handler.scan_args, server.Handler.roots = store, (tmp_path, [tmp_path]), [tmp_path]
+    server.Handler.failures, server.FAIL_DELAY = {}, 0
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+
+    def call(user, method, path, body=None):
+        cookie = {"Cookie": f"{server.COOKIE}={store.open_session(user)}"}
+        conn = http.client.HTTPConnection("127.0.0.1", httpd.server_port)
+        conn.request(method, path, json.dumps(body) if body is not None else None, cookie)
+        resp = conn.getresponse()
+        return resp.status, json.loads(resp.read() or "null")
+
+    scene = f"/api/items?kind=scene&id={sid}"
+    try:
+        assert call("boss", "PUT", scene, {"review_action": "approve"})[0] == 409  # no model yet
+        store.sync("scene", {sid: {"built": True, "model_version": version}, var: store.get("scene", var)["auto"]})
+        assert call("bob", "PUT", scene, {"review_action": "approve"})[0] == 403  # admins only
+        assert call("bob", "PUT", scene, {"review": {"state": "approved"}})[1]["review_state"] == "review"  # ignored
+        assert call("boss", "PUT", scene, {"review_action": "reject"})[0] == 400  # a reason is required
+        assert call("boss", "PUT", scene, {"review_action": "approve", "reg": {}})[0] == 400  # review fields only
+        status, doc = call("boss", "PUT", scene, {"review_action": "reject", "review_note": "桌沿偏 3 cm"})
+        assert status == 200 and doc["review_state"] == "rebuild" and doc["review"]["by"] == "管理员"
+        assert call("boss", "PUT", scene, {"review_action": "reopen"})[1]["review_state"] == "review"
+        assert call("boss", "PUT", f"/api/items?kind=scene&id={var}", {"review_action": "approve"})[0] == 409
+        assert call("boss", "PUT", scene, {"review_action": "approve"})[1]["review_state"] == "done"
+        listed = {d["id"]: d["review_state"] for d in call("bob", "GET", "/api/items?kind=scene")[1]}
+        assert listed == {sid: "done", var: "done"}  # the variant follows its source scene
+        store.sync("scene", {sid: {"built": True, "model_version": "sha1:other"}, var: store.get("scene", var)["auto"]})
+        assert server.review_state(store.get("scene", sid)) == "review"  # rebuilt: review again
+        assert not (tmp_path / "scenes").exists()  # verdicts never touch the scene folder (registration.json)
+    finally:
+        httpd.shutdown()
 
 
 def test_object_review_and_libraries(tmp_path, monkeypatch):
@@ -744,6 +857,13 @@ def test_object_review_and_libraries(tmp_path, monkeypatch):
         assert call("bob", "PUT", obj, {"photo_order": "c.jpg"})[0] == 400
         doc = call("bob", "PUT", obj, {"photo_order": ["c.jpg", "a.jpg"]})[1]
         assert doc["auto"]["photos"] == ["/r/c.jpg", "/r/a.jpg", "/r/b.jpg"]  # unlisted ones stay at the end
+
+        assert call("bob", "PUT", obj, {"hidden": True})[0] == 403  # hiding is for admins
+        assert call("boss", "PUT", obj, {"hidden": "yes"})[0] == 400
+        assert call("boss", "PUT", obj, {"hidden": True, "name": "x"})[0] == 400  # a hide request carries nothing else
+        assert call("boss", "PUT", "/api/items?kind=object&id=Rigid/none/00000", {"hidden": True})[0] == 404
+        assert call("boss", "PUT", obj, {"hidden": True})[1]["hidden"] is True
+        assert call("boss", "PUT", obj, {"hidden": False})[1]["hidden"] is False
 
         store.sync("object", {oid: {"built": True, "check": {"checked_at": "t2"}}})  # rebuilt: review again
         assert server.review_state(store.get("object", oid)) == "review"
