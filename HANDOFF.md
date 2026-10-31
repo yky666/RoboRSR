@@ -40,6 +40,28 @@
 
 ## 最近任务
 
+### GenieSim 公开桌面资产接入（2026-10-29，`codex/geniesim-assets`，[PR #48](https://github.com/Zheng-Chong/RoboRSR/pull/48)，10-31 合并进 `main`）
+
+- 原始来源：ModelScope `agibot_world/GenieSimAssets`，固定 revision `f65609e1c2bb153947ca9eee2ae1dc7392cdf3b7`。许可按仓库 LICENSE / README 的 **CC BY-NC-SA 4.0**，不按网站 Apache 元数据处理。
+- 原包在 `5090-2:/data/robodojo-assets/sources/agibot/geniesim-assets/`；下载 `objects/**`，6803 个 LFS 文件、15998074482 字节，逐文件 SHA-256 全通过。原包必须保留：生成的 `object.usdz` 是引用该固定 checkout 的适配层；移动原包后须重新转换。
+- 1245 个源物体条目中选出 963 个无关节桌面候选（最长边 3–50 cm、最短边 ≥3 mm），转换成功 866 个。97 个静态排除：质量超范围 61、多质量需复核 32、缺依赖 3、实际 USD 尺寸超范围 1；另 282 个在选择阶段因尺寸、关节等排除。原始文件全部保留。
+- 脚本 `scripts/objects/geniesim.py`：只解析 item.py 字面量，原始 USD 不改；米/Z-up/包围盒中心归一化放在刚体根节点下，保留源 USD 质量和摩擦并记录 JSON 冲突。大于 0.5 kg 的有效质量显式带 mass_cap，避免加载器截断。补 OBB 顶点、包围盒底部放置帧、英文名列表；不编造实测值或抓取/接触功能帧。
+- 866 件逐件在 Isaac Sim 做三秒重力落地、正放判据（倾斜<5°、高度偏差<5mm、速度<0.01m/s）和白底渲染：**684 件通过、182 件待复核、0 个验证进程错误**。其中 169 件正放未通过、20 件渲染未通过，交集 7 件。苹果/球体的自然倾斜也会被严格正放判据拒绝，不直接等同模型损坏。未做抓取、容器装载、任务成功率或真机参数验收。
+- 684 件已装共享库 `Assets/Object/RoboDojo/Rigid/geniesim_*/00000/`，保持独立命名空间；平台元数据镜像同步。866 件全部登记到数采平台 **AgiBot GenieSim**（library=`geniesim`），含预览和逐件 check.json；182 件没有装共享库，备注待复核，不标完整验收通过。API 回读数量及图片访问通过。
+- 验证运行目录：`5090-2:/data/robodojo-runs/geniesim-validation-20261029/`，入口 `selection.json`、`converted/conversion.json`、`validation.json`、`platform-sync.json`，逐批日志在 `logs/`，原始下载校验在原包父目录 `geniesim-download-verification.json`。
+- 代码验证：OpenUSD 专项 6 passed；当前主线集成 CPU 检查 91 passed、3 skipped、82 subtests passed，ruff 和 inventory 通过。分支基线 d14a164 的平台访客测试原有失败，集成验证采用已经在主线修复的 `2cf5b6d` server.py；本分支不重复修改该权限逻辑。本机无 pytest，验证在服务器隔离源码快照执行。
+- `check_object.py` 加 --white-background，使用完整 physics（含摩擦和 mass_cap）与实际运行加载方式保持一致；白底预览拉开物体间距，避免邻居入镜。继承此前 `40742cf` 的物体图片完整显示补丁，防止统一部署后重新裁切方形图。
+- 下一会话：从本分支合并/部署；新增任务先从 684 件基础通过项中挑选，再单独验证抓取、容器或任务判据。不要把 182 件待复核直接放入默认可用池，不要删除固定原包依赖。
+
+### GenieSim 预览发白修复（2026-10-29，同一 PR）
+
+- 用户指出酒罐和玻璃瓶像蒙了一层白膜。根因是 `check_object.py --white-background` 给 200 米地面设置了 `(10, 10, 10)` 自发光，同时开启 GI/反射；强发光地面进入物体反射，冲淡标签与瓶身。改成不自发光的白色漫反射地面，保留原有照明、源材质和物理参数。
+- 相同罐/瓶关闭地面自发光前后实际 RTX 对比确认颜色恢复；预览重建使用 `--seconds 0` 保留源正放姿态，仅替换 `sim.png`，不把这次预览当成新的落地验收，不覆盖原 `check.json`、源文件或资产入库状态。
+- 重建入口：原验证目录下 `rerender-neutral.py` 与 `rerender-neutral-retry.py`；旧图备份 `pre-emission-fix-previews/`。第一次并发重建 769 张，97 张因显存/空帧未替换，改用 8 件小批次并关闭 renderer multiGPU 后重试。
+- 代码检查在服务器既有隔离快照通过：91 passed、3 skipped、82 subtests passed，Ruff/格式/inventory 通过；本机无 GPU，不执行本机 Isaac 验证。
+- 最终 **866/866 张全部更新**，逐件核对平台图片 SHA-256 与新产物一致，866 个原验收 `check.json` 字节未改。最终汇总 `neutral-preview-complete.json`。水流模型确实透明，自动前景阈值未通过，人工检查可见水流与投影后仅更新预览，保留原失败验收，不虚报通过。
+- 浏览器实际核对 AgiBot GenieSim 866 条、684 已入库、866 有预览；酒罐/瓶新图正常加载，完整 contain 显示。后续继续用不自发光白底；若重新做物理验收，仍需三秒落地流程，不能沿用仅预览的 `--seconds 0` 报告。
+
 ### 倒豆评测结果、深圳 500 条数据同步到数采平台（2026-10-28 23:2x，`chongzheng/platform-eval-showcase`，[PR #45](https://github.com/Zheng-Chong/RoboRSR/pull/45)，10-31 合并进 `main`）
 
 - **用户要求**：把 OpenWAM、EWAM、pi0.5 的 G1-D 倒豆仿真评测放进平台「模型评测」，训练用的深圳 500 条数据放进「数据质检」并在「任务采集」里对上，用于给领导展示。

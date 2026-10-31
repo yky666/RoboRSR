@@ -115,3 +115,18 @@
 | `Rigid/wipe_bag/00001–00003` | 泛化；尺寸、形状、质量继承本体 | 绿色、红色、蓝色固定翻盖，膜颜色/粗糙度变化；bulk 可运行时换色，名称不写 bulk 颜色 | 未装，研究资产 |
 
 生成 `scripts/objects/make_wipe_bag.py`，检查 `check_wipe_bag.py`，渲染 `render_wipe_bag.py`。原点为完整显示包围盒中心，米制 Z 上。完整来源、实跑证据、全部名称、SHA 与限制见 `prototypes/wipe_bag_measured/REPORT.md`。
+
+## GenieSim 公开物体库（2026-10-29）
+
+公开源模型，不是实测孪生。来源 `agibot_world/GenieSimAssets`（ModelScope），revision `f65609e1c2bb153947ca9eee2ae1dc7392cdf3b7`，许可 CC BY-NC-SA 4.0；物体前缀 `Rigid/geniesim_`，导入脚本 `scripts/objects/geniesim.py`，复现命令见 README。
+
+| 阶段 | 数量 | 依据 |
+| :-- | --: | :-- |
+| 源物体登记 | 1245 | objects/**/object_parameters.json |
+| 无关节桌面候选 | 963 | 标注、米制尺寸及 3–50 cm 范围 |
+| USD 转换通过 | 866 | 依赖、单刚体、碰撞体、真实 USD 包围盒、源质量/摩擦 |
+| 基础落地与渲染通过、已装共享库 | 684 | 逐件三秒落地、正放/高度/速度判据、白底渲染 |
+| 运行验证待复核、未装共享库 | 182 | 保留具体检查结果；自然倾斜也可能不满足正放判据 |
+| 静态排除 | 97 | 质量超范围、多质量、缺依赖或尺寸问题 |
+
+866 条已显示于平台「AgiBot GenieSim」分组。尺寸/质量/摩擦为源模型参数而非实测；抓取、容器、任务与真机一致性未验收。原始 checkout 必须保留，适配层引用其模型和材质；SDK 内置 MDL 在 Isaac Sim 运行时解析，不打包不完整的着色器副本。详细文件与验证入口见 HANDOFF 的 GenieSim 条目。
