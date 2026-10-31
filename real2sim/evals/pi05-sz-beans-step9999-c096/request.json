@@ -1,0 +1,38 @@
+{
+  "evaluation": "pi05-sz-beans-step9999-c096",
+  "status": "cancelled",
+  "model_name": "π0.5 深圳倒豆 step9999（夹爪阈值 0.96）",
+  "version": "同 step9999 权重，夹爪阈值改 0.96",
+  "framework": "π0 / π0.5",
+  "checkpoint": "5090-2:/data/robodojo-runs/pi05-g1d-eval-20261026/ckpt/sz500_bs112_10k",
+  "code": "openpi 副本 /data/robodojo-runs/pi05-g1d-eval-20261026/openpi + scripts/pi05_g1d/serve.py（WebSocket，exec horizon 30）；仿真端 /data/robodojo-runs/sz-cupmug-eval-20261022/scripts/g1d/remote_policy.py",
+  "train_data": "g1d_shenzhen_pour_beans_cup_or_mug_500（深圳实验室 500 条，scripts/datagen/registry.json）",
+  "embodiment": "g1d",
+  "action_space": "joint16",
+  "cameras": [
+    "head",
+    "left_wrist",
+    "right_wrist"
+  ],
+  "language": "en",
+  "env": "openpi/.venv（uv）",
+  "chunk": "每次推理输出 30 步，30 Hz 执行，约 0.1 s",
+  "gpu_gb": 25,
+  "tasks": [
+    "g1d_pour_beans_cup_or_mug"
+  ],
+  "scenes": [
+    "real_scene5_shenzhen_lab",
+    "real_scene1_office"
+  ],
+  "layouts": 50,
+  "repeats": 1,
+  "priority": "normal",
+  "notes": "任务 g1d_pour_beans_cup_or_mug（高量杯倒 300–600 颗红豆到矮量杯或白色马克杯，2–5 个干扰物）；评测布局 seed 900 的 50 个（训练数据用的是 seed 500–521 的布局，seed 900 不在其中），每个布局 1 次，开局被拒 1 个，有效 49 个。严格成功 = 验收 all_beans_retained_any_target_v2：豆子全部进目标杯、源杯无残留、无散落，全程两杯不接触、目标杯 ≤ 15°、干扰物位移 ≤ 2 cm；任务判据 = 任务自身的 run_reward。\n解码设置：夹爪阈值 0.96，动作块高斯平滑 σ=2、块间混合 8 步。",
+  "submitter": {
+    "username": "chongzheng",
+    "name": "种政"
+  },
+  "updated_by": "种政",
+  "updated_at": "2026-10-28 23:24:16"
+}
