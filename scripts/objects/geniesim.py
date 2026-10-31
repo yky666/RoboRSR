@@ -32,7 +32,7 @@ def tabletop(parameters, item):
     size = parameters.get("size")
     if parameters.get("unit") != "m" or not isinstance(size, list) or len(size) != 3:
         return "missing metric dimensions"
-    if not all(isinstance(v, (int, float)) and math.isfinite(v) and v > 0 for v in size):
+    if not all(isinstance(v, int | float) and math.isfinite(v) and v > 0 for v in size):
         return "invalid dimensions"
     if not 0.03 <= max(size) <= 0.5 or min(size) < 0.003:
         return "outside tabletop size range"
@@ -65,7 +65,7 @@ def choose_mass(authored, parameters):
     if len(values) > 1:
         raise ValueError("multiple authored masses: needs compound-body review")
     value = values[0] if values else parameters.get("mass")
-    if not isinstance(value, (int, float)) or not math.isfinite(value) or not 0.001 <= value <= 5:
+    if not isinstance(value, int | float) or not math.isfinite(value) or not 0.001 <= value <= 5:
         raise ValueError(f"invalid/unsupported tabletop mass: {value}")
     return {"mass": float(value), "mass_cap": max(0.5, float(value))}, {
         "usd_mass_kg": values[0] if values else None,
