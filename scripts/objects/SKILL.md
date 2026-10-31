@@ -5,7 +5,7 @@ description: 按 Real2Sim 数采平台的物体登记（real2sim/objects/<id>/sp
 
 # 实物孪生物体建模
 
-平台负责登记（实测值和照片），这里负责把登记变成仿真资产。本流程针对刚体（`Rigid`）；关节物体、衣物、流体等其他类型先问用户。
+平台负责登记（实测值和照片），这里负责把登记变成仿真资产。本流程的下文针对刚体（`Rigid`）。柔性物体改用 `real2sim/prototypes/deformable_assets/README.md`：沿用登记/照片/ID，由 agent 生成几何和候选求解配置，再运行柔性专用检查；不套用刚体倾角标准。关节与流体按对应流程处理。
 
 ## 先分清改的是哪一层
 
@@ -114,11 +114,11 @@ rsync -az --exclude preview/ 5090-2:/data/r2s-platform/state/real2sim/objects/<i
   - 泛化变体可以换成虚构品牌的绘制标签，但位置和覆盖范围沿用本体。
 - uuid：`uuid.uuid5(uuid.NAMESPACE_URL, f"robodojo/rigid/{类别}/{编号}")`，编号用整数。
 - `description.json`：`uuid`；`caption` 下 `color`、`material`、`size`、`name`、`shape`、`function` 各 3 个英文短语；`description` 是 5 句英文描述；`names` 是指令名称（见下）。
-- **指令名称**：任务指令模板里的 `<标签>` 由 `desc_manager` 按模板语言（含汉字就用中文）从 `names` 里随机取一个填入。同一模板里两个物体共有的名称会被跳过，比如两只量杯都叫 "measuring cup"，就只用能区分它们的那几级。没有 `names` 的物体（官方资产）仍取 `description` 的整句。
-  - 本体和每个泛化变体各写 `en`、`zh`，每种至少 5 个，从简到详：大类泛称（cup / 杯子）→ 类别名（measuring cup / 量杯）→ 加一个最显著属性（clear measuring cup / 透明量杯）→ 再加两三个区分属性 → 能在同族里唯一指认它的完整短语。中间各级可以补同义说法。
+- **指令名称**：任务指令模板里的 `<标签>` 由 `desc_manager` 按模板语言（含汉字就用中文）从大类名称和 3 个名称里随机取一个填入。同一模板里两个物体共有的名称会被跳过，比如两只量杯都是 "cup"、"measuring cup"，就只用能区分它们的那两级。没有 `names` 的物体（官方资产）仍取 `description` 的整句。平台物体卡片显示大类和第一级，详情的「指令名称」一节列出全族的名称。
+  - 格式：`"names": {"category": {"en": "cup", "zh": "杯子"}, "en": [3 个], "zh": [3 个]}`。本体和每个泛化变体都写。`category` 是大类（泛化名称），3 个名称从简到详：类别名（measuring cup / 量杯）→ 加上在同族里区分它的一两个属性（tall clear measuring cup / 高的透明量杯）→ 在所有物体里唯一指认它的完整短语。大类不和 3 个名称重复，也不比第一个长。
   - 写名词短语，能直接填进 "pick up the <x>"、"拿起<x>"：不带冠词、数量词、句末标点；不写位置、左右、比较级、任务角色。英文小写，品牌等专名除外。
-  - 颜色和标签以生成的模型为准；变体写自己的属性，前两级一般和本体相同。登记开了 `rt_color` 时，不写会被换色的部件的颜色（`visual.color_parts`，没写就是整件）。
-  - 写进 `scripts/objects/object_names.json`（键是资产 id；能拧盖的 Articulation 版写成对应 Clutter id 的别名）。生成脚本不写 `names`，每次生成后都要跑 `python scripts/objects/object_names.py apply <物体根目录>`（如 `ovl`）。`object_names.py check` 校验条数、顺序（按英文词数、中文字数不减）、措辞，以及最详细的名称不和其他物体重复；它也在 `check.sh` 里。
+  - 颜色和标签以生成的模型为准；变体写自己的属性，大类和第一级一般和本体相同。登记开了 `rt_color` 时，不写会被换色的部件的颜色（`visual.color_parts`，没写就是整件）。
+  - 写进 `scripts/objects/object_names.json`（键是资产 id；能拧盖的 Articulation 版、柔性版 `Dynamic/` 写成对应 Clutter id 的别名）。生成脚本不写 `names`，每次生成后都要跑 `python scripts/objects/object_names.py apply <物体根目录>`（如 `ovl`）。`object_names.py check` 校验有没有大类、是不是正好 3 个、顺序（按英文词数、中文字数不减）、措辞，以及最详细的名称不和其他物体重复；它也在 `check.sh` 里。旧格式（5 个以上名称、没有 `category`）运行时仍能用，但不过 `check`。
 
 **`metadata.json`**：照 `make_plastic_cups.py` 的 `metadata()` 从网格计算（下面只是结构示意，数值保留 4 位）。
 

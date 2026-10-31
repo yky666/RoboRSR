@@ -118,6 +118,20 @@ PYTHONPATH=. python scripts/objects/check_object.py Assets/Object/Real2Sim/Rigid
 PYTHONPATH=. python scripts/objects/check_pitcher_fluid.py --device cpu --out output/pitcher/fluid   # 加 --red-beans 测红豆
 ```
 
+**GenieSim 公开物体导入**（原始资产为 CC BY-NC-SA 4.0，非实测孪生）：
+
+```bash
+GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 https://modelscope.cn/datasets/agibot_world/GenieSimAssets.git <source>
+git -C <source> lfs pull --include='objects/**'
+# CPU 转换需要 usd-core 和 numpy；仅解析 item.py 字面量，不执行资产仓库代码。
+python scripts/objects/geniesim.py select --source <source> --manifest selection.json
+python scripts/objects/geniesim.py convert --source <source> --manifest selection.json --out <output>
+PYTHONPATH=. python scripts/objects/check_object.py <output>/Object/RoboDojo/Rigid/<category>/00000 \
+    --image-dir <preview-root> --white-background
+```
+
+选择无关节、最长边 3–50 cm、最短边至少 3 mm 的物体；转换时继续检查实际 USD 尺寸、质量、依赖和碰撞体，失败原因见 `conversion.json`。保留原始 USD 的质量/摩擦，记录与 JSON 的差异；原始质量超过 0.5 kg 时显式设置 `mass_cap`，不静默截断。统一为米、Z-up、包围盒中心原点，物体编号带 `geniesim_` 前缀。USDZ 包是引用原始模型的适配层，**原始 checkout 必须保留在转换时的位置**；搬迁后应在新位置重新转换。通过转换不代表通过落地、抓取、容器或任务验收，只有实际完成的检查才能登记通过。
+
 流体检查必须用 `--device cpu`（CPU 状态管线，PBD 求解仍在 GPU）；GPU 状态管线下粒子坐标不会回读，结果无效。
 
 **仿真数据生成**：脚本专家逐回合录成 XPolicyLab 标准轨迹（HDF5），通过任务插件的严格验收后，用 XPolicyLab 官方转换器导出为 LeRobot v3.0。训练在仓库外，数据格式和语义的约定见 [`scripts/datagen/CONTRACT.md`](scripts/datagen/CONTRACT.md)，完整流程见 [`scripts/datagen/SKILL.md`](scripts/datagen/SKILL.md)，已有数据集登记在 `scripts/datagen/registry.json`。
@@ -134,7 +148,7 @@ PYTHONPATH=.:XPolicyLab python scripts/datagen/replay.py --raw output/datagen/<�
 **Real2Sim 数采管理平台**（Web，只用 Python 标准库，本机无 Isaac 也能跑）：
 
 ```bash
-python3 src/real2sim_platform/server.py --add-user admin --name 管理员 --admin   # 只需一次：建第一个管理员（提示输入密码，至少 8 位）
+python3 src/real2sim_platform/server.py --add-user admin --name 管理员 --admin   # 只需一次：建第一个系统管理员（提示输入密码，至少 8 位）
 python3 src/real2sim_platform/server.py          # 打开 http://127.0.0.1:8765 登录，在「成员管理」给其他人建账号
 # 服务器上给团队用：指向共享资产库和各隔离目录的评测结果
 python3 src/real2sim_platform/server.py --host 0.0.0.0 \
@@ -144,7 +158,7 @@ python3 src/real2sim_platform/server.py --host 0.0.0.0 \
 
 团队用的那份在 `5090-2` 上由 `src/real2sim_platform/ops.sh`（装好后是 `r2s`）管理，和大家的工作区分开：代码是某个提交的只读副本（`/opt/r2s-platform/current`，`chattr +i`），平台只能写自己的状态目录 `/data/r2s-platform/state/`（数据库、登记、照片、发布进来的渲染；systemd 沙箱），共享资产库和回合目录只读、实时扫描。部署 `r2s deploy <sha>`（起不来自动退回）、回滚 `r2s rollback`；agent 的渲染和结果用 `r2s publish <源> <real2sim/...>` 发布，登记文件不会被覆盖；`r2s export <worktree>` 把登记和照片拷进 checkout 入库。不要再从 `/root/RoboDojo` 起平台或往那里同步给平台看的文件。
 
-每个人用自己的账号登录，录入和质检结论自动以账号的显示名署名（录入时没法改署名）。账号存在平台数据库里（密码 PBKDF2 加盐哈希），分管理员和成员：管理员在侧栏「成员管理」页新建账号（默认填好随机初始密码，建好后显示一次可复制的登录信息）、改显示名、设为管理员、重置密码（生成新随机密码，踢掉该账号已有的登录）、删除账号；不能删除自己或取消自己的管理员，所以至少总有一个管理员。命令行只用来建第一个管理员或在忘记所有管理员密码时救急：`--add-user 用户名 [--name 显示名] [--admin]` 新建或重置密码，`--remove-user 用户名`，`--list-users`；脚本里可以把密码放在标准输入第一行。登录后在侧栏底部可以改自己的密码、退出登录。会话 14 天有效；同一用户名连续输错 5 次锁定 5 分钟。平台走 HTTP，密码在网络上是明文传输，经公网访问时有被窃听的风险。
+每个人用自己的账号登录，录入和质检结论自动以账号的显示名署名（录入时没法改署名）。账号存在平台数据库里（密码 PBKDF2 加盐哈希），仿真平台和数据集两个板块的权限分开：系统管理员管理账号，在两个板块都是管理员；其他账号在仿真平台是管理员（审核物体和场景、删除记录、管理资产库）、成员（录入、质检、提交评测）或访客（只读），在数据集是管理员（编辑、新增、删除数据集条目，修改存在平台数据库里，盘点文件不变，可一键恢复盘点值）或查看。两个板块互不影响，例如仿真平台访客可以同时是数据集管理员。系统管理员在「成员管理」页新建账号（默认填好随机初始密码，建好后显示一次可复制的登录信息）、改显示名、设角色、重置密码（生成新随机密码，踢掉该账号已有的登录）、删除账号；不能删除自己或取消自己的系统管理员，所以至少总有一个系统管理员。命令行只用来建第一个系统管理员或在忘记所有管理员密码时救急：`--add-user 用户名 [--name 显示名] [--admin]` 新建或重置密码，`--remove-user 用户名`，`--list-users`；脚本里可以把密码放在标准输入第一行。登录后在侧栏底部可以改自己的密码、退出登录。会话 14 天有效；同一用户名连续输错 5 次锁定 5 分钟。平台走 HTTP，密码在网络上是明文传输，经公网访问时有被窃听的风险。
 
 启动时和点「从项目同步」时扫描仓库：`real2sim/scenes/`（照片、相机拟合残差、USD、`check_report.json`）、任务清单和 G1-D 任务用到的物体、资产库里的 `metadata.json` 和评测布局数、`--eval-root` 下的 `_result.json` 与各相机视频。页面分五块：
 
@@ -425,6 +439,16 @@ agent 照着反馈迭代，优化目标就是"真机可执行"而不只是仿真
 ## 许可证
 
 沿用 RoboDojo 的 [MIT License](LICENSE)。
+
+### 湿巾袋研究资产
+
+`python scripts/objects/make_wipe_bag.py Assets/Object/Real2Sim/Rigid` 生成本体与三个外观变体；再运行 `python scripts/objects/object_names.py apply Assets/Object/Real2Sim`。需要 Isaac/PhysX FEM GPU 环境。完整复验命令和限制见 `real2sim/prototypes/wipe_bag_measured/REPORT.md`，未通过基础资产验收。
+
+### 可选柔性资产生成与检查
+
+平台登记并确认后，可由 agent 使用独立 Newton 环境生成矩形布片/规则软块候选，运行柔性专用检查并渲染接触视频。
+流程、参数来源、布片下垂到球体及自由球撞击软块的命令见 [柔性资产说明](real2sim/prototypes/deformable_assets/README.md)。
+衣服/袋子/绳索仍需专用拓扑；材料标定与机器人操作验证另行完成，软件探针不能替代实物验收。
 
 ### 柔性资产诊断
 

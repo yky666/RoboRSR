@@ -24,7 +24,9 @@ OBS = HERE.parent
 OUT = HERE / "usd"
 TEX = OUT / "textures"
 
-TABLE = dict(length=1.20, width=0.62, top_z=0.68, thickness=0.025, corner_r=0.05,
+# Length, width and top height fitted to the table's edges in photos p0-p4 through the SfM cameras (fit_table.py,
+# 2026-10-30; the priors were 1.20 x 0.62 x 0.68 m).
+TABLE = dict(length=1.186, width=0.590, top_z=0.715, thickness=0.025, corner_r=0.05,
              column_x=0.42, foot_len=0.56)
 
 # Object poses: base center (x, y) on the table top, yaw in degrees about +Z.
@@ -823,10 +825,13 @@ def add_object(name, spec):
 
 
 def add_lights(L):
+    # Brightness and colour matched in RTX to photos p0-p4 (render_scenes.py --photos, 2026-10-30): median L* 37.5 vs
+    # 33.3 in the photos, b* 1.0 vs 4.0. The first set (sun 3000, fills 400 / 250, dome 150, bluish fills and dome)
+    # rendered L* 52.9, b* 0.2: carpet near white. The two released office bean datasets were rendered with it.
     sun = UsdLux.DistantLight.Define(L.stage, f"{L.rootpath}/Sun")
-    sun.CreateIntensityAttr(3000.0)
+    sun.CreateIntensityAttr(450.0)
     sun.CreateAngleAttr(0.53)
-    sun.CreateColorAttr(Gf.Vec3f(1.0, 0.95, 0.88))
+    sun.CreateColorAttr(Gf.Vec3f(1.0, 0.88, 0.74))
     z = SUN_TO / np.linalg.norm(SUN_TO)
     x = np.cross([0, 0, 1], z)
     x /= np.linalg.norm(x)
@@ -837,15 +842,15 @@ def add_lights(L):
     zc = (nw["band_top"] + r["height"]) / 2
     for nm, (pos, rotxyz, w, h, inten) in {
         "WindowFillNorth": (((r["x0"] + nw["x1"]) / 2, r["y1"] - 0.15, zc), (-90, 0, 0), nw["x1"] - r["x0"],
-                            r["height"] - nw["band_top"], 400.0),
+                            r["height"] - nw["band_top"], 60.0),
         "WindowFillEast": ((r["x1"] - 0.15, (ew["y0"] + ew["y1"]) / 2, zc), (-90, 0, -90), ew["y1"] - ew["y0"],
-                           r["height"] - ew["band_top"], 250.0),
+                           r["height"] - ew["band_top"], 37.5),
     }.items():
         rl = UsdLux.RectLight.Define(L.stage, f"{L.rootpath}/{nm}")
         rl.CreateWidthAttr(float(w))
         rl.CreateHeightAttr(float(h))
         rl.CreateIntensityAttr(inten)
-        rl.CreateColorAttr(Gf.Vec3f(0.92, 0.96, 1.0))
+        rl.CreateColorAttr(Gf.Vec3f(1.0, 0.94, 0.86))
         xf = UsdGeom.Xformable(rl)
         xf.AddTranslateOp().Set(Gf.Vec3d(*(float(v) * SCALE for v in np.add(pos, ROOM_SHIFT))))
         xf.AddRotateXYZOp().Set(Gf.Vec3f(*rotxyz))
@@ -856,8 +861,8 @@ def add_lights(L):
         rl.CreateIntensityAttr(0.0)
         UsdGeom.Xformable(rl).AddTranslateOp().Set(Gf.Vec3d(cx * SCALE, cy * SCALE, (r["height"] - 0.02) * SCALE))
     dome = UsdLux.DomeLight.Define(L.stage, f"{L.rootpath}/AmbientDome")
-    dome.CreateIntensityAttr(150.0)
-    dome.CreateColorAttr(Gf.Vec3f(0.9, 0.93, 1.0))
+    dome.CreateIntensityAttr(150.0)  # also the sky seen through the windows: lower turns them brown
+    dome.CreateColorAttr(Gf.Vec3f(1.0, 0.95, 0.88))
 
 
 def scaled_params():

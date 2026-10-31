@@ -541,10 +541,24 @@ class SceneManager:
         Returns:
             Created object instance
         """
-        if obj_type in ("rigid", "garment", "articulation", "dynamic"):
+        # Explicit per-asset backend also applies to registrations with Rigid IDs.
+        # Ordinary rigid assets preserve their existing factory path.
+        if obj_type in ("rigid", "dynamic", "garment", "articulation") and usd_path:
             from env.scene_manager.objects.asset_defaults import with_asset_defaults
 
             inst_cfg = with_asset_defaults(usd_path, inst_cfg)
+            if obj_type != "articulation" and inst_cfg.get("physics", {}).get("backend") == "isaac_physx_fem":
+                from env.scene_manager.objects.deformable import DeformableObject
+
+                return DeformableObject(
+                    prim_path=prim_path,
+                    usd_path=usd_path,
+                    inst_config=inst_cfg,
+                    env_origin=self.sim.scene.env_origins[env_id],
+                    default_pos=default_pos,
+                    default_ori=default_ori,
+                    scale=scale,
+                )
         base_args = {
             "prim_path": prim_path,
             "usd_path": usd_path,

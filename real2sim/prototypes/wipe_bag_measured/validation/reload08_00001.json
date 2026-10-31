@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "real_material_calibrated": false,
+  "robot_grasp_validated": false,
+  "initial_nodal_bounds_m": [
+    [
+      [
+        -0.09500321000814438,
+        -0.048034925013780594,
+        0.07930103689432144
+      ]
+    ],
+    [
+      [
+        0.09519001096487045,
+        0.048186421394348145,
+        0.11420426517724991
+      ]
+    ]
+  ],
+  "reload_only": true,
+  "object_sha256": "6c93d992aca4f4db868cb9d1004591971dcab936305addeeba253d7e7a35eb98",
+  "factory": "SceneManager.instantiate_object_wrapper",
+  "wrapper": "DeformableObject",
+  "usd_mass_properties": [
+    {
+      "prim": "/root/model/geometry/mesh",
+      "value_kg": 0.2401999980211258
+    }
+  ],
+  "usd_material_parameters": [
+    {
+      "prim": "/root/model/geometry/material",
+      "attribute": "physxDeformableBodyMaterial:dampingScale",
+      "value": 1.0
+    },
+    {
+      "prim": "/root/model/geometry/material",
+      "attribute": "physxDeformableBodyMaterial:dynamicFriction",
+      "value": 0.25
+    },
+    {
+      "prim": "/root/model/geometry/material",
+      "attribute": "physxDeformableBodyMaterial:poissonsRatio",
+      "value": 0.30000001192092896
+    },
+    {
+      "prim": "/root/model/geometry/material",
+      "attribute": "physxDeformableBodyMaterial:youngsModulus",
+      "value": 80000.0
+    }
+  ],
+  "label_following_max_error_m": 3.004622330849559e-09,
+  "label_update_count": 181,
+  "visual_callback_cleaned": true
+}

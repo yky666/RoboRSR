@@ -36,6 +36,11 @@ LABELS = {
 }
 
 
+def version(doc):
+    """Changing the flexible protocol invalidates only flexible modeling confirmations."""
+    return VERSION + "-deformable-v2" if (doc.get("deformable") or {}).get("family") else VERSION
+
+
 def physical_origin(doc):
     """Physical provenance is independent of measurement or simulation validation."""
     if doc.get("twin") is not None:
@@ -70,7 +75,7 @@ def inputs(doc):
 
 
 def revision(doc):
-    raw = json.dumps({"version": VERSION, "inputs": inputs(doc)}, sort_keys=True, ensure_ascii=False)
+    raw = json.dumps({"version": version(doc), "inputs": inputs(doc)}, sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
@@ -102,18 +107,20 @@ def confirm(doc, by):
     todo = missing(doc)
     if todo:
         raise ValueError("请先核对登记字段：" + "、".join(todo))
-    return {"version": VERSION, "revision": revision(doc), "by": by, "at": time.time()}
+    return {"version": version(doc), "revision": revision(doc), "by": by, "at": time.time()}
 
 
 def state(doc):
     confirmation = doc.get("modeling_confirmation") or {}
     valid = (
-        not missing(doc) and confirmation.get("revision") == revision(doc) and confirmation.get("version") == VERSION
+        not missing(doc)
+        and confirmation.get("revision") == revision(doc)
+        and confirmation.get("version") == version(doc)
     )
     return {
         "confirmed": valid,
         "missing": missing(doc),
-        "version": VERSION,
+        "version": version(doc),
         "confirmed_by": confirmation.get("by"),
         "prompt": prompt(doc) if valid else None,
     }
@@ -124,7 +131,7 @@ def prompt(doc):
     data = inputs(doc)
     return "\n".join(
         [
-            f"# RoboDojo 实物资产建模任务 · {VERSION}",
+            f"# RoboDojo 实物资产建模任务 · {version(doc)}",
             f"资产：{doc['id']}；登记版本：{revision(doc)}。",
             "先读取 scripts/objects/SKILL.md 和该资产 spec.json；核对确认版本与当前字段/照片一致。"
             "过期时停止使用旧 prompt 并重新确认。",
@@ -150,14 +157,15 @@ def prompt(doc):
             "- 按参考照片的视角各渲染一张，与照片并排做成对照图；标签缺失、位置或颜色与照片不符，都不算完成。",
             "",
             "## 指令名称",
-            "- 训练指令里的 <标签> 由物体名称填入。本体和每个泛化变体各写英文（en）、中文（zh）名称，每种至少 5 个，"
-            "从简到详排列：大类泛称（cup / 杯子）→ 类别名（measuring cup / 量杯）→ 类别加一个最显著的属性"
-            "（clear measuring cup / 透明量杯）→ 再加两三个区分属性（大小、形状、材质、标签）→ "
-            "能在同族里唯一指认它的完整短语。中间各级可以补同义说法。",
+            "- 训练指令里的 <标签> 由物体名称填入。本体和每个泛化变体各写一个大类名称（category，即泛化名称，"
+            "如 cup / 杯子），再写英文（en）、中文（zh）各 3 个名称，从简到详："
+            "类别名（measuring cup / 量杯）→ 加上在同族里区分它的一两个属性"
+            "（tall clear measuring cup / 高的透明量杯）→ 在所有物体里唯一指认它的完整短语（大小、形状、材质、标签）。"
+            "大类名称不和 3 个名称重复，也不比第一个长。",
             "- 写名词短语，不带冠词、数量词和句末标点，能直接填进「pick up the <x>」「拿起<x>」；"
             "英文小写（品牌等专名除外）。",
             "- 只写模型上看得见的固有属性：不写位置、左右、比较级和任务角色。颜色和标签以生成的模型为准；"
-            "变体写它自己的属性，前两级通常和本体一致。登记开了运行时换色（rt_color）时，"
+            "变体写它自己的属性，大类和第一级通常和本体一致。登记开了运行时换色（rt_color）时，"
             "不写会被换色的部件的颜色（metadata.json 的 visual.color_parts，没写就是整件）。",
             "- 写进 scripts/objects/object_names.json（键是资产 id）。每次生成后运行 "
             "`python scripts/objects/object_names.py apply <物体根目录>`，写入 description.json 的 names；"
@@ -166,14 +174,15 @@ def prompt(doc):
             *(
                 [
                     "## 柔性专用验收",
-                    "按 real2sim/prototypes/softmimicgen/DEFORMABLE_MODELING.md 建模；"
+                    "按 real2sim/prototypes/deformable_assets/README.md 建模；"
                     "布/衣/袋保留裁片、开口和接缝，绳单独验证弯曲和扭转；"
                     "薄壳（纸杯、纸盒）保留壁厚和卷边，实心软体（毛绒、海绵）用体网格，两者单独验证压缩和回弹。"
                     "另用 scripts/objects/render_model.py 渲染单件模型图 preview/00_model.png，"
                     "测试图文件名写明测试项（drop、suspend、squeeze 等）。",
                     "另写 preview/deformable_check.json，包含 mesh_sha256、registration_sha256、"
                     "material_calibrated 和各项 checks 的状态及证据。",
-                    "刚体落地检查不能替代柔性验收。实测材料未标定、接触重放失败或证据过期时不得标通过。",
+                    "刚体落地检查不能替代柔性验收。实测材料未标定、初始状态恢复失败或证据过期时不得标通过。",
+                    "reset_state 验证初始位置/速度；diagnostics.replay 单独报告重放偏差，无通用 1 mm 门槛。",
                     "",
                 ]
                 if (doc.get("deformable") or {}).get("family")

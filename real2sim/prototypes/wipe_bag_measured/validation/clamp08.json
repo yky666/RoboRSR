@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "real_material_calibrated": false,
+  "robot_grasp_validated": false,
+  "initial_nodal_bounds_m": [
+    [
+      [
+        -0.09500321000814438,
+        -0.048034925013780594,
+        0.07930103689432144
+      ]
+    ],
+    [
+      [
+        0.09519001096487045,
+        0.048186421394348145,
+        0.11420426517724991
+      ]
+    ]
+  ],
+  "clamp_only": true,
+  "lift_m": 0.07505107671022415,
+  "released_centre_delta_m": -3.0230730772018433e-06,
+  "jaw_gap_m": 0.03,
+  "commanded_lift_m": 0.08,
+  "method": "physical opposing horizontal plates; lower finger supplies support; no node pinning",
+  "limitations": "support-assisted clamp proxy, not robot frictional grasp or calibrated slip",
+  "minimum_element_jacobian": 0.36091047525405884,
+  "finite": true,
+  "object_sha256": "987304b2584900c2e755866f2d5663abfdf3c97c33cefa028d15e681d9038b8e",
+  "visual_callback_cleaned": true
+}

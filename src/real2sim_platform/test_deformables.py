@@ -25,7 +25,7 @@ def test_validate():
 def test_acceptance_fails_closed():
     profile = {"family": "rope"}
     assert deformables.acceptance({"family": "unknown"}, {}, "0" * 64) is None
-    checks = ["geometry_mass", "deformation", "contact", "self_collision", "reset_replay", "shutdown", "material_fit"]
+    checks = ["geometry_mass", "deformation", "contact", "self_collision", "reset_state", "shutdown", "material_fit"]
     empty = deformables.acceptance(profile, {}, "0" * 64)
     assert empty["status"] == "pending" and set(empty["checks"]) == {*checks, "bend_twist"}  # rope adds bend/twist
     assert set(deformables.acceptance({"family": "bag"}, {}, "0" * 64)["checks"]) >= {"seams_openings"}
@@ -51,18 +51,49 @@ def test_acceptance_fails_closed():
     assert deformables.acceptance(profile, failed, mesh, 12.0, "长 300")["status"] == "fail"
 
 
+def test_replay_diagnostic_does_not_replace_state_reset():
+    profile = {"family": "volume"}
+    report = {
+        "checks": {
+            k: {"status": "pass", "evidence": "report.json"}
+            for k in (*deformables.COMMON_CHECKS, "compression_recovery")
+        },
+        "mesh_sha256": "a" * 64,
+        "material_calibrated": True,
+        "registration_sha256": deformables.registration_fingerprint(profile),
+        "diagnostics": {"replay": {"max_node_error_m": 0.03308, "acceptance_threshold": None}},
+    }
+    result = deformables.acceptance(profile, report, "a" * 64)
+    assert result["status"] == "pass"
+    assert result["diagnostics"]["replay"]["max_node_error_m"] == 0.03308
+    report["checks"]["reset_state"]["status"] = "fail"
+    assert deformables.acceptance(profile, report, "a" * 64)["status"] == "fail"
+
+
+def test_flexible_prompt_protocol_is_versioned_without_invalidating_rigid_inputs():
+    import object_registration as reg
+
+    rigid = {"id": "Rigid/test/00000", "auto": {}}
+    flexible = {"id": "Dynamic/test/00000", "auto": {}, "deformable": {"family": "volume"}}
+    assert reg.version(rigid) == reg.VERSION
+    assert reg.version(flexible) != reg.VERSION
+    text = reg.prompt(flexible)
+    assert "reset_state" in text and "diagnostics.replay" in text
+    assert "deformable_assets/README.md" in text
+
+
 def test_failed_report_for_another_mesh_or_registration_is_not_current_failure():
     profile = {"family": "rope"}
     mesh = "ab" * 32
     report = {
         "mesh_sha256": mesh,
         "registration_sha256": deformables.registration_fingerprint(profile, 100, "3 m"),
-        "checks": {"reset_replay": {"status": "fail", "evidence": "candidate reset report"}},
+        "checks": {"reset_state": {"status": "fail", "evidence": "candidate reset report"}},
     }
     current = deformables.acceptance(profile, report, mesh, 100, "3 m")
     assert current["status"] == "fail"
     other = deformables.acceptance(profile, report, "cd" * 32, 100, "3 m")
     assert other["status"] == "pending" and other["evidence_status"] == "fail"
-    assert other["failed_checks"] == ["reset_replay"]
+    assert other["failed_checks"] == ["reset_state"]
     changed = deformables.acceptance(profile, report, mesh, 80, "0.8 m")
     assert changed["status"] == "pending" and not changed["registration_matches"]

@@ -26,7 +26,8 @@ class OverlayTests(unittest.TestCase):
         axis = world_from_camera[:3, 2]
         self.assertAlmostEqual(np.degrees(np.arcsin(-axis[2])), 47.6, delta=0.1)  # optical axis 47.6 deg down
         self.assertGreater(axis[1], 0)  # toward the table (+y)
-        np.testing.assert_allclose(world_from_camera[:3, 3], [-0.0298, -0.6285, 1.281], atol=1e-3)  # left eye
+        # left eye, lift column at 2 x 0.0175 m (env_cfg/robot/g1d.yml)
+        np.testing.assert_allclose(world_from_camera[:3, 3], [-0.0298, -0.6285, 1.316], atol=1e-3)
 
     def test_points_and_edges_are_scored_in_pixels(self):
         K, _, world_from_camera = overlay.sim_camera("g1d_lab")

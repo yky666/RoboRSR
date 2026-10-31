@@ -1,7 +1,7 @@
 {
  "scene": "real_scene1_office",
  "room": "real_scene1",
- "top_z": 0.68,
+ "top_z": 0.715,
  "roles": {
   "floor": {
    "parts": [
@@ -80,8 +80,8 @@
   }
  },
  "lift": {
-  "top_z": 0.68,
-  "split_z": 0.34,
+  "top_z": 0.715,
+  "split_z": 0.357,
   "range": [
    0.62,
    1.27
@@ -97,7 +97,7 @@
    [
     "Table/Frame/column_upper_n",
     0.33,
-    0.625
+    0.66
    ],
    [
     "Table/Frame/column_lower_n",
@@ -107,7 +107,7 @@
    [
     "Table/Frame/column_upper_p",
     0.33,
-    0.625
+    0.66
    ],
    [
     "Table/Frame/column_lower_p",
@@ -117,12 +117,12 @@
    [
     "Table/Colliders/column_n",
     0.0,
-    0.625
+    0.66
    ],
    [
     "Table/Colliders/column_p",
     0.0,
-    0.625
+    0.66
    ]
   ]
  },

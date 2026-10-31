@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/AgibotTech/genie_sim",
+  "commit": "30d2bc123d4eda624770dc0daa528541257de580",
+  "executed_unmodified_module": "source/geniesim_ros/src/ros_ws/src/genie_sim_engine/scripts/engine/newton/cloth.py",
+  "executed_method": "_ClothMixin._inject_cloth",
+  "sha256": "232ae712759ff70e35d6881eeb16d7811d2bee3a2f3d92e1c037b7284e1c141e",
+  "upstream_license": "MPL-2.0; external source, original header preserved",
+  "adapted_design_references": [
+    "source/geniesim_ros/src/ros_ws/src/genie_sim_engine/scripts/engine/newton/plugin.py",
+    "source/geniesim_ros/src/ros_ws/src/genie_sim_engine/scripts/engine/newton/adapters/avbd.py"
+  ],
+  "full_genie_engine_instantiated": false,
+  "ros2_started": false,
+  "style3d_used": false,
+  "material_calibrated": false
+}

@@ -1,0 +1,107 @@
+{
+  "passed": true,
+  "real_material_calibrated": false,
+  "robot_grasp_validated": false,
+  "initial_nodal_bounds_m": [
+    [
+      [
+        -0.09500321000814438,
+        -0.048034925013780594,
+        0.07930103689432144
+      ]
+    ],
+    [
+      [
+        0.09519001096487045,
+        0.048186421394348145,
+        0.11420426517724991
+      ]
+    ]
+  ],
+  "label_binding_diagnostics": [
+    {
+      "max_rest_error_m": 3.179800655392251e-17,
+      "maximum_outside_weight": 0.42354063243388174
+    },
+    {
+      "max_rest_error_m": 2.881939084222627e-17,
+      "maximum_outside_weight": 0.34904897545847785
+    },
+    {
+      "max_rest_error_m": 3.122502256758253e-17,
+      "maximum_outside_weight": 0.38342969095544777
+    },
+    {
+      "max_rest_error_m": 2.8662335771926895e-17,
+      "maximum_outside_weight": 0.43500087093287165
+    },
+    {
+      "max_rest_error_m": 2.98453111774546e-17,
+      "maximum_outside_weight": 0.3662394399389322
+    },
+    {
+      "max_rest_error_m": 3.122502256758253e-17,
+      "maximum_outside_weight": 0.4006201554359021
+    },
+    {
+      "max_rest_error_m": 2.943923360032078e-17,
+      "maximum_outside_weight": 0.0
+    },
+    {
+      "max_rest_error_m": 2.881939084222627e-17,
+      "maximum_outside_weight": 0.0
+    }
+  ],
+  "solid_blocking": {
+    "passed": true,
+    "method": "physical plate obstructed by FEM packet against floor"
+  },
+  "usd_authored_mass_kg": 0.2402,
+  "factory": "SceneManager.instantiate_object_wrapper",
+  "label_mesh_count": 8,
+  "label_following_max_error_m": 7.831477244302305e-09,
+  "label_max_motion_m": 0.17212903499603271,
+  "label_update_count": 3243,
+  "whole_package_only": true,
+  "thin_film_validated": false,
+  "independent_rigid_lid_validated": false,
+  "object_sha256": "987304b2584900c2e755866f2d5663abfdf3c97c33cefa028d15e681d9038b8e",
+  "wrapper": "DeformableObject",
+  "physics_dt_s": 0.004166666666666667,
+  "nodes": 1619,
+  "finite": true,
+  "minimum_element_jacobian": 0.6098912358283997,
+  "stage_minimum_jacobians": {
+    "drop": 0.7766497731208801,
+    "compression": 0.6098912358283997,
+    "recovery": 0.6205663681030273,
+    "second_drop": 0.7203436493873596
+  },
+  "jacobian_checked_every_step": true,
+  "mass_kg": null,
+  "drop": {
+    "height_m": 0.03477923199534416,
+    "min_z_m": -5.157885425433051e-06,
+    "steps": 720
+  },
+  "compression": {
+    "before_height_m": 0.03478701412677765,
+    "compressed_height_m": 0.029496796429157257,
+    "plate_gap_m": 0.02851174744770105,
+    "ramp_steps": 360,
+    "hold_steps": 240,
+    "method": "physical rigid plate contact, no node pinning"
+  },
+  "recovery": {
+    "height_m": 0.03478330746293068,
+    "steps": 720,
+    "release_ramp_steps": 240
+  },
+  "reset": {
+    "max_nodal_error_m": 8.24175530600435e-09,
+    "max_velocity_m_s": 0.0,
+    "all_nodes_free": true,
+    "second_drop_min_z_m": -3.20198955705564e-06
+  },
+  "visual_callback_cleaned": true
+}

@@ -13,13 +13,13 @@ const context = {
 vm.createContext(context);
 vm.runInContext(match[0],context);
 function run(a) { return context.deformablePhysicsState({deformable:{family:'rope'},auto:{deformable_acceptance:a}}); }
-const failed = {family:'rope',status:'fail',mesh_matches:true,registration_matches:true,checks:{reset_replay:'fail'}};
+const failed = {family:'rope',status:'fail',mesh_matches:true,registration_matches:true,checks:{reset_state:'fail'}};
 assert.equal(run(failed).state,'fail');
-assert.match(run(failed).text,/复位重放/);
+assert.match(run(failed).text,/初始状态恢复/);
 const other = run({...failed,mesh_matches:false});
 assert.equal(other.state,'pending');
 assert.match(other.text,/不对应当前库模型/);
-assert.match(other.text,/复位重放/);
+assert.match(other.text,/初始状态恢复/);
 assert.equal(run({...failed,registration_matches:false}).state,'pending');
 assert.equal(run({...failed,status:'pass',checks:{}}).state,'pass');
 assert.equal(run(null).state,'pending');

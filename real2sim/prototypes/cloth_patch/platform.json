@@ -2,13 +2,14 @@
   "name": "柔性布片",
   "kind": "二维柔性数值原型",
   "status": "数值原型；实物材料未标定",
-  "summary": "16×16 cm、9×9 网格的不可伸长边长约束原型；平铺落地没有验证真实布料的悬垂、弯曲和折叠。",
+  "summary": "保留原16×16 cm研究原型；新增50×50 cm Newton布片固定边下垂到球体的接触示例和RTX视频，材料仍为未标定候选。",
   "capabilities": {
     "MuJoCo": "2500 步落地数值检查通过",
     "Isaac 5.1": "180 步 / 1.5 s 独立 GarmentObject 检查通过",
     "实物材料": "未标定",
     "机器人夹持/多层自接触": "未验证",
-    "悬垂基线": "固定一边，2s 自由边平均下垂约 113.8 mm；非静态材料验收"
+    "悬垂基线": "固定一边，2s 自由边平均下垂约 113.8 mm；非静态材料验收",
+    "新版接触演示": "Newton统一VBD：固定一边下垂到球体，开启/关闭接触对照；非实物校准"
   },
   "limits": [
     "没有注册为可采集任务或替换默认机器人",
@@ -31,6 +32,7 @@
     "validation/fresh_sync_check.json",
     "MATERIAL_TESTS.md",
     "validation/material_bench.json",
-    "SIMULATOR_ASSETS.md"
+    "SIMULATOR_ASSETS.md",
+    "validation/newton_contact_demo.json"
   ]
 }

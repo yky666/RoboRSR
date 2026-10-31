@@ -1,0 +1,23 @@
+{
+  "id": "Dynamic/demo_soft_block/00000",
+  "name_en": "soft block",
+  "estimated_mass_g": 300,
+  "mass_policy": "estimate",
+  "deformable": {
+    "family": "volume",
+    "rest_state": "unloaded block",
+    "parameter_source": "synthetic candidate; not measured",
+    "geometry": {
+      "size_mm": [
+        160,
+        160,
+        160
+      ],
+      "cells": 6
+    },
+    "solver_parameters": {
+      "young_pa": 3000,
+      "poisson": 0.3
+    }
+  }
+}
