@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "pools": {
+    "floor": {
+      "carpet": [
+        "material_0004",
+        "material_0005",
+        "material_0007",
+        "material_0012",
+        "material_0014"
+      ],
+      "wood": [
+        "material_0112",
+        "material_0114",
+        "material_0117",
+        "material_0124",
+        "material_0125",
+        "material_0135",
+        "material_0555"
+      ],
+      "tile": [
+        "material_0075",
+        "material_0076",
+        "material_0085",
+        "material_0086",
+        "material_0091"
+      ],
+      "terrazzo": [
+        "material_0553"
+      ]
+    },
+    "wall": {
+      "paint": [
+        "material_0053",
+        "material_0055"
+      ],
+      "plaster": [
+        "material_0110"
+      ],
+      "wood_panel": [
+        "material_0070",
+        "material_0072",
+        "material_0128"
+      ],
+      "tile": [
+        "material_0089",
+        "material_0091"
+      ]
+    },
+    "tabletop": {
+      "wood": [
+        "material_0070",
+        "material_0072",
+        "material_0111",
+        "material_0113",
+        "material_0116",
+        "material_0118",
+        "material_0121",
+        "material_0123",
+        "material_0134"
+      ],
+      "paint": [
+        "material_0053",
+        "material_0055"
+      ],
+      "smooth_ceramic": [
+        "material_0088"
+      ],
+      "stone": [
+        "material_0079",
+        "material_0080",
+        "material_0084",
+        "material_0553"
+      ],
+      "stainless": [
+        "material_0473"
+      ]
+    }
+  },
+  "profiles": {
+    "office": {
+      "floor": [
+        "carpet",
+        "wood"
+      ],
+      "wall": [
+        "paint",
+        "plaster",
+        "wood_panel"
+      ],
+      "tabletop": [
+        "wood",
+        "paint"
+      ]
+    },
+    "counter": {
+      "floor": [
+        "tile",
+        "terrazzo",
+        "wood"
+      ],
+      "wall": [
+        "paint",
+        "plaster",
+        "tile",
+        "wood_panel"
+      ],
+      "tabletop": [
+        "stone",
+        "wood",
+        "smooth_ceramic"
+      ]
+    },
+    "lab": {
+      "floor": [
+        "tile",
+        "terrazzo"
+      ],
+      "wall": [
+        "paint",
+        "plaster",
+        "tile"
+      ],
+      "tabletop": [
+        "paint",
+        "stainless"
+      ]
+    }
+  },
+  "scenes": {
+    "real_scene1_office": "office",
+    "real_scene2_counter": "counter",
+    "real_scene3_lab": "lab",
+    "real_scene4_school": "lab",
+    "real_scene5_shenzhen_lab": "office"
+  }
+}

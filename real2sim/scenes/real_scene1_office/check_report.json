@@ -89,8 +89,7 @@
     "assets": [
      "cabinet_wood.png",
      "carpet_tile.png",
-     "leather.png",
-     "window_exterior.png"
+     "leather.png"
     ],
     "unresolved": []
    }
@@ -106,8 +105,8 @@
    "name": "mesh validity (finite points, triangle indices, normals count, no degenerate faces)",
    "ok": true,
    "detail": {
-    "meshes": 208,
-    "triangles": 57762,
+    "meshes": 200,
+    "triangles": 57686,
     "bad": []
    }
   },
@@ -130,8 +129,8 @@
    "name": "object blue_cup_a: rests on table top (no gap/penetration) and inside the top",
    "ok": true,
    "detail": {
-    "min_z": 0.68,
-    "table_top": 0.68
+    "min_z": 0.715,
+    "table_top": 0.715
    }
   },
   {
@@ -146,8 +145,8 @@
    "name": "object blue_cup_b: rests on table top (no gap/penetration) and inside the top",
    "ok": true,
    "detail": {
-    "min_z": 0.68,
-    "table_top": 0.68
+    "min_z": 0.715,
+    "table_top": 0.715
    }
   },
   {
@@ -162,8 +161,8 @@
    "name": "object paper_cup: rests on table top (no gap/penetration) and inside the top",
    "ok": true,
    "detail": {
-    "min_z": 0.68,
-    "table_top": 0.68
+    "min_z": 0.715,
+    "table_top": 0.715
    }
   },
   {
@@ -178,8 +177,8 @@
    "name": "object tissue_pack: rests on table top (no gap/penetration) and inside the top",
    "ok": true,
    "detail": {
-    "min_z": 0.68,
-    "table_top": 0.68
+    "min_z": 0.715,
+    "table_top": 0.715
    }
   },
   {
@@ -194,8 +193,8 @@
    "name": "object plush_toy: rests on table top (no gap/penetration) and inside the top",
    "ok": true,
    "detail": {
-    "min_z": 0.68,
-    "table_top": 0.68
+    "min_z": 0.715,
+    "table_top": 0.715
    }
   },
   {
@@ -217,7 +216,7 @@
    "ok": true,
    "detail": {
     "pairs": [],
-    "min_clearance_m": 0.055,
+    "min_clearance_m": 0.02,
     "nearest": [
      "/World/Table/Colliders/top",
      "/World/Background/Colliders/DeskEast_top"
@@ -249,12 +248,12 @@
    "name": "static clearance of an estimated robot standing zone (cylinder r=0.22 m at y=-0.61)",
    "ok": true,
    "detail": {
-    "min_clearance_m": 0.08,
+    "min_clearance_m": 0.095,
     "nearest": [
      "robot_zone",
      "/World/Table/Colliders/top"
     ],
-    "table_edge_to_zone_center_m": 0.3
+    "table_edge_to_zone_center_m": 0.315
    }
   },
   {
@@ -299,7 +298,7 @@
    "rigid_body": true,
    "mass_kg": 0.02199999988079071,
    "collider_parts": 13,
-   "min_z": 0.68,
+   "min_z": 0.715,
    "xy_min": [
     -0.014,
     -0.016
@@ -313,7 +312,7 @@
    "rigid_body": true,
    "mass_kg": 0.02199999988079071,
    "collider_parts": 13,
-   "min_z": 0.68,
+   "min_z": 0.715,
    "xy_min": [
     -0.202,
     -0.219
@@ -327,7 +326,7 @@
    "rigid_body": true,
    "mass_kg": 0.014000000432133675,
    "collider_parts": 13,
-   "min_z": 0.68,
+   "min_z": 0.715,
    "xy_min": [
     0.12,
     -0.213
@@ -341,7 +340,7 @@
    "rigid_body": true,
    "mass_kg": 0.09000000357627869,
    "collider_parts": 1,
-   "min_z": 0.68,
+   "min_z": 0.715,
    "xy_min": [
     -0.493,
     -0.175
@@ -355,7 +354,7 @@
    "rigid_body": true,
    "mass_kg": 0.03500000014901161,
    "collider_parts": 1,
-   "min_z": 0.68,
+   "min_z": 0.715,
    "xy_min": [
     -0.3,
     0.072

@@ -63,8 +63,15 @@ class DescManager:
             selected_template = np.random.choice(templates)
             to_replace_key_list = re.findall(r"<([^<>]+)>", selected_template)
             to_replace_template = selected_template.copy()
+            lang = "zh" if re.search(r"[\u4e00-\u9fff]", selected_template) else "en"
+            options = {
+                label: self.layout_manager.get_label_descriptions(label=label, env_idx=env_idx, lang=lang)
+                for label in to_replace_key_list
+            }
             for label in to_replace_key_list:
-                description = self.layout_manager.get_label_descriptions(label=label, env_idx=env_idx)
+                # two cups in one instruction share "cup": only the names that tell this one apart
+                others = {name for other, names in options.items() if other != label for name in names}
+                description = [name for name in options[label] if name not in others] or options[label]
                 if len(description) > 0:
                     selected_replace_description = np.random.choice(description)
                     to_replace_template = to_replace_template.replace(f"<{label}>", str(selected_replace_description))

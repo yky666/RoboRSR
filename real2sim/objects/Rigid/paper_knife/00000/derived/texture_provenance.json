@@ -1,0 +1,61 @@
+{
+  "photo": "real2sim/objects/Rigid/paper_knife/00000/reference/03fc5f3d5bd16f7edd80c9819179e94d.jpg",
+  "sha256": "da93366117f0f1268aeb29d5c741c037e06c383353a49b806d698a567d3ef21b",
+  "panel_quad_pixels": [
+    [
+      711.3600463867188,
+      1376.6400146484375
+    ],
+    [
+      2111.0400390625,
+      1402.56005859375
+    ],
+    [
+      2053.440185546875,
+      1560.9600830078125
+    ],
+    [
+      627.8400268554688,
+      1526.4000244140625
+    ]
+  ],
+  "texture_pixels": [
+    2048,
+    256
+  ],
+  "purpose": "photographed steel wear; separate faint pressed blade mark, no invented characters",
+  "stamp": {
+    "photo_quad_pixels": [
+      [
+        2321.280029296875,
+        1437.1201171875
+      ],
+      [
+        2448.0,
+        1440.0
+      ],
+      [
+        2442.239990234375,
+        1543.6800537109375
+      ],
+      [
+        2315.52001953125,
+        1540.800048828125
+      ]
+    ],
+    "mesh": "label_blade_stamp",
+    "coverage_mm_before_bbox_shift": [
+      92.9,
+      98.2,
+      -1.8,
+      1.8
+    ],
+    "texture_pixels": [
+      512,
+      384
+    ],
+    "substrate": "opaque metal engraving, not a paper sticker",
+    "source_legibility": "faint partial mark; preserved as photographed, not transcribed"
+  },
+  "unseen_surface": "back: missing photograph, plain PP assumption; no invented printing"
+}

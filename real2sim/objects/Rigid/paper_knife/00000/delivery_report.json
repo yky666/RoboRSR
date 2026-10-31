@@ -1,0 +1,414 @@
+{
+  "asset_id": "Rigid/paper_knife/00000",
+  "status": "research_asset_pending_review",
+  "registration_revision": "e249245a730f5980ca6d5b91285c3dad45f476e8a4ded6581e561aa9bbf0fdd4",
+  "measured_dimensions_mm": {
+    "长度": 152.88,
+    "最大宽度": 39.44,
+    "中间宽度": 32.83,
+    "厚度": 17.14
+  },
+  "measured_mass_g": 58.9,
+  "units": "m, kg, Z up, full-visible-bbox centre",
+  "native_validation": {
+    "passed": true,
+    "robot_grasp_validated": false,
+    "real_material_calibrated": false,
+    "project_factory": {
+      "source": "/root/RoboDojo/env/scene_manager/objects/rigid.py",
+      "rigid_source_sha256": "ed2add1ad9011811e588ec05dc9dfa8c2bf33b952a8265f1dac040194fb3207d",
+      "factory_source_sha256": "64f80069a41c52645ef8022a3ba17e4074e45aed7a083bd20f719008c18745da",
+      "note": "deployed project working tree; evidence hashes identify tested implementation"
+    },
+    "factory_load_and_drop": [
+      {
+        "id": "Rigid/paper_knife/00000",
+        "mass_kg": 0.058900002390146255,
+        "position_m": [
+          -3.9138831198215485e-06,
+          -2.405606210231781e-06,
+          0.008606662973761559
+        ],
+        "tilt_deg": 0.03902406879964636,
+        "speed_m_s": 0.00010580794332781807,
+        "height_error_m": 3.666297376155904e-05,
+        "wrapper": "RigidObject",
+        "passed": true
+      },
+      {
+        "id": "Rigid/paper_knife/00001",
+        "mass_kg": 0.058900002390146255,
+        "position_m": [
+          0.2799946963787079,
+          1.8756836652755737e-06,
+          0.008607642725110054
+        ],
+        "tilt_deg": 0.03789142216668048,
+        "speed_m_s": 0.00032398063922300935,
+        "height_error_m": 3.764272511005452e-05,
+        "wrapper": "RigidObject",
+        "passed": true
+      },
+      {
+        "id": "Rigid/paper_knife/00002",
+        "mass_kg": 0.058900002390146255,
+        "position_m": [
+          0.5599948167800903,
+          9.64384526014328e-07,
+          0.008607203140854836
+        ],
+        "tilt_deg": 0.037977131708595485,
+        "speed_m_s": 0.0004113639588467777,
+        "height_error_m": 3.720314085483602e-05,
+        "wrapper": "RigidObject",
+        "passed": true
+      },
+      {
+        "id": "Rigid/paper_knife/00003",
+        "mass_kg": 0.058900002390146255,
+        "position_m": [
+          0.8399949073791504,
+          1.957174390554428e-06,
+          0.008607814088463783
+        ],
+        "tilt_deg": 0.03801938512239676,
+        "speed_m_s": 0.00027245847741141915,
+        "height_error_m": 3.781408846378377e-05,
+        "wrapper": "RigidObject",
+        "passed": true
+      }
+    ],
+    "collision_channel": {
+      "probes": [
+        {
+          "kind": "hole",
+          "position_m": [
+            0.34455999732017517,
+            -0.014220000244677067,
+            0.04000456631183624
+          ],
+          "passed": true
+        },
+        {
+          "kind": "solid",
+          "position_m": [
+            0.2800000011920929,
+            6.00481664392305e-10,
+            0.10283001512289047
+          ],
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    "solid_blocking": {
+      "displacement_m": 0.04732079803943634,
+      "passed": true
+    },
+    "clamp_lift_release": {
+      "lift_m": 0.04994332790374756,
+      "slip_m": 5.667209625244418e-05,
+      "released_position_m": [
+        -0.0027102413587272167,
+        -0.010474338196218014,
+        0.008606796152889729
+      ],
+      "samples": [
+        {
+          "jaw_lift_m": 0.0,
+          "position_m": [
+            0.00017030583694577217,
+            -0.0020251628011465073,
+            0.008638372644782066
+          ]
+        },
+        {
+          "jaw_lift_m": 0.0025000000000000005,
+          "position_m": [
+            0.0001684180460870266,
+            -0.0020225616171956062,
+            0.011121978983283043
+          ]
+        },
+        {
+          "jaw_lift_m": 0.005000000000000001,
+          "position_m": [
+            0.00016842223703861237,
+            -0.0020225592888891697,
+            0.01362198032438755
+          ]
+        },
+        {
+          "jaw_lift_m": 0.007500000000000001,
+          "position_m": [
+            0.0001684236340224743,
+            -0.0020225578919053078,
+            0.01612197980284691
+          ]
+        },
+        {
+          "jaw_lift_m": 0.010000000000000002,
+          "position_m": [
+            0.00016842316836118698,
+            -0.0020225595217198133,
+            0.018621977418661118
+          ]
+        },
+        {
+          "jaw_lift_m": 0.0125,
+          "position_m": [
+            0.00016842270269989967,
+            -0.0020225585903972387,
+            0.021121976897120476
+          ]
+        },
+        {
+          "jaw_lift_m": 0.015000000000000001,
+          "position_m": [
+            0.0001684236340224743,
+            -0.002022559056058526,
+            0.023621978238224983
+          ]
+        },
+        {
+          "jaw_lift_m": 0.0175,
+          "position_m": [
+            0.00016842316836118698,
+            -0.0020225592888891697,
+            0.02612197771668434
+          ]
+        },
+        {
+          "jaw_lift_m": 0.020000000000000004,
+          "position_m": [
+            0.00016842316836118698,
+            -0.0020225588232278824,
+            0.0286219771951437
+          ]
+        },
+        {
+          "jaw_lift_m": 0.022500000000000003,
+          "position_m": [
+            0.00016842316836118698,
+            -0.0020225588232278824,
+            0.031121976673603058
+          ]
+        },
+        {
+          "jaw_lift_m": 0.025,
+          "position_m": [
+            0.00016842316836118698,
+            -0.0020225592888891697,
+            0.033621978014707565
+          ]
+        },
+        {
+          "jaw_lift_m": 0.027500000000000004,
+          "position_m": [
+            0.00016842177137732506,
+            -0.0020225592888891697,
+            0.03612197935581207
+          ]
+        },
+        {
+          "jaw_lift_m": 0.030000000000000002,
+          "position_m": [
+            0.00016842177137732506,
+            -0.0020225592888891697,
+            0.03862197697162628
+          ]
+        },
+        {
+          "jaw_lift_m": 0.0325,
+          "position_m": [
+            0.00016842270269989967,
+            -0.0020225588232278824,
+            0.04112197458744049
+          ]
+        },
+        {
+          "jaw_lift_m": 0.035,
+          "position_m": [
+            0.00016842316836118698,
+            -0.0020225602202117443,
+            0.043621975928545
+          ]
+        },
+        {
+          "jaw_lift_m": 0.0375,
+          "position_m": [
+            0.00016842223703861237,
+            -0.0020225588232278824,
+            0.046121977269649506
+          ]
+        },
+        {
+          "jaw_lift_m": 0.04000000000000001,
+          "position_m": [
+            0.0001684236340224743,
+            -0.0020225599873811007,
+            0.04862198233604431
+          ]
+        },
+        {
+          "jaw_lift_m": 0.0425,
+          "position_m": [
+            0.00016842316836118698,
+            -0.002022558357566595,
+            0.05112197622656822
+          ]
+        },
+        {
+          "jaw_lift_m": 0.045000000000000005,
+          "position_m": [
+            0.00016842316836118698,
+            -0.002022558357566595,
+            0.05362197756767273
+          ]
+        },
+        {
+          "jaw_lift_m": 0.0475,
+          "position_m": [
+            0.00016842223703861237,
+            -0.0020225588232278824,
+            0.05612197518348694
+          ]
+        },
+        {
+          "jaw_lift_m": 0.05,
+          "position_m": [
+            0.0001684236340224743,
+            -0.0020225588232278824,
+            0.058621976524591446
+          ]
+        }
+      ],
+      "passed": true,
+      "scope": "two prescribed kinematic jaws; no robot, measured force or real-friction claim"
+    },
+    "reset": {
+      "position_error_m": 2.913475044552527e-09,
+      "velocity": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "passed": true,
+      "resettled_z_m": 0.008606662973761559
+    },
+    "asset_file_sha256": {
+      "00000/object.usdz": "7631ee56711970bb465036c893dd347be52259893b1385327166d3b2c8e6770c",
+      "00000/metadata.json": "4ee2e9537e5c2468391d53cae877416cf31946aadb0ccf6150886bd5736fabb4",
+      "00000/description.json": "aaa0f88729a00354ae811a5d3a0818313154186fa9a6ae04a78ab824d56bfd52",
+      "00000/runtime_config.json": "972cd987330b53f11e1e8882ea5a2fa30cdf98ddb505145f991e17aeed9fa18f",
+      "00001/object.usdz": "634bd07d938b8ac48ea654a94b75a67de110e145fb3d795343b9e2322750d70e",
+      "00001/metadata.json": "5966850ea68a3515b9706da6651672406f8b118a1bd14a8d12619cd4a322592e",
+      "00001/description.json": "4dd7e3829c271458bc9d7ec5add36b053a927cee639931ec83340d5966d579da",
+      "00001/runtime_config.json": "972cd987330b53f11e1e8882ea5a2fa30cdf98ddb505145f991e17aeed9fa18f",
+      "00002/object.usdz": "7f86affab6cb926ad0d486bd8f44d6b1210161797793cf7ce153f324843cdfbf",
+      "00002/metadata.json": "009d5fb6326b8f3f94cba9fb95f69a67812175603dec85589bb47b78e50f21ed",
+      "00002/description.json": "f4ae6aa74c0ff709beb116d9a509f3423fd27ffdc17d30844e2df1bc55e0276f",
+      "00002/runtime_config.json": "972cd987330b53f11e1e8882ea5a2fa30cdf98ddb505145f991e17aeed9fa18f",
+      "00003/object.usdz": "32e391a38bfad27d319fe898500566fd64735ab3c9a4ca4de0eb95be58c6950b",
+      "00003/metadata.json": "b03b753b2cfdaf0809cc2921c932591eb60a51c1b082d09be47261cd2af38ea9",
+      "00003/description.json": "42c07777846f27ae6ec72836fb916e44731f9a26fdb15ab7bbfd531eeec1208f",
+      "00003/runtime_config.json": "972cd987330b53f11e1e8882ea5a2fa30cdf98ddb505145f991e17aeed9fa18f"
+    },
+    "backend": "SceneManager.instantiate_object_wrapper / PhysX CPU, 240 Hz",
+    "reference_camera_scope": "approximate same side/direction; no camera intrinsics or extrinsics supplied"
+  },
+  "shared_library_deployed": false,
+  "names": {
+    "Rigid/paper_knife/00000": {
+      "en": [
+        "knife",
+        "paper knife",
+        "plastic paper knife",
+        "plastic paper knife with metal guide",
+        "plastic paper knife with ribbed slider and yellow tail rim"
+      ],
+      "zh": [
+        "刀具",
+        "裁纸刀",
+        "塑料裁纸刀",
+        "带金属导轨的塑料裁纸刀",
+        "带条纹滑块和黄色挂孔边框的塑料裁纸刀"
+      ]
+    },
+    "Rigid/paper_knife/00001": {
+      "en": [
+        "knife",
+        "paper knife",
+        "plastic paper knife",
+        "plastic paper knife with metal guide",
+        "plastic paper knife with ribbed slider and ivory tail rim"
+      ],
+      "zh": [
+        "刀具",
+        "裁纸刀",
+        "塑料裁纸刀",
+        "带金属导轨的塑料裁纸刀",
+        "带条纹滑块和象牙色挂孔边框的塑料裁纸刀"
+      ]
+    },
+    "Rigid/paper_knife/00002": {
+      "en": [
+        "knife",
+        "paper knife",
+        "plastic paper knife",
+        "plastic paper knife with metal guide",
+        "plastic paper knife with ribbed slider and orange tail rim"
+      ],
+      "zh": [
+        "刀具",
+        "裁纸刀",
+        "塑料裁纸刀",
+        "带金属导轨的塑料裁纸刀",
+        "带条纹滑块和橙色挂孔边框的塑料裁纸刀"
+      ]
+    },
+    "Rigid/paper_knife/00003": {
+      "en": [
+        "knife",
+        "paper knife",
+        "plastic paper knife",
+        "plastic paper knife with metal guide",
+        "plastic paper knife with ribbed slider and light gray tail rim"
+      ],
+      "zh": [
+        "刀具",
+        "裁纸刀",
+        "塑料裁纸刀",
+        "带金属导轨的塑料裁纸刀",
+        "带条纹滑块和浅灰色挂孔边框的塑料裁纸刀"
+      ]
+    }
+  },
+  "missing_evidence": [
+    "back-face photo",
+    "bottom-face photo",
+    "real friction/material calibration",
+    "robot grasp scene"
+  ],
+  "retained_failures": {
+    "validation01.log": "first launch EULA prompt blocked noninteractive startup",
+    "validation02/report.json": "invalid runtime_config top-level keys; fixed to physics/visual only",
+    "validation03/report.json": "test velocity setter used numpy with torch backend; corrected",
+    "static_checks.log": "LFS pointers instead of frozen mesh bytes; materialized LFS then passed"
+  },
+  "checks": {
+    "native_factory": true,
+    "settle_four": true,
+    "solid_blocking": true,
+    "tail_channel": true,
+    "clamp_proxy": true,
+    "reset": true,
+    "names": true,
+    "repository": "91 passed, 1 skipped, 82 subtests passed; scripts/check.sh exit 0"
+  }
+}

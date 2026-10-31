@@ -22,6 +22,8 @@ description: 给真实工位建或更新 RoboDojo 数字孪生场景：现场拍
 
 新场景先在数采平台「场景重建 → 登记场景」登记，三步：① 名称、目录名（`real_scene<N>_<后缀>`，N 自动取下一个）、类型、地点、用途（孪生 / 训练泛化 / 保留（场景视觉 L3）），至少 5 张不同角度的照片；② 卷尺实测桌面离地高、长、宽（必填，cm），可选桌面厚度、机器人站位（桌沿到根节点、横向偏移、偏角、升降柱读数）、ChArUco 标定板（格子实测边长、板角到桌左沿和前沿的距离）、桌子支撑和桌面外观；③ 周围环境（地面、墙面、后沿到墙、要建模的固定物）、灯光（光源、色温、照度、自然光）、是否已拍机器人相机画面、计划任务、建模要求。
 
+第一步还可以选传网格文件：手机 / LiDAR 扫描（Polycam、Scaniverse、RealityScan、RoomPlan）、摄影测量或 CAD 导出，格式 glb、usdz / usd / usdc / usda、obj、fbx、ply、stl、e57，gltf 和带贴图的 obj 打成 zip，单个 ≤ 2 GB，放在同目录的 `mesh/`（太大，不进仓库）。
+
 登记写到 `real2sim/scenes/<场景>/registration.json`，照片在同目录的 `reference/`。卷尺值已换成米，按 `scene_spec.json` 的 `measurements` 格式写好，建模时原样抄进 `scene_spec.json`。场景抽屉里会生成给 coding agent 的「建模任务」文本；抽屉里改登记字段会重写 `registration.json`。
 
 ## 现场采集规范
@@ -43,8 +45,11 @@ description: 给真实工位建或更新 RoboDojo 数字孪生场景：现场拍
 - 有标定板时，把 `cameras.json` 里的相机位姿和焦距作为强先验（sigma 取小值）喂给 `fit_photo.py`；只有一个尺寸先验时，要在 `scale_basis` 里写明。
 - 量到实测值之后：整体比例不对，用 `build_scene.py --scale-correction` 缩放；单个尺寸不对，就在 `fit_photo.py` 里把对应先验固定成实测值，重新拟合。改完重跑 `check_scene.py` 和 `preview.py`。
 - 墙面不要贴照片：用纯色饰面（颜色取照片中值），门、白板、玻璃隔断这类东西建成几何体，并把墙面网格带上米制 UV，方便平台换材质。房间家具（墙前的桌椅柜）建成参数化几何，放在 Background 层的 `Furniture/` 下（平台渲染取景和「隐藏房间」都按这个约定）。房间里停着的机器人不用另外建模，直接把我们的 URDF 按照片里的姿态烘焙成静态层引用进来。写法见 `real_scene3_lab/build_scene.py` 的 `WALL_SPANS`、`FURNITURE` 和 `G1D`。
+- 有 `mesh/` 网格时把它当几何先验，不当资产：先核对单位、上方向（Y-up 转 Z-up）和比例，和卷尺差超过 2 cm 先找原因，不要整体缩放凑数，冲突时以卷尺为准；桌面平面、桌沿、桌腿 / 柜体、墙地面和固定物的位置尺寸从网格上量，再和照片拟合互相校验。扫描有孔洞、噪声和烘焙光照，桌面、墙、地面拟合成参数化几何，复杂固定物裁出来减面做视觉网格，碰撞体另做。`PLAN.md` 记下用的文件、sha256 和对齐变换。
 - 碰撞体：每个凸包最多 64 个顶点、单个面最多 32 个顶点，否则不能和颗粒碰撞（吧台场景就有 6–7 个超限，豆子会穿过去）。
 - 灯光放在 Room 里。房间要有天花板，否则 RoboDojo 默认的棕色 HDR 会从上方漏进来，画面偏黄；Isaac 相机没有白平衡，色温要按照片调。
+- 对色：`preview.py` 会写 `preview/photo_cameras.json`（每张照片的拟合相机）；在 GPU 服务器上跑 `render_scenes.py real2sim/scenes/<场景> --photos --device cuda:<卡>`，每张照片得到一张「照片 | RTX」对比图 `preview/render/sim_photo_<照片>.jpg`（只有 SfM 相机 `reference/cameras_scene.json` 的办公室直接读它）。逐张算整幅 CIELAB 中位数，再对所有照片取平均，目标是 |ΔL\*| ≤ 5、|Δb\*| ≤ 3；结果记进 `scene_spec.json` 的 `lighting.photo_match`。手机有自动曝光和白平衡，这个数只能作参考，现场测光记录和机器人头部画面仍然是准绳。窗洞里看到的天空就是穹顶光，把它压暗，窗外会变成褐色。
+- 没有机器人相机画面时，可以先做照片叠图：用拟合好的照片相机投影桌角和桌沿，结果记进 `scene_spec.json` 的 `photo_overlay`，不要写进 `overlay`（`acceptance.py` 把 `overlay` 当成机器人相机叠图）。如果相机就是用同一批标注拟合出来的，误差是样本内的，要注明。
 
 ## 叠图检查
 
@@ -59,15 +64,15 @@ python scripts/scenes/overlay.py --env-cfg <配置> --labels view1.json --image 
 
 1. 在 `build_asset.py` 的 `SCENES` 里加一行（场景目录、Room 名、Room 位置、物体平移），新增 `env_cfg/g1d_<场景>.yml` 和 `env_cfg/robot/g1d_<场景>.yml`。桌子比办公室的高多少，升降柱就抬高多少，物体跟着平移，这样机器人的可达范围在各场景里保持一致。
 2. 在 GPU 服务器的隔离目录里跑 `build_asset.py`，再跑一次 `scripted_demo`，检查四路相机画面。装进共享资产库要按 README 的五步流程走，先征得同意。注意：`build_asset.py` 会先删掉旧布局；如果共享库里缺任务要用的物体，它会中途退出，留下一个空的布局目录（10-16 出过这个事故）。
-3. 平台的卡片封面和 3D 预览（都在 `preview/`，不入库，同步到部署机的同一路径；重建场景后重跑）：
+3. 平台的卡片封面和 3D 预览（都在 `preview/`，不入库；在 `5090-2` 上用 `r2s publish <运行目录>/real2sim/scenes/<场景>/preview real2sim/scenes/<场景>/preview` 发布到平台；重建场景后重跑）：
    - `uv run --no-project --with usd-core --with numpy python scripts/scenes/export_glb.py real2sim/scenes/<场景>`：本机就能跑，把 `usd/scene.usda` 转成 `preview/scene.glb`，抽屉里可拖拽旋转。墙和天花板是单面朝内的，从房间外看会自动剖开；背景物体要放在 `/World/Background` 下，平台据此取景和「隐藏房间」。
    - `OMNI_KIT_ACCEPT_EULA=YES python scripts/scenes/render_scenes.py real2sim/scenes/<场景> --device cuda:<卡>`：GPU 服务器上用场景自带灯光的 RTX 渲染，写 `preview/render/sim.jpg`，平台优先用它当卡片封面。
-4. 跑 `uv run --no-project --python 3.11 --with usd-core python scripts/scenes/scene_parts.py real2sim/scenes/<场景>`，写 `usd/parts.json`（地板、墙面、桌面的网格和材质，升降桌哪些网格上移、哪些拉伸），看一眼输出的计数和列表对不对；新场景的材质要进材质库时，在 GPU 服务器的带 `Assets/` 的目录里跑 `scene_parts.py --library --assets Assets real2sim/scenes/real_scene*`，提交 `real2sim/materials/library.json`，`preview/` 同步到部署机。
+4. 跑 `uv run --no-project --python 3.11 --with usd-core python scripts/scenes/scene_parts.py real2sim/scenes/<场景>`，写 `usd/parts.json`（地板、墙面、桌面的网格和材质，升降桌哪些网格上移、哪些拉伸），看一眼输出的计数和列表对不对；新场景的材质要进材质库时，在 GPU 服务器的带 `Assets/` 的目录里跑 `scene_parts.py --library --assets Assets real2sim/scenes/real_scene*`，提交 `real2sim/materials/library.json`（部署后自动进平台），`preview/` 用 `r2s publish` 发布到平台。
 5. 更新 `real2sim/ASSETS.md` 的场景行、`scene_spec.json`、`PLAN.md` 和 `HANDOFF.md`，一起提交。
 
 ## 换材质和升降桌
 
-- 场景抽屉的「外观与桌高」里给地板、墙面、桌面选固定替换材质和数据生成用的随机池，设固定桌高和随机桌高范围，保存为 `appearance.json`。材质库（`real2sim/materials/library.json`）= 各场景提取的材质 + 资产库 `Material/` 的 504 个 MDL，按表面过滤（`scripts/scenes/appearance.py` 的 `ROLE_CATEGORIES`：墙面没有金属，地板没有涂料，场景提取的材质只用于原表面）；MDL 按世界坐标投影（每 1 m 重复），场景贴图按原贴图的真实重复尺寸换算 UV。
+- 场景抽屉的「外观与桌高」里给地板、墙面、桌面选固定替换材质和数据生成用的随机池，设固定桌高和随机桌高范围，保存为 `appearance.json`。材质库（`real2sim/materials/library.json`）= 各场景提取的材质 + 资产库 `Material/` 的 504 个 MDL，按 `real2sim/materials/surface_pools.json` 的材质 ID 白名单及场景 profile 过滤（办公室、吧台、实验室分别限制地板/墙面/桌面；场景提取材质仅用于本场景原表面）；MDL 按世界坐标投影（每 1 m 重复），场景贴图按原贴图的真实重复尺寸换算 UV。
 - 生效方式：生成布局时写进每个布局的 Room（`appearance`、`table_lift`、`appearance_choice`、新的 `table_height`），物体跟着桌面平移；仿真加载 Room 后照布局换绑材质、移动和拉伸桌子网格（`env/scene_manager/objects/room_overrides.py`），不改 Room 资产。`build_asset.py` 重新生成评测布局时自动用固定设置；采集布局生成后跑 `python scripts/scenes/appearance.py real2sim/scenes/<场景> <布局目录> [--randomize --seed N]`。
 - 机器人站位和升降柱不随桌高变（用户 10-22 决定）：桌子变高变低就是不同的够取高度，脚本专家按原桌高调的，换高度后成功率会变。升降行程按常见双电机升降桌取 0.62–1.27 m；吧台（`real_scene2_counter`）是落地柜，不升降，只能换材质。
 - 贴图材质换到没有 UV 的网格上（办公室桌面）只会显示一种颜色，这种网格选 MDL。

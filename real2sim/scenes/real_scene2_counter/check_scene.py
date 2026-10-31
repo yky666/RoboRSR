@@ -16,8 +16,9 @@ HERE = Path(__file__).resolve().parent
 USD = HERE / "usd"
 # G1-D footprint assumed as in real_scene1_office/check_scene.py (stand cylinder r = 0.22 m around the root, x = 0).
 ROBOT_STAND_R = 0.22
-# RoboDojo G1-D stance: root at y = -0.73 with the stock table edge at y = -0.60 (env_cfg/robot/g1d.yml).
-G1D_ROOT_Y, STOCK_EDGE_Y = -0.73, -0.60
+# G1-D stance at the counter: root at y = -0.80 (env_cfg/robot/g1d_counter.yml), 7 cm behind the stock -0.73 because
+# the floor cabinet stops the chassis; the Room sits at y = -0.32 (scripts/g1d/build_asset.py SCENES).
+G1D_ROOT_Y, ROOM_Y = -0.80, -0.32
 
 
 def bounds(prim, cache):
@@ -121,17 +122,16 @@ def main():
         dict(cabinet_front_y=round(float(front), 4), counter_front_y=params["table"]["front_y"]),
     )
     # The G1-D chassis extends under the stock (legless) table; here the cabinets reach the floor.
-    offset = STOCK_EDGE_Y - params["table"]["front_y"]
-    root_min = front + offset - ROBOT_STAND_R
+    root_min = front + ROOM_Y - ROBOT_STAND_R
     add(
-        "G1-D stock stance clears the cabinets (else move the robot back)",
-        G1D_ROOT_Y <= root_min,
+        "G1-D counter stance clears the cabinets (else move the robot back)",
+        G1D_ROOT_Y <= root_min + 1e-6,
         dict(
-            room_offset_y=round(offset, 3),
-            cabinet_front_in_robodojo=round(float(front + offset), 3),
-            stock_root_y=G1D_ROOT_Y,
+            room_offset_y=ROOM_Y,
+            cabinet_front_in_robodojo=round(float(front + ROOM_Y), 3),
+            root_y=G1D_ROOT_Y,
             max_root_y=round(float(root_min), 3),
-            counter_edge_to_root=round(float(STOCK_EDGE_Y - min(G1D_ROOT_Y, root_min)), 3),
+            counter_edge_to_root=round(float(params["table"]["front_y"] + ROOM_Y - G1D_ROOT_Y), 3),
         ),
     )
 

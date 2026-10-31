@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "real_material_calibrated": false,
+  "robot_grasp_validated": false,
+  "initial_nodal_bounds_m": [
+    [
+      [
+        -0.09500321000814438,
+        -0.048034925013780594,
+        0.07930103689432144
+      ]
+    ],
+    [
+      [
+        0.09519001096487045,
+        0.048186421394348145,
+        0.11420426517724991
+      ]
+    ]
+  ],
+  "replay_only": true,
+  "object_sha256": "987304b2584900c2e755866f2d5663abfdf3c97c33cefa028d15e681d9038b8e",
+  "initial_position_error_m": 0.0,
+  "initial_velocities_m_s": [
+    0.0,
+    0.0
+  ],
+  "replay_max_vertex_error_m": 2.3044636691338383e-05,
+  "minimum_element_jacobian": 0.7781299948692322,
+  "visual_callback_cleaned": true
+}

@@ -26,7 +26,7 @@ cp sim_scene/isaac/real_scene1_scene_cfg.py unitree_sim_isaaclab/tasks/common_sc
 
 | 文件 / 根 prim | 内容 | 物理 |
 | --- | --- | --- |
-| `background.usda` `/Background` | Floor（地毯纹理）、WallN/E/S/W、NECornerBlock、Exterior（窗外背景板）、Sofa、Plant、DeskEast/DeskWest/DeskWest2、Chair_*、Cabinets、Bench、TV | `/Background/Colliders/*`：guide purpose 的静态碰撞体，用盒体或凸包近似 |
+| `background.usda` `/Background` | Floor（地毯纹理）、WallN/E/S/W、NECornerBlock、Sofa、Plant、DeskEast/DeskWest、Chair_*、Cabinets、Bench、TV | `/Background/Colliders/*`：guide purpose 的静态碰撞体，用盒体或凸包近似 |
 | `table.usda` `/Table` | Top（圆角桌面）、Frame（升降腿） | `/Table/Colliders/*`：静态碰撞体 |
 | `objects/<name>.usda` `/<name>` | Visual/*（渲染用） | 根 prim 带 RigidBodyAPI 和 MassAPI；碰撞体在 Collision/*；摩擦系数用 physics purpose 绑定的材质给出 |
 | `lights.usda` `/Lights` | Sun、WindowFillNorth、WindowFillEast、CeilingPanel_0/1、AmbientDome | — |
@@ -45,8 +45,7 @@ cp sim_scene/isaac/real_scene1_scene_cfg.py unitree_sim_isaaclab/tasks/common_sc
 6. **固定曝光、色彩和采样**：关闭自动曝光，固定 tonemapper、曝光值和每像素采样数。灯光强度（太阳 3000、北窗补光 400、东窗补光 250、Dome 150）都是**未标定的起始值**。
 7. **单帧对比**：先用目标机器人相机渲染一帧，和真实照片对比（`reference/` 下有去畸变后的原始帧），确认轮廓、接触阴影、阳光投影方向和长度、暗部亮度都合理之后，再做批量采集或光照随机化。
    - 太阳方向：方位角 103°、仰角 41°，由杯子的投影测得。
-   - 窗外背景板设置了 `primvars:doNotCastShadows = true`，不会挡住阳光；请在 RTX 中确认这个属性生效。
-8. **窗户没有玻璃**：窗洞是空的，阳光直接射入；需要玻璃反射时再另外添加。
+8. **窗户没有玻璃，也没有窗外背景**：窗洞是空的，阳光直接射入，窗外只有 `AmbientDome` 的颜色；需要玻璃反射时再另外添加。
 
 ## 5. 物理接入要点
 

@@ -153,6 +153,12 @@ def render(scene, eye, target, hfov_deg, size=(800, 600), bg=(0.0, 0.0, 0.0), R=
     return (np.clip(img, 0, 1) * 255).astype(np.uint8)
 
 
+def photo_camera(name, eye, R, hfov_deg, size):
+    """A photo's camera for scripts/scenes/render_scenes.py --photos."""
+    return dict(image=f"reference/{name}", eye=[float(v) for v in eye], R=np.asarray(R).tolist(),
+                hfov_deg=float(hfov_deg), size=list(size))
+
+
 def main():
     (HERE / "preview").mkdir(exist_ok=True)
     scene = load_scene()
@@ -161,11 +167,12 @@ def main():
         (0, 0, 255): [o for o in scene if o["path"].startswith("/World/Table/")],
         (0, 255, 0): [o for o in scene if o["path"].startswith("/World/Background/Furniture/")],
     }
-    rows = []
+    rows, cams = [], {}
     for name in ("p1.jpg", "p2.jpg", "p3.jpg", "p4.jpg"):
         cam = fit[name]
         R = cv2.Rodrigues(np.array(cam["rvec"]))[0]
         eye = -R.T @ np.array(cam["tvec"])
+        cams[name] = photo_camera(name, eye, R, fit["hfov_deg"], (1024, 768))
         view = render(scene, eye=eye, target=None, hfov_deg=fit["hfov_deg"], size=(1024, 768), R=R)
         photo = cv2.imread(str(HERE / "reference" / name))
         view = cv2.cvtColor(view, cv2.COLOR_RGB2BGR)
@@ -180,6 +187,7 @@ def main():
         cv2.resize(sheet, None, fx=0.5, fy=0.5),
         [cv2.IMWRITE_JPEG_QUALITY, 85],
     )
+    (HERE / "preview" / "photo_cameras.json").write_text(json.dumps(cams, indent=1))
     # Estimated G1-D head camera: root 0.13 m behind the table edge, head ~0.15 m ahead of the root, ~1.25 m high,
     # pitched 47.6 deg down (scripts/g1d/left_robot_config.yml), wide-angle ~96 deg h-FOV as in the sim config.
     front = json.loads((USD / "build_params.json").read_text())["table"]["front_y"]
